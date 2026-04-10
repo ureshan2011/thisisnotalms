@@ -101,8 +101,12 @@ const SPECIAL_NEEDS_OPTIONS = [
   'Other — see notes',
 ];
 
+const CAMPUSES = ['Auckland', 'Christchurch'] as const;
+const AUCKLAND_SECTIONS = ['Section A', 'Section B', 'Section C'] as const;
+const CHRISTCHURCH_DEFAULT_SECTION = 'Section Default (No Section)';
+
 const blank: Omit<StudentProfile, 'uid' | 'createdAt' | 'updatedAt'> = {
-  fullName: '', studentId: '', email: '', course: '',
+  fullName: '', studentId: '', email: '', campus: '', section: '', course: '',
   homeCountry: '', hometown: '', hometownLat: null, hometownLng: null,
   workExperience: '', workIndustry: '', educationalBackground: '',
   specialNeeds: '',
@@ -127,6 +131,8 @@ export default function StudentProfilePage() {
           fullName: d.fullName || '',
           studentId: d.studentId || '',
           email: d.email || user.email || '',
+          campus: (d.campus as StudentProfile['campus']) || '',
+          section: d.section || '',
           course: d.course || '',
           homeCountry: d.homeCountry || '',
           hometown: d.hometown || '',
@@ -160,6 +166,22 @@ export default function StudentProfilePage() {
     }
     if (!/^\d{8}$/.test(normalizedStudentId)) {
       setError('Student ID must be numeric and exactly 8 digits (e.g. 27091691).');
+      return;
+    }
+    if (!form.campus) {
+      setError('Please select your campus.');
+      return;
+    }
+    if (!form.section) {
+      setError('Please select your section.');
+      return;
+    }
+    if (form.campus === 'Auckland' && !AUCKLAND_SECTIONS.includes(form.section as typeof AUCKLAND_SECTIONS[number])) {
+      setError('For Auckland campus, please choose Section A, Section B, or Section C.');
+      return;
+    }
+    if (form.campus === 'Christchurch' && form.section !== CHRISTCHURCH_DEFAULT_SECTION) {
+      setError('For Christchurch campus, section must be set to Section Default (No Section).');
       return;
     }
 
@@ -263,6 +285,46 @@ export default function StudentProfilePage() {
               Pin set at {form.hometownLat.toFixed(4)}, {form.hometownLng.toFixed(4)}
             </p>
           )}
+        </Section>
+
+        {/* Course */}
+        <Section icon={<Globe size={16} />} title="Campus and section">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Select Your Campus" required>
+              <select
+                className="input-field"
+                value={form.campus}
+                onChange={e => {
+                  const selectedCampus = e.target.value as StudentProfile['campus'];
+                  const section = selectedCampus === 'Auckland'
+                    ? ''
+                    : selectedCampus === 'Christchurch'
+                      ? CHRISTCHURCH_DEFAULT_SECTION
+                      : '';
+                  setForm(f => ({ ...f, campus: selectedCampus, section }));
+                }}
+                required
+              >
+                <option value="">Select campus…</option>
+                {CAMPUSES.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </Field>
+            <Field label="Select your Section" required>
+              <select
+                className="input-field"
+                value={form.section}
+                onChange={set('section')}
+                required
+                disabled={!form.campus}
+              >
+                <option value="">{form.campus ? 'Select section…' : 'Select campus first…'}</option>
+                {form.campus === 'Auckland' && AUCKLAND_SECTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+                {form.campus === 'Christchurch' && (
+                  <option value={CHRISTCHURCH_DEFAULT_SECTION}>{CHRISTCHURCH_DEFAULT_SECTION}</option>
+                )}
+              </select>
+            </Field>
+          </div>
         </Section>
 
         {/* Course */}

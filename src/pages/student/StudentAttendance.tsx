@@ -78,6 +78,11 @@ export default function StudentAttendance() {
       setStatus('error');
       return;
     }
+    if (!profile.campus || !profile.section) {
+      setMessage('Please complete mandatory profile fields (Campus and Section) before submitting attendance.');
+      setStatus('error');
+      return;
+    }
     setStatus('submitting');
     setMessage('');
 
@@ -111,6 +116,8 @@ export default function StudentAttendance() {
         studentUid:      user.uid,
         studentName:     profile.fullName,
         studentDisplayId: profile.studentId,
+        studentCampus:   profile.campus,
+        studentSection:  profile.section,
         checkpointId:    item.checkpoint.id,
         checkpointLabel: item.checkpoint.label,
         submittedAt:     serverTimestamp(),

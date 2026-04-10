@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, GraduationCap, LogIn } from 'lucide-react';
+import { Eye, EyeOff, LogIn } from 'lucide-react';
+import BrandMark from '../../components/ui/BrandMark';
 import { useAuth } from '../../contexts/AuthContext';
 
 export default function Login() {
@@ -38,8 +39,8 @@ export default function Login() {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-3">
-            <div className="bg-brand-500 rounded-2xl p-3">
-              <GraduationCap size={28} className="text-white" />
+            <div className="rounded-2xl">
+              <BrandMark className="h-14 w-14" />
             </div>
             <span className="text-white font-bold text-2xl tracking-tight">YooBees</span>
           </div>

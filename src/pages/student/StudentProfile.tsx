@@ -192,22 +192,26 @@ export default function StudentProfilePage() {
     setCountryLookupLoading(true);
 
     try {
-      const country = await detectCountryFromPin(lat, lng);
-      if (requestId !== latestLookupRequestId.current) return;
-      setForm(f => ({ ...f, homeCountry: country, hometown: country }));
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=3&addressdetails=1&accept-language=en`,
+      );
+      if (!response.ok) {
+        throw new Error('Unable to reverse geocode location.');
+      }
+
+      const data = await response.json() as { address?: { country?: string } };
+      const country = data.address?.country?.trim() || '';
+      setForm(f => ({ ...f, homeCountry: country }));
       if (!country) {
         setCountryLookupError('Pin placed, but country could not be detected. Try another nearby point.');
       }
     } catch {
-      if (requestId !== latestLookupRequestId.current) return;
       setCountryLookupError('Pin placed, but country lookup failed. Please try again.');
       setForm(f => ({ ...f, homeCountry: '' }));
     } finally {
-      if (requestId === latestLookupRequestId.current) {
-        setCountryLookupLoading(false);
-      }
+      setCountryLookupLoading(false);
     }
-  }, [detectCountryFromPin]);
+  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();

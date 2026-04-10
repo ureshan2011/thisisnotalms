@@ -300,7 +300,7 @@ export default function StudentProfilePage() {
           <Field label="Select Your Previous Bachelors/Diploma Qualification Field" required>
             <select className="input-field" value={form.educationalBackground} onChange={set('educationalBackground')} required>
               <option value="">Select…</option>
-              {EDU_BG.map(e => <option key={e} value={e}>{e}</option>)}
+              {PREVIOUS_QUALIFICATION_OPTIONS.map(e => <option key={e} value={e}>{e}</option>)}
             </select>
           </Field>
         </Section>

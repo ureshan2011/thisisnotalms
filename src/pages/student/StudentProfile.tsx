@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { collection, doc, getDoc, getDocs, limit, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { MapPin, Save, User, BookOpen, Globe, Briefcase, GraduationCap, Heart } from 'lucide-react';
 import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
@@ -15,18 +15,6 @@ const COURSES = [
   'Master of Business Informatics - Business Analytics',
   'Master of Business Informatics - Healthcare Informatics',
 ];
-
-const COUNTRIES = [
-  'Afghanistan','Albania','Algeria','Argentina','Australia','Austria','Bangladesh',
-  'Belgium','Brazil','Canada','Chile','China','Colombia','Croatia','Czech Republic',
-  'Denmark','Egypt','Ethiopia','Finland','France','Germany','Ghana','Greece','Hungary',
-  'India','Indonesia','Iran','Iraq','Ireland','Italy','Japan','Jordan','Kenya',
-  'Malaysia','Mexico','Morocco','Netherlands','New Zealand','Nigeria','Norway',
-  'Pakistan','Philippines','Poland','Portugal','Romania','Russia','Saudi Arabia',
-  'Singapore','South Africa','South Korea','Spain','Sri Lanka','Sweden','Switzerland',
-  'Thailand','Turkey','Ukraine','United Arab Emirates','United Kingdom','United States',
-  'Vietnam','Other',
-].sort();
 
 const WORK_EXP = [
   'No work experience',
@@ -120,6 +108,9 @@ export default function StudentProfilePage() {
   const [saving,  setSaving]  = useState(false);
   const [saved,   setSaved]   = useState(false);
   const [error,   setError]   = useState('');
+  const [countryLookupLoading, setCountryLookupLoading] = useState(false);
+  const [countryLookupError, setCountryLookupError] = useState('');
+  const latestLookupRequestId = useRef(0);
 
   useEffect(() => {
     if (!user) return;
@@ -154,6 +145,70 @@ export default function StudentProfilePage() {
   const set = (key: keyof typeof blank) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm(f => ({ ...f, [key]: e.target.value }));
 
+  const detectCountryFromPin = useCallback(async (lat: number, lng: number): Promise<string> => {
+    const nominatimUrl =
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1&accept-language=en`;
+
+    try {
+      const response = await fetch(nominatimUrl);
+      if (response.ok) {
+        const data = await response.json() as {
+          address?: { country?: string; country_code?: string };
+        };
+
+        const explicitCountry = data.address?.country?.trim();
+        if (explicitCountry) return explicitCountry;
+
+        const countryCode = data.address?.country_code?.trim();
+        if (countryCode) {
+          try {
+            const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+            const countryFromCode = displayNames.of(countryCode.toUpperCase())?.trim();
+            if (countryFromCode) return countryFromCode;
+          } catch {
+            // ignore locale/display-name failures and continue to fallback provider
+          }
+        }
+      }
+    } catch {
+      // continue to fallback provider
+    }
+
+    const fallbackUrl =
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`;
+    const fallbackResponse = await fetch(fallbackUrl);
+    if (!fallbackResponse.ok) {
+      throw new Error('Fallback reverse geocode provider failed.');
+    }
+
+    const fallbackData = await fallbackResponse.json() as { countryName?: string };
+    return fallbackData.countryName?.trim() || '';
+  }, []);
+
+  const updatePinAndCountry = useCallback(async (lat: number, lng: number) => {
+    setForm(f => ({ ...f, hometownLat: lat, hometownLng: lng }));
+    const requestId = ++latestLookupRequestId.current;
+    setCountryLookupError('');
+    setCountryLookupLoading(true);
+
+    try {
+      const country = await detectCountryFromPin(lat, lng);
+      if (requestId !== latestLookupRequestId.current) return;
+      setForm(f => ({ ...f, homeCountry: country, hometown: country }));
+      if (!country) {
+        setCountryLookupError('Pin placed, but country could not be detected. Try another nearby point.');
+      }
+    } catch {
+      if (requestId !== latestLookupRequestId.current) return;
+      setCountryLookupError('Pin placed, but country lookup failed. Please try again.');
+      setForm(f => ({ ...f, homeCountry: '' }));
+    } finally {
+      if (requestId === latestLookupRequestId.current) {
+        setCountryLookupLoading(false);
+      }
+    }
+  }, [detectCountryFromPin]);
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -182,6 +237,14 @@ export default function StudentProfilePage() {
     }
     if (form.campus === 'Christchurch' && form.section !== CHRISTCHURCH_DEFAULT_SECTION) {
       setError('For Christchurch campus, section must be set to Section Default (No Section).');
+      return;
+    }
+    if (form.hometownLat === null || form.hometownLng === null) {
+      setError('Please drop a hometown pin on the map.');
+      return;
+    }
+    if (!form.homeCountry) {
+      setError('Please place your pin again so we can detect your home country.');
       return;
     }
 
@@ -250,11 +313,14 @@ export default function StudentProfilePage() {
             <Field label="Email address" required>
               <input className="input-field" type="email" value={form.email} onChange={set('email')} required placeholder="you@yoobeestudent.ac.nz" />
             </Field>
-            <Field label="Home country" required>
-              <select className="input-field" value={form.homeCountry} onChange={set('homeCountry')} required>
-                <option value="">Select country…</option>
-                {COUNTRIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
+            <Field label="Home country (auto from map pin)" required>
+              <input
+                className="input-field bg-slate-50"
+                value={form.homeCountry || (countryLookupLoading ? 'Detecting country…' : '')}
+                readOnly
+                required
+                placeholder="Set a hometown pin to detect country"
+              />
             </Field>
           </div>
         </Section>
@@ -264,26 +330,19 @@ export default function StudentProfilePage() {
           <p className="text-xs text-slate-500 mb-3">
             Drop a pin on your hometown for a more accurate location than country only.
           </p>
-          <Field label="Hometown (city / town)" required>
-            <input
-              className="input-field"
-              value={form.hometown}
-              onChange={set('hometown')}
-              required
-              placeholder="e.g. Manchester, UK"
-            />
-          </Field>
           <WorldMapPicker
             lat={form.hometownLat}
             lng={form.hometownLng}
-            onPick={(lat, lng) => setForm(f => ({ ...f, hometownLat: lat, hometownLng: lng }))}
+            onPick={updatePinAndCountry}
           />
           {form.hometownLat === null || form.hometownLng === null ? (
             <p className="text-xs text-amber-600 mt-2">Please click on the map to set your hometown pin.</p>
           ) : (
-            <p className="text-xs text-slate-500 mt-2">
-              Pin set at {form.hometownLat.toFixed(4)}, {form.hometownLng.toFixed(4)}
-            </p>
+            <div className="text-xs mt-2 space-y-1">
+              <p className="text-slate-500">Pin set at {form.hometownLat.toFixed(4)}, {form.hometownLng.toFixed(4)}</p>
+              {countryLookupLoading && <p className="text-slate-500">Detecting country from pin…</p>}
+              {countryLookupError && <p className="text-amber-600">{countryLookupError}</p>}
+            </div>
           )}
         </Section>
 

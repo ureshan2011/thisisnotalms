@@ -83,7 +83,14 @@ export default function Register() {
             </div>
           </div>
           <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#1e1b4b' }}>YooBees</h1>
-          <p className="text-sm font-medium mt-0.5" style={{ color: '#a78bfa' }}>Attendance Management</p>
+          <div className="mt-0.5 flex items-center gap-2">
+            <p className="text-sm font-medium" style={{ color: '#a78bfa' }}>Student Support System</p>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider"
+              style={{ background: 'rgba(124,58,237,0.12)', color: '#6d28d9', border: '1px solid rgba(124,58,237,0.18)' }}
+            >
+              BETA
+            </span>
+          </div>
         </div>
 
         {/* Card */}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import {
   ArrowLeft, Save, User, BookOpen, Globe, Briefcase,
   GraduationCap, Heart, CalendarCheck, Edit2, X, Check, CircleOff, ShieldCheck,
@@ -35,12 +35,10 @@ export default function StudentDetail() {
         getDocs(query(
           collection(db, 'attendanceRecords'),
           where('studentUid', '==', id),
-          orderBy('submittedAt', 'desc'),
         )),
         getDocs(query(
           collection(db, 'absenceNotices'),
           where('studentUid', '==', id),
-          orderBy('createdAt', 'desc'),
         )),
         getDocs(collection(db, 'attendanceSessions')),
       ]);
@@ -49,21 +47,29 @@ export default function StudentDetail() {
         setProfile(p);
         setForm(p);
       }
-      setRecords(recSnap.docs.map(d => {
-        const r = d.data();
-        return { ...r, id: d.id, submittedAt: (r.submittedAt as Timestamp)?.toDate?.() ?? new Date() } as AttendanceRecord;
-      }));
-      setAbsences(absenceSnap.docs.map(d => {
-        const a = d.data() as Record<string, unknown>;
-        return {
-          ...a,
-          id: d.id,
-          status: ((a.status as 'absent' | 'excused') || 'absent'),
-          reason: (a.reason as string) || '',
-          reportDateKey: (a.reportDateKey as string) || '',
-          createdAt: (a.createdAt as Timestamp)?.toDate?.() ?? new Date(),
-        } as AbsenceNotice;
-      }));
+      setRecords(
+        recSnap.docs
+          .map(d => {
+            const r = d.data();
+            return { ...r, id: d.id, submittedAt: (r.submittedAt as Timestamp)?.toDate?.() ?? new Date(0) } as AttendanceRecord;
+          })
+          .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime())
+      );
+      setAbsences(
+        absenceSnap.docs
+          .map(d => {
+            const a = d.data() as Record<string, unknown>;
+            return {
+              ...a,
+              id: d.id,
+              status: ((a.status as 'absent' | 'excused') || 'absent'),
+              reason: (a.reason as string) || '',
+              reportDateKey: (a.reportDateKey as string) || '',
+              createdAt: (a.createdAt as Timestamp)?.toDate?.() ?? new Date(0),
+            } as AbsenceNotice;
+          })
+          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      );
       const studentCourse = profSnap.data()?.course;
       setSessions(
         sessionsSnap.docs

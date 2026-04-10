@@ -3,12 +3,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
 import {
   ArrowLeft, Save, User, BookOpen, Globe, Briefcase,
-  GraduationCap, Heart, CalendarCheck, Edit2, X, Check,
+  GraduationCap, Heart, CalendarCheck, Edit2, X, Check, CircleOff, ShieldCheck,
 } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import type { StudentProfile, AttendanceRecord } from '../../lib/types';
+import type { StudentProfile, AttendanceRecord, AbsenceNotice } from '../../lib/types';
 import { formatDateTime } from '../../lib/utils';
 
 export default function StudentDetail() {
@@ -16,6 +16,7 @@ export default function StudentDetail() {
   const navigate = useNavigate();
   const [profile,   setProfile]   = useState<StudentProfile | null>(null);
   const [records,   setRecords]   = useState<AttendanceRecord[]>([]);
+  const [absences,  setAbsences]  = useState<AbsenceNotice[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [editing,   setEditing]   = useState(false);
   const [form,      setForm]      = useState<Partial<StudentProfile>>({});
@@ -25,12 +26,17 @@ export default function StudentDetail() {
   useEffect(() => {
     if (!id) return;
     (async () => {
-      const [profSnap, recSnap] = await Promise.all([
+      const [profSnap, recSnap, absenceSnap] = await Promise.all([
         getDoc(doc(db, 'students', id)),
         getDocs(query(
           collection(db, 'attendanceRecords'),
           where('studentUid', '==', id),
           orderBy('submittedAt', 'desc'),
+        )),
+        getDocs(query(
+          collection(db, 'absenceNotices'),
+          where('studentUid', '==', id),
+          orderBy('createdAt', 'desc'),
         )),
       ]);
       if (profSnap.exists()) {
@@ -41,6 +47,17 @@ export default function StudentDetail() {
       setRecords(recSnap.docs.map(d => {
         const r = d.data();
         return { ...r, id: d.id, submittedAt: (r.submittedAt as Timestamp)?.toDate?.() ?? new Date() } as AttendanceRecord;
+      }));
+      setAbsences(absenceSnap.docs.map(d => {
+        const a = d.data() as Record<string, unknown>;
+        return {
+          ...a,
+          id: d.id,
+          status: ((a.status as 'absent' | 'excused') || 'absent'),
+          reason: (a.reason as string) || '',
+          reportDateKey: (a.reportDateKey as string) || '',
+          createdAt: (a.createdAt as Timestamp)?.toDate?.() ?? new Date(),
+        } as AbsenceNotice;
       }));
       setLoading(false);
     })();
@@ -65,6 +82,9 @@ export default function StudentDetail() {
   if (!profile) return <Layout><p className="py-8 font-medium" style={{ color: '#9ca3af' }}>Student not found.</p></Layout>;
 
   const initials = (profile.fullName || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const attendedDays = new Set(records.map(r => r.sessionId)).size;
+  const absentDays = absences.filter(a => a.status === 'absent').length;
+  const excusedDays = absences.filter(a => a.status === 'excused').length;
 
   return (
     <Layout>
@@ -194,6 +214,12 @@ export default function StudentDetail() {
               </span>
             </div>
 
+            <div className="grid grid-cols-3 gap-2 mb-3">
+              <MiniStat label="Attend" value={attendedDays} color="#059669" bg="rgba(16,185,129,0.10)" icon={<CalendarCheck size={11} />} />
+              <MiniStat label="Absent" value={absentDays} color="#dc2626" bg="rgba(239,68,68,0.10)" icon={<CircleOff size={11} />} />
+              <MiniStat label="Excused" value={excusedDays} color="#2563eb" bg="rgba(37,99,235,0.10)" icon={<ShieldCheck size={11} />} />
+            </div>
+
             {records.length === 0 ? (
               <p className="text-xs font-medium" style={{ color: '#c4b5fd' }}>No records yet</p>
             ) : (
@@ -215,6 +241,22 @@ export default function StudentDetail() {
                     </p>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {absences.length > 0 && (
+              <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(139,92,246,0.08)' }}>
+                <p className="text-[11px] font-bold mb-2" style={{ color: '#a78bfa' }}>Latest absence notices</p>
+                <div className="space-y-1.5">
+                  {absences.slice(0, 3).map(a => (
+                    <div key={a.id} className="px-3 py-2 rounded-xl" style={{ background: 'rgba(245,243,255,0.65)' }}>
+                      <p className="text-[10px] font-bold uppercase" style={{ color: a.status === 'excused' ? '#2563eb' : '#dc2626' }}>
+                        {a.status} · {a.reportDateKey}
+                      </p>
+                      <p className="text-[11px] mt-0.5" style={{ color: '#6b7280' }}>{a.reason}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -329,6 +371,24 @@ function DetailCard({ icon, title, gradient, children }: {
         <h3 className="font-bold text-sm" style={{ color: '#1e1b4b' }}>{title}</h3>
       </div>
       <div className="px-5 py-1">{children}</div>
+    </div>
+  );
+}
+
+function MiniStat({ label, value, color, bg, icon }: {
+  label: string;
+  value: number;
+  color: string;
+  bg: string;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl px-2 py-2 text-center" style={{ background: bg }}>
+      <div className="flex items-center justify-center mb-1" style={{ color }}>
+        {icon}
+      </div>
+      <p className="text-sm font-black leading-none" style={{ color }}>{value}</p>
+      <p className="text-[10px] font-semibold mt-1" style={{ color: '#9ca3af' }}>{label}</p>
     </div>
   );
 }

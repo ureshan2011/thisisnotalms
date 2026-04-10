@@ -3,7 +3,7 @@ import {
   collection, query, where, getDocs, addDoc, serverTimestamp,
   Timestamp, doc, getDoc,
 } from 'firebase/firestore';
-import { Clock, Send, AlertCircle, CheckCircle, Zap } from 'lucide-react';
+import { Clock, Send, AlertCircle, CheckCircle, Zap, FileText } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout, { PageHeader } from '../../components/layout/Layout';
@@ -25,6 +25,9 @@ export default function StudentAttendance() {
   const [status,   setStatus]   = useState<'idle' | 'submitting'>('idle');
   const [timers,   setTimers]   = useState<Record<string, number>>({});
   const [profile,  setProfile]  = useState<StudentProfile | null>(null);
+  const [absenceType, setAbsenceType] = useState<'absent' | 'excused'>('absent');
+  const [absenceReason, setAbsenceReason] = useState('');
+  const [absenceSubmitting, setAbsenceSubmitting] = useState(false);
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -116,6 +119,62 @@ export default function StudentAttendance() {
     } catch {
       showToast({ type: 'error', title: 'Submission failed', description: 'Failed to submit. Please try again.' });
       setStatus('idle');
+    }
+  };
+
+  const reportDateKey = new Date().toISOString().slice(0, 10);
+
+  const handleAbsenceSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !profile) {
+      showToast({ type: 'error', title: 'Profile required', description: 'Please complete your profile first.' });
+      return;
+    }
+    const reason = absenceReason.trim();
+    if (reason.length < 5) {
+      showToast({ type: 'error', title: 'Reason required', description: 'Please provide a brief reason (at least 5 characters).' });
+      return;
+    }
+    setAbsenceSubmitting(true);
+    try {
+      const existing = await getDocs(query(
+        collection(db, 'absenceNotices'),
+        where('studentUid', '==', user.uid),
+        where('reportDateKey', '==', reportDateKey),
+      ));
+      if (!existing.empty) {
+        showToast({
+          type: 'error',
+          title: 'Already reported',
+          description: `You have already submitted an absence for ${reportDateKey}.`,
+        });
+        setAbsenceSubmitting(false);
+        return;
+      }
+
+      await addDoc(collection(db, 'absenceNotices'), {
+        studentUid: user.uid,
+        studentName: profile.fullName,
+        studentDisplayId: profile.studentId,
+        studentCampus: profile.campus,
+        studentSection: profile.section,
+        sessionCourse: profile.course,
+        reportDateKey,
+        status: absenceType,
+        reason,
+        createdAt: serverTimestamp(),
+      });
+      showToast({
+        type: 'success',
+        title: 'Absence submitted',
+        description: 'Your absence notice has been sent to your lecturer.',
+      });
+      setAbsenceReason('');
+      setAbsenceType('absent');
+    } catch {
+      showToast({ type: 'error', title: 'Submission failed', description: 'Could not submit your absence. Please try again.' });
+    } finally {
+      setAbsenceSubmitting(false);
     }
   };
 
@@ -274,6 +333,58 @@ export default function StudentAttendance() {
           })}
         </div>
       )}
+
+      <div
+        className="mt-6 rounded-3xl p-6 max-w-xl animate-fadeIn"
+        style={{
+          background: 'rgba(255,255,255,0.90)',
+          border: '1px solid rgba(139,92,246,0.12)',
+          boxShadow: '0 4px 24px rgba(124,58,237,0.08)',
+        }}
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.12), rgba(167,139,250,0.07))' }}
+          >
+            <FileText size={14} style={{ color: '#7c3aed' }} />
+          </div>
+          <div>
+            <h3 className="font-bold text-sm" style={{ color: '#1e1b4b' }}>Can&apos;t attend today?</h3>
+            <p className="text-xs font-medium" style={{ color: '#9ca3af' }}>
+              Submit an absence reason for {reportDateKey}.
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleAbsenceSubmit} className="space-y-3">
+          <div>
+            <label className="label">Type</label>
+            <select
+              className="input-field"
+              value={absenceType}
+              onChange={e => setAbsenceType(e.target.value as 'absent' | 'excused')}
+            >
+              <option value="absent">Absent</option>
+              <option value="excused">Excused</option>
+            </select>
+          </div>
+          <div>
+            <label className="label">Reason</label>
+            <textarea
+              className="input-field min-h-24 resize-y"
+              value={absenceReason}
+              onChange={e => setAbsenceReason(e.target.value)}
+              placeholder="Type your reason here..."
+              required
+            />
+          </div>
+          <button type="submit" className="btn-secondary" disabled={absenceSubmitting}>
+            {absenceSubmitting ? <LoadingSpinner size="sm" /> : <Send size={15} />}
+            Submit absence notice
+          </button>
+        </form>
+      </div>
     </Layout>
   );
 }

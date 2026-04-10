@@ -9,6 +9,7 @@ import type { StudentProfile } from '../../lib/types';
 
 export default function StudentList() {
   const [students, setStudents] = useState<StudentProfile[]>([]);
+  const [attendanceStats, setAttendanceStats] = useState<Record<string, { attended: number; absent: number; excused: number }>>({});
   const [loading,  setLoading]  = useState(true);
   const [search,   setSearch]   = useState('');
   const [course,   setCourse]   = useState('');
@@ -16,10 +17,41 @@ export default function StudentList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    getDocs(collection(db, 'students')).then(snap => {
-      setStudents(snap.docs.map(d => d.data() as StudentProfile));
+    (async () => {
+      const [studentSnap, attendanceSnap, absenceSnap] = await Promise.all([
+        getDocs(collection(db, 'students')),
+        getDocs(collection(db, 'attendanceRecords')),
+        getDocs(collection(db, 'absenceNotices')),
+      ]);
+      setStudents(studentSnap.docs.map(d => d.data() as StudentProfile));
+
+      const attendedByStudent: Record<string, Set<string>> = {};
+      attendanceSnap.docs.forEach(d => {
+        const data = d.data() as Record<string, string>;
+        const uid = data.studentUid;
+        const sessionId = data.sessionId;
+        if (!uid || !sessionId) return;
+        attendedByStudent[uid] = attendedByStudent[uid] || new Set();
+        attendedByStudent[uid].add(sessionId);
+      });
+
+      const stats: Record<string, { attended: number; absent: number; excused: number }> = {};
+      absenceSnap.docs.forEach(d => {
+        const data = d.data() as Record<string, string>;
+        const uid = data.studentUid;
+        if (!uid) return;
+        stats[uid] = stats[uid] || { attended: 0, absent: 0, excused: 0 };
+        if (data.status === 'excused') stats[uid].excused += 1;
+        else stats[uid].absent += 1;
+      });
+
+      Object.entries(attendedByStudent).forEach(([uid, sessions]) => {
+        stats[uid] = stats[uid] || { attended: 0, absent: 0, excused: 0 };
+        stats[uid].attended = sessions.size;
+      });
+      setAttendanceStats(stats);
       setLoading(false);
-    });
+    })();
   }, []);
 
   const courses   = useMemo(() => [...new Set(students.map(s => s.course).filter(Boolean))].sort(), [students]);
@@ -37,11 +69,14 @@ export default function StudentList() {
   }, [students, search, course, country]);
 
   const exportCSV = () => {
-    const headers = ['Full Name','Student ID','Email','Course','Home Country','Work Experience','Education','Special Needs'];
+    const headers = ['Full Name','Student ID','Email','Course','Home Country','Work Experience','Education','Special Needs','Attended Days','Absent Days','Excused Days'];
     const rows = filtered.map(s => [
       s.fullName, s.studentId, s.email, s.course, s.homeCountry,
       s.workExperience, s.educationalBackground, s.specialNeeds,
-    ].map(v => `"${(v || '').replace(/"/g, '""')}"`));
+      attendanceStats[s.uid]?.attended || 0,
+      attendanceStats[s.uid]?.absent || 0,
+      attendanceStats[s.uid]?.excused || 0,
+    ].map(v => `"${String(v ?? '').replace(/"/g, '""')}"`));
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url  = URL.createObjectURL(blob);
@@ -161,6 +196,9 @@ export default function StudentList() {
             <div className="hidden lg:block w-44">
               <span className="table-header-cell">Education</span>
             </div>
+            <div className="hidden xl:block w-28">
+              <span className="table-header-cell">Attendance</span>
+            </div>
             <div className="w-8" />
           </div>
 
@@ -237,12 +275,18 @@ export default function StudentList() {
                 </div>
 
                 {/* Arrow */}
-                <div className="w-8 flex justify-end">
-                  <ChevronRight
-                    size={15}
-                    className="transition-all duration-150 group-hover:translate-x-0.5"
-                    style={{ color: '#c4b5fd' }}
-                  />
+                <div className="w-36 flex justify-end items-center gap-1.5">
+                  {(() => {
+                    const stat = attendanceStats[s.uid] || { attended: 0, absent: 0, excused: 0 };
+                    return (
+                      <div className="hidden xl:flex items-center gap-1.5 text-[10px] font-semibold">
+                        <span className="px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(16,185,129,0.12)', color: '#059669' }}>A {stat.attended}</span>
+                        <span className="px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(239,68,68,0.12)', color: '#dc2626' }}>Ab {stat.absent}</span>
+                        <span className="px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(37,99,235,0.12)', color: '#2563eb' }}>Ex {stat.excused}</span>
+                      </div>
+                    );
+                  })()}
+                  <ChevronRight size={15} className="transition-all duration-150 group-hover:translate-x-0.5" style={{ color: '#c4b5fd' }} />
                 </div>
               </div>
             ))}

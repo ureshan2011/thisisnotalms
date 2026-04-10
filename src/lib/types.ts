@@ -62,3 +62,17 @@ export interface AttendanceRecord {
   checkpointLabel: string;
   submittedAt: Date;
 }
+
+export interface AbsenceNotice {
+  id: string;
+  studentUid: string;
+  studentName: string;
+  studentDisplayId: string;
+  studentCampus?: string;
+  studentSection?: string;
+  sessionCourse?: string;
+  reportDateKey: string; // YYYY-MM-DD
+  status: 'absent' | 'excused';
+  reason: string;
+  createdAt: Date;
+}

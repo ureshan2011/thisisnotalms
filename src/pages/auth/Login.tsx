@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, LogIn, Sparkles } from 'lucide-react';
 import BrandMark from '../../components/ui/BrandMark';
 import { useAuth } from '../../contexts/AuthContext';
@@ -8,6 +8,8 @@ import { useToast } from '../../components/ui/ToastProvider';
 export default function Login() {
   const { login, role } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const nextPath = new URLSearchParams(location.search).get('next');
 
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
@@ -21,6 +23,7 @@ export default function Login() {
     try {
       await login(email, password);
       setTimeout(() => {
+        if (nextPath) { navigate(nextPath); return; }
         const r = role;
         if (r === 'lecturer') navigate('/lecturer/dashboard');
         else navigate('/student/profile');

@@ -89,6 +89,28 @@ const EDU_BG = [
   'Other',
 ];
 
+const EDU_BG = [
+  'Medical',
+  'Nursing / Allied Health',
+  'Political Science / Public Policy',
+  'Social Science',
+  'Humanities',
+  'Finance',
+  'Accounting',
+  'Information Technology',
+  'Software Engineering',
+  'Computer Science',
+  'Business / Management',
+  'Design',
+  'Beauty Salon / Cosmetology',
+  'Law',
+  'Education',
+  'Arts & Creative',
+  'Science',
+  'Engineering',
+  'Other / Not listed',
+];
+
 const SPECIAL_NEEDS_OPTIONS = [
   'None',
   'Visual impairment',
@@ -275,7 +297,7 @@ export default function StudentProfilePage() {
 
         {/* Education */}
         <Section icon={<GraduationCap size={16} />} title="Educational background">
-          <Field label="Previous qualification" required>
+          <Field label="Select Your Previous Bachelors/Diploma Qualification Field" required>
             <select className="input-field" value={form.educationalBackground} onChange={set('educationalBackground')} required>
               <option value="">Select…</option>
               {EDU_BG.map(e => <option key={e} value={e}>{e}</option>)}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { CalendarCheck, Clock, BookOpen, CheckCircle, CircleOff, ShieldCheck } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
@@ -19,40 +19,45 @@ export default function StudentHistory() {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [attendanceSnap, absenceSnap] = await Promise.all([
-        getDocs(
-          query(
-            collection(db, 'attendanceRecords'),
-            where('studentUid', '==', user.uid),
-            orderBy('submittedAt', 'desc'),
-          )
-        ),
-        getDocs(
-          query(
-            collection(db, 'absenceNotices'),
-            where('studentUid', '==', user.uid),
-            orderBy('createdAt', 'desc'),
-          )
-        ),
-      ]);
-      setRecords(
-        attendanceSnap.docs.map(d => {
-          const r = d.data() as RawRecord;
-          return { ...r, id: d.id, submittedAt: r.submittedAt?.toDate?.() ?? new Date() };
-        })
-      );
-      setAbsences(absenceSnap.docs.map(d => {
-        const a = d.data() as Record<string, unknown>;
-        return {
-          ...a,
-          id: d.id,
-          reportDateKey: (a.reportDateKey as string) || '',
-          status: ((a.status as 'absent' | 'excused') || 'absent'),
-          reason: (a.reason as string) || '',
-          createdAt: (a.createdAt as Timestamp)?.toDate?.() ?? new Date(),
-        } as AbsenceNotice;
-      }));
-      setLoading(false);
+      try {
+        const [attendanceSnap, absenceSnap] = await Promise.all([
+          getDocs(
+            query(
+              collection(db, 'attendanceRecords'),
+              where('studentUid', '==', user.uid),
+            )
+          ),
+          getDocs(
+            query(
+              collection(db, 'absenceNotices'),
+              where('studentUid', '==', user.uid),
+            )
+          ),
+        ]);
+        setRecords(
+          attendanceSnap.docs
+            .map(d => {
+              const r = d.data() as RawRecord;
+              return { ...r, id: d.id, submittedAt: r.submittedAt?.toDate?.() ?? new Date() };
+            })
+            .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime())
+        );
+        setAbsences(absenceSnap.docs
+          .map(d => {
+            const a = d.data() as Record<string, unknown>;
+            return {
+              ...a,
+              id: d.id,
+              reportDateKey: (a.reportDateKey as string) || '',
+              status: ((a.status as 'absent' | 'excused') || 'absent'),
+              reason: (a.reason as string) || '',
+              createdAt: (a.createdAt as Timestamp)?.toDate?.() ?? new Date(),
+            } as AbsenceNotice;
+          })
+          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
+      } finally {
+        setLoading(false);
+      }
     })();
   }, [user]);
 

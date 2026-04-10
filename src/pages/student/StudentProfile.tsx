@@ -65,27 +65,7 @@ const WORK_INDUSTRIES = [
   'Other',
 ];
 
-const EDU_BG = [
-  'Medical',
-  'Nursing / Allied Health',
-  'Political Science / Public Policy',
-  'Social Science',
-  'Humanities',
-  'Finance',
-  'Accounting',
-  'Information Technology',
-  'Software Engineering',
-  'Computer Science',
-  'Business / Management',
-  'Design',
-  'Beauty Salon / Cosmetology',
-  'Law',
-  'Education',
-  'Arts & Creative',
-  'Science',
-  'Engineering',
-  'Previous Masters degree',
-  'Professional qualification / certifications',
+const PREVIOUS_QUALIFICATION_OPTIONS = [
   'Other',
 ];
 

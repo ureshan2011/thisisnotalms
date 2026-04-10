@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { NavLink, useNavigate, Link } from 'react-router-dom';
 import {
   LayoutDashboard, Users, CalendarCheck, LogOut,
-  User, ClipboardList, History, Menu, X, GraduationCap,
+  User, ClipboardList, History, Menu, X,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import BrandMark from '../ui/BrandMark';
 
 interface NavItem {
   to:    string;
@@ -40,9 +41,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       {/* Logo */}
       <div className="flex items-center justify-between px-4 py-5 border-b border-white/10">
         <Link to="/" className="flex items-center gap-2.5">
-          <div className="bg-brand-500 rounded-xl p-1.5">
-            <GraduationCap size={20} className="text-white" />
-          </div>
+          <BrandMark className="h-8 w-8" />
           <span className="text-white font-bold text-lg tracking-tight">YooBees</span>
         </Link>
         {onClose && (
@@ -123,9 +122,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Menu size={22} />
           </button>
           <div className="flex items-center gap-2">
-            <div className="bg-brand-500 rounded-lg p-1">
-              <GraduationCap size={16} className="text-white" />
-            </div>
+            <BrandMark className="h-6 w-6" />
             <span className="font-bold text-slate-800">YooBees</span>
           </div>
         </header>

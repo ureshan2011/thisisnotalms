@@ -3,12 +3,13 @@ import {
   collection, query, where, getDocs, addDoc, serverTimestamp,
   Timestamp, doc, getDoc,
 } from 'firebase/firestore';
-import { CheckCircle2, Clock, KeyRound, Send, AlertCircle } from 'lucide-react';
+import { Clock, Send, AlertCircle } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import type { AttendanceSession, AttendanceCheckpoint, StudentProfile } from '../../lib/types';
+import { useToast } from '../../components/ui/ToastProvider';
 import { secondsUntil, formatDateTime } from '../../lib/utils';
 
 interface ActiveCheckpoint {
@@ -21,10 +22,10 @@ export default function StudentAttendance() {
   const [active,   setActive]   = useState<ActiveCheckpoint[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [code,     setCode]     = useState('');
-  const [status,   setStatus]   = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [message,  setMessage]  = useState('');
+  const [status,   setStatus]   = useState<'idle' | 'submitting'>('idle');
   const [timers,   setTimers]   = useState<Record<string, number>>({});
   const [profile,  setProfile]  = useState<StudentProfile | null>(null);
+  const { showToast } = useToast();
 
   // Load student profile
   useEffect(() => {
@@ -74,22 +75,21 @@ export default function StudentAttendance() {
   const handleSubmit = async (e: React.FormEvent, item: ActiveCheckpoint) => {
     e.preventDefault();
     if (!user || !profile) {
-      setMessage('Please complete your profile first before submitting attendance.');
-      setStatus('error');
+      showToast({ type: 'error', title: 'Profile required', description: 'Please complete your profile first before submitting attendance.' });
+      setStatus('idle');
       return;
     }
     if (!profile.campus || !profile.section) {
-      setMessage('Please complete mandatory profile fields (Campus and Section) before submitting attendance.');
-      setStatus('error');
+      showToast({ type: 'error', title: 'Profile incomplete', description: 'Please complete mandatory profile fields (Campus and Section) before submitting attendance.' });
+      setStatus('idle');
       return;
     }
     setStatus('submitting');
-    setMessage('');
 
     const entered = code.trim().toUpperCase();
     if (entered !== item.checkpoint.code) {
-      setMessage('Incorrect code. Please check and try again.');
-      setStatus('error');
+      showToast({ type: 'error', title: 'Incorrect code', description: 'Please check and try again.' });
+      setStatus('idle');
       return;
     }
 
@@ -103,8 +103,8 @@ export default function StudentAttendance() {
       )
     );
     if (!existing.empty) {
-      setMessage('You have already submitted attendance for this checkpoint.');
-      setStatus('error');
+      showToast({ type: 'error', title: 'Already submitted', description: 'You have already submitted attendance for this checkpoint.' });
+      setStatus('idle');
       return;
     }
 
@@ -122,14 +122,14 @@ export default function StudentAttendance() {
         checkpointLabel: item.checkpoint.label,
         submittedAt:     serverTimestamp(),
       });
-      setMessage('Attendance recorded successfully!');
-      setStatus('success');
+      showToast({ type: 'success', title: 'Attendance recorded', description: 'Your attendance has been submitted successfully.' });
+      setStatus('idle');
       setCode('');
       // Refresh after 3s
-      setTimeout(() => { fetchActive(); setStatus('idle'); setMessage(''); }, 3000);
+      setTimeout(() => { fetchActive(); }, 3000);
     } catch {
-      setMessage('Failed to submit. Please try again.');
-      setStatus('error');
+      showToast({ type: 'error', title: 'Submission failed', description: 'Failed to submit. Please try again.' });
+      setStatus('idle');
     }
   };
 
@@ -197,46 +197,33 @@ export default function StudentAttendance() {
                 </div>
 
                 {/* Code entry */}
-                {status === 'success' ? (
-                  <div className="flex items-center gap-2 text-emerald-600 py-3 justify-center">
-                    <CheckCircle2 size={20} />
-                    <span className="font-semibold">{message}</span>
+                <form onSubmit={e => handleSubmit(e, item)} className="space-y-3">
+                  <div>
+                    <label className="label">Attendance code</label>
+                    <input
+                      className="input-field code-display text-center text-xl font-bold tracking-widest uppercase"
+                      value={code}
+                      onChange={e => setCode(e.target.value.toUpperCase())}
+                      maxLength={6}
+                      required
+                      placeholder="XXXXXX"
+                      autoFocus
+                      autoComplete="off"
+                      spellCheck={false}
+                    />
                   </div>
-                ) : (
-                  <form onSubmit={e => handleSubmit(e, item)} className="space-y-3">
-                    <div>
-                      <label className="label">Attendance code</label>
-                      <input
-                        className="input-field code-display text-center text-xl font-bold tracking-widest uppercase"
-                        value={code}
-                        onChange={e => setCode(e.target.value.toUpperCase())}
-                        maxLength={6}
-                        required
-                        placeholder="XXXXXX"
-                        autoFocus
-                        autoComplete="off"
-                        spellCheck={false}
-                      />
-                    </div>
-                    {status === 'error' && message && (
-                      <p className="text-sm text-red-600 flex items-center gap-1.5">
-                        <AlertCircle size={14} />
-                        {message}
-                      </p>
+                  <button
+                    type="submit"
+                    disabled={status === 'submitting' || code.length < 6}
+                    className="btn-primary w-full justify-center"
+                  >
+                    {status === 'submitting' ? (
+                      <><LoadingSpinner size="sm" />Submitting…</>
+                    ) : (
+                      <><Send size={15} />Submit attendance</>
                     )}
-                    <button
-                      type="submit"
-                      disabled={status === 'submitting' || code.length < 6}
-                      className="btn-primary w-full justify-center"
-                    >
-                      {status === 'submitting' ? (
-                        <><LoadingSpinner size="sm" />Submitting…</>
-                      ) : (
-                        <><Send size={15} />Submit attendance</>
-                      )}
-                    </button>
-                  </form>
-                )}
+                  </button>
+                </form>
               </div>
             );
           })}

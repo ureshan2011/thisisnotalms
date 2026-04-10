@@ -14,6 +14,9 @@ export interface StudentProfile {
   email: string;
   course: string;
   homeCountry: string;
+  hometown: string;
+  hometownLat: number | null;
+  hometownLng: number | null;
   workExperience: string;
   workIndustry?: string;
   educationalBackground: string;

@@ -5,7 +5,8 @@ import { Search, Filter, Download, Globe, Briefcase, BookOpen, ChevronRight, Hea
 import { db } from '../../lib/firebase';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import type { StudentProfile } from '../../lib/types';
+import type { StudentProfile, AttendanceRecord, AbsenceNotice, AttendanceSession } from '../../lib/types';
+import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
 
 export default function StudentList() {
   const [students, setStudents] = useState<StudentProfile[]>([]);
@@ -18,37 +19,44 @@ export default function StudentList() {
 
   useEffect(() => {
     (async () => {
-      const [studentSnap, attendanceSnap, absenceSnap] = await Promise.all([
+      const [studentSnap, attendanceSnap, absenceSnap, sessionsSnap] = await Promise.all([
         getDocs(collection(db, 'students')),
         getDocs(collection(db, 'attendanceRecords')),
         getDocs(collection(db, 'absenceNotices')),
+        getDocs(collection(db, 'attendanceSessions')),
       ]);
-      setStudents(studentSnap.docs.map(d => d.data() as StudentProfile));
+      const loadedStudents = studentSnap.docs.map(d => d.data() as StudentProfile);
+      setStudents(loadedStudents);
 
-      const attendedByStudent: Record<string, Set<string>> = {};
-      attendanceSnap.docs.forEach(d => {
-        const data = d.data() as Record<string, string>;
-        const uid = data.studentUid;
-        const sessionId = data.sessionId;
-        if (!uid || !sessionId) return;
-        attendedByStudent[uid] = attendedByStudent[uid] || new Set();
-        attendedByStudent[uid].add(sessionId);
+      const allRecords = attendanceSnap.docs.map(d => d.data() as AttendanceRecord);
+      const allAbsences = absenceSnap.docs.map(d => d.data() as AbsenceNotice);
+      const allSessions = sessionsSnap.docs.map(d => {
+        const s = d.data() as Record<string, unknown>;
+        return {
+          ...s,
+          id: d.id,
+          date: (s.date as { toDate?: () => Date })?.toDate?.() ?? new Date(),
+          createdAt: (s.createdAt as { toDate?: () => Date })?.toDate?.() ?? new Date(),
+        } as AttendanceSession;
       });
 
       const stats: Record<string, { attended: number; absent: number; excused: number }> = {};
-      absenceSnap.docs.forEach(d => {
-        const data = d.data() as Record<string, string>;
-        const uid = data.studentUid;
-        if (!uid) return;
-        stats[uid] = stats[uid] || { attended: 0, absent: 0, excused: 0 };
-        if (data.status === 'excused') stats[uid].excused += 1;
-        else stats[uid].absent += 1;
+      loadedStudents.forEach(student => {
+        const studentRecords = allRecords.filter(r => r.studentUid === student.uid);
+        const studentAbsences = allAbsences.filter(a => a.studentUid === student.uid);
+        const relevantSessions = allSessions.filter(s => !student.course || s.course === student.course);
+        const summary = summarizeStudentAttendance({
+          sessions: relevantSessions,
+          records: studentRecords,
+          absences: studentAbsences,
+        });
+        stats[student.uid] = {
+          attended: summary.attendedDays,
+          absent: summary.absentUnjustifiedDays,
+          excused: summary.absentJustifiedDays,
+        };
       });
 
-      Object.entries(attendedByStudent).forEach(([uid, sessions]) => {
-        stats[uid] = stats[uid] || { attended: 0, absent: 0, excused: 0 };
-        stats[uid].attended = sessions.size;
-      });
       setAttendanceStats(stats);
       setLoading(false);
     })();

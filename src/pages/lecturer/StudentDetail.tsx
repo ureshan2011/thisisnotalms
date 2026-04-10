@@ -8,8 +8,11 @@ import {
 import { db } from '../../lib/firebase';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import type { StudentProfile, AttendanceRecord, AbsenceNotice } from '../../lib/types';
+import type { StudentProfile, AttendanceRecord, AbsenceNotice, AttendanceSession } from '../../lib/types';
 import { formatDateTime } from '../../lib/utils';
+import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
+
+type RawSession = Omit<AttendanceSession, 'date' | 'createdAt'> & { date: Timestamp; createdAt: Timestamp };
 
 export default function StudentDetail() {
   const { id } = useParams<{ id: string }>();
@@ -17,6 +20,7 @@ export default function StudentDetail() {
   const [profile,   setProfile]   = useState<StudentProfile | null>(null);
   const [records,   setRecords]   = useState<AttendanceRecord[]>([]);
   const [absences,  setAbsences]  = useState<AbsenceNotice[]>([]);
+  const [sessions,  setSessions]  = useState<AttendanceSession[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [editing,   setEditing]   = useState(false);
   const [form,      setForm]      = useState<Partial<StudentProfile>>({});
@@ -26,7 +30,7 @@ export default function StudentDetail() {
   useEffect(() => {
     if (!id) return;
     (async () => {
-      const [profSnap, recSnap, absenceSnap] = await Promise.all([
+      const [profSnap, recSnap, absenceSnap, sessionsSnap] = await Promise.all([
         getDoc(doc(db, 'students', id)),
         getDocs(query(
           collection(db, 'attendanceRecords'),
@@ -38,6 +42,7 @@ export default function StudentDetail() {
           where('studentUid', '==', id),
           orderBy('createdAt', 'desc'),
         )),
+        getDocs(collection(db, 'attendanceSessions')),
       ]);
       if (profSnap.exists()) {
         const p = profSnap.data() as StudentProfile;
@@ -59,6 +64,20 @@ export default function StudentDetail() {
           createdAt: (a.createdAt as Timestamp)?.toDate?.() ?? new Date(),
         } as AbsenceNotice;
       }));
+      const studentCourse = profSnap.data()?.course;
+      setSessions(
+        sessionsSnap.docs
+          .map(d => {
+            const s = d.data() as RawSession;
+            return {
+              ...s,
+              id: d.id,
+              date: s.date?.toDate?.() ?? new Date(),
+              createdAt: s.createdAt?.toDate?.() ?? new Date(),
+            } as AttendanceSession;
+          })
+          .filter(s => !studentCourse || s.course === studentCourse)
+      );
       setLoading(false);
     })();
   }, [id]);
@@ -82,9 +101,7 @@ export default function StudentDetail() {
   if (!profile) return <Layout><p className="py-8 font-medium" style={{ color: '#9ca3af' }}>Student not found.</p></Layout>;
 
   const initials = (profile.fullName || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  const attendedDays = new Set(records.map(r => r.sessionId)).size;
-  const absentDays = absences.filter(a => a.status === 'absent').length;
-  const excusedDays = absences.filter(a => a.status === 'excused').length;
+  const summary = summarizeStudentAttendance({ sessions, records, absences });
 
   return (
     <Layout>
@@ -215,9 +232,9 @@ export default function StudentDetail() {
             </div>
 
             <div className="grid grid-cols-3 gap-2 mb-3">
-              <MiniStat label="Attend" value={attendedDays} color="#059669" bg="rgba(16,185,129,0.10)" icon={<CalendarCheck size={11} />} />
-              <MiniStat label="Absent" value={absentDays} color="#dc2626" bg="rgba(239,68,68,0.10)" icon={<CircleOff size={11} />} />
-              <MiniStat label="Excused" value={excusedDays} color="#2563eb" bg="rgba(37,99,235,0.10)" icon={<ShieldCheck size={11} />} />
+              <MiniStat label="Attend" value={summary.attendedDays} color="#059669" bg="rgba(16,185,129,0.10)" icon={<CalendarCheck size={11} />} />
+              <MiniStat label="Absent (U)" value={summary.absentUnjustifiedDays} color="#dc2626" bg="rgba(239,68,68,0.10)" icon={<CircleOff size={11} />} />
+              <MiniStat label="Absent (J)" value={summary.absentJustifiedDays} color="#2563eb" bg="rgba(37,99,235,0.10)" icon={<ShieldCheck size={11} />} />
             </div>
 
             {records.length === 0 ? (

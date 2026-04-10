@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, UserPlus } from 'lucide-react';
 import BrandMark from '../../components/ui/BrandMark';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../components/ui/ToastProvider';
 import type { UserRole } from '../../lib/types';
 
 const LECTURER_CODE = import.meta.env.VITE_LECTURER_CODE ?? 'PROF2024';
@@ -17,20 +18,27 @@ export default function Register() {
   const [role,         setRole]         = useState<UserRole>('student');
   const [lecturerCode, setLecturerCode] = useState('');
   const [showPw,       setShowPw]       = useState(false);
-  const [error,        setError]        = useState('');
   const [loading,      setLoading]      = useState(false);
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
 
-    if (password !== confirm) { setError('Passwords do not match.'); return; }
-    if (password.length < 6)  { setError('Password must be at least 6 characters.'); return; }
+    if (password !== confirm) {
+      showToast({ type: 'error', title: 'Validation error', description: 'Passwords do not match.' });
+      return;
+    }
+    if (password.length < 6)  {
+      showToast({ type: 'error', title: 'Validation error', description: 'Password must be at least 6 characters.' });
+      return;
+    }
     if (role === 'student' && !email.trim().toLowerCase().endsWith('@yoobeestudent.ac.nz')) {
-      setError('Student email must end with @yoobeestudent.ac.nz.'); return;
+      showToast({ type: 'error', title: 'Validation error', description: 'Student email must end with @yoobeestudent.ac.nz.' });
+      return;
     }
     if (role === 'lecturer' && lecturerCode !== LECTURER_CODE) {
-      setError('Invalid lecturer registration code.'); return;
+      showToast({ type: 'error', title: 'Validation error', description: 'Invalid lecturer registration code.' });
+      return;
     }
 
     setLoading(true);
@@ -38,7 +46,7 @@ export default function Register() {
       await register(email, password, role);
       navigate(role === 'lecturer' ? '/lecturer/dashboard' : '/student/profile');
     } catch (err: unknown) {
-      setError(friendlyError(err));
+      showToast({ type: 'error', title: 'Registration failed', description: friendlyError(err) });
     } finally {
       setLoading(false);
     }
@@ -60,11 +68,6 @@ export default function Register() {
           <h2 className="text-white text-xl font-bold mb-1">Create account</h2>
           <p className="text-slate-300 text-sm mb-6">Join your class on YooBees</p>
 
-          {error && (
-            <div className="mb-4 px-4 py-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-200 text-sm">
-              {error}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Role toggle */}

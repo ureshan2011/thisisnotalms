@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 import BrandMark from '../../components/ui/BrandMark';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../components/ui/ToastProvider';
 
 export default function Login() {
   const { login, role } = useAuth();
@@ -11,12 +12,11 @@ export default function Login() {
   const [email,    setEmail]    = useState('');
   const [password, setPassword] = useState('');
   const [showPw,   setShowPw]   = useState(false);
-  const [error,    setError]    = useState('');
   const [loading,  setLoading]  = useState(false);
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
     try {
       await login(email, password);
@@ -27,7 +27,7 @@ export default function Login() {
         else navigate('/student/profile');
       }, 100);
     } catch (err: unknown) {
-      setError(friendlyError(err));
+      showToast({ type: 'error', title: 'Sign-in failed', description: friendlyError(err) });
     } finally {
       setLoading(false);
     }
@@ -51,11 +51,6 @@ export default function Login() {
           <h2 className="text-white text-xl font-bold mb-1">Welcome back</h2>
           <p className="text-slate-300 text-sm mb-6">Sign in to your account</p>
 
-          {error && (
-            <div className="mb-4 px-4 py-3 bg-red-500/20 border border-red-500/30 rounded-xl text-red-200 text-sm">
-              {error}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

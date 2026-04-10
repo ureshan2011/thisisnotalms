@@ -8,6 +8,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import type { StudentProfile } from '../../lib/types';
+import { useToast } from '../../components/ui/ToastProvider';
 
 const COURSES = [
   'Master of Management',
@@ -106,8 +107,7 @@ export default function StudentProfilePage() {
   const [notes,   setNotes]   = useState('');
   const [loading, setLoading] = useState(true);
   const [saving,  setSaving]  = useState(false);
-  const [saved,   setSaved]   = useState(false);
-  const [error,   setError]   = useState('');
+  const { showToast } = useToast();
   const [countryLookupLoading, setCountryLookupLoading] = useState(false);
   const [countryLookupError, setCountryLookupError] = useState('');
 
@@ -178,39 +178,39 @@ export default function StudentProfilePage() {
     const normalizedStudentId = form.studentId.trim();
 
     if (!normalizedEmail.endsWith('@yoobeestudent.ac.nz')) {
-      setError('Student email must end with @yoobeestudent.ac.nz.');
+      showToast({ type: 'error', title: 'Invalid email', description: 'Student email must end with @yoobeestudent.ac.nz.' });
       return;
     }
     if (!/^\d{8}$/.test(normalizedStudentId)) {
-      setError('Student ID must be numeric and exactly 8 digits (e.g. 27091691).');
+      showToast({ type: 'error', title: 'Invalid student ID', description: 'Student ID must be numeric and exactly 8 digits (e.g. 27091691).' });
       return;
     }
     if (!form.campus) {
-      setError('Please select your campus.');
+      showToast({ type: 'error', title: 'Missing campus', description: 'Please select your campus.' });
       return;
     }
     if (!form.section) {
-      setError('Please select your section.');
+      showToast({ type: 'error', title: 'Missing section', description: 'Please select your section.' });
       return;
     }
     if (form.campus === 'Auckland' && !AUCKLAND_SECTIONS.includes(form.section as typeof AUCKLAND_SECTIONS[number])) {
-      setError('For Auckland campus, please choose Section A, Section B, or Section C.');
+      showToast({ type: 'error', title: 'Invalid section', description: 'For Auckland campus, please choose Section A, Section B, or Section C.' });
       return;
     }
     if (form.campus === 'Christchurch' && form.section !== CHRISTCHURCH_DEFAULT_SECTION) {
-      setError('For Christchurch campus, section must be set to Section Default (No Section).');
+      showToast({ type: 'error', title: 'Invalid section', description: 'For Christchurch campus, section must be set to Section Default (No Section).' });
       return;
     }
     if (form.hometownLat === null || form.hometownLng === null) {
-      setError('Please drop a hometown pin on the map.');
+      showToast({ type: 'error', title: 'Hometown pin required', description: 'Please drop a hometown pin on the map.' });
       return;
     }
     if (!form.homeCountry) {
-      setError('Please place your pin again so we can detect your home country.');
+      showToast({ type: 'error', title: 'Country not detected', description: 'Please place your pin again so we can detect your home country.' });
       return;
     }
 
-    setSaving(true); setError('');
+    setSaving(true);
     try {
       const studentsRef = collection(db, 'students');
       const [emailSnap, studentIdSnap] = await Promise.all([
@@ -220,13 +220,13 @@ export default function StudentProfilePage() {
 
       const emailTaken = !emailSnap.empty && emailSnap.docs[0].id !== user.uid;
       if (emailTaken) {
-        setError('This student email is already used by another profile.');
+        showToast({ type: 'error', title: 'Email already in use', description: 'This student email is already used by another profile.' });
         return;
       }
 
       const studentIdTaken = !studentIdSnap.empty && studentIdSnap.docs[0].id !== user.uid;
       if (studentIdTaken) {
-        setError('This student ID is already used by another profile.');
+        showToast({ type: 'error', title: 'Student ID already in use', description: 'This student ID is already used by another profile.' });
         return;
       }
 
@@ -240,10 +240,9 @@ export default function StudentProfilePage() {
         createdAt: serverTimestamp(),
       };
       await setDoc(doc(db, 'students', user.uid), payload, { merge: true });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      showToast({ type: 'success', title: 'Profile saved', description: 'Your profile has been updated successfully.' });
     } catch {
-      setError('Failed to save. Please try again.');
+      showToast({ type: 'error', title: 'Save failed', description: 'Failed to save. Please try again.' });
     } finally {
       setSaving(false);
     }
@@ -259,9 +258,6 @@ export default function StudentProfilePage() {
       />
 
       <form onSubmit={handleSave} className="space-y-6 max-w-2xl">
-        {error && (
-          <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">{error}</div>
-        )}
 
         {/* Personal Details */}
         <Section icon={<User size={16} />} title="Personal details">
@@ -418,7 +414,6 @@ export default function StudentProfilePage() {
               <><Save size={16} />Save profile</>
             )}
           </button>
-          {saved && <span className="text-emerald-600 text-sm font-medium">Profile saved!</span>}
         </div>
       </form>
     </Layout>

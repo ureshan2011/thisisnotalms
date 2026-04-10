@@ -4,9 +4,10 @@ import {
   serverTimestamp, Timestamp, orderBy, query,
 } from 'firebase/firestore';
 import {
-  Plus, Play, StopCircle, Clock, CheckCircle2,
-  CalendarCheck, ChevronRight, Zap, Eye, Radio,
+  Plus, StopCircle, Clock, CheckCircle2,
+  CalendarCheck, ChevronRight, Zap, Eye, Radio, Copy, Check, QrCode,
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
@@ -314,7 +315,9 @@ function ActiveSessionCard({
 }) {
   const [launching, setLaunching] = useState(false);
   const [closing,   setClosing]   = useState(false);
-  const [window,    setWindow]    = useState(4);
+  const [winMins,   setWinMins]   = useState(4);
+  const [copied,    setCopied]    = useState(false);
+  const [showQr,    setShowQr]    = useState(false);
 
   const activeCP  = session.checkpoints.find(cp => cp.isActive && cp.expiresAt > new Date());
   const cpCount   = session.checkpoints.length;
@@ -322,7 +325,7 @@ function ActiveSessionCard({
 
   const doLaunch = async () => {
     setLaunching(true);
-    await onLaunch(session, nextLabel, window);
+    await onLaunch(session, nextLabel, winMins);
     setLaunching(false);
   };
 
@@ -333,8 +336,29 @@ function ActiveSessionCard({
     setClosing(false);
   };
 
-  const secsLeft = activeCP ? (ticking[`${session.id}-${activeCP.id}`] ?? secondsUntil(activeCP.expiresAt)) : 0;
-  const pct      = activeCP ? Math.round((secsLeft / (activeCP.windowMinutes * 60)) * 100) : 0;
+  const secsLeft  = activeCP ? (ticking[`${session.id}-${activeCP.id}`] ?? secondsUntil(activeCP.expiresAt)) : 0;
+  const pct       = activeCP ? Math.round((secsLeft / (activeCP.windowMinutes * 60)) * 100) : 0;
+  const attendUrl = activeCP
+    ? `${window.location.href.split('#')[0]}#/attend/${activeCP.code}`
+    : '';
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(attendUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // fallback: select a temp input
+      const el = document.createElement('input');
+      el.value = attendUrl;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
 
   return (
     <div
@@ -430,6 +454,62 @@ function ActiveSessionCard({
               }}
             />
           </div>
+
+          {/* QR code + Share */}
+          <div className="mt-5 pt-5" style={{ borderTop: '1px solid rgba(124,58,237,0.10)' }}>
+            <div className="flex items-start justify-between gap-4">
+              {/* QR toggle */}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold mb-2" style={{ color: '#8b7fa6' }}>
+                  Share with students
+                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={() => setShowQr(v => !v)}
+                    className="btn-secondary py-1.5 px-3 text-xs gap-1.5"
+                  >
+                    <QrCode size={13} />
+                    {showQr ? 'Hide QR' : 'Show QR'}
+                  </button>
+                  <button
+                    onClick={copyLink}
+                    className="btn-secondary py-1.5 px-3 text-xs gap-1.5"
+                    style={copied ? { color: '#059669', borderColor: 'rgba(16,185,129,0.30)' } : {}}
+                  >
+                    {copied ? <Check size={13} /> : <Copy size={13} />}
+                    {copied ? 'Copied!' : 'Copy link'}
+                  </button>
+                </div>
+                <p className="text-xs mt-2 leading-relaxed" style={{ color: '#9ca3af' }}>
+                  Students scan or tap the link — they'll land directly on the attendance form,
+                  even before they're logged in.
+                </p>
+              </div>
+
+              {/* QR code panel */}
+              {showQr && (
+                <div
+                  className="flex-shrink-0 p-3 rounded-2xl"
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid rgba(124,58,237,0.15)',
+                    boxShadow: '0 4px 16px rgba(124,58,237,0.10)',
+                  }}
+                >
+                  <QRCodeSVG
+                    value={attendUrl}
+                    size={140}
+                    fgColor="#3b0764"
+                    bgColor="#ffffff"
+                    level="M"
+                  />
+                  <p className="text-center text-xs font-semibold mt-2" style={{ color: '#a78bfa' }}>
+                    Scan to attend
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       ) : (
         <div
@@ -499,8 +579,8 @@ function ActiveSessionCard({
         <div className="flex items-center gap-2">
           <label className="text-xs font-semibold" style={{ color: '#8b7fa6' }}>Window:</label>
           <select
-            value={window}
-            onChange={e => setWindow(Number(e.target.value))}
+            value={winMins}
+            onChange={e => setWinMins(Number(e.target.value))}
             className="text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none transition-all"
             style={{
               background: 'rgba(255,255,255,0.9)',

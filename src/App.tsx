@@ -12,6 +12,7 @@ import Register from './pages/auth/Register';
 import StudentProfile    from './pages/student/StudentProfile';
 import StudentAttendance from './pages/student/StudentAttendance';
 import StudentHistory    from './pages/student/StudentHistory';
+import QuickAttend       from './pages/student/QuickAttend';
 
 // Lecturer pages
 import Dashboard          from './pages/lecturer/Dashboard';
@@ -32,8 +33,9 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/"        element={<RootRedirect />} />
-      <Route path="/login"   element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/login"        element={<Login />} />
+      <Route path="/register"     element={<Register />} />
+      <Route path="/attend/:code" element={<QuickAttend />} />
 
       {/* Student routes */}
       <Route path="/student/profile"    element={<ProtectedRoute requiredRole="student"><StudentProfile /></ProtectedRoute>} />

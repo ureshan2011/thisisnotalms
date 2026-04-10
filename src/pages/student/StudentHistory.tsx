@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
-import { CalendarCheck, Clock, BookOpen, CheckCircle } from 'lucide-react';
+import { CalendarCheck, Clock, BookOpen, CheckCircle, CircleOff, ShieldCheck } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import type { AttendanceRecord } from '../../lib/types';
+import type { AttendanceRecord, AbsenceNotice } from '../../lib/types';
 import { formatDateTime } from '../../lib/utils';
 
 type RawRecord = Omit<AttendanceRecord, 'submittedAt'> & { submittedAt: Timestamp };
@@ -13,24 +13,45 @@ type RawRecord = Omit<AttendanceRecord, 'submittedAt'> & { submittedAt: Timestam
 export default function StudentHistory() {
   const { user } = useAuth();
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
+  const [absences, setAbsences] = useState<AbsenceNotice[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const snap = await getDocs(
-        query(
-          collection(db, 'attendanceRecords'),
-          where('studentUid', '==', user.uid),
-          orderBy('submittedAt', 'desc'),
-        )
-      );
+      const [attendanceSnap, absenceSnap] = await Promise.all([
+        getDocs(
+          query(
+            collection(db, 'attendanceRecords'),
+            where('studentUid', '==', user.uid),
+            orderBy('submittedAt', 'desc'),
+          )
+        ),
+        getDocs(
+          query(
+            collection(db, 'absenceNotices'),
+            where('studentUid', '==', user.uid),
+            orderBy('createdAt', 'desc'),
+          )
+        ),
+      ]);
       setRecords(
-        snap.docs.map(d => {
+        attendanceSnap.docs.map(d => {
           const r = d.data() as RawRecord;
           return { ...r, id: d.id, submittedAt: r.submittedAt?.toDate?.() ?? new Date() };
         })
       );
+      setAbsences(absenceSnap.docs.map(d => {
+        const a = d.data() as Record<string, unknown>;
+        return {
+          ...a,
+          id: d.id,
+          reportDateKey: (a.reportDateKey as string) || '',
+          status: ((a.status as 'absent' | 'excused') || 'absent'),
+          reason: (a.reason as string) || '',
+          createdAt: (a.createdAt as Timestamp)?.toDate?.() ?? new Date(),
+        } as AbsenceNotice;
+      }));
       setLoading(false);
     })();
   }, [user]);
@@ -39,6 +60,9 @@ export default function StudentHistory() {
   for (const r of records) {
     (bySession[r.sessionId] = bySession[r.sessionId] || []).push(r);
   }
+  const attendedDays = new Set(records.map(r => r.sessionId)).size;
+  const absentDays = absences.filter(a => a.status === 'absent').length;
+  const excusedDays = absences.filter(a => a.status === 'excused').length;
 
   if (loading) return <Layout><div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div></Layout>;
 
@@ -46,8 +70,28 @@ export default function StudentHistory() {
     <Layout>
       <PageHeader
         title="My Attendance History"
-        subtitle={`${records.length} attendance record${records.length !== 1 ? 's' : ''}`}
+        subtitle={`${records.length} attendance record${records.length !== 1 ? 's' : ''} · ${absences.length} absence notice${absences.length !== 1 ? 's' : ''}`}
       />
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5 max-w-3xl">
+        {[
+          { label: 'Attended days', value: attendedDays, icon: <CalendarCheck size={16} />, tone: '#059669', bg: 'rgba(16,185,129,0.09)' },
+          { label: 'Absent days', value: absentDays, icon: <CircleOff size={16} />, tone: '#dc2626', bg: 'rgba(239,68,68,0.10)' },
+          { label: 'Excused days', value: excusedDays, icon: <ShieldCheck size={16} />, tone: '#2563eb', bg: 'rgba(37,99,235,0.10)' },
+        ].map(card => (
+          <div
+            key={card.label}
+            className="rounded-3xl px-4 py-4 animate-fadeIn"
+            style={{ background: 'rgba(255,255,255,0.90)', border: '1px solid rgba(139,92,246,0.10)' }}
+          >
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-2" style={{ background: card.bg, color: card.tone }}>
+              {card.icon}
+            </div>
+            <p className="text-2xl font-black" style={{ color: '#1e1b4b' }}>{card.value}</p>
+            <p className="text-xs font-semibold" style={{ color: '#9ca3af' }}>{card.label}</p>
+          </div>
+        ))}
+      </div>
 
       {records.length === 0 ? (
         <div
@@ -141,6 +185,31 @@ export default function StudentHistory() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {absences.length > 0 && (
+        <div className="mt-6 max-w-2xl">
+          <h3 className="font-bold text-sm mb-3" style={{ color: '#1e1b4b' }}>Submitted absence notices</h3>
+          <div className="space-y-2">
+            {absences.map(a => (
+              <div
+                key={a.id}
+                className="rounded-2xl px-4 py-3 flex items-start justify-between gap-3"
+                style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid rgba(139,92,246,0.10)' }}
+              >
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-wide" style={{ color: a.status === 'excused' ? '#2563eb' : '#dc2626' }}>
+                    {a.status} · {a.reportDateKey}
+                  </p>
+                  <p className="text-sm font-medium mt-1" style={{ color: '#6b7280' }}>{a.reason}</p>
+                </div>
+                <span className="text-[11px] font-medium whitespace-nowrap" style={{ color: '#9ca3af' }}>
+                  {formatDateTime(a.createdAt)}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </Layout>

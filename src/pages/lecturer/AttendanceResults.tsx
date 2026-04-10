@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   doc, getDoc, collection, query, where, getDocs, orderBy, Timestamp,
 } from 'firebase/firestore';
-import { ArrowLeft, Download, Users, CheckCircle2, Clock, Filter } from 'lucide-react';
+import { ArrowLeft, Download, Users, CheckCircle2, Clock, Filter, CalendarCheck } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -35,14 +35,14 @@ function firestoreToSession(id: string, data: Record<string, unknown>): Attendan
 }
 
 export default function AttendanceResults() {
-  const { id } = useParams<{ id: string }>();
+  const { id }   = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [session,  setSession]  = useState<AttendanceSession | null>(null);
-  const [records,  setRecords]  = useState<AttendanceRecord[]>([]);
-  const [loading,  setLoading]  = useState(true);
-  const [filter,   setFilter]   = useState(''); // checkpoint label filter
+  const [session,       setSession]       = useState<AttendanceSession | null>(null);
+  const [records,       setRecords]       = useState<AttendanceRecord[]>([]);
+  const [loading,       setLoading]       = useState(true);
+  const [filter,        setFilter]        = useState('');
   const [sectionFilter, setSectionFilter] = useState('');
-  const [dayFilter, setDayFilter] = useState('');
+  const [dayFilter,     setDayFilter]     = useState('');
 
   useEffect(() => {
     if (!id) return;
@@ -67,19 +67,14 @@ export default function AttendanceResults() {
   }, [id]);
 
   const filtered = records.filter(r => {
-    const matchesCheckpoint = !filter || r.checkpointLabel === filter;
-    const section = r.studentSection || 'Unknown section';
-    const day = toDayKey(r.submittedAt);
-    const matchesSection = !sectionFilter || section === sectionFilter;
-    const matchesDay = !dayFilter || day === dayFilter;
-    return matchesCheckpoint && matchesSection && matchesDay;
+    const matchesCP      = !filter        || r.checkpointLabel === filter;
+    const matchesSection = !sectionFilter || (r.studentSection || 'Unknown section') === sectionFilter;
+    const matchesDay     = !dayFilter     || toDayKey(r.submittedAt) === dayFilter;
+    return matchesCP && matchesSection && matchesDay;
   });
 
-  // Unique students per checkpoint
   const cpLabels = session ? [...new Set(session.checkpoints.map(cp => cp.label))] : [];
-
-  // Students who attended ALL checkpoints
-  const allCps = cpLabels.length;
+  const allCps   = cpLabels.length;
   const stuByAll = allCps > 1
     ? Object.entries(
         records.reduce((acc, r) => {
@@ -93,29 +88,23 @@ export default function AttendanceResults() {
   const exportCSV = () => {
     const headers = ['Student Name','Student ID','Campus','Section','Checkpoint','Submitted At'];
     const rows = filtered.map(r => [
-      r.studentName,
-      r.studentDisplayId,
-      r.studentCampus || '',
-      r.studentSection || '',
-      r.checkpointLabel,
-      formatDateTime(r.submittedAt),
+      r.studentName, r.studentDisplayId, r.studentCampus || '', r.studentSection || '',
+      r.checkpointLabel, formatDateTime(r.submittedAt),
     ].map(v => `"${(v || '').replace(/"/g, '""')}"`));
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a');
-    a.href = url;
-    a.download = `attendance-${session?.title ?? id}.csv`;
-    a.click();
+    a.href = url; a.download = `attendance-${session?.title ?? id}.csv`; a.click();
     URL.revokeObjectURL(url);
   };
 
   if (loading) return <Layout><div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div></Layout>;
-  if (!session) return <Layout><p className="text-slate-500 p-6">Session not found.</p></Layout>;
+  if (!session) return <Layout><p className="py-8" style={{ color: '#9ca3af' }}>Session not found.</p></Layout>;
 
   const uniqueStudents = new Set(records.map(r => r.studentUid)).size;
   const sectionOptions = [...new Set(records.map(r => r.studentSection || 'Unknown section'))].sort();
-  const dayOptions = [...new Set(records.map(r => toDayKey(r.submittedAt)))].sort();
+  const dayOptions     = [...new Set(records.map(r => toDayKey(r.submittedAt)))].sort();
 
   return (
     <Layout>
@@ -136,12 +125,31 @@ export default function AttendanceResults() {
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        <SummaryCard label="Total submissions" value={records.length} icon={<CheckCircle2 size={16} />} color="indigo" />
-        <SummaryCard label="Unique students"   value={uniqueStudents}  icon={<Users size={16} />}        color="emerald" />
-        <SummaryCard label="Checkpoints"       value={cpLabels.length} icon={<Clock size={16} />}        color="violet" />
-        {stuByAll !== null && (
-          <SummaryCard label="Full attendance" value={stuByAll} icon={<CheckCircle2 size={16} />} color="amber" />
-        )}
+        {[
+          { label: 'Total submissions', value: records.length,    icon: <CheckCircle2 size={16} />, gradient: 'linear-gradient(135deg,#7c3aed,#a78bfa)', textColor: '#7c3aed' },
+          { label: 'Unique students',   value: uniqueStudents,    icon: <Users size={16} />,        gradient: 'linear-gradient(135deg,#10b981,#2dd4bf)', textColor: '#059669' },
+          { label: 'Checkpoints',       value: cpLabels.length,   icon: <Clock size={16} />,        gradient: 'linear-gradient(135deg,#f59e0b,#f97316)', textColor: '#d97706' },
+          ...(stuByAll !== null ? [{ label: 'Full attendance', value: stuByAll, icon: <CheckCircle2 size={16} />, gradient: 'linear-gradient(135deg,#6366f1,#8b5cf6)', textColor: '#4338ca' }] : []),
+        ].map((s) => (
+          <div
+            key={s.label}
+            className="rounded-3xl p-5 animate-fadeIn"
+            style={{
+              background: 'rgba(255,255,255,0.90)',
+              border: '1px solid rgba(139,92,246,0.10)',
+              boxShadow: '0 2px 16px rgba(124,106,247,0.06)',
+            }}
+          >
+            <div
+              className="w-9 h-9 rounded-2xl flex items-center justify-center text-white mb-3 shadow-lg"
+              style={{ background: s.gradient }}
+            >
+              {s.icon}
+            </div>
+            <p className="text-2xl font-black" style={{ color: s.textColor }}>{s.value}</p>
+            <p className="text-xs font-semibold mt-0.5" style={{ color: '#9ca3af' }}>{s.label}</p>
+          </div>
+        ))}
       </div>
 
       {/* Per-checkpoint summary */}
@@ -150,22 +158,49 @@ export default function AttendanceResults() {
           {cpLabels.map(label => {
             const count = records.filter(r => r.checkpointLabel === label).length;
             const cp    = session.checkpoints.find(c => c.label === label);
+            const isActive = filter === label;
             return (
               <div
                 key={label}
                 onClick={() => setFilter(f => f === label ? '' : label)}
-                className={`card p-4 cursor-pointer transition-all ${filter === label ? 'ring-2 ring-brand-500 border-brand-100' : 'hover:shadow-md'}`}
+                className="rounded-3xl p-5 cursor-pointer transition-all duration-200 animate-fadeIn"
+                style={{
+                  background: isActive
+                    ? 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(167,139,250,0.05))'
+                    : 'rgba(255,255,255,0.90)',
+                  border: `1px solid ${isActive ? 'rgba(124,58,237,0.25)' : 'rgba(139,92,246,0.10)'}`,
+                  boxShadow: isActive
+                    ? '0 8px 24px rgba(124,106,247,0.14)'
+                    : '0 2px 12px rgba(124,106,247,0.05)',
+                  transform: isActive ? 'translateY(-2px)' : undefined,
+                }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="badge bg-brand-100 text-brand-700">{label}</span>
-                  {filter === label && <span className="text-xs text-brand-600 font-medium">Filtering</span>}
+                <div className="flex items-center justify-between mb-3">
+                  <span
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold"
+                    style={{
+                      background: 'rgba(124,58,237,0.10)',
+                      color: '#7c3aed',
+                    }}
+                  >
+                    {label}
+                  </span>
+                  {isActive && (
+                    <span className="text-xs font-semibold" style={{ color: '#a78bfa' }}>Filtering ✓</span>
+                  )}
                 </div>
-                <p className="text-2xl font-bold text-slate-800">{count}</p>
-                <p className="text-xs text-slate-400">submissions</p>
+                <p className="text-3xl font-black" style={{ color: '#1e1b4b' }}>{count}</p>
+                <p className="text-xs font-medium mt-0.5" style={{ color: '#9ca3af' }}>submissions</p>
                 {cp && (
-                  <p className="text-xs text-slate-400 mt-1">
-                    Code: <code className="font-mono font-bold text-slate-600">{cp.code}</code>
-                    {' '}· {cp.windowMinutes}min window
+                  <p className="text-xs mt-2 font-medium" style={{ color: '#c4b5fd' }}>
+                    Code:{' '}
+                    <code
+                      className="font-mono font-bold px-1.5 py-0.5 rounded-lg"
+                      style={{ background: 'rgba(124,58,237,0.08)', color: '#7c3aed', letterSpacing: '0.1em' }}
+                    >
+                      {cp.code}
+                    </code>
+                    {' '}· {cp.windowMinutes}min
                   </p>
                 )}
               </div>
@@ -175,76 +210,150 @@ export default function AttendanceResults() {
       )}
 
       {/* Record table */}
-      <div className="card overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-          <h3 className="font-semibold text-slate-700 text-sm">
-            Submission log
-            {filter && <span className="ml-2 text-brand-600">— {filter}</span>}
+      <div
+        className="overflow-hidden rounded-3xl animate-fadeIn"
+        style={{
+          background: 'rgba(255,255,255,0.90)',
+          border: '1px solid rgba(139,92,246,0.10)',
+          boxShadow: '0 2px 16px rgba(124,106,247,0.06)',
+        }}
+      >
+        {/* Table toolbar */}
+        <div
+          className="flex items-center justify-between px-5 py-4"
+          style={{ borderBottom: '1px solid rgba(139,92,246,0.08)' }}
+        >
+          <h3 className="font-bold text-sm" style={{ color: '#1e1b4b' }}>
+            Submission log{filter && <span style={{ color: '#a78bfa', fontWeight: 500 }}> — {filter}</span>}
           </h3>
           {(filter || sectionFilter || dayFilter) && (
             <button
               onClick={() => { setFilter(''); setSectionFilter(''); setDayFilter(''); }}
-              className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1"
+              className="flex items-center gap-1.5 text-xs font-semibold transition-colors"
+              style={{ color: '#a78bfa' }}
             >
               <Filter size={12} /> Clear filters
             </button>
           )}
         </div>
-        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/70">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <select className="input-field !py-2" value={sectionFilter} onChange={e => setSectionFilter(e.target.value)}>
-              <option value="">All sections</option>
-              {sectionOptions.map(section => <option key={section} value={section}>{section}</option>)}
-            </select>
-            <select className="input-field !py-2" value={dayFilter} onChange={e => setDayFilter(e.target.value)}>
-              <option value="">All days</option>
-              {dayOptions.map(day => <option key={day} value={day}>{formatDisplayDay(day)}</option>)}
-            </select>
-          </div>
+
+        {/* Filter bar */}
+        <div
+          className="px-5 py-3 flex gap-3"
+          style={{
+            borderBottom: '1px solid rgba(139,92,246,0.06)',
+            background: 'linear-gradient(135deg, rgba(245,243,255,0.5), transparent)',
+          }}
+        >
+          <select
+            className="input-field sm:w-44 py-2 text-xs"
+            value={sectionFilter}
+            onChange={e => setSectionFilter(e.target.value)}
+          >
+            <option value="">All sections</option>
+            {sectionOptions.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+          <select
+            className="input-field sm:w-44 py-2 text-xs"
+            value={dayFilter}
+            onChange={e => setDayFilter(e.target.value)}
+          >
+            <option value="">All days</option>
+            {dayOptions.map(d => <option key={d} value={d}>{formatDisplayDay(d)}</option>)}
+          </select>
         </div>
+
         {filtered.length === 0 ? (
-          <p className="text-center text-slate-400 text-sm py-10">No records {filter ? 'for this checkpoint' : 'yet'}</p>
+          <div className="py-16 flex flex-col items-center gap-3">
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center"
+              style={{ background: 'rgba(124,58,237,0.06)' }}
+            >
+              <CalendarCheck size={20} style={{ color: '#c4b5fd' }} />
+            </div>
+            <p className="text-sm font-medium" style={{ color: '#c4b5fd' }}>
+              No records {filter ? 'for this checkpoint' : 'yet'}
+            </p>
+          </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-100">
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">#</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Student</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">ID</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Campus</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Section</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Checkpoint</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Submitted at</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {filtered.map((r, i) => (
-                  <tr key={r.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 text-xs text-slate-400 tabular-nums">{i + 1}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
-                          {(r.studentName || '?')[0]?.toUpperCase()}
-                        </div>
-                        <span className="text-sm font-medium text-slate-800">{r.studentName || '—'}</span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 hidden sm:table-cell">
-                      <code className="text-xs text-slate-500 font-mono">{r.studentDisplayId}</code>
-                    </td>
-                    <td className="px-4 py-3 hidden lg:table-cell text-sm text-slate-600">{r.studentCampus || '—'}</td>
-                    <td className="px-4 py-3 hidden md:table-cell text-sm text-slate-600">{r.studentSection || '—'}</td>
-                    <td className="px-4 py-3">
-                      <span className="badge bg-brand-100 text-brand-700">{r.checkpointLabel}</span>
-                    </td>
-                    <td className="px-4 py-3 hidden md:table-cell">
-                      <span className="text-xs text-slate-500">{formatDateTime(r.submittedAt)}</span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {/* Header row */}
+            <div
+              className="flex items-center px-5 py-3"
+              style={{ borderBottom: '1px solid rgba(139,92,246,0.06)' }}
+            >
+              <span className="table-header-cell w-10">#</span>
+              <span className="table-header-cell flex-1">Student</span>
+              <span className="table-header-cell w-32 hidden sm:block">ID</span>
+              <span className="table-header-cell w-28 hidden lg:block">Campus</span>
+              <span className="table-header-cell w-24 hidden md:block">Section</span>
+              <span className="table-header-cell w-32">Checkpoint</span>
+              <span className="table-header-cell w-40 hidden md:block">Submitted at</span>
+            </div>
+
+            {filtered.map((r, i) => (
+              <div
+                key={r.id}
+                className="flex items-center px-5 py-3.5 transition-all duration-100"
+                style={{
+                  borderBottom: i < filtered.length - 1 ? '1px solid rgba(139,92,246,0.04)' : 'none',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLDivElement).style.background = 'rgba(245,243,255,0.6)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLDivElement).style.background = 'transparent';
+                }}
+              >
+                <span className="text-xs font-mono w-10" style={{ color: '#c4b5fd' }}>{i + 1}</span>
+                <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                  <div
+                    className="avatar w-8 h-8 text-xs flex-shrink-0"
+                    style={{
+                      background: `linear-gradient(135deg, hsl(${(r.studentName?.charCodeAt(0) ?? 0) * 4 % 360}, 65%, 55%), hsl(${(r.studentName?.charCodeAt(0) ?? 0) * 4 % 360 + 30}, 70%, 65%))`,
+                    }}
+                  >
+                    {(r.studentName || '?')[0]?.toUpperCase()}
+                  </div>
+                  <span className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>
+                    {r.studentName || '—'}
+                  </span>
+                </div>
+                <code className="text-xs w-32 hidden sm:block font-mono font-semibold" style={{ color: '#8b7fa6' }}>
+                  {r.studentDisplayId}
+                </code>
+                <span className="text-xs w-28 hidden lg:block font-medium" style={{ color: '#6b7280' }}>
+                  {r.studentCampus || '—'}
+                </span>
+                <span className="text-xs w-24 hidden md:block font-medium" style={{ color: '#6b7280' }}>
+                  {r.studentSection || '—'}
+                </span>
+                <div className="w-32">
+                  <span
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold"
+                    style={{ background: 'rgba(124,58,237,0.08)', color: '#7c3aed' }}
+                  >
+                    {r.checkpointLabel}
+                  </span>
+                </div>
+                <span className="text-xs w-40 hidden md:block font-medium" style={{ color: '#9ca3af' }}>
+                  {formatDateTime(r.submittedAt)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {filtered.length > 0 && (
+          <div
+            className="px-5 py-3 text-xs font-semibold"
+            style={{
+              borderTop: '1px solid rgba(139,92,246,0.06)',
+              background: 'linear-gradient(135deg, rgba(245,243,255,0.5), transparent)',
+              color: '#a78bfa',
+            }}
+          >
+            {filtered.length} record{filtered.length !== 1 ? 's' : ''} shown
           </div>
         )}
       </div>
@@ -255,26 +364,6 @@ export default function AttendanceResults() {
 function toDayKey(date: Date) {
   return date.toISOString().slice(0, 10);
 }
-
 function formatDisplayDay(dayKey: string) {
-  const date = new Date(`${dayKey}T00:00:00`);
-  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-}
-
-function SummaryCard({ label, value, icon, color }: {
-  label: string; value: number; icon: React.ReactNode;
-  color: 'indigo' | 'emerald' | 'violet' | 'amber';
-}) {
-  const cls = {
-    indigo:  'bg-indigo-50 text-indigo-600',
-    emerald: 'bg-emerald-50 text-emerald-600',
-    violet:  'bg-violet-50 text-violet-600',
-    amber:   'bg-amber-50 text-amber-600',
-  }[color];
-  return (
-    <div className={`card p-4 ${cls}`}>
-      <div className="flex items-center gap-2 mb-1 opacity-70">{icon}<span className="text-xs font-medium">{label}</span></div>
-      <p className="text-3xl font-black">{value}</p>
-    </div>
-  );
+  return new Date(`${dayKey}T00:00:00`).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }

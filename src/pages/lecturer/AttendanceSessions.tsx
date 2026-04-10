@@ -5,7 +5,7 @@ import {
 } from 'firebase/firestore';
 import {
   Plus, Play, StopCircle, Clock, CheckCircle2,
-  CalendarCheck, ChevronRight, Zap, Eye,
+  CalendarCheck, ChevronRight, Zap, Eye, Radio,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { db } from '../../lib/firebase';
@@ -60,7 +60,6 @@ export default function AttendanceSessions() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Tick active checkpoints
   useEffect(() => {
     const id = setInterval(() => {
       const next: Record<string, number> = {};
@@ -97,25 +96,18 @@ export default function AttendanceSessions() {
     const expires = new Date(now.getTime() + windowMins * 60 * 1000);
     const code    = generateCode(6);
     const cpId    = `cp_${Date.now()}`;
-
-    const newCp = {
-      id:            cpId,
-      label,
-      code,
-      windowMinutes: windowMins,
-      startTime:     Timestamp.fromDate(now),
-      expiresAt:     Timestamp.fromDate(expires),
-      isActive:      true,
+    const newCp   = {
+      id: cpId, label, code, windowMinutes: windowMins,
+      startTime: Timestamp.fromDate(now),
+      expiresAt: Timestamp.fromDate(expires),
+      isActive:  true,
     };
-
-    // Deactivate previous checkpoints first
     const updatedCps = session.checkpoints.map(cp => ({
       ...cp,
       startTime: Timestamp.fromDate(cp.startTime),
       expiresAt: Timestamp.fromDate(cp.expiresAt),
       isActive:  false,
     }));
-
     await updateDoc(doc(db, 'attendanceSessions', session.id), {
       checkpoints: [...updatedCps, newCp],
     });
@@ -145,7 +137,7 @@ export default function AttendanceSessions() {
     <Layout>
       <PageHeader
         title="Attendance Sessions"
-        subtitle="Create and manage live attendance"
+        subtitle="Create and manage live attendance checkpoints"
         actions={
           <button onClick={() => setModal(true)} className="btn-primary">
             <Plus size={16} /> New session
@@ -155,8 +147,11 @@ export default function AttendanceSessions() {
 
       {/* Active sessions */}
       {active.length > 0 && (
-        <div className="mb-8 space-y-4">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Active</h2>
+        <div className="mb-8 space-y-4 animate-fadeIn">
+          <div className="flex items-center gap-2">
+            <Radio size={14} style={{ color: '#10b981' }} />
+            <span className="section-label !mb-0">Live sessions</span>
+          </div>
           {active.map(s => (
             <ActiveSessionCard
               key={s.id}
@@ -172,40 +167,87 @@ export default function AttendanceSessions() {
 
       {/* Closed sessions */}
       {closed.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Past sessions</h2>
-          {closed.map(s => (
+        <div className="space-y-3 animate-fadeIn">
+          <span className="section-label">Past sessions</span>
+          {closed.map((s, idx) => (
             <div
               key={s.id}
               onClick={() => navigate(`/lecturer/attendance/${s.id}`)}
-              className="card p-4 flex items-center gap-4 cursor-pointer hover:shadow-md transition-shadow group"
+              className="flex items-center gap-4 px-5 py-4 rounded-3xl cursor-pointer group transition-all duration-200"
+              style={{
+                background: 'rgba(255,255,255,0.88)',
+                border: '1px solid rgba(139,92,246,0.08)',
+                boxShadow: '0 2px 12px rgba(124,106,247,0.05)',
+                animationDelay: `${idx * 0.03}s`,
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLDivElement).style.boxShadow = '0 8px 24px rgba(124,106,247,0.12)';
+                (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 12px rgba(124,106,247,0.05)';
+                (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
+              }}
             >
-              <div className="bg-slate-100 text-slate-500 p-2.5 rounded-xl">
-                <CalendarCheck size={18} />
+              <div
+                className="rounded-2xl p-2.5 flex-shrink-0"
+                style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(167,139,250,0.05))' }}
+              >
+                <CalendarCheck size={18} style={{ color: '#a78bfa' }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-slate-800">{s.title}</p>
-                <p className="text-xs text-slate-400">{s.course} · {formatDateTime(s.date)}</p>
+                <p className="font-semibold text-sm truncate" style={{ color: '#1e1b4b' }}>{s.title}</p>
+                <p className="text-xs font-medium mt-0.5" style={{ color: '#9ca3af' }}>
+                  {s.course} · {formatDateTime(s.date)}
+                </p>
               </div>
-              <div className="flex items-center gap-3">
-                <span className="badge bg-slate-100 text-slate-500">{s.checkpoints.length} checkpoint{s.checkpoints.length !== 1 ? 's' : ''}</span>
-                <ChevronRight size={16} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
+              <div className="flex items-center gap-3 flex-shrink-0">
+                <span
+                  className="badge-slate text-xs"
+                  style={{
+                    background: 'rgba(139,92,246,0.08)',
+                    color: '#8b7fa6',
+                    padding: '3px 10px',
+                    borderRadius: '99px',
+                    fontWeight: 600,
+                  }}
+                >
+                  {s.checkpoints.length} checkpoint{s.checkpoints.length !== 1 ? 's' : ''}
+                </span>
+                <ChevronRight
+                  size={15}
+                  className="transition-transform duration-150 group-hover:translate-x-0.5"
+                  style={{ color: '#c4b5fd' }}
+                />
               </div>
             </div>
           ))}
         </div>
       )}
 
+      {/* Empty state */}
       {sessions.length === 0 && (
-        <div className="card p-12 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="bg-brand-50 p-4 rounded-2xl">
-              <CalendarCheck size={32} className="text-brand-500" />
-            </div>
+        <div
+          className="p-16 rounded-3xl flex flex-col items-center gap-4 text-center animate-fadeIn"
+          style={{
+            background: 'rgba(255,255,255,0.88)',
+            border: '1px solid rgba(139,92,246,0.10)',
+            boxShadow: '0 2px 16px rgba(124,106,247,0.06)',
+          }}
+        >
+          <div
+            className="w-16 h-16 rounded-3xl flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.10), rgba(167,139,250,0.06))' }}
+          >
+            <CalendarCheck size={28} style={{ color: '#a78bfa' }} />
           </div>
-          <h3 className="font-semibold text-slate-700 mb-1">No sessions yet</h3>
-          <p className="text-sm text-slate-400 mb-4">Create a session when your class begins to start taking attendance.</p>
-          <button onClick={() => setModal(true)} className="btn-primary mx-auto">
+          <div>
+            <h3 className="font-bold text-base mb-1" style={{ color: '#1e1b4b' }}>No sessions yet</h3>
+            <p className="text-sm font-medium" style={{ color: '#9ca3af' }}>
+              Create a session when your class begins to start tracking attendance.
+            </p>
+          </div>
+          <button onClick={() => setModal(true)} className="btn-primary">
             <Plus size={16} /> Create first session
           </button>
         </div>
@@ -215,20 +257,37 @@ export default function AttendanceSessions() {
       <Modal open={modal} onClose={() => setModal(false)} title="New attendance session">
         <div className="space-y-4">
           <div>
-            <label className="label">Session title <span className="text-red-400">*</span></label>
-            <input className="input-field" placeholder="e.g. Week 3 — Machine Learning" value={form.title}
-              onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+            <label className="label">Session title <span style={{ color: '#e11d48' }}>*</span></label>
+            <input
+              className="input-field"
+              placeholder="e.g. Week 3 — Machine Learning"
+              value={form.title}
+              onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+            />
           </div>
           <div>
-            <label className="label">Course <span className="text-red-400">*</span></label>
-            <input className="input-field" placeholder="e.g. MSc Data Science" value={form.course}
-              onChange={e => setForm(f => ({ ...f, course: e.target.value }))} />
+            <label className="label">Course <span style={{ color: '#e11d48' }}>*</span></label>
+            <input
+              className="input-field"
+              placeholder="e.g. MSc Data Science"
+              value={form.course}
+              onChange={e => setForm(f => ({ ...f, course: e.target.value }))}
+            />
           </div>
-          <p className="text-xs text-slate-400 bg-slate-50 rounded-xl px-3 py-2.5">
+          <div
+            className="rounded-2xl px-4 py-3 text-xs font-medium"
+            style={{
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.06), rgba(167,139,250,0.04))',
+              color: '#8b7fa6',
+              border: '1px solid rgba(139,92,246,0.10)',
+            }}
+          >
             After creating the session you can launch checkpoints with custom time windows.
-          </p>
-          <div className="flex gap-3 pt-2">
-            <button onClick={() => setModal(false)} className="btn-secondary flex-1">Cancel</button>
+          </div>
+          <div className="flex gap-3 pt-1">
+            <button onClick={() => setModal(false)} className="btn-secondary flex-1 justify-center">
+              Cancel
+            </button>
             <button
               onClick={createSession}
               disabled={creating || !form.title || !form.course}
@@ -257,8 +316,8 @@ function ActiveSessionCard({
   const [closing,   setClosing]   = useState(false);
   const [window,    setWindow]    = useState(4);
 
-  const activeCP = session.checkpoints.find(cp => cp.isActive && cp.expiresAt > new Date());
-  const cpCount  = session.checkpoints.length;
+  const activeCP  = session.checkpoints.find(cp => cp.isActive && cp.expiresAt > new Date());
+  const cpCount   = session.checkpoints.length;
   const nextLabel = cpCount === 0 ? 'Opening' : cpCount === 1 ? 'Mid-session' : `Checkpoint ${cpCount + 1}`;
 
   const doLaunch = async () => {
@@ -275,29 +334,48 @@ function ActiveSessionCard({
   };
 
   const secsLeft = activeCP ? (ticking[`${session.id}-${activeCP.id}`] ?? secondsUntil(activeCP.expiresAt)) : 0;
+  const pct      = activeCP ? Math.round((secsLeft / (activeCP.windowMinutes * 60)) * 100) : 0;
 
   return (
-    <div className="card p-6 border-brand-100 animate-fadeIn">
+    <div
+      className="rounded-3xl p-6 animate-fadeIn"
+      style={{
+        background: 'rgba(255,255,255,0.92)',
+        border: '1px solid rgba(124,58,237,0.15)',
+        boxShadow: '0 4px 24px rgba(124,58,237,0.10)',
+      }}
+    >
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-start gap-4 mb-5">
-        <div className="bg-brand-600 text-white p-3 rounded-xl">
-          <CalendarCheck size={20} />
+        <div
+          className="w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0"
+          style={{ background: 'linear-gradient(135deg, #7c3aed, #a78bfa)', boxShadow: '0 6px 16px rgba(124,58,237,0.30)' }}
+        >
+          <CalendarCheck size={19} color="white" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-bold text-slate-800">{session.title}</h3>
-            <span className="badge bg-emerald-100 text-emerald-700 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <h3 className="font-bold text-base" style={{ color: '#1e1b4b' }}>{session.title}</h3>
+            <span
+              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold"
+              style={{
+                background: 'rgba(16,185,129,0.10)',
+                color: '#059669',
+                border: '1px solid rgba(16,185,129,0.20)',
+              }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
               Live
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">{session.course}</p>
+          <p className="text-xs font-medium mt-0.5" style={{ color: '#9ca3af' }}>{session.course}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={onView} className="btn-secondary">
-            <Eye size={14} /> Results
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <button onClick={onView} className="btn-secondary py-2 px-4 text-xs">
+            <Eye size={13} /> Results
           </button>
-          <button onClick={doClose} disabled={closing} className="btn-danger">
-            {closing ? <LoadingSpinner size="sm" /> : <StopCircle size={14} />}
+          <button onClick={doClose} disabled={closing} className="btn-danger py-2 px-4 text-xs">
+            {closing ? <LoadingSpinner size="sm" /> : <StopCircle size={13} />}
             Close
           </button>
         </div>
@@ -305,46 +383,110 @@ function ActiveSessionCard({
 
       {/* Active code display */}
       {activeCP && secsLeft > 0 ? (
-        <div className="bg-brand-50 border border-brand-100 rounded-2xl p-6 mb-5 text-center pulse-ring">
-          <p className="text-xs font-semibold text-brand-500 uppercase tracking-widest mb-2">{activeCP.label} · Active code</p>
-          <p className="code-display text-4xl font-black text-brand-700 tracking-[0.3em] mb-3">{activeCP.code}</p>
-          <div className="flex items-center justify-center gap-2 text-sm text-brand-600">
+        <div
+          className="rounded-3xl p-6 mb-5 text-center pulse-ring"
+          style={{
+            background: 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(167,139,250,0.04) 100%)',
+            border: '1px solid rgba(124,58,237,0.15)',
+          }}
+        >
+          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: '#a78bfa', letterSpacing: '0.1em' }}>
+            {activeCP.label} · Active Code
+          </p>
+          <p
+            className="code-display text-5xl font-black mb-4 tracking-[0.3em]"
+            style={{
+              background: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            {activeCP.code}
+          </p>
+          <div
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold mb-3"
+            style={{
+              background: 'rgba(124,58,237,0.08)',
+              color: '#7c3aed',
+            }}
+          >
             <Clock size={14} />
-            <span className="tabular-nums font-semibold">
+            <span className="tabular-nums">
               {String(Math.floor(secsLeft / 60)).padStart(2, '0')}:{String(secsLeft % 60).padStart(2, '0')} remaining
             </span>
           </div>
           {/* Progress bar */}
-          <div className="mt-3 h-1.5 bg-brand-100 rounded-full overflow-hidden">
+          <div className="h-2 rounded-full mx-auto max-w-xs overflow-hidden"
+            style={{ background: 'rgba(124,58,237,0.10)' }}
+          >
             <div
-              className="h-full bg-brand-500 rounded-full transition-all duration-1000"
-              style={{ width: `${Math.round((secsLeft / (activeCP.windowMinutes * 60)) * 100)}%` }}
+              className="h-full rounded-full transition-all duration-1000"
+              style={{
+                width: `${pct}%`,
+                background: pct < 20
+                  ? 'linear-gradient(90deg, #ef4444, #f97316)'
+                  : 'linear-gradient(90deg, #7c3aed, #a78bfa)',
+              }}
             />
           </div>
         </div>
       ) : (
-        <div className="bg-slate-50 rounded-2xl p-4 mb-5 text-center text-sm text-slate-400">
-          {cpCount === 0 ? 'No checkpoints launched yet.' : 'Last checkpoint has expired.'}
-          {' '}Launch a new one below.
+        <div
+          className="rounded-3xl p-5 mb-5 text-center"
+          style={{
+            background: 'rgba(245,243,255,0.6)',
+            border: '1px solid rgba(139,92,246,0.08)',
+          }}
+        >
+          <p className="text-sm font-medium" style={{ color: '#9ca3af' }}>
+            {cpCount === 0 ? 'No checkpoints launched yet.' : 'Last checkpoint has expired.'}
+            {' '}Launch a new one below.
+          </p>
         </div>
       )}
 
       {/* Checkpoint history */}
       {session.checkpoints.length > 0 && (
-        <div className="mb-4 space-y-1.5">
+        <div className="mb-4 space-y-2">
           {session.checkpoints.map(cp => {
             const expired = cp.expiresAt <= new Date();
             return (
-              <div key={cp.id} className="flex items-center justify-between px-3 py-2 bg-slate-50 rounded-xl text-xs">
-                <span className="font-medium text-slate-600">{cp.label}</span>
+              <div
+                key={cp.id}
+                className="flex items-center justify-between px-4 py-2.5 rounded-2xl"
+                style={{
+                  background: expired ? 'rgba(245,243,255,0.5)' : 'rgba(124,58,237,0.05)',
+                  border: `1px solid ${expired ? 'rgba(139,92,246,0.06)' : 'rgba(124,58,237,0.12)'}`,
+                }}
+              >
+                <span className="text-xs font-semibold" style={{ color: expired ? '#9ca3af' : '#7c3aed' }}>
+                  {cp.label}
+                </span>
                 <div className="flex items-center gap-2">
-                  <code className="font-mono text-slate-700 font-bold">{cp.code}</code>
-                  {expired
-                    ? <span className="badge bg-slate-100 text-slate-400"><CheckCircle2 size={11} /> Expired</span>
-                    : <span className="badge bg-brand-100 text-brand-600 flex items-center gap-1">
-                        <span className="w-1 h-1 rounded-full bg-brand-500 animate-pulse" />Active
-                      </span>
-                  }
+                  <code
+                    className="font-mono text-xs font-bold px-2 py-0.5 rounded-lg"
+                    style={{
+                      background: expired ? 'rgba(139,92,246,0.06)' : 'rgba(124,58,237,0.10)',
+                      color: expired ? '#9ca3af' : '#7c3aed',
+                      letterSpacing: '0.12em',
+                    }}
+                  >
+                    {cp.code}
+                  </code>
+                  {expired ? (
+                    <span className="badge-slate flex items-center gap-1">
+                      <CheckCircle2 size={10} /> Expired
+                    </span>
+                  ) : (
+                    <span
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
+                      style={{ background: 'rgba(124,58,237,0.10)', color: '#7c3aed' }}
+                    >
+                      <span className="w-1 h-1 rounded-full bg-brand-500 animate-pulse" />
+                      Active
+                    </span>
+                  )}
                 </div>
               </div>
             );
@@ -353,13 +495,19 @@ function ActiveSessionCard({
       )}
 
       {/* Launch next checkpoint */}
-      <div className="flex items-center gap-3 flex-wrap">
+      <div className="flex items-center gap-3 flex-wrap pt-1">
         <div className="flex items-center gap-2">
-          <label className="text-xs text-slate-500 font-medium">Window:</label>
+          <label className="text-xs font-semibold" style={{ color: '#8b7fa6' }}>Window:</label>
           <select
             value={window}
             onChange={e => setWindow(Number(e.target.value))}
-            className="text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-brand-400"
+            className="text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none transition-all"
+            style={{
+              background: 'rgba(255,255,255,0.9)',
+              border: '1px solid rgba(139,92,246,0.18)',
+              color: '#7c3aed',
+              boxShadow: '0 1px 4px rgba(124,106,247,0.06)',
+            }}
           >
             {WINDOW_OPTIONS.map(w => (
               <option key={w} value={w}>{w} min</option>

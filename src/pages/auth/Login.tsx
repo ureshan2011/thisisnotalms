@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, LogIn } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Sparkles } from 'lucide-react';
 import BrandMark from '../../components/ui/BrandMark';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/ui/ToastProvider';
@@ -20,9 +20,8 @@ export default function Login() {
     setLoading(true);
     try {
       await login(email, password);
-      // role is resolved in AuthContext; navigate after a tick
       setTimeout(() => {
-        const r = role; // may not be updated yet; App.tsx redirect handles it
+        const r = role;
         if (r === 'lecturer') navigate('/lecturer/dashboard');
         else navigate('/student/profile');
       }, 100);
@@ -34,52 +33,95 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-brand-900 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+    <div
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 40%, #f0f9ff 100%)',
+      }}
+    >
+      {/* Decorative orbs */}
+      <div className="auth-orb-1" />
+      <div className="auth-orb-2" />
+      <div className="auth-orb-3" />
+
+      {/* Background pattern */}
+      <div className="absolute inset-0 pointer-events-none opacity-30"
+        style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(139,92,246,0.15) 1px, transparent 0)`,
+          backgroundSize: '32px 32px',
+        }}
+      />
+
+      <div className="w-full max-w-sm relative z-10 animate-slideUp">
         {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl">
-              <BrandMark className="h-14 w-14" />
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative mb-4">
+            <div className="absolute inset-0 bg-brand-400/25 rounded-3xl blur-xl animate-pulse" />
+            <div
+              className="relative rounded-3xl p-4 shadow-xl"
+              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)' }}
+            >
+              <BrandMark className="h-10 w-10 text-white" />
             </div>
-            <span className="text-white font-bold text-2xl tracking-tight">YooBees</span>
           </div>
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#1e1b4b' }}>YooBees</h1>
+          <p className="text-sm font-medium mt-0.5" style={{ color: '#a78bfa' }}>Attendance Management</p>
         </div>
 
         {/* Card */}
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-8 shadow-2xl">
-          <h2 className="text-white text-xl font-bold mb-1">Welcome back</h2>
-          <p className="text-slate-300 text-sm mb-6">Sign in to your account</p>
-
+        <div
+          className="w-full p-8 animate-scaleIn"
+          style={{
+            background: 'rgba(255,255,255,0.88)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            borderRadius: '28px',
+            border: '1px solid rgba(255,255,255,0.7)',
+            boxShadow: '0 24px 64px rgba(124,106,247,0.14), 0 8px 24px rgba(0,0,0,0.06)',
+          }}
+        >
+          {/* Header */}
+          <div className="flex items-center gap-2.5 mb-6">
+            <div
+              className="rounded-2xl p-2"
+              style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.10) 0%, rgba(167,139,250,0.08) 100%)' }}
+            >
+              <Sparkles size={16} style={{ color: '#7c3aed' }} />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold tracking-tight" style={{ color: '#1e1b4b' }}>Welcome back</h2>
+              <p className="text-xs font-medium" style={{ color: '#9ca3af' }}>Sign in to continue</p>
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-1.5">Email</label>
+              <label className="label">Email address</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
                 placeholder="you@university.edu"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+                className="input-field"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-1.5">Password</label>
+              <label className="label">Password</label>
               <div className="relative">
                 <input
                   type={showPw ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
-                  placeholder="••••••••"
-                  className="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+                  placeholder="Enter your password"
+                  className="input-field pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-500 transition-colors"
                 >
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -89,10 +131,13 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl transition-all duration-150 text-sm disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+              className="btn-primary w-full justify-center mt-2 py-3"
             >
               {loading ? (
-                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div
+                  className="h-4 w-4 rounded-full animate-spin"
+                  style={{ border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }}
+                />
               ) : (
                 <>
                   <LogIn size={16} />
@@ -102,10 +147,17 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="text-center text-slate-400 text-sm mt-6">
-            No account?{' '}
-            <Link to="/register" className="text-brand-300 hover:text-white font-medium transition-colors">
-              Register
+          {/* Divider */}
+          <div className="divider my-5" />
+
+          <p className="text-center text-sm" style={{ color: '#9ca3af' }}>
+            Don't have an account?{' '}
+            <Link
+              to="/register"
+              className="font-semibold transition-colors hover:underline"
+              style={{ color: '#7c3aed' }}
+            >
+              Create one
             </Link>
           </p>
         </div>

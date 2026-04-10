@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, UserPlus } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, GraduationCap, BookOpen } from 'lucide-react';
 import BrandMark from '../../components/ui/BrandMark';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/ui/ToastProvider';
@@ -23,12 +23,11 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (password !== confirm) {
       showToast({ type: 'error', title: 'Validation error', description: 'Passwords do not match.' });
       return;
     }
-    if (password.length < 6)  {
+    if (password.length < 6) {
       showToast({ type: 'error', title: 'Validation error', description: 'Password must be at least 6 characters.' });
       return;
     }
@@ -40,7 +39,6 @@ export default function Register() {
       showToast({ type: 'error', title: 'Validation error', description: 'Invalid lecturer registration code.' });
       return;
     }
-
     setLoading(true);
     try {
       await register(email, password, role);
@@ -53,95 +51,153 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-brand-900 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="flex justify-center mb-8">
-          <div className="flex items-center gap-3">
-            <div className="rounded-2xl">
-              <BrandMark className="h-14 w-14" />
+    <div
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 40%, #f0f9ff 100%)',
+      }}
+    >
+      {/* Decorative orbs */}
+      <div className="auth-orb-1" />
+      <div className="auth-orb-2" />
+      <div className="auth-orb-3" />
+
+      {/* Background pattern */}
+      <div className="absolute inset-0 pointer-events-none opacity-30"
+        style={{
+          backgroundImage: `radial-gradient(circle at 1px 1px, rgba(139,92,246,0.15) 1px, transparent 0)`,
+          backgroundSize: '32px 32px',
+        }}
+      />
+
+      <div className="w-full max-w-sm relative z-10 animate-slideUp">
+        {/* Logo */}
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative mb-4">
+            <div className="absolute inset-0 bg-brand-400/25 rounded-3xl blur-xl animate-pulse" />
+            <div
+              className="relative rounded-3xl p-4 shadow-xl"
+              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)' }}
+            >
+              <BrandMark className="h-10 w-10 text-white" />
             </div>
-            <span className="text-white font-bold text-2xl tracking-tight">YooBees</span>
           </div>
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#1e1b4b' }}>YooBees</h1>
+          <p className="text-sm font-medium mt-0.5" style={{ color: '#a78bfa' }}>Attendance Management</p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-8 shadow-2xl">
-          <h2 className="text-white text-xl font-bold mb-1">Create account</h2>
-          <p className="text-slate-300 text-sm mb-6">Join your class on YooBees</p>
-
+        {/* Card */}
+        <div
+          className="w-full p-8 animate-scaleIn"
+          style={{
+            background: 'rgba(255,255,255,0.88)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            borderRadius: '28px',
+            border: '1px solid rgba(255,255,255,0.7)',
+            boxShadow: '0 24px 64px rgba(124,106,247,0.14), 0 8px 24px rgba(0,0,0,0.06)',
+          }}
+        >
+          <div className="mb-6">
+            <h2 className="text-lg font-bold tracking-tight" style={{ color: '#1e1b4b' }}>Create account</h2>
+            <p className="text-xs font-medium mt-0.5" style={{ color: '#9ca3af' }}>Join your class on YooBees</p>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Role toggle */}
-            <div className="flex rounded-xl overflow-hidden border border-white/20 bg-white/5">
-              {(['student', 'lecturer'] as UserRole[]).map(r => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => setRole(r)}
-                  className={`flex-1 py-2 text-sm font-medium transition-all ${
-                    role === r
-                      ? 'bg-brand-600 text-white'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  {r.charAt(0).toUpperCase() + r.slice(1)}
-                </button>
-              ))}
+            <div>
+              <label className="label">I am a</label>
+              <div
+                className="flex rounded-2xl p-1 gap-1"
+                style={{
+                  background: 'rgba(139,92,246,0.06)',
+                  border: '1px solid rgba(139,92,246,0.12)',
+                }}
+              >
+                {([
+                  { r: 'student', icon: <BookOpen size={14} />, label: 'Student' },
+                  { r: 'lecturer', icon: <GraduationCap size={14} />, label: 'Lecturer' },
+                ] as { r: UserRole; icon: React.ReactNode; label: string }[]).map(({ r, icon, label }) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRole(r)}
+                    className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200"
+                    style={role === r ? {
+                      background: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)',
+                      color: 'white',
+                      boxShadow: '0 4px 12px rgba(124,58,237,0.3)',
+                    } : {
+                      color: '#9ca3af',
+                    }}
+                  >
+                    {icon}
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-1.5">Email</label>
+              <label className="label">Email address</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
                 placeholder={role === 'student' ? 'you@yoobeestudent.ac.nz' : 'you@university.edu'}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+                className="input-field"
               />
               {role === 'student' && (
-                <p className="mt-1 text-xs text-slate-300">Use your college email ending in @yoobeestudent.ac.nz.</p>
+                <p className="mt-1.5 text-xs font-medium" style={{ color: '#a78bfa' }}>
+                  Use your college email ending @yoobeestudent.ac.nz
+                </p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-1.5">Password</label>
+              <label className="label">Password</label>
               <div className="relative">
                 <input
                   type={showPw ? 'text' : 'password'}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
-                  placeholder="min. 6 characters"
-                  className="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+                  placeholder="Min. 6 characters"
+                  className="input-field pr-10"
                 />
-                <button type="button" onClick={() => setShowPw(v => !v)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                <button
+                  type="button"
+                  onClick={() => setShowPw(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand-500 transition-colors"
+                >
                   {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-1.5">Confirm password</label>
+              <label className="label">Confirm password</label>
               <input
                 type={showPw ? 'text' : 'password'}
                 value={confirm}
                 onChange={e => setConfirm(e.target.value)}
                 required
-                placeholder="••••••••"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+                placeholder="Repeat your password"
+                className="input-field"
               />
             </div>
 
             {role === 'lecturer' && (
               <div>
-                <label className="block text-sm font-medium text-slate-200 mb-1.5">Lecturer registration code</label>
+                <label className="label">Lecturer code</label>
                 <input
                   type="text"
                   value={lecturerCode}
                   onChange={e => setLecturerCode(e.target.value.toUpperCase())}
                   required
                   placeholder="Ask your administrator"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent font-mono tracking-widest"
+                  className="input-field code-display tracking-widest"
                 />
               </div>
             )}
@@ -149,10 +205,13 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl transition-all duration-150 text-sm disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+              className="btn-primary w-full justify-center mt-2 py-3"
             >
               {loading ? (
-                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <div
+                  className="h-4 w-4 rounded-full animate-spin"
+                  style={{ border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }}
+                />
               ) : (
                 <>
                   <UserPlus size={16} />
@@ -162,9 +221,15 @@ export default function Register() {
             </button>
           </form>
 
-          <p className="text-center text-slate-400 text-sm mt-6">
+          <div className="divider my-5" />
+
+          <p className="text-center text-sm" style={{ color: '#9ca3af' }}>
             Already have an account?{' '}
-            <Link to="/login" className="text-brand-300 hover:text-white font-medium transition-colors">
+            <Link
+              to="/login"
+              className="font-semibold transition-colors hover:underline"
+              style={{ color: '#7c3aed' }}
+            >
               Sign in
             </Link>
           </p>

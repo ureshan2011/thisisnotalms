@@ -57,11 +57,12 @@ export default function StudentDetail() {
     setTimeout(() => setSaved(false), 3000);
   };
 
-  const set = (key: keyof StudentProfile) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
-    setForm(f => ({ ...f, [key]: e.target.value }));
+  const set = (key: keyof StudentProfile) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+      setForm(f => ({ ...f, [key]: e.target.value }));
 
   if (loading) return <Layout><div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div></Layout>;
-  if (!profile) return <Layout><p className="text-slate-500 p-6">Student not found.</p></Layout>;
+  if (!profile) return <Layout><p className="py-8 font-medium" style={{ color: '#9ca3af' }}>Student not found.</p></Layout>;
 
   const initials = (profile.fullName || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
@@ -95,43 +96,123 @@ export default function StudentDetail() {
       />
 
       {saved && (
-        <div className="mb-4 px-4 py-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-700 text-sm flex items-center gap-2">
+        <div
+          className="mb-5 px-5 py-3.5 rounded-2xl flex items-center gap-2 animate-fadeIn text-sm font-semibold"
+          style={{
+            background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(45,212,191,0.05))',
+            border: '1px solid rgba(16,185,129,0.18)',
+            color: '#059669',
+          }}
+        >
           <Check size={16} /> Profile updated successfully.
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: avatar card */}
-        <div className="lg:col-span-1 space-y-4">
-          <div className="card p-6 text-center">
-            <div className="w-20 h-20 rounded-2xl bg-brand-600 text-white text-2xl font-bold flex items-center justify-center mx-auto mb-4">
-              {initials}
+        {/* Left: avatar + attendance */}
+        <div className="lg:col-span-1 space-y-5">
+          {/* Avatar card */}
+          <div
+            className="rounded-3xl p-6 text-center animate-fadeIn"
+            style={{
+              background: 'rgba(255,255,255,0.90)',
+              border: '1px solid rgba(139,92,246,0.10)',
+              boxShadow: '0 4px 20px rgba(124,106,247,0.08)',
+            }}
+          >
+            {/* Top gradient banner */}
+            <div
+              className="h-16 -mx-6 -mt-6 mb-0 rounded-t-3xl"
+              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 50%, #c4b5fd 100%)' }}
+            />
+            <div className="-mt-10 mb-4">
+              <div
+                className="w-20 h-20 rounded-3xl mx-auto flex items-center justify-center text-2xl font-black text-white shadow-2xl"
+                style={{ background: 'linear-gradient(135deg, #7c3aed, #a78bfa)', border: '3px solid white' }}
+              >
+                {initials}
+              </div>
             </div>
-            <h2 className="font-bold text-slate-800 text-lg">{profile.fullName}</h2>
-            <p className="text-sm text-slate-500 mt-0.5">{profile.email}</p>
-            <p className="text-xs text-slate-400 mt-1">{profile.studentId}</p>
-            <div className="mt-4 pt-4 border-t border-slate-100">
-              <span className="badge bg-brand-100 text-brand-700">{profile.course || 'No course'}</span>
+            <h2 className="font-bold text-lg" style={{ color: '#1e1b4b' }}>{profile.fullName}</h2>
+            <p className="text-sm font-medium mt-0.5" style={{ color: '#9ca3af' }}>{profile.email}</p>
+            <p className="text-xs mt-0.5 font-mono font-semibold" style={{ color: '#c4b5fd' }}>{profile.studentId}</p>
+
+            {profile.course && (
+              <div className="mt-4 pt-4" style={{ borderTop: '1px solid rgba(139,92,246,0.08)' }}>
+                <span
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+                  style={{ background: 'rgba(124,58,237,0.08)', color: '#7c3aed' }}
+                >
+                  <BookOpen size={11} />
+                  {profile.course}
+                </span>
+              </div>
+            )}
+
+            {/* Info pills */}
+            <div className="mt-3 flex flex-wrap gap-2 justify-center">
+              {profile.campus && (
+                <span className="badge-purple text-[10px]">{profile.campus}</span>
+              )}
+              {profile.section && (
+                <span className="badge-slate text-[10px]">{profile.section}</span>
+              )}
+              {profile.homeCountry && (
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                  style={{ background: 'rgba(14,165,233,0.10)', color: '#0284c7' }}
+                >
+                  <Globe size={9} />
+                  {profile.homeCountry}
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Attendance summary */}
-          <div className="card p-5">
-            <h3 className="font-semibold text-slate-700 text-sm mb-3 flex items-center gap-2">
-              <CalendarCheck size={15} className="text-brand-600" />
-              Attendance Records
-            </h3>
+          {/* Attendance records */}
+          <div
+            className="rounded-3xl p-5 animate-fadeIn"
+            style={{
+              background: 'rgba(255,255,255,0.90)',
+              border: '1px solid rgba(139,92,246,0.10)',
+              boxShadow: '0 2px 12px rgba(124,106,247,0.06)',
+            }}
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center"
+                style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.10), rgba(167,139,250,0.06))' }}
+              >
+                <CalendarCheck size={15} style={{ color: '#7c3aed' }} />
+              </div>
+              <h3 className="font-bold text-sm" style={{ color: '#1e1b4b' }}>Attendance</h3>
+              <span
+                className="ml-auto text-xs font-bold px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(124,58,237,0.08)', color: '#7c3aed' }}
+              >
+                {records.length}
+              </span>
+            </div>
+
             {records.length === 0 ? (
-              <p className="text-xs text-slate-400">No records yet</p>
+              <p className="text-xs font-medium" style={{ color: '#c4b5fd' }}>No records yet</p>
             ) : (
               <div className="space-y-2">
                 {records.map(r => (
-                  <div key={r.id} className="flex items-start justify-between gap-2 text-xs">
-                    <div>
-                      <p className="font-medium text-slate-700 truncate max-w-[140px]">{r.sessionTitle}</p>
-                      <p className="text-slate-400">{r.checkpointLabel}</p>
+                  <div
+                    key={r.id}
+                    className="flex items-start justify-between gap-2 px-3 py-2.5 rounded-2xl"
+                    style={{ background: 'rgba(245,243,255,0.6)' }}
+                  >
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold truncate" style={{ color: '#4c1d95', maxWidth: 130 }}>
+                        {r.sessionTitle}
+                      </p>
+                      <p className="text-[10px] font-medium" style={{ color: '#a78bfa' }}>{r.checkpointLabel}</p>
                     </div>
-                    <p className="text-slate-400 flex-shrink-0">{formatDateTime(r.submittedAt)}</p>
+                    <p className="text-[10px] font-medium flex-shrink-0" style={{ color: '#c4b5fd' }}>
+                      {formatDateTime(r.submittedAt)}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -139,9 +220,9 @@ export default function StudentDetail() {
           </div>
         </div>
 
-        {/* Right: detail cards */}
-        <div className="lg:col-span-2 space-y-4">
-          <DetailCard icon={<User size={15} />} title="Personal details">
+        {/* Right: detail sections */}
+        <div className="lg:col-span-2 space-y-5">
+          <DetailCard icon={<User size={14} />} title="Personal details" gradient="linear-gradient(135deg,#7c3aed,#a78bfa)">
             <Row label="Full name">
               {editing
                 ? <input className="input-field" value={form.fullName || ''} onChange={set('fullName')} />
@@ -150,7 +231,7 @@ export default function StudentDetail() {
             <Row label="Student ID">
               {editing
                 ? <input className="input-field" value={form.studentId || ''} onChange={set('studentId')} />
-                : profile.studentId}
+                : <code className="font-mono font-semibold" style={{ color: '#7c3aed' }}>{profile.studentId}</code>}
             </Row>
             <Row label="Email">
               {editing
@@ -160,19 +241,29 @@ export default function StudentDetail() {
             <Row label="Home country">
               {editing
                 ? <input className="input-field" value={form.homeCountry || ''} onChange={set('homeCountry')} />
-                : <span className="flex items-center gap-1.5"><Globe size={13} className="text-sky-500" />{profile.homeCountry}</span>}
+                : <span className="flex items-center gap-1.5"><Globe size={13} style={{ color: '#60a5fa' }} />{profile.homeCountry}</span>}
             </Row>
           </DetailCard>
 
-          <DetailCard icon={<BookOpen size={15} />} title="Course">
+          <DetailCard icon={<BookOpen size={14} />} title="Course" gradient="linear-gradient(135deg,#6366f1,#8b5cf6)">
             <Row label="Enrolled course">
               {editing
                 ? <input className="input-field" value={form.course || ''} onChange={set('course')} />
                 : profile.course}
             </Row>
+            <Row label="Campus">
+              {editing
+                ? <input className="input-field" value={form.campus || ''} onChange={set('campus')} />
+                : profile.campus}
+            </Row>
+            <Row label="Section">
+              {editing
+                ? <input className="input-field" value={form.section || ''} onChange={set('section')} />
+                : profile.section}
+            </Row>
           </DetailCard>
 
-          <DetailCard icon={<GraduationCap size={15} />} title="Educational background">
+          <DetailCard icon={<GraduationCap size={14} />} title="Education" gradient="linear-gradient(135deg,#0ea5e9,#60a5fa)">
             <Row label="Previous qualification">
               {editing
                 ? <input className="input-field" value={form.educationalBackground || ''} onChange={set('educationalBackground')} />
@@ -180,16 +271,23 @@ export default function StudentDetail() {
             </Row>
           </DetailCard>
 
-          <DetailCard icon={<Briefcase size={15} />} title="Work experience">
+          <DetailCard icon={<Briefcase size={14} />} title="Work experience" gradient="linear-gradient(135deg,#10b981,#2dd4bf)">
             <Row label="Experience level">
               {editing
                 ? <input className="input-field" value={form.workExperience || ''} onChange={set('workExperience')} />
                 : profile.workExperience}
             </Row>
+            {profile.workIndustry && (
+              <Row label="Industry">
+                {editing
+                  ? <input className="input-field" value={form.workIndustry || ''} onChange={set('workIndustry')} />
+                  : profile.workIndustry}
+              </Row>
+            )}
           </DetailCard>
 
           {(profile.specialNeeds || editing) && (
-            <DetailCard icon={<Heart size={15} />} title="Special needs / Accommodations">
+            <DetailCard icon={<Heart size={14} />} title="Special needs" gradient="linear-gradient(135deg,#f43f5e,#e879a0)">
               <Row label="Declaration">
                 {editing
                   ? <input className="input-field" value={form.specialNeeds || ''} onChange={set('specialNeeds')} />
@@ -203,23 +301,53 @@ export default function StudentDetail() {
   );
 }
 
-function DetailCard({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+function DetailCard({ icon, title, gradient, children }: {
+  icon: React.ReactNode;
+  title: string;
+  gradient: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="card p-5">
-      <div className="flex items-center gap-2 mb-4 text-brand-600">
-        {icon}
-        <h3 className="font-semibold text-slate-800 text-sm">{title}</h3>
+    <div
+      className="rounded-3xl overflow-hidden animate-fadeIn"
+      style={{
+        background: 'rgba(255,255,255,0.90)',
+        border: '1px solid rgba(139,92,246,0.10)',
+        boxShadow: '0 2px 12px rgba(124,106,247,0.06)',
+      }}
+    >
+      <div
+        className="flex items-center gap-2.5 px-5 py-3.5"
+        style={{ borderBottom: '1px solid rgba(139,92,246,0.07)' }}
+      >
+        <div
+          className="w-7 h-7 rounded-xl flex items-center justify-center text-white shadow-md"
+          style={{ background: gradient }}
+        >
+          {icon}
+        </div>
+        <h3 className="font-bold text-sm" style={{ color: '#1e1b4b' }}>{title}</h3>
       </div>
-      <div className="divide-y divide-slate-50 space-y-0">{children}</div>
+      <div className="px-5 py-1">{children}</div>
     </div>
   );
 }
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-2.5">
-      <span className="text-xs font-medium text-slate-400 sm:w-36 flex-shrink-0">{label}</span>
-      <span className="text-sm text-slate-700 flex-1">{children || '—'}</span>
+    <div
+      className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 py-3"
+      style={{ borderBottom: '1px solid rgba(139,92,246,0.04)' }}
+    >
+      <span
+        className="text-xs font-semibold sm:w-36 flex-shrink-0 uppercase tracking-wide"
+        style={{ color: '#c4b5fd', letterSpacing: '0.05em' }}
+      >
+        {label}
+      </span>
+      <span className="text-sm font-medium flex-1" style={{ color: '#4c1d95' }}>
+        {children || <span style={{ color: '#d1d5db' }}>—</span>}
+      </span>
     </div>
   );
 }

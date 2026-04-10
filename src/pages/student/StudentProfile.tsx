@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { collection, doc, getDoc, getDocs, limit, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { MapPin, Save, User, BookOpen, Globe, Briefcase, GraduationCap, Heart } from 'lucide-react';
 import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
@@ -315,7 +315,8 @@ export default function StudentProfilePage() {
             </Field>
             <Field label="Home country (auto from map pin)" required>
               <input
-                className="input-field bg-slate-50"
+                className="input-field"
+                style={{ cursor: 'default', opacity: 0.8 }}
                 value={form.homeCountry || (countryLookupLoading ? 'Detecting country…' : '')}
                 readOnly
                 required
@@ -327,7 +328,7 @@ export default function StudentProfilePage() {
 
         {/* Hometown Pin */}
         <Section icon={<MapPin size={16} />} title="Hometown pin">
-          <p className="text-xs text-slate-500 mb-3">
+          <p className="text-xs font-medium mb-3" style={{ color: '#9ca3af' }}>
             Drop a pin on your hometown for a more accurate location than country only.
           </p>
           <WorldMapPicker
@@ -336,12 +337,12 @@ export default function StudentProfilePage() {
             onPick={updatePinAndCountry}
           />
           {form.hometownLat === null || form.hometownLng === null ? (
-            <p className="text-xs text-amber-600 mt-2">Please click on the map to set your hometown pin.</p>
+            <p className="text-xs font-medium mt-2" style={{ color: '#d97706' }}>Please click on the map to set your hometown pin.</p>
           ) : (
             <div className="text-xs mt-2 space-y-1">
-              <p className="text-slate-500">Pin set at {form.hometownLat.toFixed(4)}, {form.hometownLng.toFixed(4)}</p>
-              {countryLookupLoading && <p className="text-slate-500">Detecting country from pin…</p>}
-              {countryLookupError && <p className="text-amber-600">{countryLookupError}</p>}
+              <p className="font-medium" style={{ color: '#9ca3af' }}>Pin set at {form.hometownLat.toFixed(4)}, {form.hometownLng.toFixed(4)}</p>
+              {countryLookupLoading && <p className="font-medium" style={{ color: '#9ca3af' }}>Detecting country from pin…</p>}
+              {countryLookupError && <p className="font-medium" style={{ color: '#d97706' }}>{countryLookupError}</p>}
             </div>
           )}
         </Section>
@@ -426,7 +427,7 @@ export default function StudentProfilePage() {
 
         {/* Special Needs */}
         <Section icon={<Heart size={16} />} title="Special needs or accommodations">
-          <p className="text-xs text-slate-500 mb-3">
+          <p className="text-xs font-medium mb-3" style={{ color: '#9ca3af' }}>
             This is optional and confidential. Please share anything that may help your lecturer support you effectively.
           </p>
           <Field label="Accommodation needs">
@@ -473,7 +474,7 @@ function WorldMapPicker({
   const markerPos = lat !== null && lng !== null ? ([lat, lng] as [number, number]) : null;
 
   return (
-    <div className="h-72 w-full rounded-xl overflow-hidden border border-slate-200">
+    <div className="h-72 w-full rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(139,92,246,0.12)' }}>
       <MapContainer center={markerPos || defaultCenter} zoom={markerPos ? 4 : 2} className="h-full w-full">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -495,10 +496,22 @@ function MapClickHandler({ onPick }: { onPick: (lat: number, lng: number) => voi
 
 function Section({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <div className="card p-6">
-      <div className="flex items-center gap-2 mb-4 text-brand-600">
-        {icon}
-        <h3 className="font-semibold text-slate-800 text-sm">{title}</h3>
+    <div
+      className="rounded-3xl p-6 animate-fadeIn"
+      style={{
+        background: 'rgba(255,255,255,0.90)',
+        border: '1px solid rgba(139,92,246,0.10)',
+        boxShadow: '0 2px 16px rgba(124,106,247,0.06)',
+      }}
+    >
+      <div className="flex items-center gap-2.5 mb-5">
+        <div
+          className="w-8 h-8 rounded-xl flex items-center justify-center text-white shadow-md flex-shrink-0"
+          style={{ background: 'linear-gradient(135deg, #7c3aed, #a78bfa)' }}
+        >
+          {icon}
+        </div>
+        <h3 className="font-bold text-sm" style={{ color: '#1e1b4b' }}>{title}</h3>
       </div>
       {children}
     </div>
@@ -509,7 +522,7 @@ function Field({ label, required, children }: { label: string; required?: boolea
   return (
     <div>
       <label className="label">
-        {label} {required && <span className="text-red-400">*</span>}
+        {label} {required && <span style={{ color: '#e11d48' }}>*</span>}
       </label>
       {children}
     </div>

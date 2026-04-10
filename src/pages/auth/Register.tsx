@@ -25,6 +25,9 @@ export default function Register() {
 
     if (password !== confirm) { setError('Passwords do not match.'); return; }
     if (password.length < 6)  { setError('Password must be at least 6 characters.'); return; }
+    if (role === 'student' && !email.trim().toLowerCase().endsWith('@yoobeestudent.ac.nz')) {
+      setError('Student email must end with @yoobeestudent.ac.nz.'); return;
+    }
     if (role === 'lecturer' && lecturerCode !== LECTURER_CODE) {
       setError('Invalid lecturer registration code.'); return;
     }
@@ -88,9 +91,12 @@ export default function Register() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                placeholder="you@university.edu"
+                placeholder={role === 'student' ? 'you@yoobeestudent.ac.nz' : 'you@university.edu'}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-slate-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
               />
+              {role === 'student' && (
+                <p className="mt-1 text-xs text-slate-300">Use your college email ending in @yoobeestudent.ac.nz.</p>
+              )}
             </div>
 
             <div>

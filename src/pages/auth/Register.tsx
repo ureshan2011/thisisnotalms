@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, GraduationCap, UserPlus } from 'lucide-react';
+import { Eye, EyeOff, UserPlus } from 'lucide-react';
+import BrandMark from '../../components/ui/BrandMark';
 import { useAuth } from '../../contexts/AuthContext';
 import type { UserRole } from '../../lib/types';
 
@@ -48,8 +49,8 @@ export default function Register() {
       <div className="w-full max-w-sm">
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-3">
-            <div className="bg-brand-500 rounded-2xl p-3">
-              <GraduationCap size={28} className="text-white" />
+            <div className="rounded-2xl">
+              <BrandMark className="h-14 w-14" />
             </div>
             <span className="text-white font-bold text-2xl tracking-tight">YooBees</span>
           </div>

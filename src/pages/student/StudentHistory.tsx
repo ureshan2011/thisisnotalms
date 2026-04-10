@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp, doc, getDoc } from 'firebase/firestore';
 import { CalendarCheck, Clock, BookOpen, CheckCircle, CircleOff, ShieldCheck } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
@@ -23,7 +23,7 @@ export default function StudentHistory() {
     if (!user) return;
     (async () => {
       try {
-        const [attendanceSnap, absenceSnap, sessionsSnap] = await Promise.all([
+        const [attendanceSnap, absenceSnap, sessionsSnap, studentSnap] = await Promise.all([
           getDocs(
             query(
               collection(db, 'attendanceRecords'),
@@ -37,6 +37,7 @@ export default function StudentHistory() {
             )
           ),
           getDocs(collection(db, 'attendanceSessions')),
+          getDoc(doc(db, 'students', user.uid)),
         ]);
         setRecords(
           attendanceSnap.docs
@@ -60,7 +61,9 @@ export default function StudentHistory() {
           })
           .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
 
-        const studentCourse = attendanceSnap.docs[0]?.data()?.sessionCourse;
+        const studentCourse =
+          ((studentSnap.data()?.course as string | undefined) || '') ||
+          ((attendanceSnap.docs[0]?.data()?.sessionCourse as string | undefined) || '');
         setSessions(
           sessionsSnap.docs
             .map(d => {
@@ -72,6 +75,7 @@ export default function StudentHistory() {
                 createdAt: s.createdAt?.toDate?.() ?? new Date(),
               } as AttendanceSession;
             })
+            .filter(s => s.status === 'closed')
             .filter(s => !studentCourse || s.course === studentCourse)
         );
       } finally {

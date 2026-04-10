@@ -29,6 +29,8 @@ export function summarizeStudentAttendance(params: {
   let absentJustifiedDays = 0;
 
   sessions.forEach(session => {
+    if (session.status !== 'closed') return;
+
     const sessionRecords = recordsBySession[session.id] || [];
     const uniqueCheckpointIds = new Set(sessionRecords.map(r => r.checkpointId).filter(Boolean));
     const hasOpeningCheckpoint = sessionRecords.some(r => r.checkpointLabel?.trim().toLowerCase() === 'opening');

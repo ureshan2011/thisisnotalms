@@ -90,7 +90,7 @@ export default function StudentProfilePage() {
           educationalBackground: d.educationalBackground || '',
           specialNeeds: d.specialNeeds || '',
         });
-        setNotes((d as Record<string, string>).specialNeedsNotes || '');
+        setNotes(d.specialNeedsNotes || '');
       } else {
         setForm(f => ({ ...f, email: user.email || '' }));
       }

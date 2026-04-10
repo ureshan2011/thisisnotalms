@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { collection, doc, getDoc, getDocs, limit, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { MapPin, Save, User, BookOpen, Globe, Briefcase, GraduationCap, Heart } from 'lucide-react';
 import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
@@ -110,6 +110,7 @@ export default function StudentProfilePage() {
   const { showToast } = useToast();
   const [countryLookupLoading, setCountryLookupLoading] = useState(false);
   const [countryLookupError, setCountryLookupError] = useState('');
+  const latestLookupRequestId = useRef(0);
 
   useEffect(() => {
     if (!user) return;
@@ -144,8 +145,49 @@ export default function StudentProfilePage() {
   const set = (key: keyof typeof blank) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm(f => ({ ...f, [key]: e.target.value }));
 
+  const detectCountryFromPin = useCallback(async (lat: number, lng: number): Promise<string> => {
+    const nominatimUrl =
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=10&addressdetails=1&accept-language=en`;
+
+    try {
+      const response = await fetch(nominatimUrl);
+      if (response.ok) {
+        const data = await response.json() as {
+          address?: { country?: string; country_code?: string };
+        };
+
+        const explicitCountry = data.address?.country?.trim();
+        if (explicitCountry) return explicitCountry;
+
+        const countryCode = data.address?.country_code?.trim();
+        if (countryCode) {
+          try {
+            const displayNames = new Intl.DisplayNames(['en'], { type: 'region' });
+            const countryFromCode = displayNames.of(countryCode.toUpperCase())?.trim();
+            if (countryFromCode) return countryFromCode;
+          } catch {
+            // ignore locale/display-name failures and continue to fallback provider
+          }
+        }
+      }
+    } catch {
+      // continue to fallback provider
+    }
+
+    const fallbackUrl =
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`;
+    const fallbackResponse = await fetch(fallbackUrl);
+    if (!fallbackResponse.ok) {
+      throw new Error('Fallback reverse geocode provider failed.');
+    }
+
+    const fallbackData = await fallbackResponse.json() as { countryName?: string };
+    return fallbackData.countryName?.trim() || '';
+  }, []);
+
   const updatePinAndCountry = useCallback(async (lat: number, lng: number) => {
     setForm(f => ({ ...f, hometownLat: lat, hometownLng: lng }));
+    const requestId = ++latestLookupRequestId.current;
     setCountryLookupError('');
     setCountryLookupLoading(true);
 

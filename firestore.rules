@@ -29,6 +29,13 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && isLecturer();
     }
 
+    // Students can create/read their own absence notices; lecturers can read/update all.
+    match /absenceNotices/{noticeId} {
+      allow read: if request.auth != null && (resource.data.studentUid == request.auth.uid || isLecturer());
+      allow create: if request.auth != null && request.resource.data.studentUid == request.auth.uid;
+      allow update, delete: if request.auth != null && isLecturer();
+    }
+
     function isLecturer() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'lecturer';
     }

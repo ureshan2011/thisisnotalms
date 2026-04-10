@@ -41,6 +41,8 @@ export default function AttendanceResults() {
   const [records,  setRecords]  = useState<AttendanceRecord[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [filter,   setFilter]   = useState(''); // checkpoint label filter
+  const [sectionFilter, setSectionFilter] = useState('');
+  const [dayFilter, setDayFilter] = useState('');
 
   useEffect(() => {
     if (!id) return;
@@ -64,7 +66,14 @@ export default function AttendanceResults() {
     })();
   }, [id]);
 
-  const filtered = filter ? records.filter(r => r.checkpointLabel === filter) : records;
+  const filtered = records.filter(r => {
+    const matchesCheckpoint = !filter || r.checkpointLabel === filter;
+    const section = r.studentSection || 'Unknown section';
+    const day = toDayKey(r.submittedAt);
+    const matchesSection = !sectionFilter || section === sectionFilter;
+    const matchesDay = !dayFilter || day === dayFilter;
+    return matchesCheckpoint && matchesSection && matchesDay;
+  });
 
   // Unique students per checkpoint
   const cpLabels = session ? [...new Set(session.checkpoints.map(cp => cp.label))] : [];
@@ -82,9 +91,14 @@ export default function AttendanceResults() {
     : null;
 
   const exportCSV = () => {
-    const headers = ['Student Name','Student ID','Checkpoint','Submitted At'];
+    const headers = ['Student Name','Student ID','Campus','Section','Checkpoint','Submitted At'];
     const rows = filtered.map(r => [
-      r.studentName, r.studentDisplayId, r.checkpointLabel, formatDateTime(r.submittedAt),
+      r.studentName,
+      r.studentDisplayId,
+      r.studentCampus || '',
+      r.studentSection || '',
+      r.checkpointLabel,
+      formatDateTime(r.submittedAt),
     ].map(v => `"${(v || '').replace(/"/g, '""')}"`));
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -100,6 +114,8 @@ export default function AttendanceResults() {
   if (!session) return <Layout><p className="text-slate-500 p-6">Session not found.</p></Layout>;
 
   const uniqueStudents = new Set(records.map(r => r.studentUid)).size;
+  const sectionOptions = [...new Set(records.map(r => r.studentSection || 'Unknown section'))].sort();
+  const dayOptions = [...new Set(records.map(r => toDayKey(r.submittedAt)))].sort();
 
   return (
     <Layout>
@@ -165,11 +181,26 @@ export default function AttendanceResults() {
             Submission log
             {filter && <span className="ml-2 text-brand-600">— {filter}</span>}
           </h3>
-          {filter && (
-            <button onClick={() => setFilter('')} className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1">
-              <Filter size={12} /> Clear filter
+          {(filter || sectionFilter || dayFilter) && (
+            <button
+              onClick={() => { setFilter(''); setSectionFilter(''); setDayFilter(''); }}
+              className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1"
+            >
+              <Filter size={12} /> Clear filters
             </button>
           )}
+        </div>
+        <div className="px-4 py-3 border-b border-slate-100 bg-slate-50/70">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <select className="input-field !py-2" value={sectionFilter} onChange={e => setSectionFilter(e.target.value)}>
+              <option value="">All sections</option>
+              {sectionOptions.map(section => <option key={section} value={section}>{section}</option>)}
+            </select>
+            <select className="input-field !py-2" value={dayFilter} onChange={e => setDayFilter(e.target.value)}>
+              <option value="">All days</option>
+              {dayOptions.map(day => <option key={day} value={day}>{formatDisplayDay(day)}</option>)}
+            </select>
+          </div>
         </div>
         {filtered.length === 0 ? (
           <p className="text-center text-slate-400 text-sm py-10">No records {filter ? 'for this checkpoint' : 'yet'}</p>
@@ -181,6 +212,8 @@ export default function AttendanceResults() {
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">#</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Student</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">ID</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Campus</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Section</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Checkpoint</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Submitted at</th>
                 </tr>
@@ -200,6 +233,8 @@ export default function AttendanceResults() {
                     <td className="px-4 py-3 hidden sm:table-cell">
                       <code className="text-xs text-slate-500 font-mono">{r.studentDisplayId}</code>
                     </td>
+                    <td className="px-4 py-3 hidden lg:table-cell text-sm text-slate-600">{r.studentCampus || '—'}</td>
+                    <td className="px-4 py-3 hidden md:table-cell text-sm text-slate-600">{r.studentSection || '—'}</td>
                     <td className="px-4 py-3">
                       <span className="badge bg-brand-100 text-brand-700">{r.checkpointLabel}</span>
                     </td>
@@ -215,6 +250,15 @@ export default function AttendanceResults() {
       </div>
     </Layout>
   );
+}
+
+function toDayKey(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function formatDisplayDay(dayKey: string) {
+  const date = new Date(`${dayKey}T00:00:00`);
+  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 function SummaryCard({ label, value, icon, color }: {

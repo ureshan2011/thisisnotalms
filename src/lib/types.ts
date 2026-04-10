@@ -12,6 +12,8 @@ export interface StudentProfile {
   fullName: string;
   studentId: string;
   email: string;
+  campus: 'Auckland' | 'Christchurch' | '';
+  section: string;
   course: string;
   homeCountry: string;
   hometown: string;
@@ -54,6 +56,8 @@ export interface AttendanceRecord {
   studentUid: string;
   studentName: string;
   studentDisplayId: string;
+  studentCampus?: string;
+  studentSection?: string;
   checkpointId: string;
   checkpointLabel: string;
   submittedAt: Date;

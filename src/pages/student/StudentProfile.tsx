@@ -265,8 +265,8 @@ export default function StudentProfilePage() {
       showToast({ type: 'error', title: 'Invalid email', description: 'Student email must end with @yoobeestudent.ac.nz.' });
       return;
     }
-    if (!/^\d{8}$/.test(normalizedStudentId)) {
-      showToast({ type: 'error', title: 'Invalid student ID', description: 'Student ID must be numeric and exactly 8 digits (e.g. 27091691).' });
+    if (!/^\d{8,9}$/.test(normalizedStudentId)) {
+      showToast({ type: 'error', title: 'Invalid student ID', description: 'Student ID must be numeric and 8 to 9 digits (e.g. 27091691 or 270916912).' });
       return;
     }
     if (!form.campus) {
@@ -350,7 +350,7 @@ export default function StudentProfilePage() {
               <input className="input-field" value={form.fullName} onChange={set('fullName')} required placeholder="e.g. Maria Garcia" />
             </Field>
             <Field label="Student ID" required>
-              <input className="input-field" value={form.studentId} onChange={set('studentId')} required placeholder="e.g. 27091691" />
+              <input className="input-field" value={form.studentId} onChange={set('studentId')} required placeholder="e.g. 27091691 or 270916912" />
             </Field>
             <Field label="Email address" required>
               <input className="input-field" type="email" value={form.email} onChange={set('email')} required placeholder="you@yoobeestudent.ac.nz" />

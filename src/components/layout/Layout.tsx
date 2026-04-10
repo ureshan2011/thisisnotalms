@@ -200,6 +200,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {children}
           </div>
         </main>
+        <footer
+          className="px-4 sm:px-6 lg:px-8 py-3 text-center text-xs flex-shrink-0"
+          style={{
+            color: '#6b7280',
+            borderTop: '1px solid rgba(139,92,246,0.10)',
+            background: 'rgba(255,255,255,0.72)',
+          }}
+        >
+          © {new Date().getFullYear()} All Rights Reserved • Created by @yasassri.me
+        </footer>
       </div>
     </div>
   );

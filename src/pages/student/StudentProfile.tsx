@@ -55,6 +55,48 @@ const WORK_INDUSTRIES = [
 ];
 
 const PREVIOUS_QUALIFICATION_OPTIONS = [
+  'Accounting',
+  'Agriculture',
+  'Architecture',
+  'Arts & Design',
+  'Biotechnology',
+  'Business Administration',
+  'Business Analytics',
+  'Chemical Engineering',
+  'Civil Engineering',
+  'Commerce',
+  'Communications & Media',
+  'Computer Science',
+  'Construction Management',
+  'Data Science',
+  'Dental',
+  'Economics',
+  'Education',
+  'Electrical Engineering',
+  'Engineering (General)',
+  'Environmental Science',
+  'Finance',
+  'Food Science',
+  'Hospitality & Tourism',
+  'Human Resource Management',
+  'Information Technology (IT)',
+  'International Relations',
+  'Law',
+  'Logistics & Supply Chain',
+  'Management',
+  'Marketing',
+  'Mechanical Engineering',
+  'Medicine',
+  'Nursing',
+  'Pharmacy',
+  'Political Science',
+  'Project Management',
+  'Psychology',
+  'Public Health',
+  'Social Sciences',
+  'Software Engineering',
+  'Statistics',
+  'Veterinary Science',
   'Other',
 ];
 
@@ -437,15 +479,17 @@ export default function StudentProfilePage() {
             </select>
           </Field>
           {(form.specialNeeds === 'Other — see notes' || form.specialNeeds) && form.specialNeeds !== 'None' && (
-            <Field label="Additional notes (optional)">
-              <textarea
-                className="input-field resize-none"
-                rows={3}
-                value={notes}
-                onChange={e => setNotes(e.target.value)}
-                placeholder="Any details you'd like to share…"
-              />
-            </Field>
+            <div className="mt-4">
+              <Field label="Additional notes (optional)">
+                <textarea
+                  className="input-field resize-none"
+                  rows={3}
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  placeholder="Any details you'd like to share…"
+                />
+              </Field>
+            </div>
           )}
         </Section>
 

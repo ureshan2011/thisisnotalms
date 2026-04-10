@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Download, Globe, Briefcase, BookOpen, ChevronRight, Heart } from 'lucide-react';
+import { Search, Filter, Download, Globe, Briefcase, BookOpen, ChevronRight, Heart, Users } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -45,8 +45,7 @@ export default function StudentList() {
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url  = URL.createObjectURL(blob);
-    const a    = document.createElement('a');
-    a.href = url; a.download = 'students.csv'; a.click();
+    const a    = document.createElement('a'); a.href = url; a.download = 'students.csv'; a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -56,7 +55,7 @@ export default function StudentList() {
     <Layout>
       <PageHeader
         title="Students"
-        subtitle={`${filtered.length} of ${students.length} students`}
+        subtitle={`${filtered.length} of ${students.length} enrolled students`}
         actions={
           <button onClick={exportCSV} className="btn-secondary">
             <Download size={15} />
@@ -66,104 +65,200 @@ export default function StudentList() {
       />
 
       {/* Filters */}
-      <div className="card p-4 mb-5 flex flex-col sm:flex-row gap-3">
+      <div
+        className="p-4 mb-5 rounded-3xl flex flex-col sm:flex-row gap-3 animate-fadeIn"
+        style={{
+          background: 'rgba(255,255,255,0.85)',
+          backdropFilter: 'blur(12px)',
+          border: '1px solid rgba(139,92,246,0.10)',
+          boxShadow: '0 2px 16px rgba(124,106,247,0.06)',
+        }}
+      >
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#a78bfa' }} />
           <input
-            className="input-field pl-9"
+            className="input-field pl-10"
             placeholder="Search name, ID, email…"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
         </div>
-        <select className="input-field sm:w-48" value={course} onChange={e => setCourse(e.target.value)}>
+        <select
+          className="input-field sm:w-52"
+          value={course}
+          onChange={e => setCourse(e.target.value)}
+        >
           <option value="">All courses</option>
           {courses.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        <select className="input-field sm:w-44" value={country} onChange={e => setCountry(e.target.value)}>
+        <select
+          className="input-field sm:w-44"
+          value={country}
+          onChange={e => setCountry(e.target.value)}
+        >
           <option value="">All countries</option>
           {countries.map(c => <option key={c} value={c}>{c}</option>)}
         </select>
         {(search || course || country) && (
-          <button className="btn-secondary" onClick={() => { setSearch(''); setCourse(''); setCountry(''); }}>
+          <button
+            className="btn-ghost"
+            onClick={() => { setSearch(''); setCourse(''); setCountry(''); }}
+          >
             Clear
           </button>
         )}
       </div>
 
-      {/* Table */}
+      {/* Table / Empty */}
       {filtered.length === 0 ? (
-        <div className="card p-12 text-center">
-          <Filter size={32} className="text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-500 font-medium">No students match your filters</p>
+        <div
+          className="p-16 rounded-3xl flex flex-col items-center gap-3 animate-fadeIn"
+          style={{
+            background: 'rgba(255,255,255,0.85)',
+            border: '1px solid rgba(139,92,246,0.10)',
+            boxShadow: '0 2px 16px rgba(124,106,247,0.06)',
+          }}
+        >
+          <div
+            className="w-14 h-14 rounded-3xl flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(167,139,250,0.05))' }}
+          >
+            <Filter size={24} style={{ color: '#a78bfa' }} />
+          </div>
+          <p className="font-semibold" style={{ color: '#1e1b4b' }}>No students match your filters</p>
+          <p className="text-sm" style={{ color: '#9ca3af' }}>Try adjusting your search or filter criteria</p>
         </div>
       ) : (
-        <div className="card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">Student</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">Course</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">Country</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Experience</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider hidden lg:table-cell">Education</th>
-                  <th className="px-4 py-3 w-8" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {filtered.map(s => (
-                  <tr
-                    key={s.uid}
-                    onClick={() => navigate(`/lecturer/students/${s.uid}`)}
-                    className="hover:bg-slate-50 cursor-pointer transition-colors group"
+        <div
+          className="overflow-hidden rounded-3xl animate-fadeIn"
+          style={{
+            background: 'rgba(255,255,255,0.90)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(139,92,246,0.10)',
+            boxShadow: '0 2px 16px rgba(124,106,247,0.06)',
+          }}
+        >
+          {/* Table header */}
+          <div
+            className="flex items-center px-5 py-3"
+            style={{
+              borderBottom: '1px solid rgba(139,92,246,0.08)',
+              background: 'linear-gradient(135deg, rgba(245,243,255,0.7), rgba(237,233,254,0.5))',
+            }}
+          >
+            <div className="flex-1 min-w-0">
+              <span className="table-header-cell">Student</span>
+            </div>
+            <div className="hidden sm:block w-56">
+              <span className="table-header-cell">Course</span>
+            </div>
+            <div className="hidden md:block w-36">
+              <span className="table-header-cell">Country</span>
+            </div>
+            <div className="hidden lg:block w-36">
+              <span className="table-header-cell">Experience</span>
+            </div>
+            <div className="hidden lg:block w-44">
+              <span className="table-header-cell">Education</span>
+            </div>
+            <div className="w-8" />
+          </div>
+
+          {/* Table rows */}
+          <div>
+            {filtered.map((s, idx) => (
+              <div
+                key={s.uid}
+                onClick={() => navigate(`/lecturer/students/${s.uid}`)}
+                className="flex items-center px-5 py-4 cursor-pointer group transition-all duration-150"
+                style={{
+                  borderBottom: idx < filtered.length - 1 ? '1px solid rgba(139,92,246,0.05)' : 'none',
+                  animationDelay: `${idx * 0.02}s`,
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLDivElement).style.background = 'linear-gradient(135deg, rgba(245,243,255,0.8), rgba(237,233,254,0.5))';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLDivElement).style.background = 'transparent';
+                }}
+              >
+                {/* Student name + ID */}
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div
+                    className="avatar w-9 h-9 text-sm flex-shrink-0"
+                    style={{ background: `linear-gradient(135deg, hsl(${(s.fullName?.charCodeAt(0) ?? 0) * 4 % 360}, 65%, 55%), hsl(${(s.fullName?.charCodeAt(0) ?? 0) * 4 % 360 + 30}, 70%, 65%))` }}
                   >
-                    <td className="px-4 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-bold flex-shrink-0">
-                          {(s.fullName || '?')[0]?.toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="font-medium text-slate-800 text-sm flex items-center gap-1.5">
-                            {s.fullName || <span className="text-slate-400 italic">No name</span>}
-                            {s.specialNeeds && s.specialNeeds !== 'None' && (
-                              <Heart size={11} className="text-rose-400" />
-                            )}
-                          </div>
-                          <div className="text-xs text-slate-400">{s.studentId || s.email}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3.5 hidden sm:table-cell">
-                      <span className="text-xs text-slate-600 flex items-center gap-1.5">
-                        <BookOpen size={12} className="text-brand-400" />
-                        {s.course || '—'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 hidden md:table-cell">
-                      <span className="text-xs text-slate-600 flex items-center gap-1.5">
-                        <Globe size={12} className="text-sky-400" />
-                        {s.homeCountry || '—'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 hidden lg:table-cell">
-                      <span className="text-xs text-slate-500 flex items-center gap-1.5">
-                        <Briefcase size={12} className="text-emerald-400" />
-                        {s.workExperience || '—'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5 hidden lg:table-cell">
-                      <span className="text-xs text-slate-500 max-w-[180px] truncate block">
-                        {s.educationalBackground || '—'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <ChevronRight size={16} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    {(s.fullName || '?')[0]?.toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>
+                        {s.fullName || <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>No name</span>}
+                      </p>
+                      {s.specialNeeds && s.specialNeeds !== 'None' && (
+                        <Heart size={10} style={{ color: '#e11d48', flexShrink: 0 }} />
+                      )}
+                    </div>
+                    <p className="text-xs truncate font-medium" style={{ color: '#9ca3af' }}>
+                      {s.studentId || s.email}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Course */}
+                <div className="hidden sm:flex items-center gap-1.5 w-56">
+                  <BookOpen size={12} style={{ color: '#a78bfa', flexShrink: 0 }} />
+                  <span className="text-xs font-medium truncate" style={{ color: '#6b7280' }}>
+                    {s.course || '—'}
+                  </span>
+                </div>
+
+                {/* Country */}
+                <div className="hidden md:flex items-center gap-1.5 w-36">
+                  <Globe size={12} style={{ color: '#60a5fa', flexShrink: 0 }} />
+                  <span className="text-xs font-medium truncate" style={{ color: '#6b7280' }}>
+                    {s.homeCountry || '—'}
+                  </span>
+                </div>
+
+                {/* Experience */}
+                <div className="hidden lg:flex items-center gap-1.5 w-36">
+                  <Briefcase size={12} style={{ color: '#34d399', flexShrink: 0 }} />
+                  <span className="text-xs font-medium truncate" style={{ color: '#6b7280' }}>
+                    {s.workExperience || '—'}
+                  </span>
+                </div>
+
+                {/* Education */}
+                <div className="hidden lg:block w-44">
+                  <span className="text-xs font-medium truncate block" style={{ color: '#6b7280' }}>
+                    {s.educationalBackground || '—'}
+                  </span>
+                </div>
+
+                {/* Arrow */}
+                <div className="w-8 flex justify-end">
+                  <ChevronRight
+                    size={15}
+                    className="transition-all duration-150 group-hover:translate-x-0.5"
+                    style={{ color: '#c4b5fd' }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Footer count */}
+          <div
+            className="px-5 py-3 text-xs font-semibold flex items-center gap-2"
+            style={{
+              borderTop: '1px solid rgba(139,92,246,0.08)',
+              background: 'linear-gradient(135deg, rgba(245,243,255,0.5), transparent)',
+              color: '#a78bfa',
+            }}
+          >
+            <Users size={13} />
+            {filtered.length} student{filtered.length !== 1 ? 's' : ''} shown
           </div>
         </div>
       )}

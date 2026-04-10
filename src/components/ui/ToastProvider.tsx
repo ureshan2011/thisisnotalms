@@ -17,18 +17,37 @@ interface ToastContextValue {
 
 const ToastContext = createContext<ToastContextValue | null>(null);
 
-const styles: Record<ToastType, { wrapper: string; icon: ReactNode }> = {
+const TOAST_STYLES: Record<ToastType, {
+  bg: string;
+  border: string;
+  iconBg: string;
+  icon: ReactNode;
+  titleColor: string;
+  descColor: string;
+}> = {
   success: {
-    wrapper: 'border-emerald-200 bg-emerald-50/95 text-emerald-900',
-    icon: <CheckCircle2 size={18} className="text-emerald-600" />,
+    bg:         'rgba(255,255,255,0.95)',
+    border:     'rgba(16,185,129,0.20)',
+    iconBg:     'linear-gradient(135deg, #10b981, #2dd4bf)',
+    icon:       <CheckCircle2 size={15} color="white" />,
+    titleColor: '#065f46',
+    descColor:  '#6ee7b7',
   },
   error: {
-    wrapper: 'border-red-200 bg-red-50/95 text-red-900',
-    icon: <AlertCircle size={18} className="text-red-600" />,
+    bg:         'rgba(255,255,255,0.95)',
+    border:     'rgba(239,68,68,0.20)',
+    iconBg:     'linear-gradient(135deg, #ef4444, #f97316)',
+    icon:       <AlertCircle size={15} color="white" />,
+    titleColor: '#7f1d1d',
+    descColor:  '#fca5a5',
   },
   info: {
-    wrapper: 'border-sky-200 bg-sky-50/95 text-sky-900',
-    icon: <Info size={18} className="text-sky-600" />,
+    bg:         'rgba(255,255,255,0.95)',
+    border:     'rgba(124,58,237,0.20)',
+    iconBg:     'linear-gradient(135deg, #7c3aed, #a78bfa)',
+    icon:       <Info size={15} color="white" />,
+    titleColor: '#1e1b4b',
+    descColor:  '#c4b5fd',
   },
 };
 
@@ -41,7 +60,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const showToast = useCallback((toast: Omit<ToastItem, 'id'> & { durationMs?: number }) => {
     const id = Date.now() + Math.floor(Math.random() * 1000);
-    const { durationMs = 3200, ...content } = toast;
+    const { durationMs = 3500, ...content } = toast;
     setToasts(prev => [...prev, { id, ...content }]);
     window.setTimeout(() => dismiss(id), durationMs);
   }, [dismiss]);
@@ -51,32 +70,56 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <div className="fixed z-[100] pointer-events-none bottom-3 left-3 right-3 sm:bottom-6 sm:left-auto sm:right-6 sm:w-[360px]">
+      <div className="fixed z-[100] pointer-events-none bottom-4 left-4 right-4 sm:bottom-6 sm:left-auto sm:right-6 sm:w-[360px]">
         <div className="space-y-2">
           {toasts.map(toast => {
-            const tone = styles[toast.type];
+            const s = TOAST_STYLES[toast.type];
             return (
               <div
                 key={toast.id}
-                className={`pointer-events-auto rounded-2xl border backdrop-blur-md shadow-lg px-4 py-3 animate-toastIn ${tone.wrapper}`}
+                className="pointer-events-auto animate-toastIn"
                 role="status"
                 aria-live="polite"
+                style={{
+                  background: s.bg,
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  borderRadius: '20px',
+                  border: `1px solid ${s.border}`,
+                  boxShadow: '0 16px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06)',
+                  padding: '14px 16px',
+                }}
               >
-                <div className="flex items-start gap-2.5">
-                  <div className="mt-0.5">{tone.icon}</div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold leading-5">{toast.title}</p>
+                <div className="flex items-start gap-3">
+                  {/* Icon bubble */}
+                  <div
+                    className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md"
+                    style={{ background: s.iconBg }}
+                  >
+                    {s.icon}
+                  </div>
+                  {/* Text */}
+                  <div className="min-w-0 flex-1 pt-0.5">
+                    <p className="text-sm font-bold leading-5" style={{ color: s.titleColor }}>
+                      {toast.title}
+                    </p>
                     {toast.description && (
-                      <p className="text-xs mt-0.5 opacity-80 leading-5">{toast.description}</p>
+                      <p className="text-xs mt-0.5 font-medium" style={{ color: s.descColor }}>
+                        {toast.description}
+                      </p>
                     )}
                   </div>
+                  {/* Dismiss */}
                   <button
                     type="button"
                     onClick={() => dismiss(toast.id)}
-                    className="rounded-md p-1 hover:bg-black/5 transition-colors"
-                    aria-label="Dismiss notification"
+                    className="rounded-xl p-1.5 transition-colors flex-shrink-0 mt-0.5"
+                    style={{ color: '#d1d5db' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(0,0,0,0.05)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+                    aria-label="Dismiss"
                   >
-                    <X size={14} />
+                    <X size={13} />
                   </button>
                 </div>
               </div>

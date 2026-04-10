@@ -3,7 +3,7 @@ import {
   collection, query, where, getDocs, addDoc, serverTimestamp,
   Timestamp, doc, getDoc,
 } from 'firebase/firestore';
-import { Clock, Send, AlertCircle } from 'lucide-react';
+import { Clock, Send, AlertCircle, CheckCircle, Zap } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout, { PageHeader } from '../../components/layout/Layout';
@@ -27,7 +27,6 @@ export default function StudentAttendance() {
   const [profile,  setProfile]  = useState<StudentProfile | null>(null);
   const { showToast } = useToast();
 
-  // Load student profile
   useEffect(() => {
     if (!user) return;
     getDoc(doc(db, 'students', user.uid)).then(snap => {
@@ -35,14 +34,12 @@ export default function StudentAttendance() {
     });
   }, [user]);
 
-  // Find open attendance sessions/checkpoints
   const fetchActive = useCallback(async () => {
     const sessSnap = await getDocs(
       query(collection(db, 'attendanceSessions'), where('status', '==', 'active'))
     );
-    const now = new Date();
+    const now   = new Date();
     const found: ActiveCheckpoint[] = [];
-
     for (const s of sessSnap.docs) {
       const session = firestoreToSession(s.id, s.data());
       for (const cp of session.checkpoints) {
@@ -57,16 +54,12 @@ export default function StudentAttendance() {
 
   useEffect(() => { fetchActive(); }, [fetchActive]);
 
-  // Live countdown timers
   useEffect(() => {
     if (active.length === 0) return;
     const id = setInterval(() => {
       const next: Record<string, number> = {};
-      active.forEach(({ checkpoint: cp }) => {
-        next[cp.id] = secondsUntil(cp.expiresAt);
-      });
+      active.forEach(({ checkpoint: cp }) => { next[cp.id] = secondsUntil(cp.expiresAt); });
       setTimers(next);
-      // Remove expired
       setActive(prev => prev.filter(({ checkpoint: cp }) => cp.expiresAt > new Date()));
     }, 1000);
     return () => clearInterval(id);
@@ -75,57 +68,50 @@ export default function StudentAttendance() {
   const handleSubmit = async (e: React.FormEvent, item: ActiveCheckpoint) => {
     e.preventDefault();
     if (!user || !profile) {
-      showToast({ type: 'error', title: 'Profile required', description: 'Please complete your profile first before submitting attendance.' });
+      showToast({ type: 'error', title: 'Profile required', description: 'Please complete your profile first.' });
       setStatus('idle');
       return;
     }
     if (!profile.campus || !profile.section) {
-      showToast({ type: 'error', title: 'Profile incomplete', description: 'Please complete mandatory profile fields (Campus and Section) before submitting attendance.' });
+      showToast({ type: 'error', title: 'Profile incomplete', description: 'Please complete your Campus and Section fields first.' });
       setStatus('idle');
       return;
     }
     setStatus('submitting');
-
     const entered = code.trim().toUpperCase();
     if (entered !== item.checkpoint.code) {
       showToast({ type: 'error', title: 'Incorrect code', description: 'Please check and try again.' });
       setStatus('idle');
       return;
     }
-
-    // Check already submitted
-    const existing = await getDocs(
-      query(
-        collection(db, 'attendanceRecords'),
-        where('sessionId',    '==', item.session.id),
-        where('checkpointId', '==', item.checkpoint.id),
-        where('studentUid',   '==', user.uid),
-      )
-    );
+    const existing = await getDocs(query(
+      collection(db, 'attendanceRecords'),
+      where('sessionId',    '==', item.session.id),
+      where('checkpointId', '==', item.checkpoint.id),
+      where('studentUid',   '==', user.uid),
+    ));
     if (!existing.empty) {
       showToast({ type: 'error', title: 'Already submitted', description: 'You have already submitted attendance for this checkpoint.' });
       setStatus('idle');
       return;
     }
-
     try {
       await addDoc(collection(db, 'attendanceRecords'), {
-        sessionId:       item.session.id,
-        sessionTitle:    item.session.title,
-        sessionCourse:   item.session.course,
-        studentUid:      user.uid,
-        studentName:     profile.fullName,
+        sessionId:        item.session.id,
+        sessionTitle:     item.session.title,
+        sessionCourse:    item.session.course,
+        studentUid:       user.uid,
+        studentName:      profile.fullName,
         studentDisplayId: profile.studentId,
-        studentCampus:   profile.campus,
-        studentSection:  profile.section,
-        checkpointId:    item.checkpoint.id,
-        checkpointLabel: item.checkpoint.label,
-        submittedAt:     serverTimestamp(),
+        studentCampus:    profile.campus,
+        studentSection:   profile.section,
+        checkpointId:     item.checkpoint.id,
+        checkpointLabel:  item.checkpoint.label,
+        submittedAt:      serverTimestamp(),
       });
       showToast({ type: 'success', title: 'Attendance recorded', description: 'Your attendance has been submitted successfully.' });
       setStatus('idle');
       setCode('');
-      // Refresh after 3s
       setTimeout(() => { fetchActive(); }, 3000);
     } catch {
       showToast({ type: 'error', title: 'Submission failed', description: 'Failed to submit. Please try again.' });
@@ -142,66 +128,125 @@ export default function StudentAttendance() {
         subtitle="Enter the code shown by your lecturer"
       />
 
+      {/* Profile warning */}
       {!profile && (
-        <div className="card p-5 mb-6 border-amber-200 bg-amber-50 flex items-start gap-3">
-          <AlertCircle size={18} className="text-amber-600 mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-amber-700">
-            Please complete your <a href="/student/profile" className="underline font-medium">profile</a> before submitting attendance.
+        <div
+          className="flex items-start gap-3 px-5 py-4 rounded-3xl mb-6 animate-fadeIn"
+          style={{
+            background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(249,115,22,0.05))',
+            border: '1px solid rgba(245,158,11,0.20)',
+          }}
+        >
+          <AlertCircle size={18} style={{ color: '#d97706', flexShrink: 0, marginTop: 1 }} />
+          <p className="text-sm font-medium" style={{ color: '#92400e' }}>
+            Please complete your{' '}
+            <a href="/student/profile" className="underline font-semibold" style={{ color: '#d97706' }}>
+              profile
+            </a>
+            {' '}before submitting attendance.
           </p>
         </div>
       )}
 
       {active.length === 0 ? (
-        <div className="card p-12 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="bg-slate-100 p-4 rounded-2xl">
-              <Clock size={32} className="text-slate-400" />
-            </div>
+        <div
+          className="p-16 rounded-3xl flex flex-col items-center gap-4 text-center animate-fadeIn"
+          style={{
+            background: 'rgba(255,255,255,0.88)',
+            border: '1px solid rgba(139,92,246,0.10)',
+            boxShadow: '0 2px 16px rgba(124,106,247,0.06)',
+          }}
+        >
+          <div
+            className="w-16 h-16 rounded-3xl flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(167,139,250,0.05))' }}
+          >
+            <Clock size={28} style={{ color: '#a78bfa' }} />
           </div>
-          <h3 className="font-semibold text-slate-700 mb-1">No active attendance session</h3>
-          <p className="text-sm text-slate-400 max-w-xs mx-auto">
-            Your lecturer will start a session during class. Check back when you're in the live session.
-          </p>
+          <div>
+            <h3 className="font-bold text-base" style={{ color: '#1e1b4b' }}>No active session</h3>
+            <p className="text-sm font-medium mt-1 max-w-xs mx-auto" style={{ color: '#9ca3af' }}>
+              Your lecturer will start a session during class. Check back when you're in the live session.
+            </p>
+          </div>
         </div>
       ) : (
-        <div className="space-y-4 max-w-md">
+        <div className="space-y-5 max-w-md">
           {active.map(item => {
             const secsLeft = timers[item.checkpoint.id] ?? secondsUntil(item.checkpoint.expiresAt);
             const pct      = Math.round((secsLeft / (item.checkpoint.windowMinutes * 60)) * 100);
             const urgent   = secsLeft < 60;
 
             return (
-              <div key={`${item.session.id}-${item.checkpoint.id}`} className="card p-6 animate-fadeIn">
+              <div
+                key={`${item.session.id}-${item.checkpoint.id}`}
+                className="rounded-3xl p-6 animate-fadeIn"
+                style={{
+                  background: 'rgba(255,255,255,0.92)',
+                  border: '1px solid rgba(124,58,237,0.15)',
+                  boxShadow: '0 4px 24px rgba(124,58,237,0.10)',
+                }}
+              >
                 {/* Session info */}
-                <div className="mb-4">
-                  <div className="flex items-start justify-between gap-2 mb-1">
-                    <h3 className="font-bold text-slate-800">{item.session.title}</h3>
-                    <span className="badge bg-brand-100 text-brand-700">{item.checkpoint.label}</span>
+                <div className="flex items-start justify-between gap-2 mb-4">
+                  <div>
+                    <h3 className="font-bold text-base" style={{ color: '#1e1b4b' }}>{item.session.title}</h3>
+                    <p className="text-xs font-medium mt-0.5" style={{ color: '#9ca3af' }}>{item.session.course}</p>
                   </div>
-                  <p className="text-xs text-slate-500">{item.session.course}</p>
+                  <span
+                    className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold flex-shrink-0"
+                    style={{ background: 'rgba(124,58,237,0.08)', color: '#7c3aed' }}
+                  >
+                    {item.checkpoint.label}
+                  </span>
                 </div>
 
                 {/* Timer */}
-                <div className={`flex items-center gap-2 mb-4 px-3 py-2 rounded-xl ${urgent ? 'bg-red-50 text-red-600' : 'bg-brand-50 text-brand-700'}`}>
-                  <Clock size={15} />
-                  <span className="text-sm font-semibold tabular-nums">
+                <div
+                  className="flex items-center gap-3 px-4 py-3 rounded-2xl mb-5"
+                  style={{
+                    background: urgent
+                      ? 'linear-gradient(135deg, rgba(239,68,68,0.08), rgba(249,115,22,0.06))'
+                      : 'linear-gradient(135deg, rgba(124,58,237,0.06), rgba(167,139,250,0.04))',
+                    border: `1px solid ${urgent ? 'rgba(239,68,68,0.18)' : 'rgba(124,58,237,0.12)'}`,
+                  }}
+                >
+                  <div
+                    className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: urgent ? 'rgba(239,68,68,0.10)' : 'rgba(124,58,237,0.08)',
+                    }}
+                  >
+                    <Clock size={15} style={{ color: urgent ? '#ef4444' : '#7c3aed' }} />
+                  </div>
+                  <span
+                    className="text-sm font-bold tabular-nums flex-1"
+                    style={{ color: urgent ? '#ef4444' : '#7c3aed' }}
+                  >
                     {String(Math.floor(secsLeft / 60)).padStart(2, '0')}:{String(secsLeft % 60).padStart(2, '0')} remaining
                   </span>
                   {/* Progress bar */}
-                  <div className="ml-auto w-20 h-1.5 bg-current/20 rounded-full overflow-hidden">
+                  <div className="w-24 h-2 rounded-full overflow-hidden flex-shrink-0"
+                    style={{ background: urgent ? 'rgba(239,68,68,0.12)' : 'rgba(124,58,237,0.10)' }}
+                  >
                     <div
-                      className={`h-full rounded-full transition-all duration-1000 ${urgent ? 'bg-red-500' : 'bg-brand-500'}`}
-                      style={{ width: `${pct}%` }}
+                      className="h-full rounded-full transition-all duration-1000"
+                      style={{
+                        width: `${pct}%`,
+                        background: urgent
+                          ? 'linear-gradient(90deg, #ef4444, #f97316)'
+                          : 'linear-gradient(90deg, #7c3aed, #a78bfa)',
+                      }}
                     />
                   </div>
                 </div>
 
                 {/* Code entry */}
-                <form onSubmit={e => handleSubmit(e, item)} className="space-y-3">
+                <form onSubmit={e => handleSubmit(e, item)} className="space-y-4">
                   <div>
                     <label className="label">Attendance code</label>
                     <input
-                      className="input-field code-display text-center text-xl font-bold tracking-widest uppercase"
+                      className="input-field code-display text-center text-2xl font-black tracking-[0.25em] uppercase"
                       value={code}
                       onChange={e => setCode(e.target.value.toUpperCase())}
                       maxLength={6}
@@ -215,7 +260,7 @@ export default function StudentAttendance() {
                   <button
                     type="submit"
                     disabled={status === 'submitting' || code.length < 6}
-                    className="btn-primary w-full justify-center"
+                    className="btn-primary w-full justify-center py-3"
                   >
                     {status === 'submitting' ? (
                       <><LoadingSpinner size="sm" />Submitting…</>

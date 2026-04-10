@@ -3,22 +3,37 @@ import { collection, getDocs, Timestamp } from 'firebase/firestore';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import {
   BarChart, Bar, PieChart, Pie, Cell, Tooltip, XAxis, YAxis,
-  CartesianGrid, ResponsiveContainer, Legend,
+  CartesianGrid, ResponsiveContainer,
 } from 'recharts';
-import { Users, Globe, GraduationCap, Briefcase, Heart, CalendarCheck } from 'lucide-react';
+import { Users, Globe, GraduationCap, Briefcase, Heart, CalendarCheck, TrendingUp } from 'lucide-react';
 import { db } from '../../lib/firebase';
-import Layout, { PageHeader, SectionLabel } from '../../components/layout/Layout';
+import Layout, { PageHeader } from '../../components/layout/Layout';
 import StatCard from '../../components/ui/StatCard';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import type { StudentProfile, AttendanceSession } from '../../lib/types';
 import { groupBy, toCounts } from '../../lib/utils';
 
-const COLORS = ['#6366f1','#8b5cf6','#06b6d4','#10b981','#f59e0b','#ef4444','#ec4899','#14b8a6','#f97316','#a855f7'];
+const CHART_COLORS = [
+  '#7c3aed','#a78bfa','#06b6d4','#10b981',
+  '#f59e0b','#ef4444','#ec4899','#14b8a6','#f97316','#8b5cf6',
+];
+
+const tooltipStyle = {
+  borderRadius: '16px',
+  border: '1px solid rgba(139,92,246,0.15)',
+  boxShadow: '0 12px 32px rgba(124,106,247,0.14)',
+  background: 'rgba(255,255,255,0.97)',
+  backdropFilter: 'blur(12px)',
+  fontSize: '12px',
+  fontWeight: 500,
+  color: '#1e1b4b',
+  padding: '10px 14px',
+};
 
 export default function Dashboard() {
-  const [students,  setStudents]  = useState<StudentProfile[]>([]);
-  const [sessions,  setSessions]  = useState<AttendanceSession[]>([]);
-  const [loading,   setLoading]   = useState(true);
+  const [students, setStudents] = useState<StudentProfile[]>([]);
+  const [sessions, setSessions] = useState<AttendanceSession[]>([]);
+  const [loading,  setLoading]  = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -50,46 +65,80 @@ export default function Dashboard() {
   const byWork    = toCounts(groupBy(students, s => s.workExperience));
   const withNeeds = students.filter(s => s.specialNeeds && s.specialNeeds !== 'None' && s.specialNeeds !== '');
   const studentsWithPins = students.filter(s => typeof s.hometownLat === 'number' && typeof s.hometownLng === 'number');
+  const activeSessions = sessions.filter(s => s.status === 'active');
 
   if (loading) return <Layout><div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div></Layout>;
 
   return (
     <Layout>
-      <PageHeader
-        title="Dashboard"
-        subtitle={`Overview of ${students.length} enrolled student${students.length !== 1 ? 's' : ''}`}
-      />
+      {/* Page header with greeting */}
+      <div className="mb-8 animate-fadeIn">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-sm font-semibold mb-1" style={{ color: '#a78bfa' }}>
+              Welcome back 👋
+            </p>
+            <h1 className="page-title">Dashboard Overview</h1>
+            <p className="page-subtitle">
+              {students.length} enrolled student{students.length !== 1 ? 's' : ''} across {byCourse.length} course{byCourse.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+          {activeSessions.length > 0 && (
+            <div
+              className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-semibold animate-pulse"
+              style={{
+                background: 'linear-gradient(135deg, rgba(16,185,129,0.10), rgba(45,212,191,0.08))',
+                color: '#059669',
+                border: '1px solid rgba(16,185,129,0.20)',
+              }}
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+              {activeSessions.length} live session{activeSessions.length > 1 ? 's' : ''}
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-        <StatCard title="Total Students"       value={students.length}           icon={Users}          color="indigo" />
-        <StatCard title="Courses"              value={byCourse.length}           icon={GraduationCap}  color="violet" />
-        <StatCard title="Countries"            value={byCountry.length}          icon={Globe}          color="sky" />
-        <StatCard title="With Work Exp."       value={students.filter(s => s.workExperience && s.workExperience !== 'No work experience').length} icon={Briefcase} color="emerald" />
-        <StatCard title="Special Needs"        value={withNeeds.length}          icon={Heart}          color="rose" />
-        <StatCard title="Sessions"             value={sessions.length}           icon={CalendarCheck}  color="amber" />
+        {[
+          { title: 'Total Students', value: students.length,  icon: Users,         color: 'violet'  as const },
+          { title: 'Courses',        value: byCourse.length,  icon: GraduationCap, color: 'indigo'  as const },
+          { title: 'Countries',      value: byCountry.length, icon: Globe,         color: 'sky'     as const },
+          {
+            title: 'With Work Exp.',
+            value: students.filter(s => s.workExperience && s.workExperience !== 'No work experience').length,
+            icon: Briefcase, color: 'emerald' as const,
+          },
+          { title: 'Special Needs',  value: withNeeds.length, icon: Heart,         color: 'rose'    as const },
+          { title: 'Sessions',       value: sessions.length,  icon: CalendarCheck, color: 'amber'   as const },
+        ].map((p, i) => (
+          <div key={p.title} style={{ animationDelay: `${i * 0.05}s` }} className="relative">
+            <StatCard {...p} />
+          </div>
+        ))}
       </div>
 
       {/* Charts row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <ChartCard title="Students by Course">
-          {byCourse.length === 0 ? <Empty /> : (
+        <ChartCard title="Students by Course" icon={<GraduationCap size={16} />}>
+          {byCourse.length === 0 ? <EmptyChart /> : (
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={byCourse} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} interval={0} angle={-20} textAnchor="end" height={50} />
-                <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(139,92,246,0.06)" />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#9ca3af' }} interval={0} angle={-18} textAnchor="end" height={52} />
+                <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} allowDecimals={false} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="value" name="Students" radius={[6, 6, 0, 0]}>
-                  {byCourse.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                <Bar dataKey="value" name="Students" radius={[8, 8, 0, 0]}>
+                  {byCourse.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           )}
         </ChartCard>
 
-        <ChartCard title="Students by Country (Top 10)">
-          {byCountry.length === 0 ? <Empty /> : (
+        <ChartCard title="Countries (Top 10)" icon={<Globe size={16} />}>
+          {byCountry.length === 0 ? <EmptyChart /> : (
             <ResponsiveContainer width="100%" height={240}>
               <PieChart>
                 <Pie
@@ -98,12 +147,16 @@ export default function Dashboard() {
                   nameKey="name"
                   cx="50%"
                   cy="50%"
+                  innerRadius={55}
                   outerRadius={90}
+                  paddingAngle={3}
                   label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   labelLine={false}
-                  fontSize={11}
+                  fontSize={10}
                 >
-                  {byCountry.slice(0, 10).map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  {byCountry.slice(0, 10).map((_, i) => (
+                    <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                  ))}
                 </Pie>
                 <Tooltip contentStyle={tooltipStyle} formatter={(v) => [`${v} students`]} />
               </PieChart>
@@ -114,58 +167,74 @@ export default function Dashboard() {
 
       {/* Charts row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <ChartCard title="Educational Background">
-          {byEdu.length === 0 ? <Empty /> : (
+        <ChartCard title="Educational Background" icon={<TrendingUp size={16} />}>
+          {byEdu.length === 0 ? <EmptyChart /> : (
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={byEdu} layout="vertical" margin={{ top: 4, right: 20, left: 8, bottom: 4 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
-                <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={180} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(139,92,246,0.06)" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 10, fill: '#9ca3af' }} allowDecimals={false} />
+                <YAxis type="category" dataKey="name" tick={{ fontSize: 9, fill: '#9ca3af' }} width={170} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="value" name="Students" radius={[0, 6, 6, 0]}>
-                  {byEdu.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                <Bar dataKey="value" name="Students" radius={[0, 8, 8, 0]}>
+                  {byEdu.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
           )}
         </ChartCard>
 
-        <ChartCard title="Work Experience">
-          {byWork.length === 0 ? <Empty /> : (
+        <ChartCard title="Work Experience" icon={<Briefcase size={16} />}>
+          {byWork.length === 0 ? <EmptyChart /> : (
             <ResponsiveContainer width="100%" height={240}>
               <BarChart data={byWork} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-15} textAnchor="end" height={50} />
-                <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(139,92,246,0.06)" />
+                <XAxis dataKey="name" tick={{ fontSize: 9, fill: '#9ca3af' }} interval={0} angle={-15} textAnchor="end" height={52} />
+                <YAxis tick={{ fontSize: 10, fill: '#9ca3af' }} allowDecimals={false} />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="value" name="Students" fill="#10b981" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="value" name="Students" radius={[8, 8, 0, 0]}>
+                  {byWork.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           )}
         </ChartCard>
       </div>
 
-      <div className="card p-6 mb-6">
-        <h3 className="font-semibold text-slate-700 text-sm mb-2">Student hometown map</h3>
-        <p className="text-xs text-slate-500 mb-4">
-          Lecturers can zoom in and out to inspect where students come from.
-        </p>
+      {/* World map */}
+      <div className="card p-6 mb-6 animate-fadeIn">
+        <div className="flex items-center gap-3 mb-1">
+          <div
+            className="rounded-xl p-2"
+            style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.12), rgba(96,165,250,0.08))' }}
+          >
+            <Globe size={16} style={{ color: '#0ea5e9' }} />
+          </div>
+          <div>
+            <h3 className="font-bold text-sm" style={{ color: '#1e1b4b' }}>Student Hometown Map</h3>
+            <p className="text-xs" style={{ color: '#9ca3af' }}>Zoom to explore where students come from</p>
+          </div>
+        </div>
+
+        <div className="divider" />
+
         {studentsWithPins.length === 0 ? (
-          <Empty />
+          <EmptyChart />
         ) : (
-          <div className="h-96 w-full rounded-xl overflow-hidden border border-slate-200">
+          <div className="h-96 w-full overflow-hidden rounded-2xl"
+            style={{ border: '1px solid rgba(139,92,246,0.10)' }}
+          >
             <MapContainer center={[20, 0]} zoom={2} className="h-full w-full">
               <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
               {studentsWithPins.map(s => (
                 <Marker key={s.uid} position={[s.hometownLat as number, s.hometownLng as number]}>
                   <Popup>
-                    <div className="text-xs">
-                      <p className="font-semibold">{s.fullName || 'Unknown student'}</p>
-                      <p>{s.hometown || s.homeCountry || 'Unknown hometown'}</p>
-                      <p className="text-slate-500">{s.course || 'Course not set'}</p>
+                    <div className="text-xs p-1">
+                      <p className="font-bold text-gray-800">{s.fullName || 'Unknown student'}</p>
+                      <p className="text-gray-500 mt-0.5">{s.hometown || s.homeCountry || 'Unknown hometown'}</p>
+                      <p className="text-brand-500 font-medium mt-0.5">{s.course || 'Course not set'}</p>
                     </div>
                   </Popup>
                 </Marker>
@@ -177,17 +246,39 @@ export default function Dashboard() {
 
       {/* Special needs summary */}
       {withNeeds.length > 0 && (
-        <div className="card p-6 mb-6">
-          <SectionLabel>Students with declared special needs or accommodations</SectionLabel>
+        <div className="card p-6 mb-6 animate-fadeIn">
+          <div className="flex items-center gap-3 mb-4">
+            <div
+              className="rounded-xl p-2"
+              style={{ background: 'linear-gradient(135deg, rgba(244,63,94,0.10), rgba(232,121,160,0.08))' }}
+            >
+              <Heart size={16} style={{ color: '#e11d48' }} />
+            </div>
+            <div>
+              <h3 className="font-bold text-sm" style={{ color: '#1e1b4b' }}>Special Needs & Accommodations</h3>
+              <p className="text-xs" style={{ color: '#9ca3af' }}>{withNeeds.length} student{withNeeds.length > 1 ? 's' : ''} with declared requirements</p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {withNeeds.map(s => (
-              <div key={s.uid} className="flex items-center gap-3 px-4 py-3 bg-rose-50 rounded-xl border border-rose-100">
-                <div className="w-8 h-8 rounded-full bg-rose-200 flex items-center justify-center text-rose-700 text-xs font-bold flex-shrink-0">
+              <div
+                key={s.uid}
+                className="flex items-center gap-3 px-4 py-3 rounded-2xl"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(244,63,94,0.06), rgba(232,121,160,0.04))',
+                  border: '1px solid rgba(244,63,94,0.10)',
+                }}
+              >
+                <div
+                  className="avatar w-9 h-9 text-xs flex-shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #f43f5e, #e879a0)' }}
+                >
                   {(s.fullName || '?')[0]?.toUpperCase()}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-rose-900 truncate">{s.fullName}</p>
-                  <p className="text-xs text-rose-600 truncate">{s.specialNeeds}</p>
+                  <p className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>{s.fullName}</p>
+                  <p className="text-xs truncate font-medium" style={{ color: '#e11d48' }}>{s.specialNeeds}</p>
                 </div>
               </div>
             ))}
@@ -198,22 +289,33 @@ export default function Dashboard() {
   );
 }
 
-function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
+function ChartCard({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="card p-6">
-      <h3 className="font-semibold text-slate-700 text-sm mb-4">{title}</h3>
+    <div className="card p-6 animate-fadeIn">
+      <div className="flex items-center gap-2 mb-5">
+        <div
+          className="rounded-xl p-1.5"
+          style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.10), rgba(139,92,246,0.06))' }}
+        >
+          <span style={{ color: '#7c3aed' }}>{icon}</span>
+        </div>
+        <h3 className="font-bold text-sm" style={{ color: '#1e1b4b' }}>{title}</h3>
+      </div>
       {children}
     </div>
   );
 }
 
-function Empty() {
-  return <p className="text-slate-400 text-sm text-center py-10">No data yet</p>;
+function EmptyChart() {
+  return (
+    <div className="flex flex-col items-center justify-center py-10 gap-2">
+      <div
+        className="w-10 h-10 rounded-2xl flex items-center justify-center"
+        style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.08), rgba(167,139,250,0.05))' }}
+      >
+        <TrendingUp size={18} style={{ color: '#a78bfa' }} />
+      </div>
+      <p className="text-sm font-medium" style={{ color: '#c4b5fd' }}>No data yet</p>
+    </div>
+  );
 }
-
-const tooltipStyle = {
-  borderRadius: '12px',
-  border: '1px solid #e2e8f0',
-  boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-  fontSize: '12px',
-};

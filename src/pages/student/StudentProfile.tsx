@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, limit, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
 import { MapPin, Save, User, BookOpen, Globe, Briefcase, GraduationCap, Heart } from 'lucide-react';
 import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
 import type { LeafletMouseEvent } from 'leaflet';
@@ -10,13 +10,10 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import type { StudentProfile } from '../../lib/types';
 
 const COURSES = [
-  'MSc Data Science',
-  'MSc Artificial Intelligence',
-  'MSc Computer Science',
-  'MSc Software Engineering',
-  'MSc Cybersecurity',
-  'MBA Technology Management',
-  'Other',
+  'Master of Management',
+  'Master of Software Engineering',
+  'Master of Business Informatics - Business Analytics',
+  'Master of Business Informatics - Healthcare Informatics',
 ];
 
 const COUNTRIES = [
@@ -40,12 +37,53 @@ const WORK_EXP = [
   'More than 10 years',
 ];
 
+const WORK_INDUSTRIES = [
+  'Banking',
+  'Telecommunications',
+  'Information Technology',
+  'Finance',
+  'Marketing',
+  'Arts & Creative',
+  'Healthcare',
+  'Medical',
+  'Political / Government',
+  'Social Services',
+  'Education',
+  'Software Engineering',
+  'Design',
+  'Beauty Salon & Personal Care',
+  'Hospitality & Tourism',
+  'Retail',
+  'Manufacturing',
+  'Construction',
+  'Logistics & Supply Chain',
+  'Real Estate',
+  'Legal',
+  'Media & Communications',
+  'Non-profit / NGO',
+  'Entrepreneurship / Startup',
+  'Other',
+];
+
 const EDU_BG = [
-  'BSc / BEng (Computer Science / Engineering)',
-  'BSc / BEng (Other STEM)',
-  'BA / BSc (Business / Management)',
-  'BA / BSc (Humanities / Social Sciences)',
-  'BA / BSc (Other)',
+  'Medical',
+  'Nursing / Allied Health',
+  'Political Science / Public Policy',
+  'Social Science',
+  'Humanities',
+  'Finance',
+  'Accounting',
+  'Information Technology',
+  'Software Engineering',
+  'Computer Science',
+  'Business / Management',
+  'Design',
+  'Beauty Salon / Cosmetology',
+  'Law',
+  'Education',
+  'Arts & Creative',
+  'Science',
+  'Engineering',
   'Previous Masters degree',
   'Professional qualification / certifications',
   'Other',
@@ -64,7 +102,7 @@ const SPECIAL_NEEDS_OPTIONS = [
 const blank: Omit<StudentProfile, 'uid' | 'createdAt' | 'updatedAt'> = {
   fullName: '', studentId: '', email: '', course: '',
   homeCountry: '', hometown: '', hometownLat: null, hometownLng: null,
-  workExperience: '', educationalBackground: '',
+  workExperience: '', workIndustry: '', educationalBackground: '',
   specialNeeds: '',
 };
 
@@ -93,6 +131,7 @@ export default function StudentProfilePage() {
           hometownLat: typeof d.hometownLat === 'number' ? d.hometownLat : null,
           hometownLng: typeof d.hometownLng === 'number' ? d.hometownLng : null,
           workExperience: d.workExperience || '',
+          workIndustry: d.workIndustry || '',
           educationalBackground: d.educationalBackground || '',
           specialNeeds: d.specialNeeds || '',
         });
@@ -110,14 +149,42 @@ export default function StudentProfilePage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    if (form.hometownLat === null || form.hometownLng === null) {
-      setError('Please place your hometown pin on the map before saving.');
+    const normalizedEmail = form.email.trim().toLowerCase();
+    const normalizedStudentId = form.studentId.trim();
+
+    if (!normalizedEmail.endsWith('@yoobeestudent.ac.nz')) {
+      setError('Student email must end with @yoobeestudent.ac.nz.');
       return;
     }
+    if (!/^\d{8}$/.test(normalizedStudentId)) {
+      setError('Student ID must be numeric and exactly 8 digits (e.g. 27091691).');
+      return;
+    }
+
     setSaving(true); setError('');
     try {
+      const studentsRef = collection(db, 'students');
+      const [emailSnap, studentIdSnap] = await Promise.all([
+        getDocs(query(studentsRef, where('email', '==', normalizedEmail), limit(1))),
+        getDocs(query(studentsRef, where('studentId', '==', normalizedStudentId), limit(1))),
+      ]);
+
+      const emailTaken = !emailSnap.empty && emailSnap.docs[0].id !== user.uid;
+      if (emailTaken) {
+        setError('This student email is already used by another profile.');
+        return;
+      }
+
+      const studentIdTaken = !studentIdSnap.empty && studentIdSnap.docs[0].id !== user.uid;
+      if (studentIdTaken) {
+        setError('This student ID is already used by another profile.');
+        return;
+      }
+
       const payload = {
         ...form,
+        email: normalizedEmail,
+        studentId: normalizedStudentId,
         uid: user.uid,
         specialNeedsNotes: notes,
         updatedAt: serverTimestamp(),
@@ -154,10 +221,10 @@ export default function StudentProfilePage() {
               <input className="input-field" value={form.fullName} onChange={set('fullName')} required placeholder="e.g. Maria Garcia" />
             </Field>
             <Field label="Student ID" required>
-              <input className="input-field" value={form.studentId} onChange={set('studentId')} required placeholder="e.g. STU20240001" />
+              <input className="input-field" value={form.studentId} onChange={set('studentId')} required placeholder="e.g. 27091691" />
             </Field>
             <Field label="Email address" required>
-              <input className="input-field" type="email" value={form.email} onChange={set('email')} required placeholder="you@university.edu" />
+              <input className="input-field" type="email" value={form.email} onChange={set('email')} required placeholder="you@yoobeestudent.ac.nz" />
             </Field>
             <Field label="Home country" required>
               <select className="input-field" value={form.homeCountry} onChange={set('homeCountry')} required>
@@ -224,6 +291,14 @@ export default function StudentProfilePage() {
               {WORK_EXP.map(w => <option key={w} value={w}>{w}</option>)}
             </select>
           </Field>
+          <div className="mt-4">
+            <Field label="Previous work industry" required>
+              <select className="input-field" value={form.workIndustry || ''} onChange={set('workIndustry')} required>
+                <option value="">Select…</option>
+                {WORK_INDUSTRIES.map(industry => <option key={industry} value={industry}>{industry}</option>)}
+              </select>
+            </Field>
+          </div>
         </Section>
 
         {/* Special Needs */}

@@ -18,6 +18,7 @@ export interface StudentProfile {
   hometownLat: number | null;
   hometownLng: number | null;
   workExperience: string;
+  workIndustry?: string;
   educationalBackground: string;
   specialNeeds: string;
   createdAt: Date;

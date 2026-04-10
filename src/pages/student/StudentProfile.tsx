@@ -289,11 +289,6 @@ export default function StudentProfilePage() {
       showToast({ type: 'error', title: 'Hometown pin required', description: 'Please drop a hometown pin on the map.' });
       return;
     }
-    if (!form.homeCountry) {
-      showToast({ type: 'error', title: 'Country not detected', description: 'Please place your pin again so we can detect your home country.' });
-      return;
-    }
-
     setSaving(true);
     try {
       const studentsRef = collection(db, 'students');
@@ -355,14 +350,13 @@ export default function StudentProfilePage() {
             <Field label="Email address" required>
               <input className="input-field" type="email" value={form.email} onChange={set('email')} required placeholder="you@yoobeestudent.ac.nz" />
             </Field>
-            <Field label="Home country (auto from map pin)" required>
+            <Field label="Home country (auto from map pin)">
               <input
                 className="input-field"
                 style={{ cursor: 'default', opacity: 0.8 }}
                 value={form.homeCountry || (countryLookupLoading ? 'Detecting country…' : '')}
                 readOnly
-                required
-                placeholder="Set a hometown pin to detect country"
+                placeholder="Set a hometown pin to detect country (optional)"
               />
             </Field>
           </div>

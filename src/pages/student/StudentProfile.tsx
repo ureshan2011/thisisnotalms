@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { Save, User, BookOpen, Globe, Briefcase, GraduationCap, Heart } from 'lucide-react';
+import { MapPin, Save, User, BookOpen, Globe, Briefcase, GraduationCap, Heart } from 'lucide-react';
+import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
+import type { LeafletMouseEvent } from 'leaflet';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout, { PageHeader } from '../../components/layout/Layout';
@@ -61,7 +63,8 @@ const SPECIAL_NEEDS_OPTIONS = [
 
 const blank: Omit<StudentProfile, 'uid' | 'createdAt' | 'updatedAt'> = {
   fullName: '', studentId: '', email: '', course: '',
-  homeCountry: '', workExperience: '', educationalBackground: '',
+  homeCountry: '', hometown: '', hometownLat: null, hometownLng: null,
+  workExperience: '', educationalBackground: '',
   specialNeeds: '',
 };
 
@@ -86,6 +89,9 @@ export default function StudentProfilePage() {
           email: d.email || user.email || '',
           course: d.course || '',
           homeCountry: d.homeCountry || '',
+          hometown: d.hometown || '',
+          hometownLat: typeof d.hometownLat === 'number' ? d.hometownLat : null,
+          hometownLng: typeof d.hometownLng === 'number' ? d.hometownLng : null,
           workExperience: d.workExperience || '',
           educationalBackground: d.educationalBackground || '',
           specialNeeds: d.specialNeeds || '',
@@ -104,6 +110,10 @@ export default function StudentProfilePage() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    if (form.hometownLat === null || form.hometownLng === null) {
+      setError('Please place your hometown pin on the map before saving.');
+      return;
+    }
     setSaving(true); setError('');
     try {
       const payload = {
@@ -156,6 +166,34 @@ export default function StudentProfilePage() {
               </select>
             </Field>
           </div>
+        </Section>
+
+        {/* Hometown Pin */}
+        <Section icon={<MapPin size={16} />} title="Hometown pin">
+          <p className="text-xs text-slate-500 mb-3">
+            Drop a pin on your hometown for a more accurate location than country only.
+          </p>
+          <Field label="Hometown (city / town)" required>
+            <input
+              className="input-field"
+              value={form.hometown}
+              onChange={set('hometown')}
+              required
+              placeholder="e.g. Manchester, UK"
+            />
+          </Field>
+          <WorldMapPicker
+            lat={form.hometownLat}
+            lng={form.hometownLng}
+            onPick={(lat, lng) => setForm(f => ({ ...f, hometownLat: lat, hometownLng: lng }))}
+          />
+          {form.hometownLat === null || form.hometownLng === null ? (
+            <p className="text-xs text-amber-600 mt-2">Please click on the map to set your hometown pin.</p>
+          ) : (
+            <p className="text-xs text-slate-500 mt-2">
+              Pin set at {form.hometownLat.toFixed(4)}, {form.hometownLng.toFixed(4)}
+            </p>
+          )}
         </Section>
 
         {/* Course */}
@@ -225,6 +263,37 @@ export default function StudentProfilePage() {
       </form>
     </Layout>
   );
+}
+
+function WorldMapPicker({
+  lat, lng, onPick,
+}: {
+  lat: number | null;
+  lng: number | null;
+  onPick: (lat: number, lng: number) => void;
+}) {
+  const defaultCenter: [number, number] = [20, 0];
+  const markerPos = lat !== null && lng !== null ? ([lat, lng] as [number, number]) : null;
+
+  return (
+    <div className="h-72 w-full rounded-xl overflow-hidden border border-slate-200">
+      <MapContainer center={markerPos || defaultCenter} zoom={markerPos ? 4 : 2} className="h-full w-full">
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <MapClickHandler onPick={onPick} />
+        {markerPos && <Marker position={markerPos} />}
+      </MapContainer>
+    </div>
+  );
+}
+
+function MapClickHandler({ onPick }: { onPick: (lat: number, lng: number) => void }) {
+  useMapEvents({
+    click: (e: LeafletMouseEvent) => onPick(e.latlng.lat, e.latlng.lng),
+  });
+  return null;
 }
 
 function Section({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {

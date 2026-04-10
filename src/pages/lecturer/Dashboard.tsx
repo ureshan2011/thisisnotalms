@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { collection, getDocs, Timestamp } from 'firebase/firestore';
+import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import {
   BarChart, Bar, PieChart, Pie, Cell, Tooltip, XAxis, YAxis,
   CartesianGrid, ResponsiveContainer, Legend,
@@ -48,6 +49,7 @@ export default function Dashboard() {
   const byEdu     = toCounts(groupBy(students, s => s.educationalBackground));
   const byWork    = toCounts(groupBy(students, s => s.workExperience));
   const withNeeds = students.filter(s => s.specialNeeds && s.specialNeeds !== 'None' && s.specialNeeds !== '');
+  const studentsWithPins = students.filter(s => typeof s.hometownLat === 'number' && typeof s.hometownLng === 'number');
 
   if (loading) return <Layout><div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div></Layout>;
 
@@ -141,6 +143,36 @@ export default function Dashboard() {
             </ResponsiveContainer>
           )}
         </ChartCard>
+      </div>
+
+      <div className="card p-6 mb-6">
+        <h3 className="font-semibold text-slate-700 text-sm mb-2">Student hometown map</h3>
+        <p className="text-xs text-slate-500 mb-4">
+          Lecturers can zoom in and out to inspect where students come from.
+        </p>
+        {studentsWithPins.length === 0 ? (
+          <Empty />
+        ) : (
+          <div className="h-96 w-full rounded-xl overflow-hidden border border-slate-200">
+            <MapContainer center={[20, 0]} zoom={2} className="h-full w-full">
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              {studentsWithPins.map(s => (
+                <Marker key={s.uid} position={[s.hometownLat as number, s.hometownLng as number]}>
+                  <Popup>
+                    <div className="text-xs">
+                      <p className="font-semibold">{s.fullName || 'Unknown student'}</p>
+                      <p>{s.hometown || s.homeCountry || 'Unknown hometown'}</p>
+                      <p className="text-slate-500">{s.course || 'Course not set'}</p>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+          </div>
+        )}
       </div>
 
       {/* Special needs summary */}

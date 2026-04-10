@@ -15,6 +15,7 @@ export interface StudentProfile {
   course: string;
   homeCountry: string;
   workExperience: string;
+  workIndustry?: string;
   educationalBackground: string;
   specialNeeds: string;
   createdAt: Date;

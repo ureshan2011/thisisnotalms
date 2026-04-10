@@ -5,22 +5,25 @@ import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import type { AttendanceRecord, AbsenceNotice } from '../../lib/types';
+import type { AttendanceRecord, AbsenceNotice, AttendanceSession } from '../../lib/types';
 import { formatDateTime } from '../../lib/utils';
+import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
 
 type RawRecord = Omit<AttendanceRecord, 'submittedAt'> & { submittedAt: Timestamp };
+type RawSession = Omit<AttendanceSession, 'date' | 'createdAt'> & { date: Timestamp; createdAt: Timestamp };
 
 export default function StudentHistory() {
   const { user } = useAuth();
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [absences, setAbsences] = useState<AbsenceNotice[]>([]);
+  const [sessions, setSessions] = useState<AttendanceSession[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
       try {
-        const [attendanceSnap, absenceSnap] = await Promise.all([
+        const [attendanceSnap, absenceSnap, sessionsSnap] = await Promise.all([
           getDocs(
             query(
               collection(db, 'attendanceRecords'),
@@ -33,6 +36,7 @@ export default function StudentHistory() {
               where('studentUid', '==', user.uid),
             )
           ),
+          getDocs(collection(db, 'attendanceSessions')),
         ]);
         setRecords(
           attendanceSnap.docs
@@ -55,6 +59,21 @@ export default function StudentHistory() {
             } as AbsenceNotice;
           })
           .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
+
+        const studentCourse = attendanceSnap.docs[0]?.data()?.sessionCourse;
+        setSessions(
+          sessionsSnap.docs
+            .map(d => {
+              const s = d.data() as RawSession;
+              return {
+                ...s,
+                id: d.id,
+                date: s.date?.toDate?.() ?? new Date(),
+                createdAt: s.createdAt?.toDate?.() ?? new Date(),
+              } as AttendanceSession;
+            })
+            .filter(s => !studentCourse || s.course === studentCourse)
+        );
       } finally {
         setLoading(false);
       }
@@ -65,9 +84,7 @@ export default function StudentHistory() {
   for (const r of records) {
     (bySession[r.sessionId] = bySession[r.sessionId] || []).push(r);
   }
-  const attendedDays = new Set(records.map(r => r.sessionId)).size;
-  const absentDays = absences.filter(a => a.status === 'absent').length;
-  const excusedDays = absences.filter(a => a.status === 'excused').length;
+  const summary = summarizeStudentAttendance({ sessions, records, absences });
 
   if (loading) return <Layout><div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div></Layout>;
 
@@ -80,9 +97,9 @@ export default function StudentHistory() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5 max-w-3xl">
         {[
-          { label: 'Attended days', value: attendedDays, icon: <CalendarCheck size={16} />, tone: '#059669', bg: 'rgba(16,185,129,0.09)' },
-          { label: 'Absent days', value: absentDays, icon: <CircleOff size={16} />, tone: '#dc2626', bg: 'rgba(239,68,68,0.10)' },
-          { label: 'Excused days', value: excusedDays, icon: <ShieldCheck size={16} />, tone: '#2563eb', bg: 'rgba(37,99,235,0.10)' },
+          { label: 'Attended days', value: summary.attendedDays, icon: <CalendarCheck size={16} />, tone: '#059669', bg: 'rgba(16,185,129,0.09)' },
+          { label: 'Absent (unjustified)', value: summary.absentUnjustifiedDays, icon: <CircleOff size={16} />, tone: '#dc2626', bg: 'rgba(239,68,68,0.10)' },
+          { label: 'Absent (justified)', value: summary.absentJustifiedDays, icon: <ShieldCheck size={16} />, tone: '#2563eb', bg: 'rgba(37,99,235,0.10)' },
         ].map(card => (
           <div
             key={card.label}

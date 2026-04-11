@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
-import { ExternalLink, Monitor, Laptop } from 'lucide-react';
+import { ExternalLink, Monitor, Laptop, Sparkles, Apple, MonitorSmartphone } from 'lucide-react';
 import Layout from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import { useAuth } from '../../contexts/AuthContext';
@@ -59,12 +59,47 @@ export default function MBI802Resources() {
           <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#8b5cf6' }}>Post</p>
           <h2 className="text-xl font-bold mt-1" style={{ color: '#1e1b4b' }}>MySQL Development Environment Setup Video Tutorials</h2>
           <p className="text-sm mt-3" style={{ color: '#4b5563' }}>Dear students, Ayubowan!</p>
+          <p className="text-xs mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ color: '#6d28d9', background: 'rgba(221,214,254,0.55)' }}>
+            <Sparkles size={12} /> Author: MBI802 Lecturer
+          </p>
         </div>
 
         <p className="text-sm leading-6" style={{ color: '#374151' }}>
           I have created two video tutorials to help you set up MySQL on your Windows or Mac computer. Please try
           the installation on your own. You will also have time in class next week to set it up with support.
         </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
+            className="rounded-2xl p-4 border"
+            style={{
+              background: 'linear-gradient(135deg, rgba(219,234,254,0.85), rgba(186,230,253,0.7))',
+              borderColor: 'rgba(59,130,246,0.18)',
+            }}
+          >
+            <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#1d4ed8' }}>
+              <Apple size={16} /> MacOS Setup Path
+            </div>
+            <p className="text-xs mt-2" style={{ color: '#1e3a8a' }}>
+              Recommended for MacBook and iMac users. Follow this first before class support time.
+            </p>
+          </div>
+
+          <div
+            className="rounded-2xl p-4 border"
+            style={{
+              background: 'linear-gradient(135deg, rgba(237,233,254,0.9), rgba(224,231,255,0.75))',
+              borderColor: 'rgba(124,58,237,0.20)',
+            }}
+          >
+            <div className="flex items-center gap-2 text-sm font-semibold" style={{ color: '#6d28d9' }}>
+              <MonitorSmartphone size={16} /> Windows Setup Path
+            </div>
+            <p className="text-xs mt-2" style={{ color: '#4c1d95' }}>
+              Best for Windows laptops and desktops. Keep screenshots ready if any installer error appears.
+            </p>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <a

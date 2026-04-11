@@ -10,14 +10,21 @@ import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
 import { useToast } from '../../components/ui/ToastProvider';
 import { useAuth } from '../../contexts/AuthContext';
 
+interface TeachingAssistantAccount {
+  uid: string;
+  email: string;
+}
+
 export default function StudentList() {
   const [students, setStudents] = useState<StudentProfile[]>([]);
+  const [teachingAssistants, setTeachingAssistants] = useState<TeachingAssistantAccount[]>([]);
   const [attendanceStats, setAttendanceStats] = useState<Record<string, { attended: number; absent: number; excused: number }>>({});
   const [loading,  setLoading]  = useState(true);
   const [search,   setSearch]   = useState('');
   const [course,   setCourse]   = useState('');
   const [country,  setCountry]  = useState('');
   const [deletingStudentUid, setDeletingStudentUid] = useState<string | null>(null);
+  const [deletingTaUid, setDeletingTaUid] = useState<string | null>(null);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { role } = useAuth();
@@ -64,6 +71,16 @@ export default function StudentList() {
       });
 
       setAttendanceStats(stats);
+
+      const taSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'teachingAssistant')));
+      const loadedTas = taSnap.docs.map(d => {
+        const data = d.data() as Record<string, unknown>;
+        return {
+          uid: d.id,
+          email: (data.email as string) || '',
+        };
+      });
+      setTeachingAssistants(loadedTas);
       setLoading(false);
     })();
   }, []);
@@ -142,6 +159,37 @@ export default function StudentList() {
       });
     } finally {
       setDeletingStudentUid(null);
+    }
+  };
+
+  const handleDeleteTeachingAssistant = async (ta: TeachingAssistantAccount) => {
+    if (isTa) {
+      showToast({ type: 'error', title: 'Permission denied', description: 'Teaching assistants cannot delete TA accounts.' });
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Delete TA account ${ta.email || ta.uid}?\n\nThis will remove the users/{uid} role document and revoke dashboard access.`,
+    );
+    if (!confirmed) return;
+
+    setDeletingTaUid(ta.uid);
+    try {
+      await deleteDoc(doc(db, 'users', ta.uid));
+      setTeachingAssistants(prev => prev.filter(t => t.uid !== ta.uid));
+      showToast({
+        type: 'success',
+        title: 'TA account deleted',
+        description: `${ta.email || ta.uid} was removed from TA access.`,
+      });
+    } catch (err: unknown) {
+      showToast({
+        type: 'error',
+        title: 'Delete failed',
+        description: friendlyDeleteError(err),
+      });
+    } finally {
+      setDeletingTaUid(null);
     }
   };
 
@@ -384,6 +432,67 @@ export default function StudentList() {
           </div>
         </div>
       )}
+
+      <div className="mt-5">
+        <div
+          className="overflow-hidden rounded-3xl animate-fadeIn"
+          style={{
+            background: 'rgba(255,255,255,0.90)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid rgba(139,92,246,0.10)',
+            boxShadow: '0 2px 16px rgba(124,106,247,0.06)',
+          }}
+        >
+          <div
+            className="flex items-center justify-between px-5 py-3"
+            style={{
+              borderBottom: '1px solid rgba(139,92,246,0.08)',
+              background: 'linear-gradient(135deg, rgba(245,243,255,0.7), rgba(237,233,254,0.5))',
+            }}
+          >
+            <span className="table-header-cell">Teaching Assistant Accounts</span>
+            <span className="text-xs font-semibold" style={{ color: '#a78bfa' }}>
+              {teachingAssistants.length} total
+            </span>
+          </div>
+
+          {teachingAssistants.length === 0 ? (
+            <p className="px-5 py-4 text-sm font-medium" style={{ color: '#9ca3af' }}>
+              No teaching assistant accounts found.
+            </p>
+          ) : (
+            <div>
+              {teachingAssistants.map((ta, idx) => (
+                <div
+                  key={ta.uid}
+                  className="flex items-center justify-between px-5 py-3"
+                  style={{ borderBottom: idx < teachingAssistants.length - 1 ? '1px solid rgba(139,92,246,0.05)' : 'none' }}
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>
+                      {ta.email || 'Unknown email'}
+                    </p>
+                    <p className="text-xs font-medium truncate" style={{ color: '#9ca3af' }}>
+                      UID: {ta.uid}
+                    </p>
+                  </div>
+                  {!isTa && (
+                    <button
+                      type="button"
+                      onClick={() => void handleDeleteTeachingAssistant(ta)}
+                      disabled={deletingTaUid === ta.uid}
+                      className="p-1.5 rounded-lg transition-colors hover:bg-rose-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Delete teaching assistant account"
+                    >
+                      <Trash2 size={14} style={{ color: '#e11d48' }} />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </Layout>
   );
 }

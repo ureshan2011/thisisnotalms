@@ -229,17 +229,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <ChartCard title="Educational Background" icon={<TrendingUp size={16} />}>
           {byEdu.length === 0 ? <EmptyChart /> : (
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={byEdu} layout="vertical" margin={{ top: 4, right: 20, left: 8, bottom: 4 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(139,92,246,0.06)" horizontal={false} />
-                <XAxis type="number" tick={{ fontSize: 10, fill: '#9ca3af' }} allowDecimals={false} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 9, fill: '#9ca3af' }} width={170} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <Bar dataKey="value" name="Students" radius={[0, 8, 8, 0]}>
-                  {byEdu.map((_, i) => <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />)}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
+            <EduDistributionList data={byEdu} />
           )}
         </ChartCard>
 
@@ -376,6 +366,54 @@ function EmptyChart() {
         <TrendingUp size={18} style={{ color: '#a78bfa' }} />
       </div>
       <p className="text-sm font-medium" style={{ color: '#c4b5fd' }}>No data yet</p>
+    </div>
+  );
+}
+
+function EduDistributionList({ data }: { data: Array<{ name: string; value: number }> }) {
+  const sortedData = [...data].sort((a, b) => b.value - a.value);
+  const maxValue = Math.max(...sortedData.map(item => item.value), 1);
+  const total = sortedData.reduce((sum, item) => sum + item.value, 0);
+
+  return (
+    <div className="space-y-3 max-h-[320px] overflow-auto pr-1">
+      {sortedData.map((item, i) => {
+        const percent = total > 0 ? (item.value / total) * 100 : 0;
+        const widthPercent = Math.max((item.value / maxValue) * 100, 10);
+
+        return (
+          <div
+            key={item.name || `edu-${i}`}
+            className="rounded-2xl px-3 py-3"
+            style={{
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.06), rgba(167,139,250,0.03))',
+              border: '1px solid rgba(139,92,246,0.10)',
+            }}
+          >
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <p className="text-xs font-semibold leading-5 break-words" style={{ color: '#312e81' }}>
+                {item.name || 'Not specified'}
+              </p>
+              <span
+                className="text-[11px] font-bold px-2 py-1 rounded-full whitespace-nowrap"
+                style={{ background: 'rgba(124,58,237,0.10)', color: '#6d28d9' }}
+              >
+                {item.value} ({percent.toFixed(0)}%)
+              </span>
+            </div>
+
+            <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(167,139,250,0.20)' }}>
+              <div
+                className="h-full rounded-full"
+                style={{
+                  width: `${widthPercent}%`,
+                  background: `linear-gradient(90deg, ${CHART_COLORS[i % CHART_COLORS.length]}, #c4b5fd)`,
+                }}
+              />
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

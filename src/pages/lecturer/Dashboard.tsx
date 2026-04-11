@@ -37,6 +37,8 @@ export default function Dashboard() {
   const [students, setStudents] = useState<StudentProfile[]>([]);
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);
   const [courseFilter, setCourseFilter] = useState('');
+  const [intakeFilter, setIntakeFilter] = useState('');
+  const [subjectFilter, setSubjectFilter] = useState('');
   const [loading,  setLoading]  = useState(true);
 
   useEffect(() => {
@@ -67,13 +69,28 @@ export default function Dashboard() {
     () => [...new Set(students.map(s => s.course).filter(Boolean))].sort(),
     [students],
   );
+  const intakes = useMemo(
+    () => [...new Set(students.map(s => s.intake).filter(Boolean))].sort(),
+    [students],
+  );
+  const subjects = useMemo(
+    () => [...new Set(students.flatMap(s => s.subjects || []).filter(Boolean))].sort(),
+    [students],
+  );
   const filteredStudents = useMemo(
-    () => students.filter(s => !courseFilter || s.course === courseFilter),
-    [students, courseFilter],
+    () => students.filter(s =>
+      (!courseFilter || s.course === courseFilter) &&
+      (!intakeFilter || s.intake === intakeFilter) &&
+      (!subjectFilter || (s.subjects || []).includes(subjectFilter))
+    ),
+    [students, courseFilter, intakeFilter, subjectFilter],
   );
   const filteredSessions = useMemo(
-    () => sessions.filter(s => !courseFilter || s.course === courseFilter),
-    [sessions, courseFilter],
+    () => sessions.filter(s =>
+      (!courseFilter || s.course === courseFilter) &&
+      (!subjectFilter || s.course === subjectFilter)
+    ),
+    [sessions, courseFilter, subjectFilter],
   );
 
   const byCourse  = toCounts(groupBy(filteredStudents, s => s.course));
@@ -118,12 +135,12 @@ export default function Dashboard() {
       </div>
 
       <div className="card p-4 mb-6 animate-fadeIn">
-        <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3">
           <div>
-            <p className="text-sm font-semibold" style={{ color: '#1e1b4b' }}>Course filter</p>
-            <p className="text-xs" style={{ color: '#9ca3af' }}>Filter dashboard insights and student list by course.</p>
+            <p className="text-sm font-semibold" style={{ color: '#1e1b4b' }}>Filters</p>
+            <p className="text-xs" style={{ color: '#9ca3af' }}>Filter by course, intake, and subject.</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <select
               className="input-field min-w-[240px]"
               value={courseFilter}
@@ -132,8 +149,16 @@ export default function Dashboard() {
               <option value="">All courses</option>
               {courses.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
-            {courseFilter && (
-              <button className="btn-ghost" onClick={() => setCourseFilter('')}>Clear</button>
+            <select className="input-field min-w-[180px]" value={intakeFilter} onChange={(e) => setIntakeFilter(e.target.value)}>
+              <option value="">All intakes</option>
+              {intakes.map(i => <option key={i} value={i}>{i}</option>)}
+            </select>
+            <select className="input-field min-w-[200px]" value={subjectFilter} onChange={(e) => setSubjectFilter(e.target.value)}>
+              <option value="">All subjects</option>
+              {subjects.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+            {(courseFilter || intakeFilter || subjectFilter) && (
+              <button className="btn-ghost" onClick={() => { setCourseFilter(''); setIntakeFilter(''); setSubjectFilter(''); }}>Clear</button>
             )}
           </div>
         </div>

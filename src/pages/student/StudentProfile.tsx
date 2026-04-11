@@ -135,9 +135,16 @@ const SPECIAL_NEEDS_OPTIONS = [
 const CAMPUSES = ['Auckland', 'Christchurch'] as const;
 const AUCKLAND_SECTIONS = ['Section A', 'Section B', 'Section C'] as const;
 const CHRISTCHURCH_DEFAULT_SECTION = 'Section Default (No Section)';
+const INTAKES = ['2511', '2604'] as const;
+
+function subjectsForIntake(intake: StudentProfile['intake']): string[] {
+  if (intake === '2511') return ['MBI804'];
+  if (intake === '2604') return ['MBI800', 'MBI802'];
+  return [];
+}
 
 const blank: Omit<StudentProfile, 'uid' | 'createdAt' | 'updatedAt'> = {
-  fullName: '', studentId: '', email: '', campus: '', section: '', course: '',
+  fullName: '', studentId: '', email: '', campus: '', section: '', intake: '', subjects: [], course: '',
   homeCountry: '', hometown: '', hometownLat: null, hometownLng: null,
   workExperience: '', workIndustry: '', educationalBackground: '',
   specialNeeds: '',
@@ -166,6 +173,8 @@ export default function StudentProfilePage() {
           email: d.email || user.email || '',
           campus: (d.campus as StudentProfile['campus']) || '',
           section: d.section || '',
+          intake: (d.intake as StudentProfile['intake']) || '',
+          subjects: Array.isArray(d.subjects) ? d.subjects.filter((s): s is string => typeof s === 'string') : subjectsForIntake((d.intake as StudentProfile['intake']) || ''),
           course: d.course || '',
           homeCountry: d.homeCountry || '',
           hometown: d.hometown || '',
@@ -289,6 +298,10 @@ export default function StudentProfilePage() {
       showToast({ type: 'error', title: 'Hometown pin required', description: 'Please drop a hometown pin on the map.' });
       return;
     }
+    if (!form.intake) {
+      showToast({ type: 'error', title: 'Missing intake', description: 'Please select your intake.' });
+      return;
+    }
     setSaving(true);
     try {
       const studentsRef = collection(db, 'students');
@@ -311,6 +324,7 @@ export default function StudentProfilePage() {
 
       const payload = {
         ...form,
+        subjects: subjectsForIntake(form.intake),
         email: normalizedEmail,
         studentId: normalizedStudentId,
         uid: user.uid,
@@ -419,6 +433,45 @@ export default function StudentProfilePage() {
                   <option value={CHRISTCHURCH_DEFAULT_SECTION}>{CHRISTCHURCH_DEFAULT_SECTION}</option>
                 )}
               </select>
+            </Field>
+          </div>
+        </Section>
+
+        <Section icon={<BookOpen size={16} />} title="Intake and subjects">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="Intake" required>
+              <select
+                className="input-field"
+                value={form.intake}
+                onChange={e => {
+                  const intake = e.target.value as StudentProfile['intake'];
+                  setForm(f => ({ ...f, intake, subjects: subjectsForIntake(intake) }));
+                }}
+                required
+              >
+                <option value="">Select intake…</option>
+                {INTAKES.map(intake => <option key={intake} value={intake}>{intake}</option>)}
+              </select>
+            </Field>
+            <Field label="Subjects for selected intake">
+              <div
+                className="rounded-2xl px-3 py-3 min-h-[44px] flex flex-wrap items-center gap-2"
+                style={{ background: 'rgba(245,243,255,0.6)', border: '1px solid rgba(139,92,246,0.10)' }}
+              >
+                {subjectsForIntake(form.intake).length === 0 ? (
+                  <span className="text-sm font-medium" style={{ color: '#9ca3af' }}>Select intake to view subjects</span>
+                ) : (
+                  subjectsForIntake(form.intake).map(subject => (
+                    <span
+                      key={subject}
+                      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold"
+                      style={{ background: 'rgba(124,58,237,0.10)', color: '#7c3aed' }}
+                    >
+                      {subject}
+                    </span>
+                  ))
+                )}
+              </div>
             </Field>
           </div>
         </Section>

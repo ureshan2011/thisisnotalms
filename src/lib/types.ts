@@ -14,6 +14,8 @@ export interface StudentProfile {
   email: string;
   campus: 'Auckland' | 'Christchurch' | '';
   section: string;
+  intake: '2511' | '2604' | '';
+  subjects: string[];
   course: string;
   homeCountry: string;
   hometown: string;

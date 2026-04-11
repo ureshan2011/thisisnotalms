@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, useNavigate, Link } from 'react-router-dom';
+import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import {
   LayoutDashboard, Users, CalendarCheck, LogOut,
   User, History, Menu, X, ChevronRight, ClipboardList,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import BrandMark from '../ui/BrandMark';
+import { db } from '../../lib/firebase';
 
 interface NavItem {
   to:    string;
@@ -128,10 +130,68 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const { user, role } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [intakePromptOpen, setIntakePromptOpen] = useState(false);
+  const [intake, setIntake] = useState<'2511' | '2604' | ''>('');
+  const [savingIntake, setSavingIntake] = useState(false);
+
+  useEffect(() => {
+    if (!user || role !== 'student') return;
+    (async () => {
+      const snap = await getDoc(doc(db, 'students', user.uid));
+      if (!snap.exists()) return;
+      const data = snap.data() as { intake?: string };
+      if (!data.intake) setIntakePromptOpen(true);
+    })();
+  }, [user, role]);
+
+  const saveIntake = async () => {
+    if (!user || !intake) return;
+    setSavingIntake(true);
+    const subjects = intake === '2511' ? ['MBI804'] : ['MBI800', 'MBI802'];
+    await setDoc(doc(db, 'students', user.uid), {
+      intake,
+      subjects,
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
+    setSavingIntake(false);
+    setIntakePromptOpen(false);
+  };
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--bg-page)' }}>
+      {intakePromptOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0" style={{ background: 'rgba(30, 27, 75, 0.35)', backdropFilter: 'blur(8px)' }} />
+          <div
+            className="relative w-full max-w-md rounded-3xl p-6"
+            style={{ background: 'rgba(255,255,255,0.98)', border: '1px solid rgba(139,92,246,0.12)', boxShadow: '0 24px 64px rgba(124,106,247,0.18)' }}
+          >
+            <h3 className="font-bold text-lg mb-1" style={{ color: '#1e1b4b' }}>Select your intake</h3>
+            <p className="text-sm mb-4" style={{ color: '#6b7280' }}>
+              Please select your intake once to continue. Your subjects will be auto-assigned.
+            </p>
+            <select
+              className="input-field w-full"
+              value={intake}
+              onChange={(e) => setIntake(e.target.value as '2511' | '2604' | '')}
+            >
+              <option value="">Select intake…</option>
+              <option value="2511">2511 (MBI804)</option>
+              <option value="2604">2604 (MBI800, MBI802)</option>
+            </select>
+            <button
+              className="btn-primary w-full justify-center mt-4"
+              disabled={!intake || savingIntake}
+              onClick={saveIntake}
+            >
+              {savingIntake ? 'Saving…' : 'Save intake'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Desktop sidebar */}
       <aside
         className="hidden lg:flex flex-col w-60 flex-shrink-0 h-full relative"

@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Download, Globe, Briefcase, BookOpen, ChevronRight, Heart, Users } from 'lucide-react';
+import { Search, Filter, Download, Globe, Briefcase, BookOpen, ChevronRight, Heart, Users, Trash2 } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import type { StudentProfile, AttendanceRecord, AbsenceNotice, AttendanceSession } from '../../lib/types';
 import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
+import { useToast } from '../../components/ui/ToastProvider';
 
 export default function StudentList() {
   const [students, setStudents] = useState<StudentProfile[]>([]);
@@ -15,7 +16,9 @@ export default function StudentList() {
   const [search,   setSearch]   = useState('');
   const [course,   setCourse]   = useState('');
   const [country,  setCountry]  = useState('');
+  const [deletingStudentUid, setDeletingStudentUid] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   useEffect(() => {
     (async () => {
@@ -90,6 +93,48 @@ export default function StudentList() {
     const url  = URL.createObjectURL(blob);
     const a    = document.createElement('a'); a.href = url; a.download = 'students.csv'; a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleDeleteStudent = async (student: StudentProfile) => {
+    const confirmed = window.confirm(
+      `Delete ${student.fullName || student.email || 'this student'}?\n\nThis will remove the student profile, attendance records, absence notices, and their users/{uid} role document.`,
+    );
+    if (!confirmed) return;
+
+    setDeletingStudentUid(student.uid);
+    try {
+      const [attendanceSnap, absenceSnap] = await Promise.all([
+        getDocs(query(collection(db, 'attendanceRecords'), where('studentUid', '==', student.uid))),
+        getDocs(query(collection(db, 'absenceNotices'), where('studentUid', '==', student.uid))),
+      ]);
+
+      await Promise.all([
+        ...attendanceSnap.docs.map(d => deleteDoc(d.ref)),
+        ...absenceSnap.docs.map(d => deleteDoc(d.ref)),
+        deleteDoc(doc(db, 'students', student.uid)),
+        deleteDoc(doc(db, 'users', student.uid)),
+      ]);
+
+      setStudents(prev => prev.filter(s => s.uid !== student.uid));
+      setAttendanceStats(prev => {
+        const next = { ...prev };
+        delete next[student.uid];
+        return next;
+      });
+      showToast({
+        type: 'success',
+        title: 'Student deleted',
+        description: `${student.fullName || student.email || 'Student'} was removed.`,
+      });
+    } catch (err: unknown) {
+      showToast({
+        type: 'error',
+        title: 'Delete failed',
+        description: friendlyDeleteError(err),
+      });
+    } finally {
+      setDeletingStudentUid(null);
+    }
   };
 
   if (loading) return <Layout><div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div></Layout>;
@@ -215,7 +260,6 @@ export default function StudentList() {
             {filtered.map((s, idx) => (
               <div
                 key={s.uid}
-                onClick={() => navigate(`/lecturer/students/${s.uid}`)}
                 className="flex items-center px-5 py-4 cursor-pointer group transition-all duration-150"
                 style={{
                   borderBottom: idx < filtered.length - 1 ? '1px solid rgba(139,92,246,0.05)' : 'none',
@@ -294,7 +338,26 @@ export default function StudentList() {
                       </div>
                     );
                   })()}
-                  <ChevronRight size={15} className="transition-all duration-150 group-hover:translate-x-0.5" style={{ color: '#c4b5fd' }} />
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      void handleDeleteStudent(s);
+                    }}
+                    disabled={deletingStudentUid === s.uid}
+                    className="p-1.5 rounded-lg transition-colors hover:bg-rose-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Delete student"
+                  >
+                    <Trash2 size={14} style={{ color: '#e11d48' }} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/lecturer/students/${s.uid}`)}
+                    className="p-1.5 rounded-lg transition-colors hover:bg-violet-50"
+                    title="View student details"
+                  >
+                    <ChevronRight size={15} className="transition-all duration-150 group-hover:translate-x-0.5" style={{ color: '#c4b5fd' }} />
+                  </button>
                 </div>
               </div>
             ))}
@@ -316,4 +379,14 @@ export default function StudentList() {
       )}
     </Layout>
   );
+}
+
+function friendlyDeleteError(err: unknown): string {
+  if (err && typeof err === 'object' && 'code' in err) {
+    const code = (err as { code: string }).code;
+    if (code === 'permission-denied') {
+      return 'Firestore rules blocked this delete. Update rules for lecturer delete access.';
+    }
+  }
+  return 'Could not delete this student. Please try again.';
 }

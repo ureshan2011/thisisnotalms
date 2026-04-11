@@ -6,7 +6,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/ui/ToastProvider';
 
 export default function Login() {
-  const { login, role } = useAuth();
+  const { login, role, resetPassword } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const nextPath = new URLSearchParams(location.search).get('next');
@@ -15,6 +15,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPw,   setShowPw]   = useState(false);
   const [loading,  setLoading]  = useState(false);
+  const [resetting, setResetting] = useState(false);
   const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,6 +33,35 @@ export default function Login() {
       showToast({ type: 'error', title: 'Sign-in failed', description: friendlyError(err) });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePasswordReset = async () => {
+    if (!email.trim()) {
+      showToast({
+        type: 'info',
+        title: 'Enter your email first',
+        description: 'Type your account email, then tap reset password.',
+      });
+      return;
+    }
+
+    setResetting(true);
+    try {
+      await resetPassword(email.trim());
+      showToast({
+        type: 'success',
+        title: 'Reset email sent',
+        description: 'Check your inbox for the password reset link.',
+      });
+    } catch (err: unknown) {
+      showToast({
+        type: 'error',
+        title: 'Could not send reset email',
+        description: friendlyResetError(err),
+      });
+    } finally {
+      setResetting(false);
     }
   };
 
@@ -155,6 +185,15 @@ export default function Login() {
                 </>
               )}
             </button>
+
+            <button
+              type="button"
+              onClick={handlePasswordReset}
+              disabled={resetting}
+              className="btn-ghost w-full justify-center py-2.5 text-sm font-semibold"
+            >
+              {resetting ? 'Sending reset link…' : 'Forgot password? Reset here'}
+            </button>
           </form>
 
           {/* Divider */}
@@ -174,6 +213,16 @@ export default function Login() {
       </div>
     </div>
   );
+}
+
+function friendlyResetError(err: unknown): string {
+  if (err && typeof err === 'object' && 'code' in err) {
+    const code = (err as { code: string }).code;
+    if (code === 'auth/invalid-email') return 'Please enter a valid email address.';
+    if (code === 'auth/user-not-found') return 'No account was found for that email.';
+    if (code === 'auth/too-many-requests') return 'Too many attempts. Please wait and try again.';
+  }
+  return 'Unable to send reset email right now.';
 }
 
 function friendlyError(err: unknown): string {

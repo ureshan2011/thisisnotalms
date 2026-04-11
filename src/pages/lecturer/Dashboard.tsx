@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { collection, getDocs, Timestamp } from 'firebase/firestore';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import {
@@ -33,6 +33,7 @@ const tooltipStyle = {
 export default function Dashboard() {
   const [students, setStudents] = useState<StudentProfile[]>([]);
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);
+  const [courseFilter, setCourseFilter] = useState('');
   const [loading,  setLoading]  = useState(true);
 
   useEffect(() => {
@@ -59,13 +60,26 @@ export default function Dashboard() {
     })();
   }, []);
 
-  const byCourse  = toCounts(groupBy(students, s => s.course));
-  const byCountry = toCounts(groupBy(students, s => s.homeCountry));
-  const byEdu     = toCounts(groupBy(students, s => s.educationalBackground));
-  const byWork    = toCounts(groupBy(students, s => s.workExperience));
-  const withNeeds = students.filter(s => s.specialNeeds && s.specialNeeds !== 'None' && s.specialNeeds !== '');
-  const studentsWithPins = students.filter(s => typeof s.hometownLat === 'number' && typeof s.hometownLng === 'number');
-  const activeSessions = sessions.filter(s => s.status === 'active');
+  const courses = useMemo(
+    () => [...new Set(students.map(s => s.course).filter(Boolean))].sort(),
+    [students],
+  );
+  const filteredStudents = useMemo(
+    () => students.filter(s => !courseFilter || s.course === courseFilter),
+    [students, courseFilter],
+  );
+  const filteredSessions = useMemo(
+    () => sessions.filter(s => !courseFilter || s.course === courseFilter),
+    [sessions, courseFilter],
+  );
+
+  const byCourse  = toCounts(groupBy(filteredStudents, s => s.course));
+  const byCountry = toCounts(groupBy(filteredStudents, s => s.homeCountry));
+  const byEdu     = toCounts(groupBy(filteredStudents, s => s.educationalBackground));
+  const byWork    = toCounts(groupBy(filteredStudents, s => s.workExperience));
+  const withNeeds = filteredStudents.filter(s => s.specialNeeds && s.specialNeeds !== 'None' && s.specialNeeds !== '');
+  const studentsWithPins = filteredStudents.filter(s => typeof s.hometownLat === 'number' && typeof s.hometownLng === 'number');
+  const activeSessions = filteredSessions.filter(s => s.status === 'active');
 
   if (loading) return <Layout><div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div></Layout>;
 
@@ -80,7 +94,8 @@ export default function Dashboard() {
             </p>
             <h1 className="page-title">Dashboard Overview</h1>
             <p className="page-subtitle">
-              {students.length} enrolled student{students.length !== 1 ? 's' : ''} across {byCourse.length} course{byCourse.length !== 1 ? 's' : ''}
+              {filteredStudents.length} enrolled student{filteredStudents.length !== 1 ? 's' : ''}
+              {courseFilter ? ` in ${courseFilter}` : ` across ${courses.length} course${courses.length !== 1 ? 's' : ''}`}
             </p>
           </div>
           {activeSessions.length > 0 && (
@@ -99,24 +114,69 @@ export default function Dashboard() {
         </div>
       </div>
 
+      <div className="card p-4 mb-6 animate-fadeIn">
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold" style={{ color: '#1e1b4b' }}>Course filter</p>
+            <p className="text-xs" style={{ color: '#9ca3af' }}>Filter dashboard insights and student list by course.</p>
+          </div>
+          <div className="flex gap-2">
+            <select
+              className="input-field min-w-[240px]"
+              value={courseFilter}
+              onChange={(e) => setCourseFilter(e.target.value)}
+            >
+              <option value="">All courses</option>
+              {courses.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+            {courseFilter && (
+              <button className="btn-ghost" onClick={() => setCourseFilter('')}>Clear</button>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
         {[
-          { title: 'Total Students', value: students.length,  icon: Users,         color: 'violet'  as const },
-          { title: 'Courses',        value: byCourse.length,  icon: GraduationCap, color: 'indigo'  as const },
+          { title: 'Total Students', value: filteredStudents.length,  icon: Users,         color: 'violet'  as const },
+          { title: 'Courses',        value: byCourse.length,          icon: GraduationCap, color: 'indigo'  as const },
           { title: 'Countries',      value: byCountry.length, icon: Globe,         color: 'sky'     as const },
           {
             title: 'With Work Exp.',
-            value: students.filter(s => s.workExperience && s.workExperience !== 'No work experience').length,
+            value: filteredStudents.filter(s => s.workExperience && s.workExperience !== 'No work experience').length,
             icon: Briefcase, color: 'emerald' as const,
           },
           { title: 'Special Needs',  value: withNeeds.length, icon: Heart,         color: 'rose'    as const },
-          { title: 'Sessions',       value: sessions.length,  icon: CalendarCheck, color: 'amber'   as const },
+          { title: 'Sessions',       value: filteredSessions.length,  icon: CalendarCheck, color: 'amber'   as const },
         ].map((p, i) => (
           <div key={p.title} style={{ animationDelay: `${i * 0.05}s` }} className="relative">
             <StatCard {...p} />
           </div>
         ))}
+      </div>
+
+      <div className="card p-6 mb-6 animate-fadeIn">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-sm" style={{ color: '#1e1b4b' }}>
+            {courseFilter ? `Students in ${courseFilter}` : 'Students (all courses)'}
+          </h3>
+          <span className="text-xs font-semibold px-2 py-1 rounded-full" style={{ background: 'rgba(124,58,237,0.08)', color: '#7c3aed' }}>
+            {filteredStudents.length} total
+          </span>
+        </div>
+        {filteredStudents.length === 0 ? (
+          <EmptyChart />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {filteredStudents.slice(0, 12).map(s => (
+              <div key={s.uid} className="px-3 py-2 rounded-xl" style={{ background: 'rgba(245,243,255,0.7)' }}>
+                <p className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>{s.fullName || 'Unknown student'}</p>
+                <p className="text-xs truncate" style={{ color: '#9ca3af' }}>{s.studentId || s.email || 'No ID'}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Charts row 1 */}

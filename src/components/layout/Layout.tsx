@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import BrandMark from '../ui/BrandMark';
+import PhotoUploadModal, { avatarGradient } from '../ui/PhotoUploadModal';
 import { db } from '../../lib/firebase';
 
 interface NavItem {
@@ -15,7 +16,15 @@ interface NavItem {
   label: string;
 }
 
-function SidebarContent({ onClose }: { onClose?: () => void }) {
+function SidebarContent({
+  onClose,
+  photoURL,
+  onOpenPhotoModal,
+}: {
+  onClose?: () => void;
+  photoURL?: string | null;
+  onOpenPhotoModal?: () => void;
+}) {
   const { user, role, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -108,16 +117,34 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
       {/* Bottom: User + Logout */}
       <div className="px-4 py-4 relative z-10">
         <div className="divider !mb-4" />
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-2xl mb-1"
+        <div
+          className="flex items-center gap-3 px-3 py-2.5 rounded-2xl mb-1 cursor-pointer group"
           style={{
             background: 'linear-gradient(135deg, rgba(245,243,255,0.8) 0%, rgba(237,233,254,0.6) 100%)',
             border: '1px solid rgba(139,92,246,0.10)',
+            transition: 'all 0.2s ease',
           }}
+          onClick={role === 'student' && onOpenPhotoModal ? onOpenPhotoModal : undefined}
+          title={role === 'student' ? 'Update profile photo' : undefined}
         >
-          <div className="avatar w-8 h-8 text-xs flex-shrink-0">{initials}</div>
+          {/* Avatar: photo or initials */}
+          <div
+            className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center text-white text-xs font-bold"
+            style={{
+              background: photoURL ? 'transparent' : (user ? avatarGradient(user.uid) : 'linear-gradient(135deg, #7c3aed, #a78bfa)'),
+              border: '2px solid rgba(139,92,246,0.25)',
+              boxShadow: '0 2px 8px rgba(124,58,237,0.15)',
+            }}
+          >
+            {photoURL
+              ? <img src={photoURL} alt="Profile" className="w-full h-full object-cover" />
+              : initials}
+          </div>
           <div className="min-w-0 flex-1">
             <p className="text-xs font-semibold text-gray-800 truncate">{user?.email?.split('@')[0]}</p>
-            <p className="text-[10px] text-gray-400 truncate">{user?.email}</p>
+            <p className="text-[10px] text-gray-400 truncate">
+              {role === 'student' ? (photoURL ? 'Photo uploaded ✓' : 'Tap to add photo') : user?.email}
+            </p>
           </div>
         </div>
         <button onClick={handleLogout} className="sidebar-link w-full mt-1 text-red-400 hover:text-red-600 hover:bg-red-50">
@@ -133,6 +160,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, role } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [intakePromptOpen, setIntakePromptOpen] = useState(false);
+  const [photoPromptOpen, setPhotoPromptOpen] = useState(false);
+  const [currentPhotoURL, setCurrentPhotoURL] = useState<string | null>(null);
   const [intake, setIntake] = useState<'2511' | '2604' | ''>('');
   const [savingIntake, setSavingIntake] = useState(false);
 
@@ -141,8 +170,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     (async () => {
       const snap = await getDoc(doc(db, 'students', user.uid));
       if (!snap.exists()) return;
-      const data = snap.data() as { intake?: string };
-      if (!data.intake) setIntakePromptOpen(true);
+      const data = snap.data() as { intake?: string; photoURL?: string };
+
+      // Load current photo
+      if (data.photoURL) setCurrentPhotoURL(data.photoURL);
+
+      // Show intake prompt if missing
+      if (!data.intake) { setIntakePromptOpen(true); return; }
+
+      // Show photo prompt if profile exists but no photo uploaded yet
+      if (!data.photoURL) setPhotoPromptOpen(true);
     })();
   }, [user, role]);
 
@@ -157,10 +194,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }, { merge: true });
     setSavingIntake(false);
     setIntakePromptOpen(false);
+    // Show photo prompt right after intake is set
+    setPhotoPromptOpen(true);
+  };
+
+  const handlePhotoUploaded = (url: string) => {
+    setCurrentPhotoURL(url);
+    setPhotoPromptOpen(false);
   };
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--bg-page)' }}>
+
+      {/* Intake prompt */}
       {intakePromptOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
           <div className="absolute inset-0" style={{ background: 'rgba(30, 27, 75, 0.35)', backdropFilter: 'blur(8px)' }} />
@@ -192,6 +238,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
+      {/* Photo upload prompt — shown once per login until uploaded */}
+      {photoPromptOpen && !intakePromptOpen && (
+        <PhotoUploadModal
+          currentPhotoURL={currentPhotoURL ?? undefined}
+          onClose={() => setPhotoPromptOpen(false)}
+          onUploaded={handlePhotoUploaded}
+          skipable
+        />
+      )}
+
       {/* Desktop sidebar */}
       <aside
         className="hidden lg:flex flex-col w-60 flex-shrink-0 h-full relative"
@@ -203,7 +259,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           boxShadow: '4px 0 24px rgba(124,106,247,0.05)',
         }}
       >
-        <SidebarContent />
+        <SidebarContent
+          photoURL={currentPhotoURL}
+          onOpenPhotoModal={() => setPhotoPromptOpen(true)}
+        />
       </aside>
 
       {/* Mobile sidebar overlay */}
@@ -222,7 +281,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               boxShadow: '8px 0 40px rgba(124,106,247,0.15)',
             }}
           >
-            <SidebarContent onClose={() => setMobileOpen(false)} />
+            <SidebarContent
+              onClose={() => setMobileOpen(false)}
+              photoURL={currentPhotoURL}
+              onOpenPhotoModal={() => { setMobileOpen(false); setPhotoPromptOpen(true); }}
+            />
           </aside>
         </div>
       )}
@@ -246,12 +309,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           >
             <Menu size={20} />
           </button>
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-1">
             <div className="bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl p-1.5 shadow">
               <BrandMark className="h-4 w-4 text-white" />
             </div>
             <span className="font-bold text-gray-800 tracking-tight">YooBees</span>
           </div>
+          {/* Mobile photo avatar */}
+          {role === 'student' && (
+            <button
+              onClick={() => setPhotoPromptOpen(true)}
+              className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+              style={{
+                background: currentPhotoURL
+                  ? 'transparent'
+                  : (user ? avatarGradient(user.uid) : 'linear-gradient(135deg, #7c3aed, #a78bfa)'),
+                border: '2px solid rgba(139,92,246,0.25)',
+              }}
+            >
+              {currentPhotoURL
+                ? <img src={currentPhotoURL} alt="Profile" className="w-full h-full object-cover" />
+                : (user?.email?.[0]?.toUpperCase() ?? '?')}
+            </button>
+          )}
         </header>
 
         {/* Scrollable page content */}

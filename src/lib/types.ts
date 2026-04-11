@@ -25,6 +25,7 @@ export interface StudentProfile {
   workIndustry?: string;
   educationalBackground: string;
   specialNeeds: string;
+  photoURL?: string;
   createdAt: Date;
   updatedAt: Date;
 }

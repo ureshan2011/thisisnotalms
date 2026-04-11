@@ -10,6 +10,8 @@ import { db } from '../../lib/firebase';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import StatCard from '../../components/ui/StatCard';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import StudentPhotoCollage from '../../components/ui/StudentPhotoCollage';
+import { avatarGradient } from '../../components/ui/PhotoUploadModal';
 import type { StudentProfile, AttendanceSession } from '../../lib/types';
 import { groupBy, toCounts } from '../../lib/utils';
 import { useAuth } from '../../contexts/AuthContext';
@@ -184,6 +186,10 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* Photo Collage */}
+      <StudentPhotoCollage students={filteredStudents} />
+
+      {/* Student cards grid */}
       <div className="card p-6 mb-6 animate-fadeIn">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-sm" style={{ color: '#1e1b4b' }}>
@@ -198,9 +204,30 @@ export default function Dashboard() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {filteredStudents.slice(0, 12).map(s => (
-              <div key={s.uid} className="px-3 py-2 rounded-xl" style={{ background: 'rgba(245,243,255,0.7)' }}>
-                <p className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>{s.fullName || 'Unknown student'}</p>
-                <p className="text-xs truncate" style={{ color: '#9ca3af' }}>{s.studentId || s.email || 'No ID'}</p>
+              <div
+                key={s.uid}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
+                style={{ background: 'rgba(245,243,255,0.7)' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(237,233,254,0.85)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(245,243,255,0.7)'; }}
+              >
+                {/* Student photo / avatar */}
+                <div
+                  className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                  style={{
+                    background: s.photoURL ? 'transparent' : avatarGradient(s.uid),
+                    border: '2px solid rgba(139,92,246,0.18)',
+                    boxShadow: '0 2px 8px rgba(124,58,237,0.12)',
+                  }}
+                >
+                  {s.photoURL
+                    ? <img src={s.photoURL} alt={s.fullName} className="w-full h-full object-cover" />
+                    : (s.fullName?.[0] ?? '?').toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>{s.fullName || 'Unknown student'}</p>
+                  <p className="text-xs truncate" style={{ color: '#9ca3af' }}>{s.studentId || s.email || 'No ID'}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -349,10 +376,16 @@ export default function Dashboard() {
                 }}
               >
                 <div
-                  className="avatar w-9 h-9 text-xs flex-shrink-0"
-                  style={{ background: 'linear-gradient(135deg, #f43f5e, #e879a0)' }}
+                  className="w-9 h-9 rounded-full overflow-hidden flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                  style={{
+                    background: s.photoURL ? 'transparent' : 'linear-gradient(135deg, #f43f5e, #e879a0)',
+                    border: '2px solid rgba(244,63,94,0.20)',
+                    boxShadow: '0 2px 8px rgba(244,63,94,0.15)',
+                  }}
                 >
-                  {(s.fullName || '?')[0]?.toUpperCase()}
+                  {s.photoURL
+                    ? <img src={s.photoURL} alt={s.fullName} className="w-full h-full object-cover" />
+                    : (s.fullName || '?')[0]?.toUpperCase()}
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>{s.fullName}</p>

@@ -70,24 +70,46 @@ export default function PhotoUploadModal({
     setUploading(true);
     setError('');
     setProgress(0);
+
+    let task: ReturnType<typeof uploadBytesResumable> | null = null;
+
     try {
       const fileRef = storageRef(storage, `student-photos/${user.uid}`);
-      const task = uploadBytesResumable(fileRef, pendingFile, { contentType: pendingFile.type });
+      task = uploadBytesResumable(fileRef, pendingFile, { contentType: pendingFile.type });
 
       await new Promise<void>((resolve, reject) => {
-        task.on(
+        // 30-second timeout — catches silent Storage rule denials that fire no callbacks
+        const timeout = setTimeout(() => {
+          task?.cancel();
+          reject(new Error('Upload timed out. Check Firebase Storage rules are deployed.'));
+        }, 30_000);
+
+        task!.on(
           'state_changed',
-          snap => setProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100)),
-          reject,
-          resolve,
+          snap => {
+            const pct = snap.totalBytes > 0
+              ? Math.round((snap.bytesTransferred / snap.totalBytes) * 100)
+              : 0;
+            setProgress(pct);
+          },
+          err => { clearTimeout(timeout); reject(err); },
+          ()  => { clearTimeout(timeout); resolve(); },
         );
       });
 
       const url = await getDownloadURL(fileRef);
       await setDoc(doc(db, 'students', user.uid), { photoURL: url, updatedAt: serverTimestamp() }, { merge: true });
       onUploaded(url);
-    } catch {
-      setError('Upload failed. Please try again.');
+    } catch (err: unknown) {
+      const code = (err as { code?: string })?.code ?? '';
+      let msg = 'Upload failed. Please try again.';
+      if (code === 'storage/unauthorized')
+        msg = 'Permission denied. Firebase Storage rules need to be deployed — see storage.rules in the project.';
+      else if (code === 'storage/canceled' || String(err).includes('timed out'))
+        msg = 'Upload timed out. Make sure Firebase Storage is enabled and rules are deployed.';
+      else if (code === 'storage/unknown')
+        msg = 'Storage error. Ensure Firebase Storage is enabled in the Firebase console.';
+      setError(msg);
       setUploading(false);
     }
   };

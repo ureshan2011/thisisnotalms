@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { collection, doc, getDoc, getDocs, limit, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
-import { MapPin, Save, User, BookOpen, Globe, Briefcase, GraduationCap, Heart } from 'lucide-react';
+import { MapPin, Save, User, BookOpen, Globe, Briefcase, GraduationCap, Heart, Camera } from 'lucide-react';
 import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
 import type { LeafletMouseEvent } from 'leaflet';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
+import PhotoUploadModal, { avatarGradient } from '../../components/ui/PhotoUploadModal';
 import type { StudentProfile } from '../../lib/types';
 import { useToast } from '../../components/ui/ToastProvider';
 
@@ -147,7 +148,7 @@ const blank: Omit<StudentProfile, 'uid' | 'createdAt' | 'updatedAt'> = {
   fullName: '', studentId: '', email: '', campus: '', section: '', intake: '', subjects: [], course: '',
   homeCountry: '', hometown: '', hometownLat: null, hometownLng: null,
   workExperience: '', workIndustry: '', educationalBackground: '',
-  specialNeeds: '',
+  specialNeeds: '', photoURL: '',
 };
 
 export default function StudentProfilePage() {
@@ -156,6 +157,7 @@ export default function StudentProfilePage() {
   const [notes,   setNotes]   = useState('');
   const [loading, setLoading] = useState(true);
   const [saving,  setSaving]  = useState(false);
+  const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const { showToast } = useToast();
   const [countryLookupLoading, setCountryLookupLoading] = useState(false);
   const [countryLookupError, setCountryLookupError] = useState('');
@@ -184,6 +186,7 @@ export default function StudentProfilePage() {
           workIndustry: d.workIndustry || '',
           educationalBackground: d.educationalBackground || '',
           specialNeeds: d.specialNeeds || '',
+          photoURL: d.photoURL || '',
         });
         setNotes(d.specialNeedsNotes || '');
       } else {
@@ -345,12 +348,91 @@ export default function StudentProfilePage() {
 
   return (
     <Layout>
+      {photoModalOpen && (
+        <PhotoUploadModal
+          currentPhotoURL={form.photoURL || undefined}
+          onClose={() => setPhotoModalOpen(false)}
+          onUploaded={url => {
+            setForm(f => ({ ...f, photoURL: url }));
+            setPhotoModalOpen(false);
+          }}
+          skipable
+        />
+      )}
+
       <PageHeader
         title="My Profile"
         subtitle="Keep your information up to date"
       />
 
       <form onSubmit={handleSave} className="space-y-6 max-w-2xl">
+
+        {/* Photo section */}
+        <div
+          className="rounded-3xl p-6 animate-fadeIn"
+          style={{
+            background: 'linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(167,139,250,0.04) 100%)',
+            border: '1px solid rgba(139,92,246,0.14)',
+            boxShadow: '0 2px 16px rgba(124,106,247,0.06)',
+          }}
+        >
+          <div className="flex items-center gap-5">
+            {/* Avatar */}
+            <div className="relative flex-shrink-0">
+              <div
+                className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center text-white text-2xl font-bold shadow-lg"
+                style={{
+                  background: form.photoURL
+                    ? 'transparent'
+                    : (user ? avatarGradient(user.uid) : 'linear-gradient(135deg, #7c3aed, #a78bfa)'),
+                  border: '3px solid rgba(139,92,246,0.25)',
+                  boxShadow: '0 6px 24px rgba(124,58,237,0.22)',
+                }}
+              >
+                {form.photoURL
+                  ? <img src={form.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                  : (user?.email?.[0]?.toUpperCase() ?? '?')}
+              </div>
+              {/* Camera badge */}
+              <button
+                type="button"
+                onClick={() => setPhotoModalOpen(true)}
+                className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-transform hover:scale-110"
+                style={{ background: 'linear-gradient(135deg, #7c3aed, #a78bfa)' }}
+              >
+                <Camera size={13} color="white" />
+              </button>
+            </div>
+
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-bold text-sm mb-0.5" style={{ color: '#1e1b4b' }}>
+                {form.photoURL ? 'Profile photo added' : 'Add a profile photo'}
+              </h3>
+              <p className="text-xs mb-3" style={{ color: '#9ca3af' }}>
+                {form.photoURL
+                  ? 'Your photo is visible to lecturers and appears in the class gallery.'
+                  : 'Upload a clear photo so your lecturers and classmates can recognise you.'}
+              </p>
+              <button
+                type="button"
+                onClick={() => setPhotoModalOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all"
+                style={{
+                  background: form.photoURL
+                    ? 'rgba(124,58,237,0.08)'
+                    : 'linear-gradient(135deg, #7c3aed, #a78bfa)',
+                  color: form.photoURL ? '#7c3aed' : 'white',
+                  border: form.photoURL ? '1px solid rgba(139,92,246,0.20)' : 'none',
+                  boxShadow: form.photoURL ? 'none' : '0 4px 14px rgba(124,58,237,0.30)',
+                }}
+              >
+                <Camera size={14} />
+                {form.photoURL ? 'Change photo' : 'Upload photo'}
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Personal Details */}
         <Section icon={<User size={16} />} title="Personal details">

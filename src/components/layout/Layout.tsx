@@ -48,8 +48,8 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
         <Link to="/" className="flex items-center gap-3 group">
           <div className="relative">
             <div className="absolute inset-0 bg-brand-400/30 rounded-2xl blur-md group-hover:blur-lg transition-all duration-300" />
-            <div className="relative rounded-2xl px-2.5 py-1.5 bg-white/75 shadow-lg ring-1 ring-brand-100">
-              <BrandMark className="h-6 w-auto" />
+            <div className="relative bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl p-2 shadow-lg">
+              <BrandMark className="h-6 w-6 text-white" />
             </div>
           </div>
           <div>
@@ -187,8 +187,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Menu size={20} />
           </button>
           <div className="flex items-center gap-2.5">
-            <div className="rounded-xl px-2 py-1 bg-white/80 shadow ring-1 ring-brand-100">
-              <BrandMark className="h-4 w-auto" />
+            <div className="bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl p-1.5 shadow">
+              <BrandMark className="h-4 w-4 text-white" />
             </div>
             <span className="font-bold text-gray-800 tracking-tight">YooBees</span>
           </div>

@@ -398,7 +398,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             background: 'rgba(255,255,255,0.72)',
           }}
         >
-          © {new Date().getFullYear()} All Rights Reserved • Created by @yasassri.me
+          © {new Date().getFullYear()} All Rights Reserved • Created by{' '}
+          <a
+            href="https://www.instagram.com/yasassri.me/"
+            target="_blank"
+            rel="noreferrer"
+            className="font-semibold text-brand-600 hover:text-brand-700 underline underline-offset-2"
+          >
+            @yasassri.me
+          </a>
         </footer>
       </div>
     </div>

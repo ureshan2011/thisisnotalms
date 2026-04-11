@@ -203,6 +203,14 @@ export default function StudentDetail() {
               {profile.section && (
                 <span className="badge-slate text-[10px]">{profile.section}</span>
               )}
+              {profile.intake && (
+                <span
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                  style={{ background: 'rgba(99,102,241,0.10)', color: '#4f46e5' }}
+                >
+                  Intake {profile.intake}
+                </span>
+              )}
               {profile.homeCountry && (
                 <span
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
@@ -328,6 +336,14 @@ export default function StudentDetail() {
               {editing
                 ? <input className="input-field" value={form.section || ''} onChange={set('section')} />
                 : profile.section}
+            </Row>
+            <Row label="Intake">
+              {editing
+                ? <input className="input-field" value={form.intake || ''} onChange={set('intake')} />
+                : (profile.intake || '—')}
+            </Row>
+            <Row label="Subjects">
+              {(profile.subjects && profile.subjects.length > 0) ? profile.subjects.join(', ') : '—'}
             </Row>
           </DetailCard>
 

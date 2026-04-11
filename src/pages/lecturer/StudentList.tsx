@@ -100,9 +100,9 @@ export default function StudentList() {
   }, [students, search, course, country]);
 
   const exportCSV = () => {
-    const headers = ['Full Name','Student ID','Email','Course','Home Country','Work Experience','Education','Attended Days','Absent Days','Excused Days'];
+    const headers = ['Full Name','Student ID','Email','Course','Intake','Subjects','Home Country','Work Experience','Education','Attended Days','Absent Days','Excused Days'];
     const rows = filtered.map(s => [
-      s.fullName, s.studentId, s.email, s.course, s.homeCountry,
+      s.fullName, s.studentId, s.email, s.course, s.intake || '', (s.subjects || []).join('; '), s.homeCountry,
       s.workExperience, s.educationalBackground,
       attendanceStats[s.uid]?.attended || 0,
       attendanceStats[s.uid]?.absent || 0,
@@ -299,6 +299,9 @@ export default function StudentList() {
             <div className="hidden md:block w-36">
               <span className="table-header-cell">Country</span>
             </div>
+            <div className="hidden lg:block w-24">
+              <span className="table-header-cell">Intake</span>
+            </div>
             <div className="hidden lg:block w-36">
               <span className="table-header-cell">Experience</span>
             </div>
@@ -361,6 +364,15 @@ export default function StudentList() {
                   <Globe size={12} style={{ color: '#60a5fa', flexShrink: 0 }} />
                   <span className="text-xs font-medium truncate" style={{ color: '#6b7280' }}>
                     {s.homeCountry || '—'}
+                  </span>
+                </div>
+
+                <div className="hidden lg:block w-24">
+                  <span
+                    className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold"
+                    style={{ background: 'rgba(99,102,241,0.10)', color: '#4f46e5' }}
+                  >
+                    {s.intake || '—'}
                   </span>
                 </div>
 

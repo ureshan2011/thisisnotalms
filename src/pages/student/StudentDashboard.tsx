@@ -266,19 +266,35 @@ export default function StudentDashboard() {
         />
 
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-5">
-          <div
-            className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center text-white text-2xl font-bold flex-shrink-0"
-            style={{
-              background: me?.photoURL
-                ? 'transparent'
-                : (user ? avatarGradient(user.uid) : 'linear-gradient(135deg,#a78bfa,#c4b5fd)'),
-              border: '3px solid rgba(255,255,255,0.35)',
-              boxShadow: '0 8px 28px rgba(0,0,0,0.25)',
-            }}
-          >
-            {me?.photoURL
-              ? <img src={me.photoURL} alt={me.fullName || 'You'} className="w-full h-full object-cover" />
-              : displayName.charAt(0).toUpperCase()}
+          <div className="flex flex-col items-start gap-3">
+            <div className="inline-flex items-center gap-2.5 px-3 py-2 rounded-2xl"
+              style={{ background: 'rgba(255,255,255,0.16)', border: '1px solid rgba(255,255,255,0.26)' }}
+            >
+              <span className="text-white/95">{weatherIcon}</span>
+              {weatherLoading ? (
+                <p className="text-sm text-white/90">Loading weather...</p>
+              ) : weather ? (
+                <p className="text-sm font-semibold text-white">
+                  {weather.city}: {Math.round(weather.temperature)}°C
+                </p>
+              ) : (
+                <p className="text-sm text-white/90">Set your campus for weather</p>
+              )}
+            </div>
+            <div
+              className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center text-white text-2xl font-bold flex-shrink-0"
+              style={{
+                background: me?.photoURL
+                  ? 'transparent'
+                  : (user ? avatarGradient(user.uid) : 'linear-gradient(135deg,#a78bfa,#c4b5fd)'),
+                border: '3px solid rgba(255,255,255,0.35)',
+                boxShadow: '0 8px 28px rgba(0,0,0,0.25)',
+              }}
+            >
+              {me?.photoURL
+                ? <img src={me.photoURL} alt={me.fullName || 'You'} className="w-full h-full object-cover" />
+                : displayName.charAt(0).toUpperCase()}
+            </div>
           </div>
 
           <div className="flex-1 min-w-0">
@@ -294,28 +310,27 @@ export default function StudentDashboard() {
                 ? <>Welcome to your <span className="font-semibold">Intake {me.intake}</span> home base. {batchTotal} student{batchTotal === 1 ? '' : 's'} in your batch{batchMates.length > 0 ? <> — {batchMates.length} classmate{batchMates.length === 1 ? '' : 's'} besides you</> : null}.</>
                 : <>Set your intake in your profile to see your batch-mates here.</>}
             </p>
-          </div>
-
-          {me?.intake && (
-            <div className="flex flex-wrap gap-2 flex-shrink-0">
-              <span
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
-                style={{ background: 'rgba(255,255,255,0.18)', color: 'white', border: '1px solid rgba(255,255,255,0.25)' }}
-              >
-                <BookOpen size={12} />
-                Intake {me.intake}
-              </span>
-              {(me.subjects || []).map(sub => (
+            {me?.intake && (
+              <div className="flex flex-wrap gap-2 mt-3">
                 <span
-                  key={sub}
-                  className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold"
-                  style={{ background: 'rgba(255,255,255,0.14)', color: 'white', border: '1px solid rgba(255,255,255,0.22)' }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+                  style={{ background: 'rgba(255,255,255,0.18)', color: 'white', border: '1px solid rgba(255,255,255,0.25)' }}
                 >
-                  {sub}
+                  <BookOpen size={12} />
+                  Intake {me.intake}
                 </span>
-              ))}
-            </div>
-          )}
+                {(me.subjects || []).map(sub => (
+                  <span
+                    key={sub}
+                    className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold"
+                    style={{ background: 'rgba(255,255,255,0.14)', color: 'white', border: '1px solid rgba(255,255,255,0.22)' }}
+                  >
+                    {sub}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

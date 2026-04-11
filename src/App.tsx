@@ -25,7 +25,7 @@ function RootRedirect() {
   const { user, role, loading } = useAuth();
   if (loading)          return <FullPageSpinner />;
   if (!user)            return <Navigate to="/login"              replace />;
-  if (role === 'lecturer') return <Navigate to="/lecturer/dashboard" replace />;
+  if (role === 'lecturer' || role === 'teachingAssistant') return <Navigate to="/lecturer/dashboard" replace />;
   return                       <Navigate to="/student/profile"    replace />;
 }
 
@@ -38,16 +38,16 @@ function AppRoutes() {
       <Route path="/attend/:code" element={<QuickAttend />} />
 
       {/* Student routes */}
-      <Route path="/student/profile"    element={<ProtectedRoute requiredRole="student"><StudentProfile /></ProtectedRoute>} />
-      <Route path="/student/attendance" element={<ProtectedRoute requiredRole="student"><StudentAttendance /></ProtectedRoute>} />
-      <Route path="/student/history"    element={<ProtectedRoute requiredRole="student"><StudentHistory /></ProtectedRoute>} />
+      <Route path="/student/profile"    element={<ProtectedRoute allowedRoles={["student"]}><StudentProfile /></ProtectedRoute>} />
+      <Route path="/student/attendance" element={<ProtectedRoute allowedRoles={["student"]}><StudentAttendance /></ProtectedRoute>} />
+      <Route path="/student/history"    element={<ProtectedRoute allowedRoles={["student"]}><StudentHistory /></ProtectedRoute>} />
 
       {/* Lecturer routes */}
-      <Route path="/lecturer/dashboard"         element={<ProtectedRoute requiredRole="lecturer"><Dashboard /></ProtectedRoute>} />
-      <Route path="/lecturer/students"          element={<ProtectedRoute requiredRole="lecturer"><StudentList /></ProtectedRoute>} />
-      <Route path="/lecturer/students/:id"      element={<ProtectedRoute requiredRole="lecturer"><StudentDetail /></ProtectedRoute>} />
-      <Route path="/lecturer/attendance"        element={<ProtectedRoute requiredRole="lecturer"><AttendanceSessions /></ProtectedRoute>} />
-      <Route path="/lecturer/attendance/:id"    element={<ProtectedRoute requiredRole="lecturer"><AttendanceResults /></ProtectedRoute>} />
+      <Route path="/lecturer/dashboard"         element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><Dashboard /></ProtectedRoute>} />
+      <Route path="/lecturer/students"          element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><StudentList /></ProtectedRoute>} />
+      <Route path="/lecturer/students/:id"      element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><StudentDetail /></ProtectedRoute>} />
+      <Route path="/lecturer/attendance"        element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><AttendanceSessions /></ProtectedRoute>} />
+      <Route path="/lecturer/attendance/:id"    element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><AttendanceResults /></ProtectedRoute>} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, UserPlus, GraduationCap, BookOpen } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, GraduationCap, BookOpen, Users } from 'lucide-react';
 import BrandMark from '../../components/ui/BrandMark';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/ui/ToastProvider';
 import type { UserRole } from '../../lib/types';
 
 const LECTURER_CODE = import.meta.env.VITE_LECTURER_CODE ?? 'PROF2024';
+const TA_CODE = import.meta.env.VITE_TA_CODE ?? 'YOOBEETA';
 
 export default function Register() {
   const { register } = useAuth();
@@ -16,7 +17,7 @@ export default function Register() {
   const [password,     setPassword]     = useState('');
   const [confirm,      setConfirm]      = useState('');
   const [role,         setRole]         = useState<UserRole>('student');
-  const [lecturerCode, setLecturerCode] = useState('');
+  const [staffCode,    setStaffCode]    = useState('');
   const [showPw,       setShowPw]       = useState(false);
   const [loading,      setLoading]      = useState(false);
   const { showToast } = useToast();
@@ -35,14 +36,18 @@ export default function Register() {
       showToast({ type: 'error', title: 'Validation error', description: 'Student email must end with @yoobeestudent.ac.nz.' });
       return;
     }
-    if (role === 'lecturer' && lecturerCode !== LECTURER_CODE) {
+    if (role === 'lecturer' && staffCode !== LECTURER_CODE) {
       showToast({ type: 'error', title: 'Validation error', description: 'Invalid lecturer registration code.' });
+      return;
+    }
+    if (role === 'teachingAssistant' && staffCode !== TA_CODE) {
+      showToast({ type: 'error', title: 'Validation error', description: 'Invalid teaching assistant registration code.' });
       return;
     }
     setLoading(true);
     try {
       await register(email, password, role);
-      navigate(role === 'lecturer' ? '/lecturer/dashboard' : '/student/profile');
+      navigate(role === 'student' ? '/student/profile' : '/lecturer/dashboard');
     } catch (err: unknown) {
       showToast({ type: 'error', title: 'Registration failed', description: friendlyError(err) });
     } finally {
@@ -121,9 +126,10 @@ export default function Register() {
                   border: '1px solid rgba(139,92,246,0.12)',
                 }}
               >
-                {([
+                  {([
                   { r: 'student', icon: <BookOpen size={14} />, label: 'Student' },
                   { r: 'lecturer', icon: <GraduationCap size={14} />, label: 'Lecturer' },
+                  { r: 'teachingAssistant', icon: <Users size={14} />, label: 'Teaching Assistant' },
                 ] as { r: UserRole; icon: React.ReactNode; label: string }[]).map(({ r, icon, label }) => (
                   <button
                     key={r}
@@ -195,13 +201,13 @@ export default function Register() {
               />
             </div>
 
-            {role === 'lecturer' && (
+            {(role === 'lecturer' || role === 'teachingAssistant') && (
               <div>
-                <label className="label">Lecturer code</label>
+                <label className="label">{role === 'lecturer' ? 'Lecturer code' : 'Teaching Assistant code'}</label>
                 <input
                   type="text"
-                  value={lecturerCode}
-                  onChange={e => setLecturerCode(e.target.value.toUpperCase())}
+                  value={staffCode}
+                  onChange={e => setStaffCode(e.target.value.toUpperCase())}
                   required
                   placeholder="Ask your administrator"
                   className="input-field code-display tracking-widest"

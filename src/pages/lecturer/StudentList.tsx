@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Download, Globe, Briefcase, BookOpen, ChevronRight, Heart, Users, Trash2 } from 'lucide-react';
+import { Search, Filter, Download, Globe, Briefcase, BookOpen, ChevronRight, Users, Trash2 } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import type { StudentProfile, AttendanceRecord, AbsenceNotice, AttendanceSession } from '../../lib/types';
 import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
 import { useToast } from '../../components/ui/ToastProvider';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function StudentList() {
   const [students, setStudents] = useState<StudentProfile[]>([]);
@@ -19,6 +20,8 @@ export default function StudentList() {
   const [deletingStudentUid, setDeletingStudentUid] = useState<string | null>(null);
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { role } = useAuth();
+  const isTa = role === 'teachingAssistant';
 
   useEffect(() => {
     (async () => {
@@ -80,10 +83,10 @@ export default function StudentList() {
   }, [students, search, course, country]);
 
   const exportCSV = () => {
-    const headers = ['Full Name','Student ID','Email','Course','Home Country','Work Experience','Education','Special Needs','Attended Days','Absent Days','Excused Days'];
+    const headers = ['Full Name','Student ID','Email','Course','Home Country','Work Experience','Education','Attended Days','Absent Days','Excused Days'];
     const rows = filtered.map(s => [
       s.fullName, s.studentId, s.email, s.course, s.homeCountry,
-      s.workExperience, s.educationalBackground, s.specialNeeds,
+      s.workExperience, s.educationalBackground,
       attendanceStats[s.uid]?.attended || 0,
       attendanceStats[s.uid]?.absent || 0,
       attendanceStats[s.uid]?.excused || 0,
@@ -96,6 +99,11 @@ export default function StudentList() {
   };
 
   const handleDeleteStudent = async (student: StudentProfile) => {
+    if (isTa) {
+      showToast({ type: 'error', title: 'Permission denied', description: 'Teaching assistants cannot delete students.' });
+      return;
+    }
+
     const confirmed = window.confirm(
       `Delete ${student.fullName || student.email || 'this student'}?\n\nThis will remove the student profile, attendance records, absence notices, and their users/{uid} role document.`,
     );
@@ -285,9 +293,6 @@ export default function StudentList() {
                       <p className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>
                         {s.fullName || <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>No name</span>}
                       </p>
-                      {s.specialNeeds && s.specialNeeds !== 'None' && (
-                        <Heart size={10} style={{ color: '#e11d48', flexShrink: 0 }} />
-                      )}
                     </div>
                     <p className="text-xs truncate font-medium" style={{ color: '#9ca3af' }}>
                       {s.studentId || s.email}
@@ -338,18 +343,20 @@ export default function StudentList() {
                       </div>
                     );
                   })()}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      void handleDeleteStudent(s);
-                    }}
-                    disabled={deletingStudentUid === s.uid}
-                    className="p-1.5 rounded-lg transition-colors hover:bg-rose-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    title="Delete student"
-                  >
-                    <Trash2 size={14} style={{ color: '#e11d48' }} />
-                  </button>
+                  {!isTa && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void handleDeleteStudent(s);
+                      }}
+                      disabled={deletingStudentUid === s.uid}
+                      className="p-1.5 rounded-lg transition-colors hover:bg-rose-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Delete student"
+                    >
+                      <Trash2 size={14} style={{ color: '#e11d48' }} />
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => navigate(`/lecturer/students/${s.uid}`)}

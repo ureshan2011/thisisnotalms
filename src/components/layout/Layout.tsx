@@ -3,7 +3,7 @@ import { NavLink, useNavigate, Link } from 'react-router-dom';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import {
   LayoutDashboard, Users, CalendarCheck, LogOut,
-  User, History, Menu, X, ChevronRight, ClipboardList,
+  User, History, Menu, X, ChevronRight, ClipboardList, BookOpen,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import BrandMark from '../ui/BrandMark';
@@ -20,10 +20,12 @@ function SidebarContent({
   onClose,
   photoURL,
   onOpenPhotoModal,
+  canViewMBI802Resources,
 }: {
   onClose?: () => void;
   photoURL?: string | null;
   onOpenPhotoModal?: () => void;
+  canViewMBI802Resources: boolean;
 }) {
   const { user, role, logout } = useAuth();
   const navigate = useNavigate();
@@ -33,6 +35,9 @@ function SidebarContent({
     { to: '/student/profile',    icon: <User size={18} />,            label: 'My Profile' },
     { to: '/student/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
     { to: '/student/history',    icon: <History size={18} />,         label: 'My History' },
+    ...(canViewMBI802Resources
+      ? [{ to: '/student/mbi802-resources', icon: <BookOpen size={18} />, label: 'MBI802 Resources' }]
+      : []),
   ];
 
   const lecturerLinks: NavItem[] = [
@@ -40,6 +45,7 @@ function SidebarContent({
     { to: '/lecturer/students',   icon: <Users size={18} />,           label: 'Students' },
     { to: '/lecturer/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
     { to: '/lecturer/event-log',  icon: <ClipboardList size={18} />,   label: 'Event Log' },
+    { to: '/lecturer/mbi802-resources', icon: <BookOpen size={18} />,  label: 'MBI802 Resources' },
   ];
 
   const links = role === 'student' ? studentLinks : lecturerLinks;
@@ -164,6 +170,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [intakePromptOpen, setIntakePromptOpen] = useState(false);
   const [photoPromptOpen, setPhotoPromptOpen] = useState(false);
   const [currentPhotoURL, setCurrentPhotoURL] = useState<string | null>(null);
+  const [canViewMBI802Resources, setCanViewMBI802Resources] = useState(role !== 'student');
   const [intake, setIntake] = useState<'2511' | '2604' | ''>('');
   const [savingIntake, setSavingIntake] = useState(false);
 
@@ -172,10 +179,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     (async () => {
       const snap = await getDoc(doc(db, 'students', user.uid));
       if (!snap.exists()) return;
-      const data = snap.data() as { intake?: string; photoURL?: string };
+      const data = snap.data() as { intake?: string; photoURL?: string; subjects?: string[] };
 
       // Load current photo
       if (data.photoURL) setCurrentPhotoURL(data.photoURL);
+      setCanViewMBI802Resources((data.subjects || []).includes('MBI802'));
 
       // Show intake prompt if missing
       if (!data.intake) { setIntakePromptOpen(true); return; }
@@ -185,10 +193,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     })();
   }, [user, role]);
 
+
+  useEffect(() => {
+    if (role !== 'student') setCanViewMBI802Resources(true);
+  }, [role]);
+
   const saveIntake = async () => {
     if (!user || !intake) return;
     setSavingIntake(true);
     const subjects = intake === '2511' ? ['MBI804'] : ['MBI800', 'MBI802'];
+    setCanViewMBI802Resources(subjects.includes('MBI802'));
     await setDoc(doc(db, 'students', user.uid), {
       intake,
       subjects,
@@ -264,6 +278,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <SidebarContent
           photoURL={currentPhotoURL}
           onOpenPhotoModal={() => setPhotoPromptOpen(true)}
+          canViewMBI802Resources={canViewMBI802Resources}
         />
       </aside>
 
@@ -287,6 +302,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               onClose={() => setMobileOpen(false)}
               photoURL={currentPhotoURL}
               onOpenPhotoModal={() => { setMobileOpen(false); setPhotoPromptOpen(true); }}
+              canViewMBI802Resources={canViewMBI802Resources}
             />
           </aside>
         </div>

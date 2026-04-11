@@ -16,6 +16,7 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import Modal from '../../components/ui/Modal';
 import type { AttendanceSession, AttendanceCheckpoint } from '../../lib/types';
 import { generateCode, formatDateTime, secondsUntil } from '../../lib/utils';
+import { useFeatureTracking } from '../../lib/useFeatureTracking';
 
 const WINDOW_OPTIONS = [2, 3, 4, 5, 8, 10];
 
@@ -45,6 +46,7 @@ function firestoreToSession(id: string, data: Record<string, unknown>): Attendan
 
 export default function AttendanceSessions() {
   const { user, role } = useAuth();
+  useFeatureTracking('Lecturer Attendance Sessions');
   const isTa = role === 'teachingAssistant';
   const navigate = useNavigate();
   const [sessions,  setSessions]  = useState<AttendanceSession[]>([]);

@@ -10,6 +10,8 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import PhotoUploadModal, { avatarGradient } from '../../components/ui/PhotoUploadModal';
 import type { StudentProfile } from '../../lib/types';
 import { useToast } from '../../components/ui/ToastProvider';
+import { logEvent } from '../../lib/eventLog';
+import { useFeatureTracking } from '../../lib/useFeatureTracking';
 
 const COURSES = [
   'Master of Management',
@@ -153,6 +155,7 @@ const blank: Omit<StudentProfile, 'uid' | 'createdAt' | 'updatedAt'> = {
 
 export default function StudentProfilePage() {
   const { user } = useAuth();
+  useFeatureTracking('Student Profile');
   const [form,    setForm]    = useState({ ...blank });
   const [notes,   setNotes]   = useState('');
   const [loading, setLoading] = useState(true);
@@ -335,7 +338,19 @@ export default function StudentProfilePage() {
         updatedAt: serverTimestamp(),
         createdAt: serverTimestamp(),
       };
+      const existingProfile = await getDoc(doc(db, 'students', user.uid));
       await setDoc(doc(db, 'students', user.uid), payload, { merge: true });
+      await logEvent({
+        type: existingProfile.exists() ? 'student_profile_updated' : 'student_profile_created',
+        description: existingProfile.exists()
+          ? `${payload.fullName || payload.email} updated their student profile.`
+          : `${payload.fullName || payload.email} created a new student profile.`,
+        actorUid: user.uid,
+        actorEmail: user.email,
+        actorRole: 'student',
+        targetUid: user.uid,
+        targetName: payload.fullName || payload.email,
+      }).catch(() => undefined);
       showToast({ type: 'success', title: 'Profile saved', description: 'Your profile has been updated successfully.' });
     } catch {
       showToast({ type: 'error', title: 'Save failed', description: 'Failed to save. Please try again.' });

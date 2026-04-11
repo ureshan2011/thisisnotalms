@@ -12,11 +12,13 @@ import type { StudentProfile, AttendanceRecord, AbsenceNotice, AttendanceSession
 import { formatDateTime } from '../../lib/utils';
 import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
 import { useAuth } from '../../contexts/AuthContext';
+import { useFeatureTracking } from '../../lib/useFeatureTracking';
 
 type RawSession = Omit<AttendanceSession, 'date' | 'createdAt'> & { date: Timestamp; createdAt: Timestamp };
 
 export default function StudentDetail() {
   const { role } = useAuth();
+  useFeatureTracking('Lecturer Student Detail');
   const isTa = role === 'teachingAssistant';
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();

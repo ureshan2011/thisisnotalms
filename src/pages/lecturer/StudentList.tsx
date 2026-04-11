@@ -9,6 +9,7 @@ import type { StudentProfile, AttendanceRecord, AbsenceNotice, AttendanceSession
 import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
 import { useToast } from '../../components/ui/ToastProvider';
 import { useAuth } from '../../contexts/AuthContext';
+import { useFeatureTracking } from '../../lib/useFeatureTracking';
 
 interface TeachingAssistantAccount {
   uid: string;
@@ -28,6 +29,7 @@ export default function StudentList() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { role } = useAuth();
+  useFeatureTracking('Lecturer Student List');
   const isTa = role === 'teachingAssistant';
 
   useEffect(() => {

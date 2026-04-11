@@ -8,12 +8,14 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import type { AttendanceRecord, AbsenceNotice, AttendanceSession } from '../../lib/types';
 import { formatDateTime } from '../../lib/utils';
 import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
+import { useFeatureTracking } from '../../lib/useFeatureTracking';
 
 type RawRecord = Omit<AttendanceRecord, 'submittedAt'> & { submittedAt: Timestamp };
 type RawSession = Omit<AttendanceSession, 'date' | 'createdAt'> & { date: Timestamp; createdAt: Timestamp };
 
 export default function StudentHistory() {
   const { user } = useAuth();
+  useFeatureTracking('Student History');
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [absences, setAbsences] = useState<AbsenceNotice[]>([]);
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);

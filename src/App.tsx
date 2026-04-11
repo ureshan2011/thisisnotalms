@@ -20,6 +20,7 @@ import StudentList        from './pages/lecturer/StudentList';
 import StudentDetail      from './pages/lecturer/StudentDetail';
 import AttendanceSessions from './pages/lecturer/AttendanceSessions';
 import AttendanceResults  from './pages/lecturer/AttendanceResults';
+import EventLog from './pages/lecturer/EventLog';
 
 function RootRedirect() {
   const { user, role, loading } = useAuth();
@@ -48,6 +49,7 @@ function AppRoutes() {
       <Route path="/lecturer/students/:id"      element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><StudentDetail /></ProtectedRoute>} />
       <Route path="/lecturer/attendance"        element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><AttendanceSessions /></ProtectedRoute>} />
       <Route path="/lecturer/attendance/:id"    element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><AttendanceResults /></ProtectedRoute>} />
+      <Route path="/lecturer/event-log"         element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><EventLog /></ProtectedRoute>} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

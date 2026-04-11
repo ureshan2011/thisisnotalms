@@ -11,6 +11,8 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import type { AttendanceSession, AttendanceCheckpoint, StudentProfile } from '../../lib/types';
 import { useToast } from '../../components/ui/ToastProvider';
 import { secondsUntil, formatDateTime } from '../../lib/utils';
+import { logEvent } from '../../lib/eventLog';
+import { useFeatureTracking } from '../../lib/useFeatureTracking';
 
 interface ActiveCheckpoint {
   session:    AttendanceSession;
@@ -19,6 +21,7 @@ interface ActiveCheckpoint {
 
 export default function StudentAttendance() {
   const { user } = useAuth();
+  useFeatureTracking('Student Attendance');
   const [active,   setActive]   = useState<ActiveCheckpoint[]>([]);
   const [loading,  setLoading]  = useState(true);
   const [code,     setCode]     = useState('');
@@ -112,6 +115,15 @@ export default function StudentAttendance() {
         checkpointLabel:  item.checkpoint.label,
         submittedAt:      serverTimestamp(),
       });
+      await logEvent({
+        type: 'attendance_marked',
+        description: `${profile.fullName} marked attendance for ${item.session.title} (${item.checkpoint.label}).`,
+        actorUid: user.uid,
+        actorEmail: user.email,
+        actorRole: 'student',
+        targetUid: user.uid,
+        targetName: profile.fullName,
+      }).catch(() => undefined);
       showToast({ type: 'success', title: 'Attendance recorded', description: 'Your attendance has been submitted successfully.' });
       setStatus('idle');
       setCode('');
@@ -164,6 +176,15 @@ export default function StudentAttendance() {
         reason,
         createdAt: serverTimestamp(),
       });
+      await logEvent({
+        type: 'absence_reported',
+        description: `${profile.fullName} submitted an absence notice (${absenceType}) for ${reportDateKey}.`,
+        actorUid: user.uid,
+        actorEmail: user.email,
+        actorRole: 'student',
+        targetUid: user.uid,
+        targetName: profile.fullName,
+      }).catch(() => undefined);
       showToast({
         type: 'success',
         title: 'Absence submitted',

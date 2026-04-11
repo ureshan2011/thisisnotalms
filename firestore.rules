@@ -40,6 +40,13 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && isLecturer();
     }
 
+    // Event log entries for audit trail.
+    match /eventLogs/{logId} {
+      allow read: if request.auth != null && isStaff();
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
     function isStaff() {
       return isLecturer() || isTeachingAssistant();
     }

@@ -38,6 +38,7 @@ function SidebarContent({
     { to: '/lecturer/dashboard',  icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
     { to: '/lecturer/students',   icon: <Users size={18} />,           label: 'Students' },
     { to: '/lecturer/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
+    { to: '/lecturer/event-log',  icon: <ClipboardList size={18} />,   label: 'Event Log' },
   ];
 
   const links = role === 'student' ? studentLinks : lecturerLinks;

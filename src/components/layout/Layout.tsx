@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { NavLink, useNavigate, Link } from 'react-router-dom';
+import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import {
   LayoutDashboard, Users, CalendarCheck, LogOut,
-  User, History, Menu, X, ChevronRight, ClipboardList,
+  User, History, Menu, X, ChevronRight, ClipboardList, BookOpen,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import BrandMark from '../ui/BrandMark';
@@ -14,16 +14,21 @@ interface NavItem {
   to:    string;
   icon:  React.ReactNode;
   label: string;
+  isNew?: boolean;
 }
 
 function SidebarContent({
   onClose,
   photoURL,
   onOpenPhotoModal,
+  canViewMBI802Resources,
+  showNewBadge,
 }: {
   onClose?: () => void;
   photoURL?: string | null;
   onOpenPhotoModal?: () => void;
+  canViewMBI802Resources: boolean;
+  showNewBadge: boolean;
 }) {
   const { user, role, logout } = useAuth();
   const navigate = useNavigate();
@@ -33,6 +38,9 @@ function SidebarContent({
     { to: '/student/profile',    icon: <User size={18} />,            label: 'My Profile' },
     { to: '/student/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
     { to: '/student/history',    icon: <History size={18} />,         label: 'My History' },
+    ...(canViewMBI802Resources
+      ? [{ to: '/student/mbi802-resources', icon: <BookOpen size={18} />, label: 'MBI802 Resources', isNew: showNewBadge }]
+      : []),
   ];
 
   const lecturerLinks: NavItem[] = [
@@ -40,6 +48,7 @@ function SidebarContent({
     { to: '/lecturer/students',   icon: <Users size={18} />,           label: 'Students' },
     { to: '/lecturer/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
     { to: '/lecturer/event-log',  icon: <ClipboardList size={18} />,   label: 'Event Log' },
+    { to: '/lecturer/mbi802-resources', icon: <BookOpen size={18} />,  label: 'MBI802 Resources', isNew: showNewBadge },
   ];
 
   const links = role === 'student' ? studentLinks : lecturerLinks;
@@ -100,7 +109,7 @@ function SidebarContent({
       {/* Nav */}
       <nav className="flex-1 px-4 space-y-1 relative z-10">
         <p className="section-label px-3 mb-2">Menu</p>
-        {links.map(({ to, icon, label }) => (
+        {links.map(({ to, icon, label, isNew }) => (
           <NavLink
             key={to}
             to={to}
@@ -111,6 +120,11 @@ function SidebarContent({
           >
             <span className="flex-shrink-0">{icon}</span>
             <span className="flex-1">{label}</span>
+            {isNew && (
+              <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full" style={{ color: '#be185d', background: 'rgba(244,114,182,0.18)' }}>
+                New
+              </span>
+            )}
             <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity ml-auto flex-shrink-0 text-brand-400" />
           </NavLink>
         ))}
@@ -160,11 +174,14 @@ function SidebarContent({
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, role } = useAuth();
+  const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [intakePromptOpen, setIntakePromptOpen] = useState(false);
   const [photoPromptOpen, setPhotoPromptOpen] = useState(false);
   const [currentPhotoURL, setCurrentPhotoURL] = useState<string | null>(null);
+  const [canViewMBI802Resources, setCanViewMBI802Resources] = useState(role !== 'student');
   const [intake, setIntake] = useState<'2511' | '2604' | ''>('');
+  const [showMBI802NewBadge, setShowMBI802NewBadge] = useState(false);
   const [savingIntake, setSavingIntake] = useState(false);
 
   useEffect(() => {
@@ -172,10 +189,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     (async () => {
       const snap = await getDoc(doc(db, 'students', user.uid));
       if (!snap.exists()) return;
-      const data = snap.data() as { intake?: string; photoURL?: string };
+      const data = snap.data() as { intake?: string; photoURL?: string; subjects?: string[] };
 
       // Load current photo
       if (data.photoURL) setCurrentPhotoURL(data.photoURL);
+      setCanViewMBI802Resources((data.subjects || []).includes('MBI802'));
 
       // Show intake prompt if missing
       if (!data.intake) { setIntakePromptOpen(true); return; }
@@ -185,10 +203,36 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     })();
   }, [user, role]);
 
+
+  useEffect(() => {
+    if (role !== 'student') setCanViewMBI802Resources(true);
+  }, [role]);
+
+
+  useEffect(() => {
+    if (!user) return;
+    const key = `mbi802_resources_seen_${user.uid}`;
+    const seen = localStorage.getItem(key) === '1';
+    setShowMBI802NewBadge(!seen);
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    const onResourcesPage =
+      location.pathname === '/student/mbi802-resources' ||
+      location.pathname === '/lecturer/mbi802-resources';
+    if (!onResourcesPage || !showMBI802NewBadge) return;
+
+    const key = `mbi802_resources_seen_${user.uid}`;
+    localStorage.setItem(key, '1');
+    setShowMBI802NewBadge(false);
+  }, [location.pathname, showMBI802NewBadge, user]);
+
   const saveIntake = async () => {
     if (!user || !intake) return;
     setSavingIntake(true);
     const subjects = intake === '2511' ? ['MBI804'] : ['MBI800', 'MBI802'];
+    setCanViewMBI802Resources(subjects.includes('MBI802'));
     await setDoc(doc(db, 'students', user.uid), {
       intake,
       subjects,
@@ -264,6 +308,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <SidebarContent
           photoURL={currentPhotoURL}
           onOpenPhotoModal={() => setPhotoPromptOpen(true)}
+          canViewMBI802Resources={canViewMBI802Resources}
+          showNewBadge={showMBI802NewBadge}
         />
       </aside>
 
@@ -287,6 +333,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               onClose={() => setMobileOpen(false)}
               photoURL={currentPhotoURL}
               onOpenPhotoModal={() => { setMobileOpen(false); setPhotoPromptOpen(true); }}
+              canViewMBI802Resources={canViewMBI802Resources}
+          showNewBadge={showMBI802NewBadge}
             />
           </aside>
         </div>

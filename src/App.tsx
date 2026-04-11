@@ -9,6 +9,7 @@ import Login    from './pages/auth/Login';
 import Register from './pages/auth/Register';
 
 // Student pages
+import StudentDashboard  from './pages/student/StudentDashboard';
 import StudentProfile    from './pages/student/StudentProfile';
 import StudentAttendance from './pages/student/StudentAttendance';
 import StudentHistory    from './pages/student/StudentHistory';
@@ -27,7 +28,7 @@ function RootRedirect() {
   if (loading)          return <FullPageSpinner />;
   if (!user)            return <Navigate to="/login"              replace />;
   if (role === 'lecturer' || role === 'teachingAssistant') return <Navigate to="/lecturer/dashboard" replace />;
-  return                       <Navigate to="/student/profile"    replace />;
+  return                       <Navigate to="/student/dashboard"  replace />;
 }
 
 function AppRoutes() {
@@ -39,6 +40,7 @@ function AppRoutes() {
       <Route path="/attend/:code" element={<QuickAttend />} />
 
       {/* Student routes */}
+      <Route path="/student/dashboard"  element={<ProtectedRoute allowedRoles={["student"]}><StudentDashboard /></ProtectedRoute>} />
       <Route path="/student/profile"    element={<ProtectedRoute allowedRoles={["student"]}><StudentProfile /></ProtectedRoute>} />
       <Route path="/student/attendance" element={<ProtectedRoute allowedRoles={["student"]}><StudentAttendance /></ProtectedRoute>} />
       <Route path="/student/history"    element={<ProtectedRoute allowedRoles={["student"]}><StudentHistory /></ProtectedRoute>} />

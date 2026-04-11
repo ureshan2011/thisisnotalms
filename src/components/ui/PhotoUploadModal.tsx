@@ -3,6 +3,7 @@ import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Camera, Upload, X, Check, AlertCircle, Image } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
+import { logEvent } from '../../lib/eventLog';
 
 interface PhotoUploadModalProps {
   currentPhotoURL?: string;
@@ -112,6 +113,14 @@ export default function PhotoUploadModal({
         { photoURL: dataURL, updatedAt: serverTimestamp() },
         { merge: true },
       );
+      await logEvent({
+        type: 'student_photo_uploaded',
+        description: `${user.email || 'Student'} uploaded a new profile photo.`,
+        actorUid: user.uid,
+        actorEmail: user.email,
+        actorRole: 'student',
+        targetUid: user.uid,
+      }).catch(() => undefined);
 
       setProgress(100);
       onUploaded(dataURL);

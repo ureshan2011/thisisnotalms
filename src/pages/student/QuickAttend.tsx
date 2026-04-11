@@ -14,6 +14,8 @@ import BrandMark from '../../components/ui/BrandMark';
 import { useToast } from '../../components/ui/ToastProvider';
 import type { AttendanceSession, AttendanceCheckpoint, StudentProfile } from '../../lib/types';
 import { secondsUntil } from '../../lib/utils';
+import { logEvent } from '../../lib/eventLog';
+import { useFeatureTracking } from '../../lib/useFeatureTracking';
 
 interface ActiveCheckpoint {
   session:    AttendanceSession;
@@ -58,6 +60,7 @@ export default function QuickAttend() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted,  setSubmitted]  = useState(false);
   const [alreadyDone, setAlreadyDone] = useState(false);
+  useFeatureTracking('Quick Attend');
 
   // Fetch active checkpoint matching the code
   const fetchCheckpoint = useCallback(async () => {
@@ -151,6 +154,15 @@ export default function QuickAttend() {
         checkpointLabel:  item.checkpoint.label,
         submittedAt:      serverTimestamp(),
       });
+      await logEvent({
+        type: 'attendance_marked',
+        description: `${profile.fullName} marked attendance via quick link for ${item.session.title} (${item.checkpoint.label}).`,
+        actorUid: user.uid,
+        actorEmail: user.email,
+        actorRole: 'student',
+        targetUid: user.uid,
+        targetName: profile.fullName,
+      }).catch(() => undefined);
       setSubmitted(true);
     } catch {
       showToast({ type: 'error', title: 'Submission failed', description: 'Please try again.' });

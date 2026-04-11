@@ -9,6 +9,7 @@ import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import type { AttendanceSession, AttendanceRecord } from '../../lib/types';
 import { formatDateTime } from '../../lib/utils';
+import { useFeatureTracking } from '../../lib/useFeatureTracking';
 
 function firestoreToSession(id: string, data: Record<string, unknown>): AttendanceSession {
   return {
@@ -35,6 +36,7 @@ function firestoreToSession(id: string, data: Record<string, unknown>): Attendan
 }
 
 export default function AttendanceResults() {
+  useFeatureTracking('Lecturer Attendance Results');
   const { id }   = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [session,       setSession]       = useState<AttendanceSession | null>(null);

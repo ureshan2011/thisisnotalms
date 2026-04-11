@@ -15,6 +15,7 @@ import { avatarGradient } from '../../components/ui/PhotoUploadModal';
 import type { StudentProfile, AttendanceSession } from '../../lib/types';
 import { groupBy, toCounts } from '../../lib/utils';
 import { useAuth } from '../../contexts/AuthContext';
+import { useFeatureTracking } from '../../lib/useFeatureTracking';
 
 const CHART_COLORS = [
   '#7c3aed','#a78bfa','#06b6d4','#10b981',
@@ -35,6 +36,7 @@ const tooltipStyle = {
 
 export default function Dashboard() {
   const { role } = useAuth();
+  useFeatureTracking('Lecturer Dashboard');
   const isTa = role === 'teachingAssistant';
   const [students, setStudents] = useState<StudentProfile[]>([]);
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);

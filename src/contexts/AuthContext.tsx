@@ -10,6 +10,10 @@ import {
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import type { UserRole } from '../lib/types';
+import { logEvent } from '../lib/eventLog';
+
+const SESSION_START_KEY = 'yoobees_session_start';
+const SESSION_UID_KEY = 'yoobees_session_uid';
 
 interface AuthContextValue {
   user:        User | null;
@@ -44,7 +48,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const roleSnap = await getDoc(doc(db, 'users', cred.user.uid));
+    const currentRole = roleSnap.exists() ? (roleSnap.data().role as UserRole) : null;
+    localStorage.setItem(SESSION_START_KEY, String(Date.now()));
+    localStorage.setItem(SESSION_UID_KEY, cred.user.uid);
+    await logEvent({
+      type: 'user_login',
+      description: `${cred.user.email || 'User'} signed in.`,
+      actorUid: cred.user.uid,
+      actorEmail: cred.user.email,
+      actorRole: currentRole,
+    }).catch(() => undefined);
   };
 
   const register = async (email: string, password: string, role: UserRole) => {
@@ -55,10 +70,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       role,
       createdAt: serverTimestamp(),
     });
+    if (role === 'teachingAssistant') {
+      await logEvent({
+        type: 'ta_account_created',
+        description: `New teaching assistant account created: ${email}.`,
+        actorUid: cred.user.uid,
+        actorEmail: email,
+        actorRole: role,
+      }).catch(() => undefined);
+    }
     setRole(role);
   };
 
   const logout = async () => {
+    const sessionStart = Number(localStorage.getItem(SESSION_START_KEY) || '0');
+    const sessionUid = localStorage.getItem(SESSION_UID_KEY);
+    const durationSeconds = sessionStart > 0 ? Math.max(0, Math.floor((Date.now() - sessionStart) / 1000)) : 0;
+    if (user && (!sessionUid || sessionUid === user.uid)) {
+      await logEvent({
+        type: 'user_logout',
+        description: `${user.email || 'User'} signed out after ${durationSeconds}s.`,
+        actorUid: user.uid,
+        actorEmail: user.email,
+        actorRole: role,
+        durationSeconds,
+      }).catch(() => undefined);
+    }
+    localStorage.removeItem(SESSION_START_KEY);
+    localStorage.removeItem(SESSION_UID_KEY);
     await signOut(auth);
   };
 

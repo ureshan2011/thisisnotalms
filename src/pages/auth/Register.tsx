@@ -74,13 +74,8 @@ export default function Register() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <div className="relative mb-4">
-            <div className="absolute inset-0 bg-brand-400/25 rounded-3xl blur-xl animate-pulse" />
-            <div
-              className="relative rounded-3xl p-4 shadow-xl"
-              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)' }}
-            >
-              <BrandMark className="h-10 w-10 text-white" />
-            </div>
+            <div className="absolute inset-0 bg-brand-400/15 rounded-3xl blur-xl animate-pulse" />
+            <BrandMark className="relative h-14 w-auto max-w-[230px] drop-shadow-md" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#1e1b4b' }}>YooBees</h1>
           <div className="mt-0.5 flex items-center gap-2">

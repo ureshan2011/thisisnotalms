@@ -1,8 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
-import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Camera, Upload, X, Check, AlertCircle, Image } from 'lucide-react';
-import { storage, db } from '../../lib/firebase';
+import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface PhotoUploadModalProps {
@@ -27,6 +26,35 @@ export function avatarGradient(uid: string): string {
   return AVATAR_GRADIENTS[Math.abs(hash) % AVATAR_GRADIENTS.length];
 }
 
+/**
+ * Resize + center-crop the image to a square using canvas,
+ * then return a JPEG data URL (~15–40 KB) safe to store in Firestore.
+ */
+function resizeToDataURL(file: File, size = 300, quality = 0.78): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    const objectUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      const canvas = document.createElement('canvas');
+      canvas.width  = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) { reject(new Error('Canvas not supported')); return; }
+
+      // Center-crop to square before scaling
+      const side = Math.min(img.width, img.height);
+      const sx   = (img.width  - side) / 2;
+      const sy   = (img.height - side) / 2;
+      ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error('Could not load image')); };
+    img.src = objectUrl;
+  });
+}
+
 export default function PhotoUploadModal({
   currentPhotoURL,
   onClose,
@@ -34,12 +62,13 @@ export default function PhotoUploadModal({
   skipable = true,
 }: PhotoUploadModalProps) {
   const { user } = useAuth();
-  const [preview, setPreview] = useState<string | null>(currentPhotoURL ?? null);
+  const [preview,     setPreview]     = useState<string | null>(currentPhotoURL ?? null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [dragOver, setDragOver] = useState(false);
-  const [error, setError] = useState('');
+  const [saving,      setSaving]      = useState(false);
+  const [progress,    setProgress]    = useState(0);
+  const [statusMsg,   setStatusMsg]   = useState('');
+  const [dragOver,    setDragOver]    = useState(false);
+  const [error,       setError]       = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = useCallback((file: File) => {
@@ -47,8 +76,8 @@ export default function PhotoUploadModal({
       setError('Please select an image file (JPG, PNG, WebP, etc.)');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image must be smaller than 5 MB.');
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Image must be smaller than 10 MB.');
       return;
     }
     setError('');
@@ -65,52 +94,32 @@ export default function PhotoUploadModal({
     if (file) handleFile(file);
   }, [handleFile]);
 
-  const handleUpload = async () => {
+  const handleSave = async () => {
     if (!pendingFile || !user) return;
-    setUploading(true);
+    setSaving(true);
     setError('');
-    setProgress(0);
-
-    let task: ReturnType<typeof uploadBytesResumable> | null = null;
+    setProgress(10);
+    setStatusMsg('Processing image…');
 
     try {
-      const fileRef = storageRef(storage, `student-photos/${user.uid}`);
-      task = uploadBytesResumable(fileRef, pendingFile, { contentType: pendingFile.type });
+      // Resize + compress entirely in the browser — no Storage needed
+      const dataURL = await resizeToDataURL(pendingFile);
+      setProgress(60);
+      setStatusMsg('Saving to profile…');
 
-      await new Promise<void>((resolve, reject) => {
-        // 30-second timeout — catches silent Storage rule denials that fire no callbacks
-        const timeout = setTimeout(() => {
-          task?.cancel();
-          reject(new Error('Upload timed out. Check Firebase Storage rules are deployed.'));
-        }, 30_000);
+      await setDoc(
+        doc(db, 'students', user.uid),
+        { photoURL: dataURL, updatedAt: serverTimestamp() },
+        { merge: true },
+      );
 
-        task!.on(
-          'state_changed',
-          snap => {
-            const pct = snap.totalBytes > 0
-              ? Math.round((snap.bytesTransferred / snap.totalBytes) * 100)
-              : 0;
-            setProgress(pct);
-          },
-          err => { clearTimeout(timeout); reject(err); },
-          ()  => { clearTimeout(timeout); resolve(); },
-        );
-      });
-
-      const url = await getDownloadURL(fileRef);
-      await setDoc(doc(db, 'students', user.uid), { photoURL: url, updatedAt: serverTimestamp() }, { merge: true });
-      onUploaded(url);
+      setProgress(100);
+      onUploaded(dataURL);
     } catch (err: unknown) {
-      const code = (err as { code?: string })?.code ?? '';
-      let msg = 'Upload failed. Please try again.';
-      if (code === 'storage/unauthorized')
-        msg = 'Permission denied. Firebase Storage rules need to be deployed — see storage.rules in the project.';
-      else if (code === 'storage/canceled' || String(err).includes('timed out'))
-        msg = 'Upload timed out. Make sure Firebase Storage is enabled and rules are deployed.';
-      else if (code === 'storage/unknown')
-        msg = 'Storage error. Ensure Firebase Storage is enabled in the Firebase console.';
-      setError(msg);
-      setUploading(false);
+      setError(String((err as Error)?.message ?? 'Save failed. Please try again.'));
+      setSaving(false);
+      setProgress(0);
+      setStatusMsg('');
     }
   };
 
@@ -122,7 +131,7 @@ export default function PhotoUploadModal({
       <div
         className="absolute inset-0"
         style={{ background: 'rgba(15, 10, 40, 0.55)', backdropFilter: 'blur(12px)' }}
-        onClick={skipable && !uploading ? onClose : undefined}
+        onClick={skipable && !saving ? onClose : undefined}
       />
 
       {/* Modal */}
@@ -173,7 +182,7 @@ export default function PhotoUploadModal({
           )}
         </div>
 
-        {/* Current avatar preview (when no pending file yet) */}
+        {/* Current avatar preview */}
         {!pendingFile && (
           <div className="flex justify-center mb-5">
             <div className="relative">
@@ -229,12 +238,10 @@ export default function PhotoUploadModal({
                 className="w-full max-h-72 object-cover rounded-2xl"
                 style={{ display: 'block' }}
               />
-              {/* Gradient overlay at bottom */}
               <div
                 className="absolute bottom-0 left-0 right-0 h-16 rounded-b-2xl"
                 style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.5), transparent)' }}
               />
-              {/* Action buttons overlaid on image */}
               <button
                 className="absolute top-2.5 right-2.5 rounded-full p-1.5 transition-all"
                 style={{ background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(8px)' }}
@@ -267,7 +274,7 @@ export default function PhotoUploadModal({
                   {dragOver ? 'Drop it here!' : 'Drop your photo here'}
                 </p>
                 <p className="text-xs mt-0.5" style={{ color: '#9ca3af' }}>
-                  or click to browse · JPG, PNG, WebP · max 5 MB
+                  or click to browse · JPG, PNG, WebP · max 10 MB
                 </p>
               </div>
             </div>
@@ -297,16 +304,16 @@ export default function PhotoUploadModal({
           </div>
         )}
 
-        {/* Upload progress */}
-        {uploading && (
+        {/* Progress */}
+        {saving && (
           <div className="mb-4">
             <div className="flex justify-between text-xs font-semibold mb-1.5" style={{ color: '#7c3aed' }}>
-              <span>Uploading photo…</span>
+              <span>{statusMsg}</span>
               <span>{progress}%</span>
             </div>
             <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(139,92,246,0.12)' }}>
               <div
-                className="h-full rounded-full transition-all duration-300"
+                className="h-full rounded-full transition-all duration-500"
                 style={{
                   width: `${progress}%`,
                   background: 'linear-gradient(90deg, #7c3aed, #a78bfa, #06b6d4)',
@@ -318,12 +325,12 @@ export default function PhotoUploadModal({
 
         {/* Actions */}
         <div className="flex gap-2.5 mt-1">
-          {pendingFile && !uploading ? (
-            <button className="btn-primary flex-1 justify-center" onClick={handleUpload}>
+          {pendingFile && !saving ? (
+            <button className="btn-primary flex-1 justify-center" onClick={handleSave}>
               <Check size={16} />
-              Upload photo
+              Save photo
             </button>
-          ) : !uploading ? (
+          ) : !saving ? (
             <button
               className="flex-1 justify-center text-sm font-semibold py-2.5 rounded-xl transition-all"
               style={{
@@ -340,18 +347,14 @@ export default function PhotoUploadModal({
             </button>
           ) : null}
 
-          {skipable && !uploading && (
-            <button
-              className="btn-ghost px-4"
-              onClick={onClose}
-              style={{ color: '#9ca3af' }}
-            >
+          {skipable && !saving && (
+            <button className="btn-ghost px-4" onClick={onClose} style={{ color: '#9ca3af' }}>
               {pendingFile ? 'Cancel' : 'Skip for now'}
             </button>
           )}
         </div>
 
-        {!skipable && !uploading && (
+        {!skipable && !saving && (
           <p className="text-center text-xs mt-3" style={{ color: '#c4b5fd' }}>
             You can always update your photo later from your profile
           </p>

@@ -44,7 +44,8 @@ function firestoreToSession(id: string, data: Record<string, unknown>): Attendan
 }
 
 export default function AttendanceSessions() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
+  const isTa = role === 'teachingAssistant';
   const navigate = useNavigate();
   const [sessions,  setSessions]  = useState<AttendanceSession[]>([]);
   const [loading,   setLoading]   = useState(true);
@@ -75,6 +76,7 @@ export default function AttendanceSessions() {
   }, [sessions]);
 
   const createSession = async () => {
+    if (isTa) return;
     if (!user || !form.title || !form.course) return;
     setCreating(true);
     await addDoc(collection(db, 'attendanceSessions'), {
@@ -138,12 +140,12 @@ export default function AttendanceSessions() {
     <Layout>
       <PageHeader
         title="Attendance Sessions"
-        subtitle="Create and manage live attendance checkpoints"
-        actions={
+        subtitle={isTa ? 'View live and past attendance sessions' : 'Create and manage live attendance checkpoints'}
+        actions={!isTa ? (
           <button onClick={() => setModal(true)} className="btn-primary">
             <Plus size={16} /> New session
           </button>
-        }
+        ) : undefined}
       />
 
       {/* Active sessions */}
@@ -161,6 +163,7 @@ export default function AttendanceSessions() {
               onLaunch={launchCheckpoint}
               onClose={closeSession}
               onView={() => navigate(`/lecturer/attendance/${s.id}`)}
+              canManage={!isTa}
             />
           ))}
         </div>
@@ -248,14 +251,16 @@ export default function AttendanceSessions() {
               Create a session when your class begins to start tracking attendance.
             </p>
           </div>
-          <button onClick={() => setModal(true)} className="btn-primary">
-            <Plus size={16} /> Create first session
-          </button>
+          {!isTa && (
+            <button onClick={() => setModal(true)} className="btn-primary">
+              <Plus size={16} /> Create first session
+            </button>
+          )}
         </div>
       )}
 
       {/* Create session modal */}
-      <Modal open={modal} onClose={() => setModal(false)} title="New attendance session">
+      {!isTa && <Modal open={modal} onClose={() => setModal(false)} title="New attendance session">
         <div className="space-y-4">
           <div>
             <label className="label">Session title <span style={{ color: '#e11d48' }}>*</span></label>
@@ -299,19 +304,20 @@ export default function AttendanceSessions() {
             </button>
           </div>
         </div>
-      </Modal>
+      </Modal>}
     </Layout>
   );
 }
 
 function ActiveSessionCard({
-  session, ticking, onLaunch, onClose, onView,
+  session, ticking, onLaunch, onClose, onView, canManage,
 }: {
   session:  AttendanceSession;
   ticking:  Record<string, number>;
   onLaunch: (s: AttendanceSession, label: string, window: number) => Promise<void>;
   onClose:  (s: AttendanceSession) => Promise<void>;
   onView:   () => void;
+  canManage: boolean;
 }) {
   const [launching, setLaunching] = useState(false);
   const [closing,   setClosing]   = useState(false);
@@ -398,10 +404,12 @@ function ActiveSessionCard({
           <button onClick={onView} className="btn-secondary py-2 px-4 text-xs">
             <Eye size={13} /> Results
           </button>
-          <button onClick={doClose} disabled={closing} className="btn-danger py-2 px-4 text-xs">
-            {closing ? <LoadingSpinner size="sm" /> : <StopCircle size={13} />}
-            Close
-          </button>
+          {canManage && (
+            <button onClick={doClose} disabled={closing} className="btn-danger py-2 px-4 text-xs">
+              {closing ? <LoadingSpinner size="sm" /> : <StopCircle size={13} />}
+              Close
+            </button>
+          )}
         </div>
       </div>
 
@@ -521,7 +529,7 @@ function ActiveSessionCard({
         >
           <p className="text-sm font-medium" style={{ color: '#9ca3af' }}>
             {cpCount === 0 ? 'No checkpoints launched yet.' : 'Last checkpoint has expired.'}
-            {' '}Launch a new one below.
+            {canManage ? ' Launch a new one below.' : ''}
           </p>
         </div>
       )}
@@ -575,30 +583,32 @@ function ActiveSessionCard({
       )}
 
       {/* Launch next checkpoint */}
-      <div className="flex items-center gap-3 flex-wrap pt-1">
-        <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold" style={{ color: '#8b7fa6' }}>Window:</label>
-          <select
-            value={winMins}
-            onChange={e => setWinMins(Number(e.target.value))}
-            className="text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none transition-all"
-            style={{
-              background: 'rgba(255,255,255,0.9)',
-              border: '1px solid rgba(139,92,246,0.18)',
-              color: '#7c3aed',
-              boxShadow: '0 1px 4px rgba(124,106,247,0.06)',
-            }}
-          >
-            {WINDOW_OPTIONS.map(w => (
-              <option key={w} value={w}>{w} min</option>
-            ))}
-          </select>
+      {canManage && (
+        <div className="flex items-center gap-3 flex-wrap pt-1">
+          <div className="flex items-center gap-2">
+            <label className="text-xs font-semibold" style={{ color: '#8b7fa6' }}>Window:</label>
+            <select
+              value={winMins}
+              onChange={e => setWinMins(Number(e.target.value))}
+              className="text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none transition-all"
+              style={{
+                background: 'rgba(255,255,255,0.9)',
+                border: '1px solid rgba(139,92,246,0.18)',
+                color: '#7c3aed',
+                boxShadow: '0 1px 4px rgba(124,106,247,0.06)',
+              }}
+            >
+              {WINDOW_OPTIONS.map(w => (
+                <option key={w} value={w}>{w} min</option>
+              ))}
+            </select>
+          </div>
+          <button onClick={doLaunch} disabled={launching} className="btn-primary">
+            {launching ? <LoadingSpinner size="sm" /> : <Zap size={15} />}
+            Launch {nextLabel}
+          </button>
         </div>
-        <button onClick={doLaunch} disabled={launching} className="btn-primary">
-          {launching ? <LoadingSpinner size="sm" /> : <Zap size={15} />}
-          Launch {nextLabel}
-        </button>
-      </div>
+      )}
     </div>
   );
 }

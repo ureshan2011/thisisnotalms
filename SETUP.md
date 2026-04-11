@@ -38,6 +38,7 @@ In your repo → **Settings → Secrets and variables → Actions**, add:
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | from Firebase config |
 | `VITE_FIREBASE_APP_ID` | from Firebase config |
 | `VITE_LECTURER_CODE` | your secret lecturer registration code |
+| `VITE_TA_CODE` | your secret teaching assistant registration code |
 
 ### b. Enable GitHub Pages
 
@@ -65,7 +66,12 @@ Firestore may prompt you to create composite indexes the first time you run cert
 The default code is `PROF2024`. Change `VITE_LECTURER_CODE` in your `.env`
 (or GitHub Secret) to something private. Only share it with yourself.
 
-## 7. How attendance works
+## 7. Teaching Assistant registration code
+
+The default TA code is `YOOBEETA`. Change `VITE_TA_CODE` in your `.env`
+(or GitHub Secret) to something private before sharing with TAs.
+
+## 8. How attendance works
 
 1. **Lecturer** clicks **New session** → fills in title and course
 2. During class, clicks **Launch Opening** → a 6-character code appears on screen

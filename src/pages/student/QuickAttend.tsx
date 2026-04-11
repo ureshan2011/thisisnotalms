@@ -277,7 +277,7 @@ export default function QuickAttend() {
   }
 
   // ── Lecturer landed here ───────────────────────────────────────────────────
-  if (role === 'lecturer') {
+  if (role === 'lecturer' || role === 'teachingAssistant') {
     return (
       <Layout>
         <div

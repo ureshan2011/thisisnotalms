@@ -4,17 +4,17 @@ import { FullPageSpinner } from '../ui/LoadingSpinner';
 import type { UserRole } from '../../lib/types';
 
 interface Props {
-  children:     React.ReactNode;
-  requiredRole: UserRole;
+  children: React.ReactNode;
+  allowedRoles: UserRole[];
 }
 
-export default function ProtectedRoute({ children, requiredRole }: Props) {
+export default function ProtectedRoute({ children, allowedRoles }: Props) {
   const { user, role, loading } = useAuth();
 
   if (loading) return <FullPageSpinner />;
   if (!user)   return <Navigate to="/login" replace />;
-  if (role !== requiredRole) {
-    return <Navigate to={role === 'lecturer' ? '/lecturer/dashboard' : '/student/profile'} replace />;
+  if (!role || !allowedRoles.includes(role)) {
+    return <Navigate to={role === 'student' ? '/student/profile' : '/lecturer/dashboard'} replace />;
   }
 
   return <>{children}</>;

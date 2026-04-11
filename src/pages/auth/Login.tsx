@@ -26,7 +26,7 @@ export default function Login() {
       setTimeout(() => {
         if (nextPath) { navigate(nextPath); return; }
         const r = role;
-        if (r === 'lecturer') navigate('/lecturer/dashboard');
+        if (r === 'lecturer' || r === 'teachingAssistant') navigate('/lecturer/dashboard');
         else navigate('/student/profile');
       }, 100);
     } catch (err: unknown) {

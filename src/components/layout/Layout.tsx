@@ -29,7 +29,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
     { to: '/lecturer/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
   ];
 
-  const links = role === 'lecturer' ? lecturerLinks : studentLinks;
+  const links = role === 'student' ? studentLinks : lecturerLinks;
   const initials = user?.email?.[0]?.toUpperCase() ?? '?';
 
   const handleLogout = async () => {
@@ -77,7 +77,7 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
           }}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
-          {role === 'lecturer' ? 'Lecturer' : 'Student'}
+          {role === 'student' ? 'Student' : role === 'teachingAssistant' ? 'Teaching Assistant' : 'Lecturer'}
         </span>
       </div>
 

@@ -11,10 +11,13 @@ import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import type { StudentProfile, AttendanceRecord, AbsenceNotice, AttendanceSession } from '../../lib/types';
 import { formatDateTime } from '../../lib/utils';
 import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
+import { useAuth } from '../../contexts/AuthContext';
 
 type RawSession = Omit<AttendanceSession, 'date' | 'createdAt'> & { date: Timestamp; createdAt: Timestamp };
 
 export default function StudentDetail() {
+  const { role } = useAuth();
+  const isTa = role === 'teachingAssistant';
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [profile,   setProfile]   = useState<StudentProfile | null>(null);
@@ -351,7 +354,7 @@ export default function StudentDetail() {
             )}
           </DetailCard>
 
-          {(profile.specialNeeds || editing) && (
+          {!isTa && (profile.specialNeeds || editing) && (
             <DetailCard icon={<Heart size={14} />} title="Special needs" gradient="linear-gradient(135deg,#f43f5e,#e879a0)">
               <Row label="Declaration">
                 {editing

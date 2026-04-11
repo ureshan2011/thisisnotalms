@@ -12,6 +12,7 @@ import StatCard from '../../components/ui/StatCard';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import type { StudentProfile, AttendanceSession } from '../../lib/types';
 import { groupBy, toCounts } from '../../lib/utils';
+import { useAuth } from '../../contexts/AuthContext';
 
 const CHART_COLORS = [
   '#7c3aed','#a78bfa','#06b6d4','#10b981',
@@ -31,6 +32,8 @@ const tooltipStyle = {
 };
 
 export default function Dashboard() {
+  const { role } = useAuth();
+  const isTa = role === 'teachingAssistant';
   const [students, setStudents] = useState<StudentProfile[]>([]);
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);
   const [courseFilter, setCourseFilter] = useState('');
@@ -147,7 +150,7 @@ export default function Dashboard() {
             value: filteredStudents.filter(s => s.workExperience && s.workExperience !== 'No work experience').length,
             icon: Briefcase, color: 'emerald' as const,
           },
-          { title: 'Special Needs',  value: withNeeds.length, icon: Heart,         color: 'rose'    as const },
+          ...(!isTa ? [{ title: 'Special Needs',  value: withNeeds.length, icon: Heart, color: 'rose' as const }] : []),
           { title: 'Sessions',       value: filteredSessions.length,  icon: CalendarCheck, color: 'amber'   as const },
         ].map((p, i) => (
           <div key={p.title} style={{ animationDelay: `${i * 0.05}s` }} className="relative">
@@ -295,7 +298,7 @@ export default function Dashboard() {
       </div>
 
       {/* Special needs summary */}
-      {withNeeds.length > 0 && (
+      {!isTa && withNeeds.length > 0 && (
         <div className="card p-6 mb-6 animate-fadeIn">
           <div className="flex items-center gap-3 mb-4">
             <div

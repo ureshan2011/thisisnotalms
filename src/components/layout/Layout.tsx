@@ -29,9 +29,10 @@ function SidebarContent({
   const navigate = useNavigate();
 
   const studentLinks: NavItem[] = [
-    { to: '/student/profile',    icon: <User size={18} />,          label: 'My Profile' },
-    { to: '/student/attendance', icon: <CalendarCheck size={18} />, label: 'Attendance' },
-    { to: '/student/history',    icon: <History size={18} />,       label: 'My History' },
+    { to: '/student/dashboard',  icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
+    { to: '/student/profile',    icon: <User size={18} />,            label: 'My Profile' },
+    { to: '/student/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
+    { to: '/student/history',    icon: <History size={18} />,         label: 'My History' },
   ];
 
   const lecturerLinks: NavItem[] = [

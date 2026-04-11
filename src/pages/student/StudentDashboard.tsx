@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-import { Globe, Mail, MapPin, Sparkles, Users, GraduationCap, BookOpen } from 'lucide-react';
+import { Briefcase, Clock, Globe, GraduationCap, Mail, MapPin, Sparkles, Users, BookOpen } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout from '../../components/layout/Layout';
@@ -125,6 +125,7 @@ export default function StudentDashboard() {
 
   const [me, setMe] = useState<StudentProfile | null>(null);
   const [batchMates, setBatchMates] = useState<StudentProfile[]>([]);
+  const [batchTotal, setBatchTotal] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -139,13 +140,21 @@ export default function StudentDashboard() {
         const myProfile = mySnap.exists() ? (mySnap.data() as StudentProfile) : null;
         setMe(myProfile);
 
-        if (myProfile?.intake) {
-          // Peers: same intake, excluding self
-          const peers = allSnap.docs
-            .map(d => d.data() as StudentProfile)
-            .filter(s => s.intake === myProfile.intake && s.uid !== user.uid);
-          setBatchMates(peers);
+        // Normalize intake to a trimmed string so '2511 ' == '2511' etc.
+        // The batch is defined by intake ONLY — subjects (MBI800/802/804)
+        // are derived from intake, never used to narrow peers.
+        const myIntake = (myProfile?.intake || '').toString().trim();
+
+        if (myIntake) {
+          const allStudents = allSnap.docs.map(d => d.data() as StudentProfile);
+          const inBatch = allStudents.filter(
+            s => (s.intake || '').toString().trim() === myIntake,
+          );
+          // Total includes the viewer, peers excludes them.
+          setBatchTotal(inBatch.length);
+          setBatchMates(inBatch.filter(s => s.uid !== user.uid));
         } else {
+          setBatchTotal(0);
           setBatchMates([]);
         }
       } finally {
@@ -220,7 +229,7 @@ export default function StudentDashboard() {
             </h1>
             <p className="text-sm mt-2" style={{ color: 'rgba(255,255,255,0.88)' }}>
               {me?.intake
-                ? <>Welcome to your <span className="font-semibold">Intake {me.intake}</span> home base. {batchMates.length} classmate{batchMates.length === 1 ? '' : 's'} in your batch.</>
+                ? <>Welcome to your <span className="font-semibold">Intake {me.intake}</span> home base. {batchTotal} student{batchTotal === 1 ? '' : 's'} in your batch{batchMates.length > 0 ? <> — {batchMates.length} classmate{batchMates.length === 1 ? '' : 's'} besides you</> : null}.</>
                 : <>Set your intake in your profile to see your batch-mates here.</>}
             </p>
           </div>
@@ -407,75 +416,207 @@ function DailyConnectCard({ match }: { match: ScoredMatch | null }) {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-        {/* Avatar */}
-        <div
-          className="w-24 h-24 rounded-3xl overflow-hidden flex items-center justify-center text-white text-3xl font-bold flex-shrink-0 mx-auto sm:mx-0"
-          style={{
-            background: student.photoURL ? 'transparent' : avatarGradient(student.uid),
-            border: '3px solid rgba(139,92,246,0.22)',
-            boxShadow: '0 10px 28px rgba(124,58,237,0.22)',
-          }}
-        >
-          {student.photoURL
-            ? <img src={student.photoURL} alt={student.fullName} className="w-full h-full object-cover" />
-            : (student.fullName?.[0] || student.email?.[0] || '?').toUpperCase()}
-        </div>
-
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <p className="text-lg font-bold leading-tight" style={{ color: '#1e1b4b' }}>
-            {student.fullName || 'Classmate'}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs" style={{ color: '#6b7280' }}>
-            {student.course && (
-              <span className="inline-flex items-center gap-1">
-                <GraduationCap size={12} /> {student.course}
-              </span>
-            )}
-            {(student.hometown || student.homeCountry) && (
-              <span className="inline-flex items-center gap-1">
-                <MapPin size={12} /> {student.hometown || student.homeCountry}
-              </span>
-            )}
+      <div className="flex flex-col lg:flex-row gap-5">
+        {/* Left: avatar + details */}
+        <div className="flex flex-col sm:flex-row gap-5 flex-1 min-w-0">
+          {/* Avatar */}
+          <div
+            className="w-24 h-24 rounded-3xl overflow-hidden flex items-center justify-center text-white text-3xl font-bold flex-shrink-0 mx-auto sm:mx-0"
+            style={{
+              background: student.photoURL ? 'transparent' : avatarGradient(student.uid),
+              border: '3px solid rgba(139,92,246,0.22)',
+              boxShadow: '0 10px 28px rgba(124,58,237,0.22)',
+            }}
+          >
+            {student.photoURL
+              ? <img src={student.photoURL} alt={student.fullName} className="w-full h-full object-cover" />
+              : (student.fullName?.[0] || student.email?.[0] || '?').toUpperCase()}
           </div>
 
-          {reasons.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-3">
-              {reasons.slice(0, 3).map((r, i) => (
-                <span
-                  key={i}
-                  className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold"
-                  style={{
-                    background: 'rgba(124,58,237,0.08)',
-                    color: '#6d28d9',
-                    border: '1px solid rgba(139,92,246,0.15)',
-                  }}
-                >
-                  {r}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {student.email && (
-            <a
-              href={`mailto:${student.email}?subject=${mailSubject}&body=${mailBody}`}
-              className="btn-primary mt-4 inline-flex"
-              style={{ textDecoration: 'none' }}
-            >
-              <Mail size={14} />
-              Email {student.fullName?.split(' ')[0] || 'them'}
-            </a>
-          )}
-          {student.email && (
-            <p className="text-[11px] mt-2 font-medium" style={{ color: '#9ca3af' }}>
-              {student.email}
+          {/* Info */}
+          <div className="flex-1 min-w-0">
+            <p className="text-lg font-bold leading-tight" style={{ color: '#1e1b4b' }}>
+              {student.fullName || 'Classmate'}
             </p>
-          )}
+
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs" style={{ color: '#6b7280' }}>
+              {student.course && (
+                <span className="inline-flex items-center gap-1">
+                  <GraduationCap size={12} /> {student.course}
+                </span>
+              )}
+              {(student.hometown || student.homeCountry) && (
+                <span className="inline-flex items-center gap-1">
+                  <MapPin size={12} /> {student.hometown || student.homeCountry}
+                </span>
+              )}
+            </div>
+
+            {/* Background highlights */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+              <BackgroundFact
+                icon={<GraduationCap size={12} />}
+                label="Academic background"
+                value={student.educationalBackground}
+              />
+              <BackgroundFact
+                icon={<Briefcase size={12} />}
+                label="Career background"
+                value={student.workIndustry}
+              />
+              <BackgroundFact
+                icon={<Clock size={12} />}
+                label="Experience"
+                value={student.workExperience}
+              />
+              <BackgroundFact
+                icon={<Globe size={12} />}
+                label="Home country"
+                value={student.homeCountry}
+              />
+            </div>
+
+            {reasons.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {reasons.slice(0, 3).map((r, i) => (
+                  <span
+                    key={i}
+                    className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold"
+                    style={{
+                      background: 'rgba(124,58,237,0.08)',
+                      color: '#6d28d9',
+                      border: '1px solid rgba(139,92,246,0.15)',
+                    }}
+                  >
+                    {r}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {student.email && (
+              <a
+                href={`mailto:${student.email}?subject=${mailSubject}&body=${mailBody}`}
+                className="btn-primary mt-4 inline-flex"
+                style={{ textDecoration: 'none' }}
+              >
+                <Mail size={14} />
+                Email {student.fullName?.split(' ')[0] || 'them'}
+              </a>
+            )}
+            {student.email && (
+              <p className="text-[11px] mt-2 font-medium" style={{ color: '#9ca3af' }}>
+                {student.email}
+              </p>
+            )}
+          </div>
         </div>
+
+        {/* Right: tiny hometown map */}
+        <MiniHometownMap student={student} />
       </div>
+    </div>
+  );
+}
+
+/* ── Small helpers for the match card ──────────────────────── */
+function BackgroundFact({
+  icon, label, value,
+}: { icon: React.ReactNode; label: string; value?: string }) {
+  const display = (value || '').trim() || 'Not shared';
+  const isEmpty = !(value || '').trim();
+  return (
+    <div
+      className="flex items-start gap-2 px-3 py-2 rounded-xl"
+      style={{
+        background: 'rgba(245,243,255,0.7)',
+        border: '1px solid rgba(139,92,246,0.10)',
+      }}
+    >
+      <span
+        className="mt-0.5 rounded-md p-1 flex-shrink-0"
+        style={{ background: 'rgba(124,58,237,0.10)', color: '#7c3aed' }}
+      >
+        {icon}
+      </span>
+      <div className="min-w-0">
+        <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: '#9ca3af' }}>
+          {label}
+        </p>
+        <p
+          className="text-xs font-semibold truncate"
+          style={{ color: isEmpty ? '#c4b5fd' : '#1e1b4b' }}
+          title={display}
+        >
+          {display}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function MiniHometownMap({ student }: { student: StudentProfile }) {
+  const hasPin =
+    typeof student.hometownLat === 'number' &&
+    typeof student.hometownLng === 'number';
+
+  return (
+    <div
+      className="w-full lg:w-56 flex-shrink-0 rounded-2xl overflow-hidden relative"
+      style={{
+        border: '1px solid rgba(139,92,246,0.15)',
+        background: 'linear-gradient(135deg, rgba(245,243,255,0.9), rgba(237,233,254,0.6))',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.8)',
+        height: '192px',
+      }}
+    >
+      {hasPin ? (
+        <>
+          <MapContainer
+            center={[student.hometownLat as number, student.hometownLng as number]}
+            zoom={4}
+            className="h-full w-full"
+            dragging={false}
+            scrollWheelZoom={false}
+            doubleClickZoom={false}
+            touchZoom={false}
+            zoomControl={false}
+            attributionControl={false}
+            keyboard={false}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <Marker position={[student.hometownLat as number, student.hometownLng as number]} />
+          </MapContainer>
+          <div
+            className="absolute bottom-0 left-0 right-0 px-3 py-2"
+            style={{
+              background: 'linear-gradient(180deg, transparent, rgba(15,8,50,0.75))',
+              pointerEvents: 'none',
+            }}
+          >
+            <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'rgba(255,255,255,0.72)' }}>
+              Hometown
+            </p>
+            <p className="text-xs font-bold text-white truncate" title={student.hometown || student.homeCountry || ''}>
+              {student.hometown || student.homeCountry || 'Pinned'}
+            </p>
+          </div>
+        </>
+      ) : (
+        <div className="h-full w-full flex flex-col items-center justify-center text-center px-3">
+          <div
+            className="w-10 h-10 rounded-2xl flex items-center justify-center mb-2"
+            style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.12), rgba(167,139,250,0.08))' }}
+          >
+            <MapPin size={18} style={{ color: '#a78bfa' }} />
+          </div>
+          <p className="text-xs font-medium" style={{ color: '#9ca3af' }}>
+            {student.homeCountry || 'Hometown not shared yet'}
+          </p>
+        </div>
+      )}
     </div>
   );
 }

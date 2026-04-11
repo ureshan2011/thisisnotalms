@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-import { Briefcase, Clock, Globe, GraduationCap, Mail, MapPin, Sparkles, Users, BookOpen } from 'lucide-react';
+import { Briefcase, Clock, Cloud, CloudFog, CloudRain, CloudSun, Globe, GraduationCap, Mail, MapPin, Sparkles, Sun, Users, BookOpen } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout from '../../components/layout/Layout';
@@ -51,6 +51,13 @@ interface ScoredMatch {
   student: StudentProfile;
   score: number;
   reasons: string[];
+}
+
+interface WeatherInfo {
+  city: 'Auckland' | 'Christchurch';
+  temperature: number;
+  windSpeed: number;
+  weatherCode: number;
 }
 
 function pickDailyMatch(me: StudentProfile, pool: StudentProfile[]): ScoredMatch | null {
@@ -127,6 +134,8 @@ export default function StudentDashboard() {
   const [batchMates, setBatchMates] = useState<StudentProfile[]>([]);
   const [batchTotal, setBatchTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [weather, setWeather] = useState<WeatherInfo | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -163,6 +172,51 @@ export default function StudentDashboard() {
     })();
   }, [user]);
 
+  useEffect(() => {
+    const campus = me?.campus;
+    if (campus !== 'Auckland' && campus !== 'Christchurch') {
+      setWeather(null);
+      return;
+    }
+
+    const cityConfig = campus === 'Auckland'
+      ? { city: 'Auckland' as const, latitude: -36.8485, longitude: 174.7633 }
+      : { city: 'Christchurch' as const, latitude: -43.5321, longitude: 172.6362 };
+
+    const controller = new AbortController();
+    setWeatherLoading(true);
+
+    (async () => {
+      try {
+        const response = await fetch(
+          `https://api.open-meteo.com/v1/forecast?latitude=${cityConfig.latitude}&longitude=${cityConfig.longitude}&current=temperature_2m,wind_speed_10m,weather_code`,
+          { signal: controller.signal },
+        );
+        if (!response.ok) throw new Error('Failed weather request');
+        const data = await response.json() as {
+          current?: {
+            temperature_2m?: number;
+            wind_speed_10m?: number;
+            weather_code?: number;
+          };
+        };
+        if (typeof data.current?.temperature_2m !== 'number') return;
+        setWeather({
+          city: cityConfig.city,
+          temperature: data.current.temperature_2m,
+          windSpeed: data.current.wind_speed_10m ?? 0,
+          weatherCode: data.current.weather_code ?? 0,
+        });
+      } catch {
+        setWeather(null);
+      } finally {
+        setWeatherLoading(false);
+      }
+    })();
+
+    return () => controller.abort();
+  }, [me?.campus]);
+
   const peersWithPins = useMemo(
     () => batchMates.filter(
       s => typeof s.hometownLat === 'number' && typeof s.hometownLng === 'number',
@@ -181,6 +235,14 @@ export default function StudentDashboard() {
 
   const displayName = firstName(me?.fullName || '', user?.email || '');
   const greeting    = timeOfDayGreeting(new Date());
+  const weatherIcon = (() => {
+    if (!weather) return <Cloud size={18} />;
+    if (weather.weatherCode === 0) return <Sun size={18} />;
+    if ([1, 2].includes(weather.weatherCode)) return <CloudSun size={18} />;
+    if ([3, 45, 48].includes(weather.weatherCode)) return <CloudFog size={18} />;
+    if (weather.weatherCode >= 51) return <CloudRain size={18} />;
+    return <Cloud size={18} />;
+  })();
 
   return (
     <Layout>
@@ -254,6 +316,35 @@ export default function StudentDashboard() {
               ))}
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <div
+          className="rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(245,243,255,0.92) 100%)',
+            border: '1px solid rgba(139,92,246,0.16)',
+            boxShadow: '0 10px 28px rgba(124,58,237,0.10)',
+          }}
+        >
+          <div className="flex items-center gap-2.5 text-gray-800">
+            <Clock size={16} className="text-brand-500" />
+            <p className="text-sm font-semibold">{greeting}, {displayName}</p>
+          </div>
+
+          <div className="flex items-center gap-2.5 text-gray-700">
+            <span className="text-brand-500">{weatherIcon}</span>
+            {weatherLoading ? (
+              <p className="text-sm">Loading campus weather...</p>
+            ) : weather ? (
+              <p className="text-sm font-medium">
+                {weather.city}: {Math.round(weather.temperature)}°C · Wind {Math.round(weather.windSpeed)} km/h
+              </p>
+            ) : (
+              <p className="text-sm">Set your campus to see local weather.</p>
+            )}
+          </div>
         </div>
       </div>
 

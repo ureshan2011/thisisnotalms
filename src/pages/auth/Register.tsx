@@ -129,7 +129,7 @@ export default function Register() {
                   {([
                   { r: 'student', icon: <BookOpen size={14} />, label: 'Student' },
                   { r: 'lecturer', icon: <GraduationCap size={14} />, label: 'Lecturer' },
-                  { r: 'teachingAssistant', icon: <Users size={14} />, label: 'Teaching Assistant' },
+                  { r: 'teachingAssistant', icon: <Users size={14} />, label: 'TA' },
                 ] as { r: UserRole; icon: React.ReactNode; label: string }[]).map(({ r, icon, label }) => (
                   <button
                     key={r}

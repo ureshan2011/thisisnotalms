@@ -68,9 +68,8 @@ export default function StudentHistory() {
         }
 
         const studentSnap = studentResult.status === 'fulfilled' ? studentResult.value : null;
-        const studentCourse = (studentSnap?.data()?.course as string | undefined) || '';
         const studentSubjects = ((studentSnap?.data()?.subjects as string[] | undefined) || []);
-        const resolvedCourses = Array.from(new Set([...studentSubjects, studentCourse].map(v => v?.trim()).filter(Boolean))) as string[];
+        const resolvedCourses = Array.from(new Set(studentSubjects.map(v => v?.trim()).filter(Boolean))) as string[];
         setEnrolledCourses(resolvedCourses);
 
         if (sessionsResult.status === 'fulfilled') {

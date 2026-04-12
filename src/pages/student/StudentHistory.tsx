@@ -29,7 +29,7 @@ export default function StudentHistory() {
     if (!user) return;
     (async () => {
       try {
-        const [attendanceSnap, absenceSnap, sessionsSnap, studentSnap] = await Promise.all([
+        const [attendanceSnap, absenceSnap, sessionsSnap, studentSnap, overrideSnap] = await Promise.all([
           getDocs(
             query(
               collection(db, 'attendanceRecords'),
@@ -44,6 +44,7 @@ export default function StudentHistory() {
           ),
           getDocs(collection(db, 'attendanceSessions')),
           getDoc(doc(db, 'students', user.uid)),
+          getDocs(query(collection(db, 'attendanceOverrides'), where('studentUid', '==', user.uid))),
         ]);
         const overrideSnap = await getDocs(query(collection(db, 'attendanceOverrides'), where('studentUid', '==', user.uid))).catch(() => null);
         setRecords(
@@ -86,7 +87,7 @@ export default function StudentHistory() {
             .filter(s => s.status === 'closed')
             .filter(s => resolvedCourses.length === 0 || resolvedCourses.includes(s.course))
         );
-        setOverrides((overrideSnap?.docs || []).map(d => {
+        setOverrides(overrideSnap.docs.map(d => {
           const o = d.data() as Record<string, unknown>;
           return {
             id: d.id,
@@ -101,12 +102,6 @@ export default function StudentHistory() {
             updatedAt: (o.updatedAt as Timestamp)?.toDate?.() ?? new Date(),
           } as AttendanceOverride;
         }));
-      } catch {
-        showToast({
-          type: 'error',
-          title: 'Failed to load history',
-          description: 'Please try again in a few moments.',
-        });
       } finally {
         setLoading(false);
       }

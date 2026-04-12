@@ -34,15 +34,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-        const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
-        setRole(snap.exists() ? (snap.data().role as UserRole) : null);
-      } else {
-        setUser(null);
-        setRole(null);
+      try {
+        if (firebaseUser) {
+          setUser(firebaseUser);
+          const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
+          setRole(snap.exists() ? (snap.data().role as UserRole) : null);
+        } else {
+          setUser(null);
+          setRole(null);
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
     return unsub;
   }, []);

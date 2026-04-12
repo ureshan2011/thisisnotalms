@@ -40,6 +40,12 @@ service cloud.firestore {
       allow update, delete: if request.auth != null && isLecturer();
     }
 
+    // Attendance overrides (manual adjustments by lecturers).
+    match /attendanceOverrides/{overrideId} {
+      allow read: if request.auth != null && isStaff();
+      allow write: if request.auth != null && isLecturer();
+    }
+
     // Event log entries for audit trail.
     match /eventLogs/{logId} {
       allow read: if request.auth != null && isStaff();

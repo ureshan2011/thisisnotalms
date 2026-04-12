@@ -1,5 +1,3 @@
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from './firebase';
 import type { UserRole } from './types';
 
 export type EventLogType =
@@ -25,17 +23,7 @@ interface LogEventInput {
   durationSeconds?: number;
 }
 
-export async function logEvent(input: LogEventInput) {
-  await addDoc(collection(db, 'eventLogs'), {
-    type: input.type,
-    description: input.description,
-    actorUid: input.actorUid ?? null,
-    actorEmail: input.actorEmail ?? null,
-    actorRole: input.actorRole ?? null,
-    targetUid: input.targetUid ?? null,
-    targetName: input.targetName ?? null,
-    feature: input.feature ?? null,
-    durationSeconds: input.durationSeconds ?? null,
-    createdAt: serverTimestamp(),
-  });
+// Event logging is intentionally disabled to reduce Firebase usage.
+export async function logEvent(_input: LogEventInput) {
+  return;
 }

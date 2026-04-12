@@ -58,10 +58,6 @@ export default function StudentDetail() {
           where('studentUid', '==', id),
         )),
       ]);
-      const overrideSnap = await getDocs(query(
-        collection(db, 'attendanceOverrides'),
-        where('studentUid', '==', id),
-      )).catch(() => null);
       if (profSnap.exists()) {
         const p = profSnap.data() as StudentProfile;
         setProfile(p);
@@ -105,7 +101,7 @@ export default function StudentDetail() {
           .filter(s => !studentCourse || s.course === studentCourse || ((profSnap.data()?.subjects as string[] | undefined) || []).includes(s.course))
       );
       setOverrides(
-        (overrideSnap?.docs || []).map(d => {
+        overrideSnap.docs.map(d => {
           const o = d.data() as Record<string, unknown>;
           return {
             id: d.id,

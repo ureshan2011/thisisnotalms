@@ -44,7 +44,6 @@ export default function StudentHistory() {
           getDoc(doc(db, 'students', user.uid)),
           getDocs(query(collection(db, 'attendanceOverrides'), where('studentUid', '==', user.uid))),
         ]);
-        const overrideSnap = await getDocs(query(collection(db, 'attendanceOverrides'), where('studentUid', '==', user.uid))).catch(() => null);
         setRecords(
           attendanceSnap.docs
             .map(d => {
@@ -85,7 +84,7 @@ export default function StudentHistory() {
             .filter(s => s.status === 'closed')
             .filter(s => resolvedCourses.length === 0 || resolvedCourses.includes(s.course))
         );
-        setOverrides((overrideSnap?.docs || []).map(d => {
+        setOverrides(overrideSnap.docs.map(d => {
           const o = d.data() as Record<string, unknown>;
           return {
             id: d.id,

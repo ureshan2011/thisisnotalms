@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { collection, query, where, getDocs, Timestamp, doc, getDoc } from 'firebase/firestore';
-import { CalendarCheck, Clock, BookOpen, CheckCircle, CircleOff, ShieldCheck } from 'lucide-react';
+import { CalendarCheck, Clock, BookOpen, CheckCircle } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout, { PageHeader } from '../../components/layout/Layout';
@@ -93,8 +93,6 @@ export default function StudentHistory() {
   const summary = summarizeStudentAttendance({ sessions, records, absences });
   const summaryCards = [
     { label: 'Attended days', value: summary.attendedDays, icon: <CalendarCheck size={16} />, tone: '#059669', bg: 'rgba(16,185,129,0.09)' },
-    { label: 'Absent (unjustified)', value: summary.absentUnjustifiedDays, icon: <CircleOff size={16} />, tone: '#dc2626', bg: 'rgba(239,68,68,0.10)' },
-    { label: 'Absent (justified)', value: summary.absentJustifiedDays, icon: <ShieldCheck size={16} />, tone: '#2563eb', bg: 'rgba(37,99,235,0.10)' },
   ].filter(card => card.value > 0);
 
   if (loading) return <Layout><div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div></Layout>;
@@ -103,7 +101,7 @@ export default function StudentHistory() {
     <Layout>
       <PageHeader
         title="My Attendance History"
-        subtitle={`${records.length} attendance record${records.length !== 1 ? 's' : ''} · ${absences.length} absence notice${absences.length !== 1 ? 's' : ''}`}
+        subtitle="Review your class attendance history"
       />
 
       {summaryCards.length > 0 && (
@@ -183,7 +181,7 @@ export default function StudentHistory() {
                       style={{ background: 'rgba(16,185,129,0.10)', color: '#059669' }}
                     >
                       <CheckCircle size={11} />
-                      {recs.length} checkpoint{recs.length !== 1 ? 's' : ''}
+                      Submitted
                     </span>
                   </div>
                 </div>

@@ -3,8 +3,6 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { FullPageSpinner } from './components/ui/LoadingSpinner';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import { ToastProvider } from './components/ui/ToastProvider';
-import ThemeToggle from './components/ui/ThemeToggle';
-import { ThemeProvider } from './contexts/ThemeContext';
 
 // Auth pages
 import Login    from './pages/auth/Login';
@@ -66,15 +64,12 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <ToastProvider>
-          <HashRouter>
-            <AppRoutes />
-            <ThemeToggle />
-          </HashRouter>
-        </ToastProvider>
-      </AuthProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <ToastProvider>
+        <HashRouter>
+          <AppRoutes />
+        </HashRouter>
+      </ToastProvider>
+    </AuthProvider>
   );
 }

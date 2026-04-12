@@ -1,43 +1,12 @@
-/* ─── Google Fonts ────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Google Fonts ────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 /* ─── CSS Custom Properties ───────────────────────────────────── */
 :root {
-  --bg-page:        #090f1f;
-  --bg-surface:     rgba(15, 23, 42, 0.82);
-  --bg-glass:       rgba(15, 23, 42, 0.68);
-  --bg-glass-dark:  rgba(30, 41, 59, 0.55);
-
-  --border-soft:    rgba(148, 163, 184, 0.22);
-  --border-card:    rgba(148, 163, 184, 0.2);
-
-  --shadow-card:    0 10px 30px rgba(2, 6, 23, 0.35), 0 2px 8px rgba(0,0,0,0.22);
-  --shadow-card-hover: 0 12px 36px rgba(2, 6, 23, 0.42), 0 4px 14px rgba(0,0,0,0.3);
-  --shadow-glass:   0 12px 36px rgba(2, 6, 23, 0.38);
-  --shadow-sidebar: 4px 0 28px rgba(2, 6, 23, 0.35);
-
-  --text-primary:   #e2e8f0;
-  --text-secondary: #94a3b8;
-
-  --radius-card:    20px;
-  --radius-btn:     12px;
-  --radius-input:   12px;
-
-  --transition-fast: 150ms ease;
-  --transition-base: 220ms ease;
-  --transition-slow: 350ms ease;
-
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-
-  --sidebar-width: 240px;
-  --sidebar-collapsed: 72px;
-}
-
-[data-theme='light'] {
   --bg-page:        #f5f4ff;
   --bg-surface:     rgba(255, 255, 255, 0.92);
   --bg-glass:       rgba(255, 255, 255, 0.72);
@@ -51,8 +20,18 @@
   --shadow-glass:   0 8px 32px rgba(124, 106, 247, 0.10);
   --shadow-sidebar: 4px 0 24px rgba(124, 106, 247, 0.06);
 
-  --text-primary:   #1e1b4b;
-  --text-secondary: #6b7280;
+  --radius-card:    20px;
+  --radius-btn:     12px;
+  --radius-input:   12px;
+
+  --transition-fast: 150ms ease;
+  --transition-base: 220ms ease;
+  --transition-slow: 350ms ease;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --sidebar-width: 240px;
+  --sidebar-collapsed: 72px;
 }
 
 /* ─── Base Styles ─────────────────────────────────────────────── */
@@ -70,17 +49,17 @@
   body {
     background: var(--bg-page);
     background-image:
-      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(99, 102, 241, 0.24) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(56, 189, 248, 0.12) 0%, transparent 60%);
+      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(167, 139, 250, 0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(196, 181, 253, 0.12) 0%, transparent 60%);
     background-attachment: fixed;
-    color: var(--text-primary);
+    color: #1e1b4b;
     min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.015em;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #1e1b4b;
   }
 }
 

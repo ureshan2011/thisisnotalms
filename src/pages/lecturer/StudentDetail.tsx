@@ -42,7 +42,7 @@ export default function StudentDetail() {
   useEffect(() => {
     if (!id) return;
     (async () => {
-      const [profSnap, recSnap, absenceSnap, sessionsSnap] = await Promise.all([
+      const [profSnap, recSnap, absenceSnap, sessionsSnap, overrideSnap] = await Promise.all([
         getDoc(doc(db, 'students', id)),
         getDocs(query(
           collection(db, 'attendanceRecords'),
@@ -53,6 +53,10 @@ export default function StudentDetail() {
           where('studentUid', '==', id),
         )),
         getDocs(collection(db, 'attendanceSessions')),
+        getDocs(query(
+          collection(db, 'attendanceOverrides'),
+          where('studentUid', '==', id),
+        )),
       ]);
       const overrideSnap = await getDocs(query(
         collection(db, 'attendanceOverrides'),

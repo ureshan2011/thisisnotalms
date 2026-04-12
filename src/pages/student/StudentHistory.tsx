@@ -27,7 +27,7 @@ export default function StudentHistory() {
     if (!user) return;
     (async () => {
       try {
-        const [attendanceSnap, absenceSnap, sessionsSnap, studentSnap] = await Promise.all([
+        const [attendanceSnap, absenceSnap, sessionsSnap, studentSnap, overrideSnap] = await Promise.all([
           getDocs(
             query(
               collection(db, 'attendanceRecords'),
@@ -42,6 +42,7 @@ export default function StudentHistory() {
           ),
           getDocs(collection(db, 'attendanceSessions')),
           getDoc(doc(db, 'students', user.uid)),
+          getDocs(query(collection(db, 'attendanceOverrides'), where('studentUid', '==', user.uid))),
         ]);
         const overrideSnap = await getDocs(query(collection(db, 'attendanceOverrides'), where('studentUid', '==', user.uid))).catch(() => null);
         setRecords(

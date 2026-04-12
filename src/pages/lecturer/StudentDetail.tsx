@@ -8,16 +8,16 @@ import {
 import { db } from '../../lib/firebase';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import type { StudentProfile, AttendanceRecord, AbsenceNotice, AttendanceSession } from '../../lib/types';
+import type { StudentProfile, AttendanceRecord, AbsenceNotice, AttendanceSession, AttendanceOverride } from '../../lib/types';
 import { formatDateTime } from '../../lib/utils';
-import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
+import { summarizeStudentAttendance, summarizeStudentAttendanceByCourse } from '../../lib/attendanceSummary';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFeatureTracking } from '../../lib/useFeatureTracking';
 
 type RawSession = Omit<AttendanceSession, 'date' | 'createdAt'> & { date: Timestamp; createdAt: Timestamp };
 
 export default function StudentDetail() {
-  const { role } = useAuth();
+  const { role, user } = useAuth();
   useFeatureTracking('Lecturer Student Detail');
   const isTa = role === 'teachingAssistant';
   const { id } = useParams<{ id: string }>();
@@ -26,11 +26,18 @@ export default function StudentDetail() {
   const [records,   setRecords]   = useState<AttendanceRecord[]>([]);
   const [absences,  setAbsences]  = useState<AbsenceNotice[]>([]);
   const [sessions,  setSessions]  = useState<AttendanceSession[]>([]);
+  const [overrides, setOverrides] = useState<AttendanceOverride[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [editing,   setEditing]   = useState(false);
   const [form,      setForm]      = useState<Partial<StudentProfile>>({});
   const [saving,    setSaving]    = useState(false);
   const [saved,     setSaved]     = useState(false);
+  const [overrideCourse, setOverrideCourse] = useState('');
+  const [overrideAttended, setOverrideAttended] = useState(0);
+  const [overrideAbsent, setOverrideAbsent] = useState(0);
+  const [overrideExcused, setOverrideExcused] = useState(0);
+  const [overrideReason, setOverrideReason] = useState('');
+  const [savingOverride, setSavingOverride] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -47,6 +54,10 @@ export default function StudentDetail() {
         )),
         getDocs(collection(db, 'attendanceSessions')),
       ]);
+      const overrideSnap = await getDocs(query(
+        collection(db, 'attendanceOverrides'),
+        where('studentUid', '==', id),
+      )).catch(() => null);
       if (profSnap.exists()) {
         const p = profSnap.data() as StudentProfile;
         setProfile(p);
@@ -87,7 +98,24 @@ export default function StudentDetail() {
               createdAt: s.createdAt?.toDate?.() ?? new Date(),
             } as AttendanceSession;
           })
-          .filter(s => !studentCourse || s.course === studentCourse)
+          .filter(s => !studentCourse || s.course === studentCourse || ((profSnap.data()?.subjects as string[] | undefined) || []).includes(s.course))
+      );
+      setOverrides(
+        (overrideSnap?.docs || []).map(d => {
+          const o = d.data() as Record<string, unknown>;
+          return {
+            id: d.id,
+            studentUid: (o.studentUid as string) || id,
+            course: (o.course as string) || '',
+            attendedDelta: Number(o.attendedDelta || 0),
+            absentUnjustifiedDelta: Number(o.absentUnjustifiedDelta || 0),
+            absentJustifiedDelta: Number(o.absentJustifiedDelta || 0),
+            reason: (o.reason as string) || '',
+            updatedByUid: (o.updatedByUid as string) || '',
+            updatedByEmail: (o.updatedByEmail as string) || '',
+            updatedAt: (o.updatedAt as Timestamp)?.toDate?.() ?? new Date(0),
+          } as AttendanceOverride;
+        })
       );
       setLoading(false);
     })();
@@ -112,7 +140,45 @@ export default function StudentDetail() {
   if (!profile) return <Layout><p className="py-8 font-medium" style={{ color: '#9ca3af' }}>Student not found.</p></Layout>;
 
   const initials = (profile.fullName || '?').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  const summary = summarizeStudentAttendance({ sessions, records, absences });
+  const enrolledCourses = Array.from(new Set([...(profile.subjects || []), profile.course].map(v => v?.trim()).filter(Boolean))) as string[];
+  const summary = summarizeStudentAttendance({ sessions, records, absences, enrolledCourses, overrides });
+  const courseSummaries = summarizeStudentAttendanceByCourse({ sessions, records, absences, enrolledCourses, overrides });
+
+  const handleOverrideSave = async () => {
+    if (!id || !overrideCourse.trim() || !role || role !== 'lecturer') return;
+    setSavingOverride(true);
+    const course = overrideCourse.trim();
+    const docId = `${id}_${course.replace(/[^a-zA-Z0-9_-]+/g, '_')}`;
+    await setDoc(doc(db, 'attendanceOverrides', docId), {
+      studentUid: id,
+      course,
+      attendedDelta: Number(overrideAttended || 0),
+      absentUnjustifiedDelta: Number(overrideAbsent || 0),
+      absentJustifiedDelta: Number(overrideExcused || 0),
+      reason: overrideReason.trim(),
+      updatedByUid: user?.uid || '',
+      updatedByEmail: user?.email || '',
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
+
+    setOverrides(prev => {
+      const rest = prev.filter(o => o.course !== course);
+      return [...rest, {
+        id: docId,
+        studentUid: id,
+        course,
+        attendedDelta: Number(overrideAttended || 0),
+        absentUnjustifiedDelta: Number(overrideAbsent || 0),
+        absentJustifiedDelta: Number(overrideExcused || 0),
+        reason: overrideReason.trim(),
+        updatedByUid: user?.uid || '',
+        updatedByEmail: user?.email || '',
+        updatedAt: new Date(),
+      }];
+    });
+    setSavingOverride(false);
+    setOverrideReason('');
+  };
 
   return (
     <Layout>
@@ -256,6 +322,19 @@ export default function StudentDetail() {
               <MiniStat label="Absent (J)" value={summary.absentJustifiedDays} color="#2563eb" bg="rgba(37,99,235,0.10)" icon={<ShieldCheck size={11} />} />
             </div>
 
+            {courseSummaries.length > 0 && (
+              <div className="space-y-2 mb-3">
+                {courseSummaries.map((courseSummary) => (
+                  <div key={courseSummary.course} className="px-3 py-2.5 rounded-2xl" style={{ background: 'rgba(245,243,255,0.6)' }}>
+                    <p className="text-xs font-bold" style={{ color: '#4c1d95' }}>{courseSummary.course}</p>
+                    <p className="text-[10px] font-medium" style={{ color: '#8b5cf6' }}>
+                      Days: {courseSummary.attendedDays} attended / {courseSummary.absentUnjustifiedDays + courseSummary.absentJustifiedDays} absent / {courseSummary.totalDays} total sessions
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {records.length === 0 ? (
               <p className="text-xs font-medium" style={{ color: '#c4b5fd' }}>No records yet</p>
             ) : (
@@ -292,6 +371,29 @@ export default function StudentDetail() {
                       <p className="text-[11px] mt-0.5" style={{ color: '#6b7280' }}>{a.reason}</p>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {!isTa && (
+              <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(139,92,246,0.08)' }}>
+                <p className="text-[11px] font-bold mb-2" style={{ color: '#a78bfa' }}>Lecturer override</p>
+                <div className="space-y-2">
+                  <select className="input-field" value={overrideCourse} onChange={e => setOverrideCourse(e.target.value)}>
+                    <option value="">Select course</option>
+                    {courseSummaries.map(c => <option key={c.course} value={c.course}>{c.course}</option>)}
+                    {enrolledCourses.filter(c => !courseSummaries.some(s => s.course === c)).map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <div className="grid grid-cols-3 gap-2">
+                    <input type="number" className="input-field" value={overrideAttended} onChange={e => setOverrideAttended(Number(e.target.value || 0))} placeholder="Attend ±" />
+                    <input type="number" className="input-field" value={overrideAbsent} onChange={e => setOverrideAbsent(Number(e.target.value || 0))} placeholder="Absent ±" />
+                    <input type="number" className="input-field" value={overrideExcused} onChange={e => setOverrideExcused(Number(e.target.value || 0))} placeholder="Excused ±" />
+                  </div>
+                  <textarea className="input-field min-h-16" value={overrideReason} onChange={e => setOverrideReason(e.target.value)} placeholder="Reason for override (optional)" />
+                  <button onClick={handleOverrideSave} disabled={savingOverride || !overrideCourse} className="btn-secondary w-full justify-center">
+                    {savingOverride ? <LoadingSpinner size="sm" /> : <Save size={13} />}
+                    Save override
+                  </button>
                 </div>
               </div>
             )}

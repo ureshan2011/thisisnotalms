@@ -3,7 +3,7 @@ import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import {
   LayoutDashboard, Users, CalendarCheck, LogOut,
-  User, History, Menu, X, ChevronRight, ClipboardList, BookOpen,
+  User, History, Menu, X, ChevronRight, BookOpen,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import BrandMark from '../ui/BrandMark';
@@ -47,7 +47,6 @@ function SidebarContent({
     { to: '/lecturer/dashboard',  icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
     { to: '/lecturer/students',   icon: <Users size={18} />,           label: 'Students' },
     { to: '/lecturer/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
-    { to: '/lecturer/event-log',  icon: <ClipboardList size={18} />,   label: 'Event Log' },
     { to: '/lecturer/mbi802-resources', icon: <BookOpen size={18} />,  label: 'MBI802 Resources', isNew: showNewBadge },
   ];
 
@@ -440,5 +439,5 @@ export function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 export function ClipboardIcon() {
-  return <ClipboardList size={18} />;
+  return <CalendarCheck size={18} />;
 }

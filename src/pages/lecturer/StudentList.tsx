@@ -41,7 +41,7 @@ export default function StudentList() {
         setStudents(loadedStudents);
 
         // Fetch auxiliary data with allSettled so a permission error on one
-        // collection (e.g. attendanceOverrides) does not blank the student list.
+        // collection does not blank the student list.
         const [attendanceResult, absenceResult, sessionsResult, overridesResult, taResult] =
           await Promise.allSettled([
             getDocs(collection(db, 'attendanceRecords')),

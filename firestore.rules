@@ -41,8 +41,9 @@ service cloud.firestore {
     }
 
     // Attendance overrides (manual adjustments by lecturers).
+    // Students can read their own overrides; staff can read all; only lecturers can write.
     match /attendanceOverrides/{overrideId} {
-      allow read: if request.auth != null && isStaff();
+      allow read: if request.auth != null && (resource.data.studentUid == request.auth.uid || isStaff());
       allow write: if request.auth != null && isLecturer();
     }
 

@@ -34,62 +34,80 @@ export default function StudentList() {
 
   useEffect(() => {
     (async () => {
-      const [studentSnap, attendanceSnap, absenceSnap, sessionsSnap, overridesSnap] = await Promise.all([
-        getDocs(collection(db, 'students')),
-        getDocs(collection(db, 'attendanceRecords')),
-        getDocs(collection(db, 'absenceNotices')),
-        getDocs(collection(db, 'attendanceSessions')),
-        getDocs(collection(db, 'attendanceOverrides')),
-      ]);
-      const loadedStudents = studentSnap.docs.map(d => d.data() as StudentProfile);
-      setStudents(loadedStudents);
+      try {
+        // Fetch students first so they always render even if auxiliary data fails.
+        const studentSnap = await getDocs(collection(db, 'students'));
+        const loadedStudents = studentSnap.docs.map(d => d.data() as StudentProfile);
+        setStudents(loadedStudents);
 
-      const allRecords = attendanceSnap.docs.map(d => d.data() as AttendanceRecord);
-      const allAbsences = absenceSnap.docs.map(d => d.data() as AbsenceNotice);
-      const allSessions = sessionsSnap.docs.map(d => {
-        const s = d.data() as Record<string, unknown>;
-        return {
-          ...s,
-          id: d.id,
-          date: (s.date as { toDate?: () => Date })?.toDate?.() ?? new Date(),
-          createdAt: (s.createdAt as { toDate?: () => Date })?.toDate?.() ?? new Date(),
-        } as AttendanceSession;
-      });
-      const allOverrides = overridesSnap.docs.map(d => ({ id: d.id, ...d.data() } as AttendanceOverride));
+        // Fetch auxiliary data with allSettled so a permission error on one
+        // collection does not blank the student list.
+        const [attendanceResult, absenceResult, sessionsResult, overridesResult, taResult] =
+          await Promise.allSettled([
+            getDocs(collection(db, 'attendanceRecords')),
+            getDocs(collection(db, 'absenceNotices')),
+            getDocs(collection(db, 'attendanceSessions')),
+            getDocs(collection(db, 'attendanceOverrides')),
+            getDocs(query(collection(db, 'users'), where('role', '==', 'teachingAssistant'))),
+          ]);
 
-      const stats: Record<string, { attended: number; absent: number; excused: number }> = {};
-      loadedStudents.forEach(student => {
-        const studentRecords = allRecords.filter(r => r.studentUid === student.uid);
-        const studentAbsences = allAbsences.filter(a => a.studentUid === student.uid);
-        const enrolledCourses = Array.from(new Set([...(student.subjects || []), student.course].map(v => v?.trim()).filter(Boolean)));
-        const relevantSessions = allSessions.filter(s => enrolledCourses.length === 0 || enrolledCourses.includes(s.course));
-        const studentOverrides = allOverrides.filter(o => o.studentUid === student.uid);
-        const summary = summarizeStudentAttendance({
-          sessions: relevantSessions,
-          records: studentRecords,
-          absences: studentAbsences,
-          enrolledCourses,
-          overrides: studentOverrides,
+        const allRecords = attendanceResult.status === 'fulfilled'
+          ? attendanceResult.value.docs.map(d => d.data() as AttendanceRecord)
+          : [];
+        const allAbsences = absenceResult.status === 'fulfilled'
+          ? absenceResult.value.docs.map(d => d.data() as AbsenceNotice)
+          : [];
+        const allSessions = sessionsResult.status === 'fulfilled'
+          ? sessionsResult.value.docs.map(d => {
+              const s = d.data() as Record<string, unknown>;
+              return {
+                ...s,
+                id: d.id,
+                date: (s.date as { toDate?: () => Date })?.toDate?.() ?? new Date(),
+                createdAt: (s.createdAt as { toDate?: () => Date })?.toDate?.() ?? new Date(),
+              } as AttendanceSession;
+            })
+          : [];
+        const allOverrides = overridesResult.status === 'fulfilled'
+          ? overridesResult.value.docs.map(d => ({ id: d.id, ...d.data() } as AttendanceOverride))
+          : [];
+
+        const stats: Record<string, { attended: number; absent: number; excused: number }> = {};
+        loadedStudents.forEach(student => {
+          const studentRecords = allRecords.filter(r => r.studentUid === student.uid);
+          const studentAbsences = allAbsences.filter(a => a.studentUid === student.uid);
+          const enrolledCourses = Array.from(new Set([...(student.subjects || []), student.course].map(v => v?.trim()).filter(Boolean)));
+          const relevantSessions = allSessions.filter(s => enrolledCourses.length === 0 || enrolledCourses.includes(s.course));
+          const studentOverrides = allOverrides.filter(o => o.studentUid === student.uid);
+          const summary = summarizeStudentAttendance({
+            sessions: relevantSessions,
+            records: studentRecords,
+            absences: studentAbsences,
+            enrolledCourses,
+            overrides: studentOverrides,
+          });
+          stats[student.uid] = {
+            attended: summary.attendedDays,
+            absent: summary.absentUnjustifiedDays,
+            excused: summary.absentJustifiedDays,
+          };
         });
-        stats[student.uid] = {
-          attended: summary.attendedDays,
-          absent: summary.absentUnjustifiedDays,
-          excused: summary.absentJustifiedDays,
-        };
-      });
 
-      setAttendanceStats(stats);
+        setAttendanceStats(stats);
 
-      const taSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'teachingAssistant')));
-      const loadedTas = taSnap.docs.map(d => {
-        const data = d.data() as Record<string, unknown>;
-        return {
-          uid: d.id,
-          email: (data.email as string) || '',
-        };
-      });
-      setTeachingAssistants(loadedTas);
-      setLoading(false);
+        if (taResult.status === 'fulfilled') {
+          const loadedTas = taResult.value.docs.map(d => {
+            const data = d.data() as Record<string, unknown>;
+            return {
+              uid: d.id,
+              email: (data.email as string) || '',
+            };
+          });
+          setTeachingAssistants(loadedTas);
+        }
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 

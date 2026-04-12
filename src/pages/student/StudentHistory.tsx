@@ -27,78 +27,86 @@ export default function StudentHistory() {
     if (!user) return;
     (async () => {
       try {
-        const [attendanceSnap, absenceSnap, sessionsSnap, studentSnap, overrideSnap] = await Promise.all([
-          getDocs(
-            query(
-              collection(db, 'attendanceRecords'),
-              where('studentUid', '==', user.uid),
-            )
-          ),
-          getDocs(
-            query(
-              collection(db, 'absenceNotices'),
-              where('studentUid', '==', user.uid),
-            )
-          ),
-          getDocs(collection(db, 'attendanceSessions')),
-          getDoc(doc(db, 'students', user.uid)),
-          getDocs(query(collection(db, 'attendanceOverrides'), where('studentUid', '==', user.uid))),
-        ]);
-        setRecords(
-          attendanceSnap.docs
-            .map(d => {
-              const r = d.data() as RawRecord;
-              return { ...r, id: d.id, submittedAt: r.submittedAt?.toDate?.() ?? new Date() };
-            })
-            .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime())
-        );
-        setAbsences(absenceSnap.docs
-          .map(d => {
-            const a = d.data() as Record<string, unknown>;
-            return {
-              ...a,
-              id: d.id,
-              reportDateKey: (a.reportDateKey as string) || '',
-              status: ((a.status as 'absent' | 'excused') || 'absent'),
-              reason: (a.reason as string) || '',
-              createdAt: (a.createdAt as Timestamp)?.toDate?.() ?? new Date(),
-            } as AbsenceNotice;
-          })
-          .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
+        // Fetch all five sources in parallel; allSettled prevents an overrides
+        // permission error from blanking out the records and sessions data.
+        const [attendanceResult, absenceResult, sessionsResult, studentResult, overridesResult] =
+          await Promise.allSettled([
+            getDocs(query(collection(db, 'attendanceRecords'), where('studentUid', '==', user.uid))),
+            getDocs(query(collection(db, 'absenceNotices'), where('studentUid', '==', user.uid))),
+            getDocs(collection(db, 'attendanceSessions')),
+            getDoc(doc(db, 'students', user.uid)),
+            getDocs(query(collection(db, 'attendanceOverrides'), where('studentUid', '==', user.uid))),
+          ]);
 
-        const studentCourse = (studentSnap.data()?.course as string | undefined) || '';
-        const studentSubjects = ((studentSnap.data()?.subjects as string[] | undefined) || []);
+        if (attendanceResult.status === 'fulfilled') {
+          setRecords(
+            attendanceResult.value.docs
+              .map(d => {
+                const r = d.data() as RawRecord;
+                return { ...r, id: d.id, submittedAt: r.submittedAt?.toDate?.() ?? new Date() };
+              })
+              .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime())
+          );
+        }
+
+        if (absenceResult.status === 'fulfilled') {
+          setAbsences(
+            absenceResult.value.docs
+              .map(d => {
+                const a = d.data() as Record<string, unknown>;
+                return {
+                  ...a,
+                  id: d.id,
+                  reportDateKey: (a.reportDateKey as string) || '',
+                  status: ((a.status as 'absent' | 'excused') || 'absent'),
+                  reason: (a.reason as string) || '',
+                  createdAt: (a.createdAt as Timestamp)?.toDate?.() ?? new Date(),
+                } as AbsenceNotice;
+              })
+              .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+          );
+        }
+
+        const studentSnap = studentResult.status === 'fulfilled' ? studentResult.value : null;
+        const studentCourse = (studentSnap?.data()?.course as string | undefined) || '';
+        const studentSubjects = ((studentSnap?.data()?.subjects as string[] | undefined) || []);
         const resolvedCourses = Array.from(new Set([...studentSubjects, studentCourse].map(v => v?.trim()).filter(Boolean))) as string[];
         setEnrolledCourses(resolvedCourses);
-        setSessions(
-          sessionsSnap.docs
-            .map(d => {
-              const s = d.data() as RawSession;
-              return {
-                ...s,
-                id: d.id,
-                date: s.date?.toDate?.() ?? new Date(),
-                createdAt: s.createdAt?.toDate?.() ?? new Date(),
-              } as AttendanceSession;
-            })
-            .filter(s => s.status === 'closed')
-            .filter(s => resolvedCourses.length === 0 || resolvedCourses.includes(s.course))
-        );
-        setOverrides(overrideSnap.docs.map(d => {
-          const o = d.data() as Record<string, unknown>;
-          return {
-            id: d.id,
-            studentUid: (o.studentUid as string) || user.uid,
-            course: (o.course as string) || '',
-            attendedDelta: Number(o.attendedDelta || 0),
-            absentUnjustifiedDelta: Number(o.absentUnjustifiedDelta || 0),
-            absentJustifiedDelta: Number(o.absentJustifiedDelta || 0),
-            reason: (o.reason as string) || '',
-            updatedByUid: (o.updatedByUid as string) || '',
-            updatedByEmail: (o.updatedByEmail as string) || '',
-            updatedAt: (o.updatedAt as Timestamp)?.toDate?.() ?? new Date(),
-          } as AttendanceOverride;
-        }));
+
+        if (sessionsResult.status === 'fulfilled') {
+          setSessions(
+            sessionsResult.value.docs
+              .map(d => {
+                const s = d.data() as RawSession;
+                return {
+                  ...s,
+                  id: d.id,
+                  date: s.date?.toDate?.() ?? new Date(),
+                  createdAt: s.createdAt?.toDate?.() ?? new Date(),
+                } as AttendanceSession;
+              })
+              .filter(s => s.status === 'closed')
+              .filter(s => resolvedCourses.length === 0 || resolvedCourses.includes(s.course))
+          );
+        }
+
+        if (overridesResult.status === 'fulfilled') {
+          setOverrides(overridesResult.value.docs.map(d => {
+            const o = d.data() as Record<string, unknown>;
+            return {
+              id: d.id,
+              studentUid: (o.studentUid as string) || user.uid,
+              course: (o.course as string) || '',
+              attendedDelta: Number(o.attendedDelta || 0),
+              absentUnjustifiedDelta: Number(o.absentUnjustifiedDelta || 0),
+              absentJustifiedDelta: Number(o.absentJustifiedDelta || 0),
+              reason: (o.reason as string) || '',
+              updatedByUid: (o.updatedByUid as string) || '',
+              updatedByEmail: (o.updatedByEmail as string) || '',
+              updatedAt: (o.updatedAt as Timestamp)?.toDate?.() ?? new Date(),
+            } as AttendanceOverride;
+          }));
+        }
       } finally {
         setLoading(false);
       }

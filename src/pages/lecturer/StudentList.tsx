@@ -5,7 +5,7 @@ import { Search, Filter, Download, Globe, Briefcase, BookOpen, ChevronRight, Use
 import { db } from '../../lib/firebase';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import type { StudentProfile, AttendanceRecord, AbsenceNotice, AttendanceSession } from '../../lib/types';
+import type { StudentProfile, AttendanceRecord, AbsenceNotice, AttendanceSession, AttendanceOverride } from '../../lib/types';
 import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
 import { useToast } from '../../components/ui/ToastProvider';
 import { useAuth } from '../../contexts/AuthContext';
@@ -34,11 +34,12 @@ export default function StudentList() {
 
   useEffect(() => {
     (async () => {
-      const [studentSnap, attendanceSnap, absenceSnap, sessionsSnap] = await Promise.all([
+      const [studentSnap, attendanceSnap, absenceSnap, sessionsSnap, overridesSnap] = await Promise.all([
         getDocs(collection(db, 'students')),
         getDocs(collection(db, 'attendanceRecords')),
         getDocs(collection(db, 'absenceNotices')),
         getDocs(collection(db, 'attendanceSessions')),
+        getDocs(collection(db, 'attendanceOverrides')),
       ]);
       const loadedStudents = studentSnap.docs.map(d => d.data() as StudentProfile);
       setStudents(loadedStudents);
@@ -54,16 +55,21 @@ export default function StudentList() {
           createdAt: (s.createdAt as { toDate?: () => Date })?.toDate?.() ?? new Date(),
         } as AttendanceSession;
       });
+      const allOverrides = overridesSnap.docs.map(d => ({ id: d.id, ...d.data() } as AttendanceOverride));
 
       const stats: Record<string, { attended: number; absent: number; excused: number }> = {};
       loadedStudents.forEach(student => {
         const studentRecords = allRecords.filter(r => r.studentUid === student.uid);
         const studentAbsences = allAbsences.filter(a => a.studentUid === student.uid);
-        const relevantSessions = allSessions.filter(s => !student.course || s.course === student.course);
+        const enrolledCourses = Array.from(new Set([...(student.subjects || []), student.course].map(v => v?.trim()).filter(Boolean)));
+        const relevantSessions = allSessions.filter(s => enrolledCourses.length === 0 || enrolledCourses.includes(s.course));
+        const studentOverrides = allOverrides.filter(o => o.studentUid === student.uid);
         const summary = summarizeStudentAttendance({
           sessions: relevantSessions,
           records: studentRecords,
           absences: studentAbsences,
+          enrolledCourses,
+          overrides: studentOverrides,
         });
         stats[student.uid] = {
           attended: summary.attendedDays,

@@ -40,7 +40,7 @@ function PhotoCard({ student, index }: { student: StudentProfile; index: number 
       className="collage-card-enter relative select-none cursor-default"
       style={{
         animationDelay: `${delay}s`,
-        borderRadius: '18px',
+        borderRadius: '14px',
         overflow: 'hidden',
         transform: hovered ? 'scale(1.04)' : 'scale(1)',
         transition: 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.30s ease',
@@ -48,8 +48,8 @@ function PhotoCard({ student, index }: { student: StudentProfile; index: number 
           ? '0 20px 50px rgba(124,58,237,0.28), 0 6px 16px rgba(0,0,0,0.12)'
           : '0 4px 16px rgba(124,106,247,0.10), 0 1px 4px rgba(0,0,0,0.06)',
         zIndex: hovered ? 10 : 1,
-        aspectRatio: seededRand(student.uid, index + 77) > 0.4 ? '3/4' : '1/1',
-        marginBottom: '10px',
+        aspectRatio: seededRand(student.uid, index + 77) > 0.55 ? '4/5' : '1/1',
+        marginBottom: '7px',
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -88,7 +88,7 @@ function PhotoCard({ student, index }: { student: StudentProfile; index: number 
 
       {/* Info overlay */}
       <div
-        className="absolute bottom-0 left-0 right-0 p-3"
+        className="absolute bottom-0 left-0 right-0 p-2"
         style={{
           transform: hovered ? 'translateY(0)' : 'translateY(6px)',
           opacity: hovered ? 1 : 0.88,
@@ -124,7 +124,7 @@ function PhotoCard({ student, index }: { student: StudentProfile; index: number 
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            borderRadius: '18px',
+            borderRadius: '14px',
             border: '1.5px solid rgba(167,139,250,0.60)',
             boxShadow: 'inset 0 0 20px rgba(124,58,237,0.12)',
           }}
@@ -177,15 +177,17 @@ export default function StudentPhotoCollage({ students }: Props) {
     return [...students].sort((a, b) => seededRand(a.uid + b.uid) - 0.5);
   }, [students]);
 
-  const numCols = Math.min(4, Math.max(2, students.length));
+  const numCols = Math.min(6, Math.max(3, students.length));
   const columns = toColumns(shuffled, numCols);
 
   /* Column config: direction + speed */
   const colConfigs: { direction: 'up' | 'down'; duration: number }[] = [
-    { direction: 'up',   duration: 28 },
-    { direction: 'down', duration: 33 },
-    { direction: 'up',   duration: 24 },
-    { direction: 'down', duration: 30 },
+    { direction: 'up',   duration: 50 },
+    { direction: 'down', duration: 58 },
+    { direction: 'up',   duration: 46 },
+    { direction: 'down', duration: 54 },
+    { direction: 'up',   duration: 62 },
+    { direction: 'down', duration: 52 },
   ];
 
   if (students.length === 0) {
@@ -207,7 +209,7 @@ export default function StudentPhotoCollage({ students }: Props) {
 
   return (
     <div
-      className="card p-6 mb-6 animate-fadeIn overflow-hidden"
+      className="card p-7 mb-6 animate-fadeIn overflow-hidden"
       style={{
         background: 'linear-gradient(135deg, rgba(15,8,50,0.97) 0%, rgba(30,15,80,0.98) 50%, rgba(12,25,60,0.97) 100%)',
         border: '1px solid rgba(139,92,246,0.20)',
@@ -257,7 +259,7 @@ export default function StudentPhotoCollage({ students }: Props) {
         ref={containerRef}
         className="relative overflow-hidden rounded-2xl"
         style={{
-          height: '400px',
+          height: '560px',
           /* pause all animations if paused */
           ...(paused ? { animationPlayState: 'paused' } : {}),
         }}
@@ -274,7 +276,7 @@ export default function StudentPhotoCollage({ students }: Props) {
 
         {/* Animated columns */}
         <div
-          className="flex gap-2.5 h-auto"
+          className="flex gap-2 h-auto"
           style={{
             /* If paused, stop all child animations */
             animationPlayState: paused ? 'paused' : 'running',
@@ -286,7 +288,7 @@ export default function StudentPhotoCollage({ students }: Props) {
               className="flex-1 min-w-0 overflow-hidden"
               style={{
                 /* Each column starts at a different offset for visual stagger */
-                marginTop: i % 2 === 0 ? `${-40 * (i + 1)}px` : `${-20 * i}px`,
+                marginTop: i % 2 === 0 ? `${-24 * (i + 1)}px` : `${-16 * i}px`,
                 animationPlayState: paused ? 'paused' : 'running',
               }}
             >
@@ -295,7 +297,7 @@ export default function StudentPhotoCollage({ students }: Props) {
                 style={{
                   animationDuration: `${colConfigs[i].duration}s`,
                   animationPlayState: paused ? 'paused' : 'running',
-                  paddingTop: i % 2 === 1 ? '30px' : '0',
+                  paddingTop: i % 2 === 1 ? '18px' : '0',
                 }}
               >
                 {[...colStudents, ...colStudents].map((s, idx) => (

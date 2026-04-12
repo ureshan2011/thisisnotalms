@@ -13,7 +13,6 @@ import { formatDateTime } from '../../lib/utils';
 import { summarizeStudentAttendance, summarizeStudentAttendanceByCourse } from '../../lib/attendanceSummary';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFeatureTracking } from '../../lib/useFeatureTracking';
-import { useToast } from '../../components/ui/ToastProvider';
 
 type RawSession = Omit<AttendanceSession, 'date' | 'createdAt'> & { date: Timestamp; createdAt: Timestamp };
 
@@ -93,17 +92,11 @@ export default function StudentDetail() {
           .map(d => {
             const s = d.data() as RawSession;
             return {
+              ...s,
               id: d.id,
-              studentUid: (o.studentUid as string) || id,
-              course: (o.course as string) || '',
-              attendedDelta: Number(o.attendedDelta || 0),
-              absentUnjustifiedDelta: Number(o.absentUnjustifiedDelta || 0),
-              absentJustifiedDelta: Number(o.absentJustifiedDelta || 0),
-              reason: (o.reason as string) || '',
-              updatedByUid: (o.updatedByUid as string) || '',
-              updatedByEmail: (o.updatedByEmail as string) || '',
-              updatedAt: (o.updatedAt as Timestamp)?.toDate?.() ?? new Date(0),
-            } as AttendanceOverride;
+              date: s.date?.toDate?.() ?? new Date(),
+              createdAt: s.createdAt?.toDate?.() ?? new Date(),
+            } as AttendanceSession;
           })
           .filter(s => !studentCourse || s.course === studentCourse || ((profSnap.data()?.subjects as string[] | undefined) || []).includes(s.course))
       );
@@ -126,7 +119,7 @@ export default function StudentDetail() {
       );
       setLoading(false);
     })();
-  }, [id, showToast]);
+  }, [id]);
 
   const handleSave = async () => {
     if (!id || !profile) return;

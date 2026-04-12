@@ -235,13 +235,20 @@ export default function StudentDashboard() {
 
   const displayName = firstName(me?.fullName || '', user?.email || '');
   const greeting    = timeOfDayGreeting(new Date());
-  const weatherIcon = (() => {
-    if (!weather) return <Cloud size={18} />;
-    if (weather.weatherCode === 0) return <Sun size={18} />;
-    if ([1, 2].includes(weather.weatherCode)) return <CloudSun size={18} />;
-    if ([3, 45, 48].includes(weather.weatherCode)) return <CloudFog size={18} />;
-    if (weather.weatherCode >= 51) return <CloudRain size={18} />;
-    return <Cloud size={18} />;
+  const weatherData = (() => {
+    if (!weather) return { icon: <Cloud size={38} />, color: 'rgba(255,255,255,0.55)', description: '' };
+    const { weatherCode } = weather;
+    if (weatherCode === 0)  return { icon: <Sun size={38} />,      color: '#fde68a', description: 'Clear sky' };
+    if (weatherCode === 1)  return { icon: <Sun size={38} />,      color: '#fde68a', description: 'Mainly clear' };
+    if (weatherCode === 2)  return { icon: <CloudSun size={38} />, color: '#fed7aa', description: 'Partly cloudy' };
+    if (weatherCode === 3)  return { icon: <Cloud size={38} />,    color: '#e2e8f0', description: 'Overcast' };
+    if ([45, 48].includes(weatherCode)) return { icon: <CloudFog size={38} />, color: '#d1d5db', description: 'Foggy' };
+    if (weatherCode >= 51 && weatherCode <= 57) return { icon: <CloudRain size={38} />, color: '#bfdbfe', description: 'Drizzle' };
+    if (weatherCode >= 61 && weatherCode <= 67) return { icon: <CloudRain size={38} />, color: '#93c5fd', description: 'Rain' };
+    if (weatherCode >= 71 && weatherCode <= 77) return { icon: <Cloud size={38} />,     color: '#e2e8f0', description: 'Snow' };
+    if (weatherCode >= 80 && weatherCode <= 82) return { icon: <CloudRain size={38} />, color: '#60a5fa', description: 'Showers' };
+    if (weatherCode >= 95)  return { icon: <CloudRain size={38} />, color: '#818cf8', description: 'Thunderstorm' };
+    return { icon: <Cloud size={38} />, color: '#e2e8f0', description: 'Cloudy' };
   })();
 
   return (
@@ -265,24 +272,12 @@ export default function StudentDashboard() {
           style={{ background: 'radial-gradient(circle, rgba(167,139,250,0.30) 0%, transparent 70%)' }}
         />
 
-        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-5">
-          <div className="flex flex-col items-start gap-3">
-            <div className="inline-flex items-center gap-2.5 px-3 py-2 rounded-2xl"
-              style={{ background: 'rgba(255,255,255,0.16)', border: '1px solid rgba(255,255,255,0.26)' }}
-            >
-              <span className="text-white/95">{weatherIcon}</span>
-              {weatherLoading ? (
-                <p className="text-sm text-white/90">Loading weather...</p>
-              ) : weather ? (
-                <p className="text-sm font-semibold text-white">
-                  {weather.city}: {Math.round(weather.temperature)}°C
-                </p>
-              ) : (
-                <p className="text-sm text-white/90">Set your campus for weather</p>
-              )}
-            </div>
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center gap-6">
+          {/* Left: Avatar + Greeting */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 flex-1 min-w-0">
+            {/* Avatar – bigger */}
             <div
-              className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center text-white text-2xl font-bold flex-shrink-0"
+              className="w-28 h-28 rounded-full overflow-hidden flex items-center justify-center text-white text-3xl font-bold flex-shrink-0"
               style={{
                 background: me?.photoURL
                   ? 'transparent'
@@ -295,39 +290,91 @@ export default function StudentDashboard() {
                 ? <img src={me.photoURL} alt={me.fullName || 'You'} className="w-full h-full object-cover" />
                 : displayName.charAt(0).toUpperCase()}
             </div>
+
+            {/* Text */}
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                <Sparkles size={12} className="inline mr-1 -mt-0.5" />
+                Kia ora
+              </p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1 leading-tight">
+                {greeting}, {displayName}!
+              </h1>
+              <p className="text-sm mt-2" style={{ color: 'rgba(255,255,255,0.88)' }}>
+                {me?.intake
+                  ? <>Welcome to your <span className="font-semibold">Intake {me.intake}</span> home base. {batchTotal} student{batchTotal === 1 ? '' : 's'} in your batch{batchMates.length > 0 ? <> — {batchMates.length} classmate{batchMates.length === 1 ? '' : 's'} besides you</> : null}.</>
+                  : <>Set your intake in your profile to see your batch-mates here.</>}
+              </p>
+              {me?.intake && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <span
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
+                    style={{ background: 'rgba(255,255,255,0.18)', color: 'white', border: '1px solid rgba(255,255,255,0.25)' }}
+                  >
+                    <BookOpen size={12} />
+                    Intake {me.intake}
+                  </span>
+                  {(me.subjects || []).map(sub => (
+                    <span
+                      key={sub}
+                      className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold"
+                      style={{ background: 'rgba(255,255,255,0.14)', color: 'white', border: '1px solid rgba(255,255,255,0.22)' }}
+                    >
+                      {sub}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.75)' }}>
-              <Sparkles size={12} className="inline mr-1 -mt-0.5" />
-              Kia ora
-            </p>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mt-1 leading-tight">
-              {greeting}, {displayName}!
-            </h1>
-            <p className="text-sm mt-2" style={{ color: 'rgba(255,255,255,0.88)' }}>
-              {me?.intake
-                ? <>Welcome to your <span className="font-semibold">Intake {me.intake}</span> home base. {batchTotal} student{batchTotal === 1 ? '' : 's'} in your batch{batchMates.length > 0 ? <> — {batchMates.length} classmate{batchMates.length === 1 ? '' : 's'} besides you</> : null}.</>
-                : <>Set your intake in your profile to see your batch-mates here.</>}
-            </p>
-            {me?.intake && (
-              <div className="flex flex-wrap gap-2 mt-3">
-                <span
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold"
-                  style={{ background: 'rgba(255,255,255,0.18)', color: 'white', border: '1px solid rgba(255,255,255,0.25)' }}
+          {/* Right: Weather card */}
+          <div
+            className="flex-shrink-0 rounded-2xl p-5 flex flex-col items-center text-center w-full sm:w-44"
+            style={{
+              background: 'rgba(255,255,255,0.14)',
+              border: '1px solid rgba(255,255,255,0.24)',
+              backdropFilter: 'blur(12px)',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.20)',
+            }}
+          >
+            {weatherLoading ? (
+              <div className="flex flex-col items-center gap-2 py-2">
+                <Cloud size={38} style={{ color: 'rgba(255,255,255,0.45)' }} />
+                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>Loading…</p>
+              </div>
+            ) : weather ? (
+              <>
+                <div style={{ color: weatherData.color, filter: 'drop-shadow(0 2px 10px rgba(0,0,0,0.22))' }}>
+                  {weatherData.icon}
+                </div>
+                <p className="text-4xl font-extrabold text-white mt-1 leading-none tracking-tight">
+                  {Math.round(weather.temperature)}°
+                </p>
+                {weatherData.description && (
+                  <p className="text-xs font-medium mt-1" style={{ color: 'rgba(255,255,255,0.72)' }}>
+                    {weatherData.description}
+                  </p>
+                )}
+                <div
+                  className="mt-3 flex items-center gap-1.5 px-3 py-1 rounded-full"
+                  style={{ background: 'rgba(255,255,255,0.16)' }}
                 >
-                  <BookOpen size={12} />
-                  Intake {me.intake}
-                </span>
-                {(me.subjects || []).map(sub => (
-                  <span
-                    key={sub}
-                    className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold"
-                    style={{ background: 'rgba(255,255,255,0.14)', color: 'white', border: '1px solid rgba(255,255,255,0.22)' }}
-                  >
-                    {sub}
-                  </span>
-                ))}
+                  <MapPin size={11} style={{ color: 'rgba(255,255,255,0.85)' }} />
+                  <p className="text-xs font-bold" style={{ color: 'rgba(255,255,255,0.95)' }}>
+                    {weather.city}
+                  </p>
+                </div>
+                <p className="text-[11px] mt-1.5" style={{ color: 'rgba(255,255,255,0.50)' }}>
+                  Wind {Math.round(weather.windSpeed)} km/h
+                </p>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-2 py-2">
+                <Cloud size={34} style={{ color: 'rgba(255,255,255,0.40)' }} />
+                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.65)' }}>
+                  Set your campus<br />for weather
+                </p>
               </div>
             )}
           </div>

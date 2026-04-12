@@ -9,12 +9,14 @@ import type { AttendanceRecord, AbsenceNotice, AttendanceSession, AttendanceOver
 import { formatDateTime } from '../../lib/utils';
 import { summarizeStudentAttendance, summarizeStudentAttendanceByCourse } from '../../lib/attendanceSummary';
 import { useFeatureTracking } from '../../lib/useFeatureTracking';
+import { useToast } from '../../components/ui/ToastProvider';
 
 type RawRecord = Omit<AttendanceRecord, 'submittedAt'> & { submittedAt: Timestamp };
 type RawSession = Omit<AttendanceSession, 'date' | 'createdAt'> & { date: Timestamp; createdAt: Timestamp };
 
 export default function StudentHistory() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   useFeatureTracking('Student History');
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [absences, setAbsences] = useState<AbsenceNotice[]>([]);
@@ -44,6 +46,7 @@ export default function StudentHistory() {
           getDoc(doc(db, 'students', user.uid)),
           getDocs(query(collection(db, 'attendanceOverrides'), where('studentUid', '==', user.uid))),
         ]);
+        const overrideSnap = await getDocs(query(collection(db, 'attendanceOverrides'), where('studentUid', '==', user.uid))).catch(() => null);
         setRecords(
           attendanceSnap.docs
             .map(d => {
@@ -103,7 +106,7 @@ export default function StudentHistory() {
         setLoading(false);
       }
     })();
-  }, [user]);
+  }, [user, showToast]);
 
   const bySession: Record<string, AttendanceRecord[]> = {};
   for (const r of records) {

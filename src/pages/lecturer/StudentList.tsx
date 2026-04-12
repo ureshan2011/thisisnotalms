@@ -71,27 +71,29 @@ export default function StudentList() {
           enrolledCourses,
           overrides: studentOverrides,
         });
-        stats[student.uid] = {
-          attended: summary.attendedDays,
-          absent: summary.absentUnjustifiedDays,
-          excused: summary.absentJustifiedDays,
-        };
-      });
 
-      setAttendanceStats(stats);
+        setAttendanceStats(stats);
 
-      const taSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'teachingAssistant')));
-      const loadedTas = taSnap.docs.map(d => {
-        const data = d.data() as Record<string, unknown>;
-        return {
-          uid: d.id,
-          email: (data.email as string) || '',
-        };
-      });
-      setTeachingAssistants(loadedTas);
-      setLoading(false);
+        const taSnap = await getDocs(query(collection(db, 'users'), where('role', '==', 'teachingAssistant')));
+        const loadedTas = taSnap.docs.map(d => {
+          const data = d.data() as Record<string, unknown>;
+          return {
+            uid: d.id,
+            email: (data.email as string) || '',
+          };
+        });
+        setTeachingAssistants(loadedTas);
+      } catch {
+        showToast({
+          type: 'error',
+          title: 'Failed to load students',
+          description: 'Please check your Firestore permissions and try again.',
+        });
+      } finally {
+        setLoading(false);
+      }
     })();
-  }, []);
+  }, [showToast]);
 
   const courses   = useMemo(() => [...new Set(students.map(s => s.course).filter(Boolean))].sort(), [students]);
   const countries = useMemo(() => [...new Set(students.map(s => s.homeCountry).filter(Boolean))].sort(), [students]);

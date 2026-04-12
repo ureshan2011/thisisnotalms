@@ -5,20 +5,24 @@ import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import type { AttendanceRecord, AbsenceNotice, AttendanceSession } from '../../lib/types';
+import type { AttendanceRecord, AbsenceNotice, AttendanceSession, AttendanceOverride } from '../../lib/types';
 import { formatDateTime } from '../../lib/utils';
-import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
+import { summarizeStudentAttendance, summarizeStudentAttendanceByCourse } from '../../lib/attendanceSummary';
 import { useFeatureTracking } from '../../lib/useFeatureTracking';
+import { useToast } from '../../components/ui/ToastProvider';
 
 type RawRecord = Omit<AttendanceRecord, 'submittedAt'> & { submittedAt: Timestamp };
 type RawSession = Omit<AttendanceSession, 'date' | 'createdAt'> & { date: Timestamp; createdAt: Timestamp };
 
 export default function StudentHistory() {
   const { user } = useAuth();
+  const { showToast } = useToast();
   useFeatureTracking('Student History');
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [absences, setAbsences] = useState<AbsenceNotice[]>([]);
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);
+  const [overrides, setOverrides] = useState<AttendanceOverride[]>([]);
+  const [enrolledCourses, setEnrolledCourses] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,6 +45,7 @@ export default function StudentHistory() {
           getDocs(collection(db, 'attendanceSessions')),
           getDoc(doc(db, 'students', user.uid)),
         ]);
+        const overrideSnap = await getDocs(query(collection(db, 'attendanceOverrides'), where('studentUid', '==', user.uid))).catch(() => null);
         setRecords(
           attendanceSnap.docs
             .map(d => {
@@ -63,9 +68,10 @@ export default function StudentHistory() {
           })
           .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
 
-        const studentCourse =
-          ((studentSnap.data()?.course as string | undefined) || '') ||
-          ((attendanceSnap.docs[0]?.data()?.sessionCourse as string | undefined) || '');
+        const studentCourse = (studentSnap.data()?.course as string | undefined) || '';
+        const studentSubjects = ((studentSnap.data()?.subjects as string[] | undefined) || []);
+        const resolvedCourses = Array.from(new Set([...studentSubjects, studentCourse].map(v => v?.trim()).filter(Boolean))) as string[];
+        setEnrolledCourses(resolvedCourses);
         setSessions(
           sessionsSnap.docs
             .map(d => {
@@ -78,22 +84,45 @@ export default function StudentHistory() {
               } as AttendanceSession;
             })
             .filter(s => s.status === 'closed')
-            .filter(s => !studentCourse || s.course === studentCourse)
+            .filter(s => resolvedCourses.length === 0 || resolvedCourses.includes(s.course))
         );
+        setOverrides((overrideSnap?.docs || []).map(d => {
+          const o = d.data() as Record<string, unknown>;
+          return {
+            id: d.id,
+            studentUid: (o.studentUid as string) || user.uid,
+            course: (o.course as string) || '',
+            attendedDelta: Number(o.attendedDelta || 0),
+            absentUnjustifiedDelta: Number(o.absentUnjustifiedDelta || 0),
+            absentJustifiedDelta: Number(o.absentJustifiedDelta || 0),
+            reason: (o.reason as string) || '',
+            updatedByUid: (o.updatedByUid as string) || '',
+            updatedByEmail: (o.updatedByEmail as string) || '',
+            updatedAt: (o.updatedAt as Timestamp)?.toDate?.() ?? new Date(),
+          } as AttendanceOverride;
+        }));
+      } catch {
+        showToast({
+          type: 'error',
+          title: 'Failed to load history',
+          description: 'Please try again in a few moments.',
+        });
       } finally {
         setLoading(false);
       }
     })();
-  }, [user]);
+  }, [user, showToast]);
 
   const bySession: Record<string, AttendanceRecord[]> = {};
   for (const r of records) {
     (bySession[r.sessionId] = bySession[r.sessionId] || []).push(r);
   }
-  const summary = summarizeStudentAttendance({ sessions, records, absences });
+  const summary = summarizeStudentAttendance({ sessions, records, absences, enrolledCourses, overrides });
+  const courseSummaries = summarizeStudentAttendanceByCourse({ sessions, records, absences, enrolledCourses, overrides });
   const summaryCards = [
     { label: 'Attended days', value: summary.attendedDays, icon: <CalendarCheck size={16} />, tone: '#059669', bg: 'rgba(16,185,129,0.09)' },
-  ].filter(card => card.value > 0);
+    { label: 'Absent days', value: summary.absentUnjustifiedDays + summary.absentJustifiedDays, icon: <Clock size={16} />, tone: '#dc2626', bg: 'rgba(239,68,68,0.09)' },
+  ].filter(card => card.value >= 0);
 
   if (loading) return <Layout><div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div></Layout>;
 
@@ -125,6 +154,19 @@ export default function StudentHistory() {
       <p className="text-sm font-medium mb-5" style={{ color: '#6b7280' }}>
         Your attendance is recorded for each class checkpoint shown below.
       </p>
+
+      {courseSummaries.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5 max-w-4xl">
+          {courseSummaries.map(courseSummary => (
+            <div key={courseSummary.course} className="rounded-3xl px-4 py-4" style={{ background: 'rgba(255,255,255,0.90)', border: '1px solid rgba(139,92,246,0.10)' }}>
+              <p className="font-bold text-sm" style={{ color: '#1e1b4b' }}>{courseSummary.course}</p>
+              <p className="text-xs mt-1" style={{ color: '#059669' }}>Attended: {courseSummary.attendedDays}</p>
+              <p className="text-xs" style={{ color: '#dc2626' }}>Absent: {courseSummary.absentUnjustifiedDays + courseSummary.absentJustifiedDays}</p>
+              <p className="text-[11px]" style={{ color: '#9ca3af' }}>Total sessions: {courseSummary.totalDays}</p>
+            </div>
+          ))}
+        </div>
+      )}
 
       {records.length === 0 ? (
         <div

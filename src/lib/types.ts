@@ -79,3 +79,16 @@ export interface AbsenceNotice {
   reason: string;
   createdAt: Date;
 }
+
+export interface AttendanceOverride {
+  id: string;
+  studentUid: string;
+  course: string;
+  attendedDelta: number;
+  absentUnjustifiedDelta: number;
+  absentJustifiedDelta: number;
+  reason: string;
+  updatedByUid: string;
+  updatedByEmail?: string;
+  updatedAt: Date;
+}

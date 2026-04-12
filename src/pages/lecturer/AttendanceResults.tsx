@@ -45,6 +45,8 @@ export default function AttendanceResults() {
   const [filter,        setFilter]        = useState('');
   const [sectionFilter, setSectionFilter] = useState('');
   const [dayFilter,     setDayFilter]     = useState('');
+  const [sortBy,        setSortBy]        = useState<'name' | 'studentId' | 'section' | 'completion'>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   useEffect(() => {
     if (!id) return;
@@ -76,6 +78,7 @@ export default function AttendanceResults() {
   });
 
   const cpLabels = session ? [...new Set(session.checkpoints.map(cp => cp.label))] : [];
+  const visibleCheckpointLabels = filter ? [filter] : cpLabels;
   const allCps   = cpLabels.length;
   const stuByAll = allCps > 1
     ? Object.entries(
@@ -88,11 +91,19 @@ export default function AttendanceResults() {
     : null;
 
   const exportCSV = () => {
-    const headers = ['Student Name','Student ID','Campus','Section','Checkpoint','Submitted At'];
-    const rows = filtered.map(r => [
-      r.studentName, r.studentDisplayId, r.studentCampus || '', r.studentSection || '',
-      r.checkpointLabel, formatDateTime(r.submittedAt),
-    ].map(v => `"${(v || '').replace(/"/g, '""')}"`));
+    const headers = ['Student Name', 'Student ID', 'Campus', 'Section', 'Completed Checkpoints', 'Missing Checkpoints'];
+    const rows = studentSummaries.map(student => {
+      const completed = visibleCheckpointLabels.filter(label => Boolean(student.recordsByCheckpoint[label]));
+      const missing = visibleCheckpointLabels.filter(label => !student.recordsByCheckpoint[label]);
+      return [
+        student.studentName,
+        student.studentDisplayId,
+        student.studentCampus || '',
+        student.studentSection || '',
+        completed.join(' | '),
+        missing.join(' | '),
+      ].map(v => `"${(v || '').replace(/"/g, '""')}"`);
+    });
     const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url  = URL.createObjectURL(blob);
@@ -107,6 +118,50 @@ export default function AttendanceResults() {
   const uniqueStudents = new Set(records.map(r => r.studentUid)).size;
   const sectionOptions = [...new Set(records.map(r => r.studentSection || 'Unknown section'))].sort();
   const dayOptions     = [...new Set(records.map(r => toDayKey(r.submittedAt)))].sort();
+
+  const studentSummaries = Object.values(
+    filtered.reduce((acc, record) => {
+      if (!acc[record.studentUid]) {
+        acc[record.studentUid] = {
+          studentUid:            record.studentUid,
+          studentName:           record.studentName || '—',
+          studentDisplayId:      record.studentDisplayId || '—',
+          studentCampus:         record.studentCampus || '—',
+          studentSection:        record.studentSection || '—',
+          recordsByCheckpoint:   {} as Record<string, AttendanceRecord>,
+          completionCount:       0,
+        };
+      }
+      const existing = acc[record.studentUid].recordsByCheckpoint[record.checkpointLabel];
+      if (!existing || record.submittedAt < existing.submittedAt) {
+        acc[record.studentUid].recordsByCheckpoint[record.checkpointLabel] = record;
+      }
+      return acc;
+    }, {} as Record<string, {
+      studentUid: string;
+      studentName: string;
+      studentDisplayId: string;
+      studentCampus: string;
+      studentSection: string;
+      recordsByCheckpoint: Record<string, AttendanceRecord>;
+      completionCount: number;
+    }>)
+  ).map(student => ({
+    ...student,
+    completionCount: visibleCheckpointLabels.filter(label => Boolean(student.recordsByCheckpoint[label])).length,
+  }));
+
+  const sortedStudentSummaries = [...studentSummaries].sort((a, b) => {
+    const direction = sortDirection === 'asc' ? 1 : -1;
+    if (sortBy === 'completion') return (a.completionCount - b.completionCount) * direction;
+    if (sortBy === 'section') {
+      const sectionCompare = a.studentSection.localeCompare(b.studentSection, undefined, { sensitivity: 'base' });
+      if (sectionCompare !== 0) return sectionCompare * direction;
+      return a.studentName.localeCompare(b.studentName, undefined, { sensitivity: 'base' }) * direction;
+    }
+    if (sortBy === 'studentId') return a.studentDisplayId.localeCompare(b.studentDisplayId, undefined, { sensitivity: 'base' }) * direction;
+    return a.studentName.localeCompare(b.studentName, undefined, { sensitivity: 'base' }) * direction;
+  });
 
   return (
     <Layout>
@@ -241,7 +296,7 @@ export default function AttendanceResults() {
 
         {/* Filter bar */}
         <div
-          className="px-5 py-3 flex gap-3"
+          className="px-5 py-3 flex gap-3 flex-wrap"
           style={{
             borderBottom: '1px solid rgba(139,92,246,0.06)',
             background: 'linear-gradient(135deg, rgba(245,243,255,0.5), transparent)',
@@ -263,9 +318,27 @@ export default function AttendanceResults() {
             <option value="">All days</option>
             {dayOptions.map(d => <option key={d} value={d}>{formatDisplayDay(d)}</option>)}
           </select>
+          <select
+            className="input-field sm:w-52 py-2 text-xs"
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value as 'name' | 'studentId' | 'section' | 'completion')}
+          >
+            <option value="name">Sort: Student name</option>
+            <option value="studentId">Sort: Student ID</option>
+            <option value="section">Sort: Section</option>
+            <option value="completion">Sort: Completion status</option>
+          </select>
+          <select
+            className="input-field sm:w-36 py-2 text-xs"
+            value={sortDirection}
+            onChange={e => setSortDirection(e.target.value as 'asc' | 'desc')}
+          >
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
         </div>
 
-        {filtered.length === 0 ? (
+        {sortedStudentSummaries.length === 0 ? (
           <div className="py-16 flex flex-col items-center gap-3">
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center"
@@ -289,16 +362,15 @@ export default function AttendanceResults() {
               <span className="table-header-cell w-32 hidden sm:block">ID</span>
               <span className="table-header-cell w-28 hidden lg:block">Campus</span>
               <span className="table-header-cell w-24 hidden md:block">Section</span>
-              <span className="table-header-cell w-32">Checkpoint</span>
-              <span className="table-header-cell w-40 hidden md:block">Submitted at</span>
+              <span className="table-header-cell w-72">Checkpoint progress</span>
             </div>
 
-            {filtered.map((r, i) => (
+            {sortedStudentSummaries.map((student, i) => (
               <div
-                key={r.id}
+                key={student.studentUid}
                 className="flex items-center px-5 py-3.5 transition-all duration-100"
                 style={{
-                  borderBottom: i < filtered.length - 1 ? '1px solid rgba(139,92,246,0.04)' : 'none',
+                  borderBottom: i < sortedStudentSummaries.length - 1 ? '1px solid rgba(139,92,246,0.04)' : 'none',
                 }}
                 onMouseEnter={e => {
                   (e.currentTarget as HTMLDivElement).style.background = 'rgba(245,243,255,0.6)';
@@ -312,41 +384,49 @@ export default function AttendanceResults() {
                   <div
                     className="avatar w-8 h-8 text-xs flex-shrink-0"
                     style={{
-                      background: `linear-gradient(135deg, hsl(${(r.studentName?.charCodeAt(0) ?? 0) * 4 % 360}, 65%, 55%), hsl(${(r.studentName?.charCodeAt(0) ?? 0) * 4 % 360 + 30}, 70%, 65%))`,
+                      background: `linear-gradient(135deg, hsl(${(student.studentName?.charCodeAt(0) ?? 0) * 4 % 360}, 65%, 55%), hsl(${(student.studentName?.charCodeAt(0) ?? 0) * 4 % 360 + 30}, 70%, 65%))`,
                     }}
                   >
-                    {(r.studentName || '?')[0]?.toUpperCase()}
+                    {(student.studentName || '?')[0]?.toUpperCase()}
                   </div>
                   <span className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>
-                    {r.studentName || '—'}
+                    {student.studentName || '—'}
                   </span>
                 </div>
                 <code className="text-xs w-32 hidden sm:block font-mono font-semibold" style={{ color: '#8b7fa6' }}>
-                  {r.studentDisplayId}
+                  {student.studentDisplayId}
                 </code>
                 <span className="text-xs w-28 hidden lg:block font-medium" style={{ color: '#6b7280' }}>
-                  {r.studentCampus || '—'}
+                  {student.studentCampus || '—'}
                 </span>
                 <span className="text-xs w-24 hidden md:block font-medium" style={{ color: '#6b7280' }}>
-                  {r.studentSection || '—'}
+                  {student.studentSection || '—'}
                 </span>
-                <div className="w-32">
-                  <span
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold"
-                    style={{ background: 'rgba(124,58,237,0.08)', color: '#7c3aed' }}
-                  >
-                    {r.checkpointLabel}
-                  </span>
+                <div className="w-72 flex gap-2 flex-wrap">
+                  {visibleCheckpointLabels.map(label => {
+                    const submittedRecord = student.recordsByCheckpoint[label];
+                    const isDone = Boolean(submittedRecord);
+                    return (
+                      <span
+                        key={`${student.studentUid}-${label}`}
+                        className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold"
+                        title={isDone ? `Completed at ${formatDateTime(submittedRecord.submittedAt)}` : 'Not completed'}
+                        style={{
+                          background: isDone ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.10)',
+                          color: isDone ? '#059669' : '#dc2626',
+                        }}
+                      >
+                        {label}: {isDone ? 'Completed' : 'Not yet'}
+                      </span>
+                    );
+                  })}
                 </div>
-                <span className="text-xs w-40 hidden md:block font-medium" style={{ color: '#9ca3af' }}>
-                  {formatDateTime(r.submittedAt)}
-                </span>
               </div>
             ))}
           </div>
         )}
 
-        {filtered.length > 0 && (
+        {sortedStudentSummaries.length > 0 && (
           <div
             className="px-5 py-3 text-xs font-semibold"
             style={{
@@ -355,7 +435,7 @@ export default function AttendanceResults() {
               color: '#a78bfa',
             }}
           >
-            {filtered.length} record{filtered.length !== 1 ? 's' : ''} shown
+            {sortedStudentSummaries.length} student{sortedStudentSummaries.length !== 1 ? 's' : ''} shown
           </div>
         )}
       </div>

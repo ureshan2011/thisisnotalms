@@ -91,6 +91,11 @@ export default function StudentHistory() {
     (bySession[r.sessionId] = bySession[r.sessionId] || []).push(r);
   }
   const summary = summarizeStudentAttendance({ sessions, records, absences });
+  const summaryCards = [
+    { label: 'Attended days', value: summary.attendedDays, icon: <CalendarCheck size={16} />, tone: '#059669', bg: 'rgba(16,185,129,0.09)' },
+    { label: 'Absent (unjustified)', value: summary.absentUnjustifiedDays, icon: <CircleOff size={16} />, tone: '#dc2626', bg: 'rgba(239,68,68,0.10)' },
+    { label: 'Absent (justified)', value: summary.absentJustifiedDays, icon: <ShieldCheck size={16} />, tone: '#2563eb', bg: 'rgba(37,99,235,0.10)' },
+  ].filter(card => card.value > 0);
 
   if (loading) return <Layout><div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div></Layout>;
 
@@ -101,25 +106,27 @@ export default function StudentHistory() {
         subtitle={`${records.length} attendance record${records.length !== 1 ? 's' : ''} · ${absences.length} absence notice${absences.length !== 1 ? 's' : ''}`}
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5 max-w-3xl">
-        {[
-          { label: 'Attended days', value: summary.attendedDays, icon: <CalendarCheck size={16} />, tone: '#059669', bg: 'rgba(16,185,129,0.09)' },
-          { label: 'Absent (unjustified)', value: summary.absentUnjustifiedDays, icon: <CircleOff size={16} />, tone: '#dc2626', bg: 'rgba(239,68,68,0.10)' },
-          { label: 'Absent (justified)', value: summary.absentJustifiedDays, icon: <ShieldCheck size={16} />, tone: '#2563eb', bg: 'rgba(37,99,235,0.10)' },
-        ].map(card => (
-          <div
-            key={card.label}
-            className="rounded-3xl px-4 py-4 animate-fadeIn"
-            style={{ background: 'rgba(255,255,255,0.90)', border: '1px solid rgba(139,92,246,0.10)' }}
-          >
-            <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-2" style={{ background: card.bg, color: card.tone }}>
-              {card.icon}
+      {summaryCards.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 max-w-3xl">
+          {summaryCards.map(card => (
+            <div
+              key={card.label}
+              className="rounded-3xl px-4 py-4 animate-fadeIn"
+              style={{ background: 'rgba(255,255,255,0.90)', border: '1px solid rgba(139,92,246,0.10)' }}
+            >
+              <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-2" style={{ background: card.bg, color: card.tone }}>
+                {card.icon}
+              </div>
+              <p className="text-2xl font-black" style={{ color: '#1e1b4b' }}>{card.value}</p>
+              <p className="text-xs font-semibold" style={{ color: '#9ca3af' }}>{card.label}</p>
             </div>
-            <p className="text-2xl font-black" style={{ color: '#1e1b4b' }}>{card.value}</p>
-            <p className="text-xs font-semibold" style={{ color: '#9ca3af' }}>{card.label}</p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
+
+      <p className="text-sm font-medium mb-5" style={{ color: '#6b7280' }}>
+        Your attendance is recorded for each class checkpoint shown below.
+      </p>
 
       {records.length === 0 ? (
         <div

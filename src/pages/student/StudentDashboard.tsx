@@ -334,35 +334,6 @@ export default function StudentDashboard() {
         </div>
       </div>
 
-      <div className="mb-8">
-        <div
-          className="rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
-          style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(245,243,255,0.92) 100%)',
-            border: '1px solid rgba(139,92,246,0.16)',
-            boxShadow: '0 10px 28px rgba(124,58,237,0.10)',
-          }}
-        >
-          <div className="flex items-center gap-2.5 text-gray-800">
-            <Clock size={16} className="text-brand-500" />
-            <p className="text-sm font-semibold">{greeting}, {displayName}</p>
-          </div>
-
-          <div className="flex items-center gap-2.5 text-gray-700">
-            <span className="text-brand-500">{weatherIcon}</span>
-            {weatherLoading ? (
-              <p className="text-sm">Loading campus weather...</p>
-            ) : weather ? (
-              <p className="text-sm font-medium">
-                {weather.city}: {Math.round(weather.temperature)}°C · Wind {Math.round(weather.windSpeed)} km/h
-              </p>
-            ) : (
-              <p className="text-sm">Set your campus to see local weather.</p>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* ── If the student has no intake yet, stop here with a prompt ── */}
       {!me?.intake && (
         <div className="card p-6 text-center animate-fadeIn">

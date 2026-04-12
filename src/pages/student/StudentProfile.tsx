@@ -659,14 +659,23 @@ function WorldMapPicker({
   onPick: (lat: number, lng: number) => void;
 }) {
   const defaultCenter: [number, number] = [20, 0];
+  const worldBounds: [[number, number], [number, number]] = [[-90, -180], [90, 180]];
   const markerPos = lat !== null && lng !== null ? ([lat, lng] as [number, number]) : null;
 
   return (
     <div className="h-72 w-full rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(139,92,246,0.12)' }}>
-      <MapContainer center={markerPos || defaultCenter} zoom={markerPos ? 4 : 2} className="h-full w-full">
+      <MapContainer
+        center={markerPos || defaultCenter}
+        zoom={markerPos ? 4 : 2}
+        minZoom={2}
+        maxBounds={worldBounds}
+        maxBoundsViscosity={1}
+        className="h-full w-full"
+      >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          noWrap
         />
         <MapClickHandler onPick={onPick} />
         {markerPos && <Marker position={markerPos} />}

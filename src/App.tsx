@@ -22,6 +22,10 @@ import StudentList        from './pages/lecturer/StudentList';
 import StudentDetail      from './pages/lecturer/StudentDetail';
 import AttendanceSessions from './pages/lecturer/AttendanceSessions';
 import AttendanceResults  from './pages/lecturer/AttendanceResults';
+import LivePlayground     from './pages/lecturer/LivePlayground';
+
+// Student playground
+import StudentPlayground  from './pages/student/StudentPlayground';
 
 function RootRedirect() {
   const { user, role, loading } = useAuth();
@@ -45,6 +49,7 @@ function AppRoutes() {
       <Route path="/student/attendance" element={<ProtectedRoute allowedRoles={["student"]}><StudentAttendance /></ProtectedRoute>} />
       <Route path="/student/history"    element={<ProtectedRoute allowedRoles={["student"]}><StudentHistory /></ProtectedRoute>} />
       <Route path="/student/mbi802-resources" element={<ProtectedRoute allowedRoles={["student"]}><MBI802Resources /></ProtectedRoute>} />
+      <Route path="/student/playground"      element={<ProtectedRoute allowedRoles={["student"]}><StudentPlayground /></ProtectedRoute>} />
 
       {/* Lecturer routes */}
       <Route path="/lecturer/dashboard"         element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><Dashboard /></ProtectedRoute>} />
@@ -53,6 +58,7 @@ function AppRoutes() {
       <Route path="/lecturer/attendance"        element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><AttendanceSessions /></ProtectedRoute>} />
       <Route path="/lecturer/attendance/:id"    element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><AttendanceResults /></ProtectedRoute>} />
       <Route path="/lecturer/mbi802-resources" element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><MBI802Resources /></ProtectedRoute>} />
+      <Route path="/lecturer/playground"      element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><LivePlayground /></ProtectedRoute>} />
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />

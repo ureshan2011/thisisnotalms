@@ -40,11 +40,10 @@ function haversineKm(a: [number, number], b: [number, number]): number {
   return 2 * R * Math.asin(Math.min(1, Math.sqrt(x)));
 }
 
-function dateSeed(date: Date, extra: string): number {
-  const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${extra}`;
+function uidToOffset(uid: string): number {
   let h = 0;
-  for (let i = 0; i < key.length; i++) h = (Math.imul(31, h) + key.charCodeAt(i)) | 0;
-  return (h >>> 0) / 0xffffffff;
+  for (let i = 0; i < uid.length; i++) h = (Math.imul(31, h) + uid.charCodeAt(i)) | 0;
+  return h >>> 0;
 }
 
 interface ScoredMatch {
@@ -120,8 +119,8 @@ function pickDailyMatch(me: StudentProfile, pool: StudentProfile[]): ScoredMatch
 
   if (candidates.length === 0) return null;
 
-  const seed = dateSeed(new Date(), me.uid || 'anon');
-  const idx  = Math.floor(seed * candidates.length) % candidates.length;
+  const dayIdx = Math.floor(Date.now() / 86_400_000);
+  const idx    = (dayIdx + uidToOffset(me.uid || 'anon')) % candidates.length;
   return candidates[idx];
 }
 
@@ -136,6 +135,7 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [weather, setWeather] = useState<WeatherInfo | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
+  const [todayKey, setTodayKey] = useState(() => new Date().toDateString());
 
   useEffect(() => {
     if (!user) return;
@@ -217,6 +217,11 @@ export default function StudentDashboard() {
     return () => controller.abort();
   }, [me?.campus]);
 
+  useEffect(() => {
+    const id = setInterval(() => setTodayKey(new Date().toDateString()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
   const peersWithPins = useMemo(
     () => batchMates.filter(
       s => typeof s.hometownLat === 'number' && typeof s.hometownLng === 'number',
@@ -226,7 +231,7 @@ export default function StudentDashboard() {
 
   const dailyMatch = useMemo(
     () => (me ? pickDailyMatch(me, batchMates) : null),
-    [me, batchMates],
+    [me, batchMates, todayKey],
   );
 
   if (loading) {

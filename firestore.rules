@@ -102,6 +102,17 @@ service cloud.firestore {
       allow write: if request.auth != null && isStaff();
     }
 
+    // MBI802 DBMS quiz results.
+    // Students create their own results; staff can read all results.
+    match /mbi802QuizResults/{resultId} {
+      allow read:  if request.auth != null && (
+        resource.data.studentUid == request.auth.uid || isStaff()
+      );
+      allow create: if request.auth != null &&
+        request.resource.data.studentUid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
     function isStaff() {
       return isLecturer() || isTeachingAssistant();
     }

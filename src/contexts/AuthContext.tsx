@@ -1,10 +1,16 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import {
   User,
+  EmailAuthProvider,
   createUserWithEmailAndPassword,
+  isSignInWithEmailLink,
+  reauthenticateWithCredential,
   sendPasswordResetEmail,
+  sendSignInLinkToEmail,
   signInWithEmailAndPassword,
+  signInWithEmailLink,
   signOut,
+  updatePassword,
   onAuthStateChanged,
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -15,12 +21,23 @@ import { logEvent } from '../lib/eventLog';
 const SESSION_START_KEY = 'yoobees_session_start';
 const SESSION_UID_KEY = 'yoobees_session_uid';
 
+const SIGNIN_EMAIL_KEY = 'yoobees_signin_email';
+
+export const SIGN_IN_LINK_ACTION_SETTINGS = {
+  url: window.location.origin + '/',
+  handleCodeInApp: true,
+};
+
 interface AuthContextValue {
   user:        User | null;
   role:        UserRole | null;
   loading:     boolean;
   login:       (email: string, password: string) => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
+  resetPassword:       (email: string) => Promise<void>;
+  sendLoginLink:       (email: string) => Promise<void>;
+  isSignInLink:        (url: string) => boolean;
+  completeSignInWithLink: (email: string, url: string) => Promise<void>;
+  changePassword:      (currentPassword: string, newPassword: string) => Promise<void>;
   register:    (email: string, password: string, role: UserRole) => Promise<void>;
   logout:      () => Promise<void>;
 }
@@ -108,8 +125,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await sendPasswordResetEmail(auth, email);
   };
 
+  const sendLoginLink = async (email: string) => {
+    await sendSignInLinkToEmail(auth, email, SIGN_IN_LINK_ACTION_SETTINGS);
+    localStorage.setItem(SIGNIN_EMAIL_KEY, email);
+  };
+
+  const isSignInLink = (url: string): boolean =>
+    isSignInWithEmailLink(auth, url);
+
+  const completeSignInWithLink = async (email: string, url: string) => {
+    const cred = await signInWithEmailLink(auth, email, url);
+    localStorage.removeItem(SIGNIN_EMAIL_KEY);
+    localStorage.setItem(SESSION_START_KEY, String(Date.now()));
+    localStorage.setItem(SESSION_UID_KEY, cred.user.uid);
+  };
+
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    if (!auth.currentUser?.email) throw new Error('Not signed in');
+    const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+    await reauthenticateWithCredential(auth.currentUser, credential);
+    await updatePassword(auth.currentUser, newPassword);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, role, loading, login, resetPassword, register, logout }}>
+    <AuthContext.Provider value={{
+      user, role, loading,
+      login, resetPassword, sendLoginLink, isSignInLink, completeSignInWithLink, changePassword,
+      register, logout,
+    }}>
       {children}
     </AuthContext.Provider>
   );

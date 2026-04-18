@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Download, Globe, Briefcase, BookOpen, ChevronRight, Users, Trash2 } from 'lucide-react';
+import { Search, Filter, Download, Globe, Briefcase, BookOpen, ChevronRight, Users, Trash2, KeyRound } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -26,9 +26,10 @@ export default function StudentList() {
   const [country,  setCountry]  = useState('');
   const [deletingStudentUid, setDeletingStudentUid] = useState<string | null>(null);
   const [deletingTaUid, setDeletingTaUid] = useState<string | null>(null);
+  const [resettingPwUid, setResettingPwUid] = useState<string | null>(null);
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { role } = useAuth();
+  const { role, resetPassword } = useAuth();
   useFeatureTracking('Lecturer Student List');
   const isTa = role === 'teachingAssistant';
 
@@ -124,6 +125,26 @@ export default function StudentList() {
       return matchQ && matchC && matchN;
     });
   }, [students, search, course, country]);
+
+  const handleResetPassword = async (email: string, uid: string) => {
+    if (!email) {
+      showToast({ type: 'error', title: 'No email on file', description: 'This account has no email address.' });
+      return;
+    }
+    setResettingPwUid(uid);
+    try {
+      await resetPassword(email);
+      showToast({
+        type: 'success',
+        title: 'Reset email sent',
+        description: `Password reset link sent to ${email}. Ask them to check spam if they don't see it.`,
+      });
+    } catch {
+      showToast({ type: 'error', title: 'Failed to send reset email', description: 'Please try again.' });
+    } finally {
+      setResettingPwUid(null);
+    }
+  };
 
   const exportCSV = () => {
     const headers = ['Full Name','Student ID','Email','Course','Intake','Subjects','Home Country','Work Experience','Education','Attended Days','Absent Days','Excused Days'];
@@ -429,6 +450,15 @@ export default function StudentList() {
                       </div>
                     );
                   })()}
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); void handleResetPassword(s.email || '', s.uid); }}
+                    disabled={resettingPwUid === s.uid}
+                    className="p-1.5 rounded-lg transition-colors hover:bg-violet-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Send password reset email"
+                  >
+                    <KeyRound size={14} style={{ color: '#a78bfa' }} />
+                  </button>
                   {!isTa && (
                     <button
                       type="button"
@@ -514,6 +544,15 @@ export default function StudentList() {
                       UID: {ta.uid}
                     </p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => void handleResetPassword(ta.email, ta.uid)}
+                    disabled={resettingPwUid === ta.uid}
+                    className="p-1.5 rounded-lg transition-colors hover:bg-violet-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Send password reset email"
+                  >
+                    <KeyRound size={14} style={{ color: '#a78bfa' }} />
+                  </button>
                   {!isTa && (
                     <button
                       type="button"

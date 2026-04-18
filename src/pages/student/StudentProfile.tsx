@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { collection, doc, getDoc, getDocs, limit, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
-import { MapPin, Save, User, BookOpen, Globe, Briefcase, GraduationCap, Heart, Camera } from 'lucide-react';
+import { MapPin, Save, User, BookOpen, Globe, Briefcase, GraduationCap, Heart, Camera, KeyRound } from 'lucide-react';
 import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
 import type { LeafletMouseEvent } from 'leaflet';
 import { db } from '../../lib/firebase';
@@ -154,7 +154,7 @@ const blank: Omit<StudentProfile, 'uid' | 'createdAt' | 'updatedAt'> = {
 };
 
 export default function StudentProfilePage() {
-  const { user } = useAuth();
+  const { user, changePassword } = useAuth();
   useFeatureTracking('Student Profile');
   const [form,    setForm]    = useState({ ...blank });
   const [notes,   setNotes]   = useState('');
@@ -162,6 +162,41 @@ export default function StudentProfilePage() {
   const [saving,  setSaving]  = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const { showToast } = useToast();
+
+  // Change-password state
+  const [currentPw,  setCurrentPw]  = useState('');
+  const [newPw,      setNewPw]      = useState('');
+  const [confirmPw,  setConfirmPw]  = useState('');
+  const [savingPw,   setSavingPw]   = useState(false);
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPw.length < 6) {
+      showToast({ type: 'error', title: 'Password too short', description: 'New password must be at least 6 characters.' });
+      return;
+    }
+    if (newPw !== confirmPw) {
+      showToast({ type: 'error', title: 'Passwords do not match', description: 'New password and confirmation must match.' });
+      return;
+    }
+    setSavingPw(true);
+    try {
+      await changePassword(currentPw, newPw);
+      setCurrentPw(''); setNewPw(''); setConfirmPw('');
+      showToast({ type: 'success', title: 'Password changed', description: 'Your password has been updated.' });
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code;
+      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+        showToast({ type: 'error', title: 'Wrong current password', description: 'The current password you entered is incorrect.' });
+      } else if (code === 'auth/requires-recent-login') {
+        showToast({ type: 'error', title: 'Session expired', description: 'Please sign out and sign back in, then try again.' });
+      } else {
+        showToast({ type: 'error', title: 'Failed to update password', description: 'Please try again.' });
+      }
+    } finally {
+      setSavingPw(false);
+    }
+  };
   const [countryLookupLoading, setCountryLookupLoading] = useState(false);
   const [countryLookupError, setCountryLookupError] = useState('');
   const latestLookupRequestId = useRef(0);
@@ -647,6 +682,49 @@ export default function StudentProfilePage() {
           </button>
         </div>
       </form>
+
+      {/* ── Change Password ── */}
+      <Section icon={<KeyRound size={16} />} title="Change password">
+        <form onSubmit={handleChangePassword} className="space-y-3 max-w-sm">
+          <div>
+            <label className="label">Current password</label>
+            <input
+              type="password"
+              className="input-field"
+              value={currentPw}
+              onChange={e => setCurrentPw(e.target.value)}
+              placeholder="Enter your current password"
+              required
+            />
+          </div>
+          <div>
+            <label className="label">New password</label>
+            <input
+              type="password"
+              className="input-field"
+              value={newPw}
+              onChange={e => setNewPw(e.target.value)}
+              placeholder="At least 6 characters"
+              required
+              minLength={6}
+            />
+          </div>
+          <div>
+            <label className="label">Confirm new password</label>
+            <input
+              type="password"
+              className="input-field"
+              value={confirmPw}
+              onChange={e => setConfirmPw(e.target.value)}
+              placeholder="Repeat new password"
+              required
+            />
+          </div>
+          <button type="submit" disabled={savingPw} className="btn-primary !py-2">
+            {savingPw ? <><LoadingSpinner size="sm" />Updating…</> : <><KeyRound size={14} />Update password</>}
+          </button>
+        </form>
+      </Section>
     </Layout>
   );
 }

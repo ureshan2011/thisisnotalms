@@ -64,7 +64,7 @@ export default function StatCard({ title, value, icon: Icon, color, subtitle }: 
 
   return (
     <div
-      className="card p-5 animate-fadeIn group cursor-default"
+      className="card p-5 animate-fadeIn group cursor-default h-full"
       style={{
         background: `rgba(255,255,255,0.92)`,
         transition: 'box-shadow 0.22s ease, transform 0.22s ease',

@@ -77,7 +77,7 @@ function SidebarContent({
           </div>
           <div>
             <span className="text-gray-800 font-bold text-base tracking-tight leading-none block">YooBees</span>
-            <span className="text-brand-500 text-[10px] font-semibold uppercase tracking-widest">Attendance</span>
+            <span className="text-brand-500 text-[10px] font-semibold uppercase tracking-widest">Hive</span>
           </div>
         </Link>
         {onClose && (

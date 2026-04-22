@@ -417,7 +417,9 @@ export default function AttendanceResults() {
                     {student.studentName || '—'}
                   </span>
                   {flaggedUids.has(student.studentUid) && (
-                    <AlertTriangle size={13} style={{ color: '#dc2626', flexShrink: 0 }} title="Suspicious activity detected" />
+                    <span title="Suspicious activity detected" style={{ lineHeight: 0 }}>
+                      <AlertTriangle size={13} style={{ color: '#dc2626', flexShrink: 0 }} />
+                    </span>
                   )}
                 </div>
                 <code className="text-xs w-32 hidden sm:block font-mono font-semibold" style={{ color: '#8b7fa6' }}>

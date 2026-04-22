@@ -124,19 +124,29 @@ export default function AttendanceResults() {
 
   const uniqueStudents = new Set(records.map(r => r.studentUid)).size;
   const sectionOptions = [...new Set(records.map(r => r.studentSection || 'Unknown section'))].sort();
-  const dayOptions     = [...new Set(records.map(r => toDayKey(r.submittedAt)))].sort();
+  const dayOptions     = ([...new Set(records.map(r => toDayKey(r.submittedAt)))].sort()) as string[];
 
-  const studentSummaries = Object.values(
-    filtered.reduce((acc, record) => {
+  interface StudentSummary {
+    studentUid: string;
+    studentName: string;
+    studentDisplayId: string;
+    studentCampus: string;
+    studentSection: string;
+    recordsByCheckpoint: Record<string, AttendanceRecord>;
+    completionCount: number;
+  }
+
+  const studentSummaries: StudentSummary[] = (Object.values(
+    filtered.reduce<Record<string, StudentSummary>>((acc, record) => {
       if (!acc[record.studentUid]) {
         acc[record.studentUid] = {
-          studentUid:            record.studentUid,
-          studentName:           record.studentName || '—',
-          studentDisplayId:      record.studentDisplayId || '—',
-          studentCampus:         record.studentCampus || '—',
-          studentSection:        record.studentSection || '—',
-          recordsByCheckpoint:   {} as Record<string, AttendanceRecord>,
-          completionCount:       0,
+          studentUid:          record.studentUid,
+          studentName:         record.studentName || '—',
+          studentDisplayId:    record.studentDisplayId || '—',
+          studentCampus:       record.studentCampus || '—',
+          studentSection:      record.studentSection || '—',
+          recordsByCheckpoint: {} as Record<string, AttendanceRecord>,
+          completionCount:     0,
         };
       }
       const existing = acc[record.studentUid].recordsByCheckpoint[record.checkpointLabel];
@@ -144,16 +154,8 @@ export default function AttendanceResults() {
         acc[record.studentUid].recordsByCheckpoint[record.checkpointLabel] = record;
       }
       return acc;
-    }, {} as Record<string, {
-      studentUid: string;
-      studentName: string;
-      studentDisplayId: string;
-      studentCampus: string;
-      studentSection: string;
-      recordsByCheckpoint: Record<string, AttendanceRecord>;
-      completionCount: number;
-    }>)
-  ).map(student => ({
+    }, {})
+  ) as StudentSummary[]).map(student => ({
     ...student,
     completionCount: visibleCheckpointLabels.filter(label => Boolean(student.recordsByCheckpoint[label])).length,
   }));
@@ -385,7 +387,7 @@ export default function AttendanceResults() {
               <span className="table-header-cell w-28 hidden lg:block">Campus</span>
               <span className="table-header-cell w-24 hidden md:block">Section</span>
               <span className="table-header-cell w-72">Checkpoint progress</span>
-              {showSecurity && <span className="table-header-cell w-48 hidden xl:block">Security</span>}
+              {showSecurity && <span className="table-header-cell w-44">Security</span>}
             </div>
 
             {sortedStudentSummaries.map((student, i) => (
@@ -451,17 +453,18 @@ export default function AttendanceResults() {
                   })}
                 </div>
                 {showSecurity && (() => {
-                  // Pick the first record we have for this student to show security info
                   const anyRecord = Object.values(student.recordsByCheckpoint)[0];
                   const loc = anyRecord?.location;
-                  const DeviceIcon = loc?.deviceType === 'mobile' ? Smartphone : loc?.deviceType === 'tablet' ? Smartphone : Monitor;
+                  const DeviceIcon = loc?.deviceType === 'mobile' ? Smartphone : Monitor;
                   return (
-                    <div className="w-48 hidden xl:flex flex-col gap-1">
-                      {loc?.ipAddress && (
+                    <div className="w-44 flex flex-col gap-1 flex-shrink-0">
+                      {loc?.ipAddress ? (
                         <span className="text-xs font-mono flex items-center gap-1" style={{ color: '#6b7280' }}>
                           <Shield size={10} style={{ color: '#a78bfa' }} />
                           {loc.ipAddress}
                         </span>
+                      ) : (
+                        <span className="text-xs font-mono" style={{ color: '#d1d5db' }}>No IP</span>
                       )}
                       {loc?.deviceType && (
                         <span className="text-xs flex items-center gap-1" style={{ color: '#9ca3af' }}>
@@ -469,16 +472,19 @@ export default function AttendanceResults() {
                           {loc.deviceType}
                         </span>
                       )}
-                      {loc && (
+                      {loc ? (
                         <span className="text-xs flex items-center gap-1"
                           style={{ color: loc.locationStatus === 'captured' ? '#059669' : '#9ca3af' }}>
                           <MapPin size={10} />
                           {loc.locationStatus === 'captured'
-                            ? `GPS (±${Math.round(loc.accuracy ?? 0)}m)`
+                            ? `GPS ±${Math.round(loc.accuracy ?? 0)}m`
                             : loc.locationStatus}
                         </span>
+                      ) : (
+                        <span className="text-xs flex items-center gap-1" style={{ color: '#d1d5db' }}>
+                          <MapPin size={10} /> no data
+                        </span>
                       )}
-                      {!loc && <span className="text-xs" style={{ color: '#d1d5db' }}>No data</span>}
                     </div>
                   );
                 })()}

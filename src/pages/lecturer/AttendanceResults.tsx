@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   doc, getDoc, collection, query, where, getDocs, orderBy, Timestamp,
 } from 'firebase/firestore';
-import { ArrowLeft, Download, Users, CheckCircle2, Clock, Filter, CalendarCheck } from 'lucide-react';
+import { ArrowLeft, Download, Users, CheckCircle2, Clock, Filter, CalendarCheck, AlertTriangle, Shield, MapPin, Smartphone, Monitor } from 'lucide-react';
+import { detectSuspiciousActivity, getFlaggedStudentUids } from '../../lib/suspiciousActivity';
+import type { SuspiciousFlag } from '../../lib/suspiciousActivity';
+import SuspiciousActivityPanel from '../../components/ui/SuspiciousActivityPanel';
 import { db } from '../../lib/firebase';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -47,6 +50,10 @@ export default function AttendanceResults() {
   const [dayFilter,     setDayFilter]     = useState('');
   const [sortBy,        setSortBy]        = useState<'name' | 'studentId' | 'section' | 'completion'>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [showSecurity,  setShowSecurity]  = useState(false);
+
+  const flags       = useMemo(() => detectSuspiciousActivity(records), [records]);
+  const flaggedUids = useMemo(() => getFlaggedStudentUids(flags), [flags]);
 
   useEffect(() => {
     if (!id) return;
@@ -209,6 +216,9 @@ export default function AttendanceResults() {
         ))}
       </div>
 
+      {/* Suspicious activity panel (staff-only) */}
+      <SuspiciousActivityPanel flags={flags} />
+
       {/* Per-checkpoint summary */}
       {cpLabels.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
@@ -283,15 +293,27 @@ export default function AttendanceResults() {
           <h3 className="font-bold text-sm" style={{ color: '#1e1b4b' }}>
             Submission log{filter && <span style={{ color: '#a78bfa', fontWeight: 500 }}> — {filter}</span>}
           </h3>
-          {(filter || sectionFilter || dayFilter) && (
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => { setFilter(''); setSectionFilter(''); setDayFilter(''); }}
-              className="flex items-center gap-1.5 text-xs font-semibold transition-colors"
-              style={{ color: '#a78bfa' }}
+              onClick={() => setShowSecurity(v => !v)}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl transition-all"
+              style={showSecurity
+                ? { background: 'rgba(124,58,237,0.10)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.20)' }
+                : { color: '#9ca3af', border: '1px solid rgba(139,92,246,0.12)' }}
+              title="Toggle IP / device / GPS columns"
             >
-              <Filter size={12} /> Clear filters
+              <Shield size={12} /> Security view
             </button>
-          )}
+            {(filter || sectionFilter || dayFilter) && (
+              <button
+                onClick={() => { setFilter(''); setSectionFilter(''); setDayFilter(''); }}
+                className="flex items-center gap-1.5 text-xs font-semibold transition-colors"
+                style={{ color: '#a78bfa' }}
+              >
+                <Filter size={12} /> Clear filters
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Filter bar */}
@@ -363,6 +385,7 @@ export default function AttendanceResults() {
               <span className="table-header-cell w-28 hidden lg:block">Campus</span>
               <span className="table-header-cell w-24 hidden md:block">Section</span>
               <span className="table-header-cell w-72">Checkpoint progress</span>
+              {showSecurity && <span className="table-header-cell w-48 hidden xl:block">Security</span>}
             </div>
 
             {sortedStudentSummaries.map((student, i) => (
@@ -371,12 +394,13 @@ export default function AttendanceResults() {
                 className="flex items-center px-5 py-3.5 transition-all duration-100"
                 style={{
                   borderBottom: i < sortedStudentSummaries.length - 1 ? '1px solid rgba(139,92,246,0.04)' : 'none',
+                  background: flaggedUids.has(student.studentUid) ? 'rgba(239,68,68,0.03)' : 'transparent',
                 }}
                 onMouseEnter={e => {
-                  (e.currentTarget as HTMLDivElement).style.background = 'rgba(245,243,255,0.6)';
+                  (e.currentTarget as HTMLDivElement).style.background = flaggedUids.has(student.studentUid) ? 'rgba(239,68,68,0.07)' : 'rgba(245,243,255,0.6)';
                 }}
                 onMouseLeave={e => {
-                  (e.currentTarget as HTMLDivElement).style.background = 'transparent';
+                  (e.currentTarget as HTMLDivElement).style.background = flaggedUids.has(student.studentUid) ? 'rgba(239,68,68,0.03)' : 'transparent';
                 }}
               >
                 <span className="text-xs font-mono w-10" style={{ color: '#c4b5fd' }}>{i + 1}</span>
@@ -392,6 +416,9 @@ export default function AttendanceResults() {
                   <span className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>
                     {student.studentName || '—'}
                   </span>
+                  {flaggedUids.has(student.studentUid) && (
+                    <AlertTriangle size={13} style={{ color: '#dc2626', flexShrink: 0 }} title="Suspicious activity detected" />
+                  )}
                 </div>
                 <code className="text-xs w-32 hidden sm:block font-mono font-semibold" style={{ color: '#8b7fa6' }}>
                   {student.studentDisplayId}
@@ -421,6 +448,38 @@ export default function AttendanceResults() {
                     );
                   })}
                 </div>
+                {showSecurity && (() => {
+                  // Pick the first record we have for this student to show security info
+                  const anyRecord = Object.values(student.recordsByCheckpoint)[0];
+                  const loc = anyRecord?.location;
+                  const DeviceIcon = loc?.deviceType === 'mobile' ? Smartphone : loc?.deviceType === 'tablet' ? Smartphone : Monitor;
+                  return (
+                    <div className="w-48 hidden xl:flex flex-col gap-1">
+                      {loc?.ipAddress && (
+                        <span className="text-xs font-mono flex items-center gap-1" style={{ color: '#6b7280' }}>
+                          <Shield size={10} style={{ color: '#a78bfa' }} />
+                          {loc.ipAddress}
+                        </span>
+                      )}
+                      {loc?.deviceType && (
+                        <span className="text-xs flex items-center gap-1" style={{ color: '#9ca3af' }}>
+                          <DeviceIcon size={10} />
+                          {loc.deviceType}
+                        </span>
+                      )}
+                      {loc && (
+                        <span className="text-xs flex items-center gap-1"
+                          style={{ color: loc.locationStatus === 'captured' ? '#059669' : '#9ca3af' }}>
+                          <MapPin size={10} />
+                          {loc.locationStatus === 'captured'
+                            ? `GPS (±${Math.round(loc.accuracy ?? 0)}m)`
+                            : loc.locationStatus}
+                        </span>
+                      )}
+                      {!loc && <span className="text-xs" style={{ color: '#d1d5db' }}>No data</span>}
+                    </div>
+                  );
+                })()}
               </div>
             ))}
           </div>

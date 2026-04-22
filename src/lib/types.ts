@@ -51,6 +51,19 @@ export interface AttendanceSession {
   createdAt: Date;
 }
 
+export interface AttendanceLocationData {
+  locationStatus: 'captured' | 'denied' | 'unavailable' | 'timeout';
+  latitude?: number;
+  longitude?: number;
+  accuracy?: number;
+  ipAddress?: string;
+  userAgent?: string;
+  deviceType?: string;
+  timezone?: string;
+  language?: string;
+  screenResolution?: string;
+}
+
 export interface AttendanceRecord {
   id: string;
   sessionId: string;
@@ -64,6 +77,7 @@ export interface AttendanceRecord {
   checkpointId: string;
   checkpointLabel: string;
   submittedAt: Date;
+  location?: AttendanceLocationData;
 }
 
 export interface AbsenceNotice {

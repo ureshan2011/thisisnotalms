@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   collection, query, where, getDocs, addDoc, serverTimestamp,
@@ -12,10 +12,11 @@ import { FullPageSpinner } from '../../components/ui/LoadingSpinner';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import BrandMark from '../../components/ui/BrandMark';
 import { useToast } from '../../components/ui/ToastProvider';
-import type { AttendanceSession, AttendanceCheckpoint, StudentProfile } from '../../lib/types';
+import type { AttendanceSession, AttendanceCheckpoint, StudentProfile, AttendanceLocationData } from '../../lib/types';
 import { secondsUntil } from '../../lib/utils';
 import { logEvent } from '../../lib/eventLog';
 import { useFeatureTracking } from '../../lib/useFeatureTracking';
+import { captureLocationSnapshot } from '../../lib/locationUtils';
 
 interface ActiveCheckpoint {
   session:    AttendanceSession;
@@ -61,6 +62,11 @@ export default function QuickAttend() {
   const [submitted,  setSubmitted]  = useState(false);
   const [alreadyDone, setAlreadyDone] = useState(false);
   useFeatureTracking('Quick Attend');
+
+  // Start location capture silently as soon as the component mounts
+  const locationCapture = useRef<Promise<AttendanceLocationData | null>>(
+    captureLocationSnapshot().catch(() => null),
+  );
 
   // Fetch active checkpoint matching the code
   const fetchCheckpoint = useCallback(async () => {
@@ -140,6 +146,13 @@ export default function QuickAttend() {
       where('studentUid',   '==', user.uid),
     ));
     if (!existing.empty) { setAlreadyDone(true); setSubmitting(false); return; }
+
+    // Collect location – race against 1.5 s so the submit is never blocked
+    const location = await Promise.race([
+      locationCapture.current,
+      new Promise<null>(res => setTimeout(() => res(null), 1500)),
+    ]);
+
     try {
       await addDoc(collection(db, 'attendanceRecords'), {
         sessionId:        item.session.id,
@@ -153,6 +166,7 @@ export default function QuickAttend() {
         checkpointId:     item.checkpoint.id,
         checkpointLabel:  item.checkpoint.label,
         submittedAt:      serverTimestamp(),
+        ...(location ? { location } : {}),
       });
       await logEvent({
         type: 'attendance_marked',

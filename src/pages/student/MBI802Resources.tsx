@@ -9,10 +9,12 @@ import {
   MonitorSmartphone,
   FlaskConical,
   GraduationCap,
+  Code2,
 } from 'lucide-react';
 import Layout from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import MBI802Quiz from '../../components/quiz/MBI802Quiz';
+import SQLProgrammingDeck from '../../components/slides/SQLProgrammingDeck';
 import QuizResultsDashboard from '../../components/quiz/QuizResultsDashboard';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
@@ -194,6 +196,22 @@ export default function MBI802Resources() {
           Happy learning!
         </p>
       </article>
+
+      {/* ── SQL Programming ───────────────────────────────────────────────── */}
+      <section className="mt-8">
+        <div className="flex items-center gap-3 mb-4">
+          <Code2 size={22} style={{ color: '#2563eb' }} />
+          <div>
+            <h2 className="text-lg font-bold" style={{ color: '#1e1b4b' }}>
+              SQL Programming
+            </h2>
+            <p className="text-xs" style={{ color: '#6b7280' }}>
+              Interactive slide deck · 14 slides · Basic MySQL commands with examples
+            </p>
+          </div>
+        </div>
+        <SQLProgrammingDeck />
+      </section>
 
       {/* ── DBMS Knowledge Quiz ────────────────────────────────────────────── */}
       <section className="mt-8">

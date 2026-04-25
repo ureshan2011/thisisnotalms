@@ -21,13 +21,13 @@ function SidebarContent({
   onClose,
   photoURL,
   onOpenPhotoModal,
-  canViewMBI802Resources,
+  canViewCourseResources,
   showNewBadge,
 }: {
   onClose?: () => void;
   photoURL?: string | null;
   onOpenPhotoModal?: () => void;
-  canViewMBI802Resources: boolean;
+  canViewCourseResources: boolean;
   showNewBadge: boolean;
 }) {
   const { user, role, logout } = useAuth();
@@ -39,8 +39,8 @@ function SidebarContent({
     { to: '/student/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
     { to: '/student/history',    icon: <History size={18} />,         label: 'My History' },
     { to: '/student/playground', icon: <Radio size={18} />,           label: 'Live Lesson' },
-    ...(canViewMBI802Resources
-      ? [{ to: '/student/mbi802-resources', icon: <BookOpen size={18} />, label: 'MBI802 Resources', isNew: showNewBadge }]
+    ...(canViewCourseResources
+      ? [{ to: '/student/course-resources', icon: <BookOpen size={18} />, label: 'Course Resources', isNew: showNewBadge }]
       : []),
   ];
 
@@ -49,7 +49,7 @@ function SidebarContent({
     { to: '/lecturer/students',   icon: <Users size={18} />,           label: 'Students' },
     { to: '/lecturer/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
     { to: '/lecturer/playground', icon: <Radio size={18} />,           label: 'Live Playground' },
-    { to: '/lecturer/mbi802-resources', icon: <BookOpen size={18} />,  label: 'MBI802 Resources', isNew: showNewBadge },
+    { to: '/lecturer/course-resources', icon: <BookOpen size={18} />,  label: 'Course Resources', isNew: showNewBadge },
   ];
 
   const links = role === 'student' ? studentLinks : lecturerLinks;
@@ -180,7 +180,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [intakePromptOpen, setIntakePromptOpen] = useState(false);
   const [photoPromptOpen, setPhotoPromptOpen] = useState(false);
   const [currentPhotoURL, setCurrentPhotoURL] = useState<string | null>(null);
-  const [canViewMBI802Resources, setCanViewMBI802Resources] = useState(role !== 'student');
+  const [canViewCourseResources, setCanViewCourseResources] = useState(role !== 'student');
   const [intake, setIntake] = useState<'2511' | '2604' | ''>('');
   const [showMBI802NewBadge, setShowMBI802NewBadge] = useState(false);
   const [savingIntake, setSavingIntake] = useState(false);
@@ -194,7 +194,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       // Load current photo
       if (data.photoURL) setCurrentPhotoURL(data.photoURL);
-      setCanViewMBI802Resources((data.subjects || []).includes('MBI802'));
+      const knownSubjects = ['MBI800', 'MBI802', 'MBI804'];
+      setCanViewCourseResources((data.subjects || []).some(s => knownSubjects.includes(s)));
 
       // Show intake prompt if missing
       if (!data.intake) { setIntakePromptOpen(true); return; }
@@ -206,7 +207,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
 
   useEffect(() => {
-    if (role !== 'student') setCanViewMBI802Resources(true);
+    if (role !== 'student') setCanViewCourseResources(true);
   }, [role]);
 
 
@@ -220,8 +221,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!user) return;
     const onResourcesPage =
-      location.pathname === '/student/mbi802-resources' ||
-      location.pathname === '/lecturer/mbi802-resources';
+      location.pathname === '/student/course-resources' ||
+      location.pathname === '/lecturer/course-resources';
     if (!onResourcesPage || !showMBI802NewBadge) return;
 
     const key = `mbi802_resources_seen_${user.uid}`;
@@ -233,7 +234,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (!user || !intake) return;
     setSavingIntake(true);
     const subjects = intake === '2511' ? ['MBI804'] : ['MBI800', 'MBI802'];
-    setCanViewMBI802Resources(subjects.includes('MBI802'));
+    setCanViewCourseResources(subjects.length > 0);
     await setDoc(doc(db, 'students', user.uid), {
       intake,
       subjects,
@@ -309,7 +310,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <SidebarContent
           photoURL={currentPhotoURL}
           onOpenPhotoModal={() => setPhotoPromptOpen(true)}
-          canViewMBI802Resources={canViewMBI802Resources}
+          canViewCourseResources={canViewCourseResources}
           showNewBadge={showMBI802NewBadge}
         />
       </aside>
@@ -334,7 +335,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               onClose={() => setMobileOpen(false)}
               photoURL={currentPhotoURL}
               onOpenPhotoModal={() => { setMobileOpen(false); setPhotoPromptOpen(true); }}
-              canViewMBI802Resources={canViewMBI802Resources}
+              canViewCourseResources={canViewCourseResources}
           showNewBadge={showMBI802NewBadge}
             />
           </aside>

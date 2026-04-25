@@ -15,6 +15,7 @@ import StudentAttendance from './pages/student/StudentAttendance';
 import StudentHistory    from './pages/student/StudentHistory';
 import QuickAttend       from './pages/student/QuickAttend';
 import MBI802Resources   from './pages/student/MBI802Resources';
+import CourseResources   from './pages/student/CourseResources';
 
 // Lecturer pages
 import Dashboard          from './pages/lecturer/Dashboard';
@@ -48,7 +49,8 @@ function AppRoutes() {
       <Route path="/student/profile"    element={<ProtectedRoute allowedRoles={["student"]}><StudentProfile /></ProtectedRoute>} />
       <Route path="/student/attendance" element={<ProtectedRoute allowedRoles={["student"]}><StudentAttendance /></ProtectedRoute>} />
       <Route path="/student/history"    element={<ProtectedRoute allowedRoles={["student"]}><StudentHistory /></ProtectedRoute>} />
-      <Route path="/student/mbi802-resources" element={<ProtectedRoute allowedRoles={["student"]}><MBI802Resources /></ProtectedRoute>} />
+      <Route path="/student/course-resources"  element={<ProtectedRoute allowedRoles={["student"]}><CourseResources /></ProtectedRoute>} />
+      <Route path="/student/mbi802-resources"  element={<Navigate to="/student/course-resources" replace />} />
       <Route path="/student/playground"      element={<ProtectedRoute allowedRoles={["student"]}><StudentPlayground /></ProtectedRoute>} />
 
       {/* Lecturer routes */}
@@ -57,7 +59,8 @@ function AppRoutes() {
       <Route path="/lecturer/students/:id"      element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><StudentDetail /></ProtectedRoute>} />
       <Route path="/lecturer/attendance"        element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><AttendanceSessions /></ProtectedRoute>} />
       <Route path="/lecturer/attendance/:id"    element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><AttendanceResults /></ProtectedRoute>} />
-      <Route path="/lecturer/mbi802-resources" element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><MBI802Resources /></ProtectedRoute>} />
+      <Route path="/lecturer/course-resources"  element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><CourseResources /></ProtectedRoute>} />
+      <Route path="/lecturer/mbi802-resources"  element={<Navigate to="/lecturer/course-resources" replace />} />
       <Route path="/lecturer/playground"      element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><LivePlayground /></ProtectedRoute>} />
 
       {/* Fallback */}

@@ -15,12 +15,14 @@ import {
   Video,
   Presentation,
   ClipboardList,
+  GitBranch,
 } from 'lucide-react';
 import Layout from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import MBI802Quiz from '../../components/quiz/MBI802Quiz';
 import QuizResultsDashboard from '../../components/quiz/QuizResultsDashboard';
 import SQLProgrammingDeck from '../../components/slides/SQLProgrammingDeck';
+import ERDiagramsDeck from '../../components/slides/ERDiagramsDeck';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
 import type { StudentProfile } from '../../lib/types';
@@ -73,6 +75,13 @@ const COURSES: Course[] = [
         subtitle: '13-slide interactive deck covering basic MySQL commands',
         icon: <Presentation size={18} />,
         accentColor: '#2563eb',
+      },
+      {
+        id: 'er',
+        title: 'ER Diagrams Basics',
+        subtitle: '24-slide deck · Chen\'s notation · entities, attributes, relationships & cardinality',
+        icon: <GitBranch size={18} />,
+        accentColor: '#0d7a72',
       },
       {
         id: 'quiz',
@@ -551,6 +560,7 @@ export default function CourseResources() {
                 >
                   {lesson.id === 'setup' && <SetupLesson />}
                   {lesson.id === 'slides' && <SlidesLesson />}
+                  {lesson.id === 'er' && <ERDiagramsDeck />}
                   {lesson.id === 'quiz' && (
                     <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                   )}

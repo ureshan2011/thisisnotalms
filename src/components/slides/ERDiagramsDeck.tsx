@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Maximize, Minimize } from 'lucide-react';
 
 const DECK_CSS = `@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
 
@@ -278,7 +278,7 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
   <div class="two" style="align-items:center">
     <div>
       <ul class="clean">
-        <li>Represents a real-world <strong>"thing"</strong> we want to store data about</li>
+        <li>A real-world <strong>"thing"</strong> we want to track</li>
         <li>Always a <strong>noun</strong>: Student, Course, Teacher, Product…</li>
         <li>Each entity will become a <strong>table</strong> in the database</li>
         <li>Written in <strong>UPPERCASE</strong> inside the rectangle</li>
@@ -319,7 +319,7 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
         <li>Will become a <strong>column</strong> in the database table</li>
       </ul>
       <div class="card-t" style="margin-top:24px">
-        <div class="small"><strong>Rule:</strong> If it describes an entity (answers "what is it?" or "what does it have?") → it's an attribute</div>
+        <div class="small"><strong>Rule:</strong> Does it describe a property of an entity? → it's an attribute</div>
       </div>
     </div>
     <div style="display:flex;flex-direction:column;align-items:center">
@@ -831,8 +831,11 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
 export default function ERDiagramsDeck() {
   const [current, setCurrent] = useState(0);
   const [expanded, setExpanded] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const deckRef = useRef<HTMLDivElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(0.5);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const id = 'er-deck-styles';
@@ -846,13 +849,39 @@ export default function ERDiagramsDeck() {
   }, []);
 
   useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
+
+  useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
-    const obs = new ResizeObserver(() => setScale(el.offsetWidth / 1920));
+    const measure = () => {
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      if (isFullscreen && h > 0) {
+        const s = Math.min(w / 1920, h / 1080);
+        setScale(s);
+        setOffset({ x: (w - 1920 * s) / 2, y: (h - 1080 * s) / 2 });
+      } else {
+        setScale(w / 1920);
+        setOffset({ x: 0, y: 0 });
+      }
+    };
+    const obs = new ResizeObserver(measure);
     obs.observe(el);
-    setScale(el.offsetWidth / 1920);
+    measure();
     return () => obs.disconnect();
-  }, []);
+  }, [isFullscreen]);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      deckRef.current?.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -870,16 +899,18 @@ export default function ERDiagramsDeck() {
 
   return (
     <div
+      ref={deckRef}
       style={{
         background: '#0f1117',
-        borderRadius: 16,
+        borderRadius: isFullscreen ? 0 : 16,
         overflow: 'hidden',
-        border: '1.5px solid rgba(13,122,114,0.3)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+        border: isFullscreen ? 'none' : '1.5px solid rgba(13,122,114,0.3)',
+        boxShadow: isFullscreen ? 'none' : '0 8px 32px rgba(0,0,0,0.25)',
+        ...(isFullscreen ? { display: 'flex', flexDirection: 'column' as const, height: '100%' } : {}),
       }}
     >
       {/* toolbar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', borderBottom: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#F87171' }} />
           <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#FBBF24' }} />
@@ -888,13 +919,25 @@ export default function ERDiagramsDeck() {
             MBI802 · ER Diagrams · {current + 1} / {total} · ← → to navigate
           </span>
         </div>
-        <button
-          onClick={() => setExpanded(v => !v)}
-          style={{ background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: 6, padding: '4px 10px', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}
-        >
-          {expanded ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
-          {expanded ? 'Collapse' : 'Expand'}
-        </button>
+        <div style={{ display: 'flex', gap: 6 }}>
+          {!isFullscreen && (
+            <button
+              onClick={() => setExpanded(v => !v)}
+              style={{ background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: 6, padding: '4px 10px', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}
+            >
+              {expanded ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
+              {expanded ? 'Collapse' : 'Expand'}
+            </button>
+          )}
+          <button
+            onClick={toggleFullscreen}
+            style={{ background: 'rgba(255,255,255,0.07)', border: 'none', borderRadius: 6, padding: '4px 10px', color: 'rgba(255,255,255,0.5)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, fontSize: 11 }}
+            title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+          >
+            {isFullscreen ? <Minimize size={13} /> : <Maximize size={13} />}
+            {isFullscreen ? 'Exit' : 'Fullscreen'}
+          </button>
+        </div>
       </div>
 
       {/* 16:9 scaled slide canvas */}
@@ -903,8 +946,10 @@ export default function ERDiagramsDeck() {
         style={{
           position: 'relative',
           width: '100%',
-          paddingBottom: expanded ? '75%' : '56.25%',
-          transition: 'padding-bottom 0.3s ease',
+          ...(isFullscreen
+            ? { flex: 1 }
+            : { paddingBottom: expanded ? '75%' : '56.25%', transition: 'padding-bottom 0.3s ease' }
+          ),
           overflow: 'hidden',
           background: '#111',
         }}
@@ -915,7 +960,7 @@ export default function ERDiagramsDeck() {
             style={{
               width: 1920,
               height: 1080,
-              transform: `scale(${scale})`,
+              transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
               transformOrigin: 'top left',
               position: 'relative',
             }}
@@ -930,7 +975,7 @@ export default function ERDiagramsDeck() {
       </div>
 
       {/* nav */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, padding: '10px 16px', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, padding: '10px 16px', borderTop: '1px solid rgba(255,255,255,0.07)', flexShrink: 0 }}>
         <button
           onClick={() => setCurrent(c => Math.max(c - 1, 0))}
           disabled={current === 0}

@@ -7,56 +7,10 @@ function detectDeviceType(): string {
   return 'desktop';
 }
 
-async function fetchPublicIp(): Promise<string | undefined> {
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch('https://api.ipify.org?format=json', { signal: controller.signal });
-    clearTimeout(timer);
-    const data = (await res.json()) as { ip: string };
-    return data.ip;
-  } catch {
-    return undefined;
-  }
-}
-
-async function requestGpsCoords(timeoutMs: number): Promise<{
-  status: AttendanceLocationData['locationStatus'];
-  latitude?: number;
-  longitude?: number;
-  accuracy?: number;
-}> {
-  if (!navigator.geolocation) return { status: 'unavailable' };
-  return new Promise(resolve => {
-    navigator.geolocation.getCurrentPosition(
-      pos =>
-        resolve({
-          status: 'captured',
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude,
-          accuracy: pos.coords.accuracy,
-        }),
-      err => {
-        if (err.code === err.PERMISSION_DENIED) resolve({ status: 'denied' });
-        else if (err.code === err.TIMEOUT) resolve({ status: 'timeout' });
-        else resolve({ status: 'unavailable' });
-      },
-      { timeout: timeoutMs, maximumAge: 120000, enableHighAccuracy: false },
-    );
-  });
-}
-
+// GPS and IP tracking are disabled — collect device metadata only
 export async function captureLocationSnapshot(): Promise<AttendanceLocationData> {
-  const [gps, ipAddress] = await Promise.all([
-    requestGpsCoords(8000),
-    fetchPublicIp(),
-  ]);
   return {
-    locationStatus: gps.status,
-    latitude: gps.latitude,
-    longitude: gps.longitude,
-    accuracy: gps.accuracy,
-    ipAddress,
+    locationStatus: 'unavailable',
     userAgent: navigator.userAgent,
     deviceType: detectDeviceType(),
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,

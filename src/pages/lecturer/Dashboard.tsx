@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { collection, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, Timestamp, query, orderBy, limit } from 'firebase/firestore';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import {
   BarChart, Bar, PieChart, Pie, Cell, Tooltip, XAxis, YAxis,
@@ -49,7 +49,7 @@ export default function Dashboard() {
     (async () => {
       const [stuSnap, sesSnap] = await Promise.all([
         getDocs(collection(db, 'students')),
-        getDocs(collection(db, 'attendanceSessions')),
+        getDocs(query(collection(db, 'attendanceSessions'), orderBy('createdAt', 'desc'), limit(100))),
       ]);
       setStudents(stuSnap.docs.map(d => d.data() as StudentProfile));
       setSessions(sesSnap.docs.map(d => {

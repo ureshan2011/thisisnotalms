@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   collection, query, where, getDocs, addDoc, serverTimestamp,
   Timestamp, doc, getDoc,
@@ -8,12 +8,11 @@ import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
-import type { AttendanceSession, AttendanceCheckpoint, StudentProfile, AttendanceLocationData } from '../../lib/types';
+import type { AttendanceSession, AttendanceCheckpoint, StudentProfile } from '../../lib/types';
 import { useToast } from '../../components/ui/ToastProvider';
 import { secondsUntil, formatDateTime } from '../../lib/utils';
 import { logEvent } from '../../lib/eventLog';
 import { useFeatureTracking } from '../../lib/useFeatureTracking';
-import { captureLocationSnapshot } from '../../lib/locationUtils';
 
 interface ActiveCheckpoint {
   session:    AttendanceSession;
@@ -33,11 +32,6 @@ export default function StudentAttendance() {
   const [absenceReason, setAbsenceReason] = useState('');
   const [absenceSubmitting, setAbsenceSubmitting] = useState(false);
   const { showToast } = useToast();
-
-  // Start location capture silently in the background as soon as the page loads
-  const locationCapture = useRef<Promise<AttendanceLocationData | null>>(
-    captureLocationSnapshot().catch(() => null),
-  );
 
   useEffect(() => {
     if (!user) return;
@@ -108,12 +102,6 @@ export default function StudentAttendance() {
       return;
     }
 
-    // Collect location data – race against 1.5 s so submission is never blocked
-    const location = await Promise.race([
-      locationCapture.current,
-      new Promise<null>(res => setTimeout(() => res(null), 1500)),
-    ]);
-
     try {
       await addDoc(collection(db, 'attendanceRecords'), {
         sessionId:        item.session.id,
@@ -127,7 +115,6 @@ export default function StudentAttendance() {
         checkpointId:     item.checkpoint.id,
         checkpointLabel:  item.checkpoint.label,
         submittedAt:      serverTimestamp(),
-        ...(location ? { location } : {}),
       });
       await logEvent({
         type: 'attendance_marked',

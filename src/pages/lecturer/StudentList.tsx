@@ -16,6 +16,54 @@ interface TeachingAssistantAccount {
   email: string;
 }
 
+interface StudentListCache {
+  students: StudentProfile[];
+  allRecords: AttendanceRecord[];
+  allAbsences: AbsenceNotice[];
+  allSessions: AttendanceSession[];
+  allOverrides: AttendanceOverride[];
+  teachingAssistants: TeachingAssistantAccount[];
+  fetchedAt: number;
+}
+
+// Tab-session cache — avoids re-fetching all collections on every navigation
+let _cache: StudentListCache | null = null;
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+function invalidateStudentListCache() {
+  _cache = null;
+}
+
+function computeStats(
+  students: StudentProfile[],
+  allRecords: AttendanceRecord[],
+  allAbsences: AbsenceNotice[],
+  allSessions: AttendanceSession[],
+  allOverrides: AttendanceOverride[],
+): Record<string, { attended: number; absent: number; excused: number }> {
+  const stats: Record<string, { attended: number; absent: number; excused: number }> = {};
+  students.forEach(student => {
+    const studentRecords  = allRecords.filter(r => r.studentUid === student.uid);
+    const studentAbsences = allAbsences.filter(a => a.studentUid === student.uid);
+    const enrolledCourses = Array.from(new Set([...(student.subjects || []), student.course].map(v => v?.trim()).filter(Boolean)));
+    const relevantSessions = allSessions.filter(s => enrolledCourses.length === 0 || enrolledCourses.includes(s.course));
+    const studentOverrides = allOverrides.filter(o => o.studentUid === student.uid);
+    const summary = summarizeStudentAttendance({
+      sessions: relevantSessions,
+      records: studentRecords,
+      absences: studentAbsences,
+      enrolledCourses,
+      overrides: studentOverrides,
+    });
+    stats[student.uid] = {
+      attended: summary.attendedDays,
+      absent: summary.absentUnjustifiedDays,
+      excused: summary.absentJustifiedDays,
+    };
+  });
+  return stats;
+}
+
 export default function StudentList() {
   const [students, setStudents] = useState<StudentProfile[]>([]);
   const [teachingAssistants, setTeachingAssistants] = useState<TeachingAssistantAccount[]>([]);
@@ -36,6 +84,15 @@ export default function StudentList() {
   useEffect(() => {
     (async () => {
       try {
+        // Use cached data if fresh (within 5 min), to avoid re-fetching all collections on navigation.
+        if (_cache && Date.now() - _cache.fetchedAt < CACHE_TTL_MS) {
+          setStudents(_cache.students);
+          setTeachingAssistants(_cache.teachingAssistants);
+          setAttendanceStats(computeStats(_cache.students, _cache.allRecords, _cache.allAbsences, _cache.allSessions, _cache.allOverrides));
+          setLoading(false);
+          return;
+        }
+
         // Fetch students first so they always render even if auxiliary data fails.
         const studentSnap = await getDocs(collection(db, 'students'));
         const loadedStudents = studentSnap.docs.map(d => d.data() as StudentProfile);
@@ -73,39 +130,17 @@ export default function StudentList() {
           ? overridesResult.value.docs.map(d => ({ id: d.id, ...d.data() } as AttendanceOverride))
           : [];
 
-        const stats: Record<string, { attended: number; absent: number; excused: number }> = {};
-        loadedStudents.forEach(student => {
-          const studentRecords = allRecords.filter(r => r.studentUid === student.uid);
-          const studentAbsences = allAbsences.filter(a => a.studentUid === student.uid);
-          const enrolledCourses = Array.from(new Set([...(student.subjects || []), student.course].map(v => v?.trim()).filter(Boolean)));
-          const relevantSessions = allSessions.filter(s => enrolledCourses.length === 0 || enrolledCourses.includes(s.course));
-          const studentOverrides = allOverrides.filter(o => o.studentUid === student.uid);
-          const summary = summarizeStudentAttendance({
-            sessions: relevantSessions,
-            records: studentRecords,
-            absences: studentAbsences,
-            enrolledCourses,
-            overrides: studentOverrides,
-          });
-          stats[student.uid] = {
-            attended: summary.attendedDays,
-            absent: summary.absentUnjustifiedDays,
-            excused: summary.absentJustifiedDays,
-          };
-        });
+        const loadedTas = taResult.status === 'fulfilled'
+          ? taResult.value.docs.map(d => {
+              const data = d.data() as Record<string, unknown>;
+              return { uid: d.id, email: (data.email as string) || '' };
+            })
+          : [];
 
-        setAttendanceStats(stats);
+        _cache = { students: loadedStudents, allRecords, allAbsences, allSessions, allOverrides, teachingAssistants: loadedTas, fetchedAt: Date.now() };
 
-        if (taResult.status === 'fulfilled') {
-          const loadedTas = taResult.value.docs.map(d => {
-            const data = d.data() as Record<string, unknown>;
-            return {
-              uid: d.id,
-              email: (data.email as string) || '',
-            };
-          });
-          setTeachingAssistants(loadedTas);
-        }
+        setAttendanceStats(computeStats(loadedStudents, allRecords, allAbsences, allSessions, allOverrides));
+        setTeachingAssistants(loadedTas);
       } finally {
         setLoading(false);
       }
@@ -187,6 +222,7 @@ export default function StudentList() {
         deleteDoc(doc(db, 'users', student.uid)),
       ]);
 
+      invalidateStudentListCache();
       setStudents(prev => prev.filter(s => s.uid !== student.uid));
       setAttendanceStats(prev => {
         const next = { ...prev };
@@ -223,6 +259,7 @@ export default function StudentList() {
     setDeletingTaUid(ta.uid);
     try {
       await deleteDoc(doc(db, 'users', ta.uid));
+      invalidateStudentListCache();
       setTeachingAssistants(prev => prev.filter(t => t.uid !== ta.uid));
       showToast({
         type: 'success',

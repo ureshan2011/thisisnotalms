@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   collection, getDocs, addDoc, updateDoc, doc,
-  serverTimestamp, Timestamp, orderBy, query,
+  serverTimestamp, Timestamp, orderBy, query, limit,
 } from 'firebase/firestore';
 import {
   Plus, StopCircle, Clock, CheckCircle2,
@@ -57,7 +57,7 @@ export default function AttendanceSessions() {
   const [ticking,   setTicking]   = useState<Record<string, number>>({});
 
   const load = useCallback(async () => {
-    const snap = await getDocs(query(collection(db, 'attendanceSessions'), orderBy('createdAt', 'desc')));
+    const snap = await getDocs(query(collection(db, 'attendanceSessions'), orderBy('createdAt', 'desc'), limit(50)));
     setSessions(snap.docs.map(d => firestoreToSession(d.id, d.data() as Record<string, unknown>)));
     setLoading(false);
   }, []);

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { collection, query, where, getDocs, Timestamp, doc, getDoc } from 'firebase/firestore';
-import { CalendarCheck, Clock, BookOpen, CheckCircle } from 'lucide-react';
+import { CalendarCheck, Clock, BookOpen, CheckCircle, Info } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import type { AttendanceRecord, AbsenceNotice, AttendanceSession, AttendanceOverride } from '../../lib/types';
 import { formatDateTime } from '../../lib/utils';
-import { summarizeStudentAttendance, summarizeStudentAttendanceByCourse } from '../../lib/attendanceSummary';
+import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
 import { useFeatureTracking } from '../../lib/useFeatureTracking';
 
 type RawRecord = Omit<AttendanceRecord, 'submittedAt'> & { submittedAt: Timestamp };
@@ -117,11 +117,6 @@ export default function StudentHistory() {
     (bySession[r.sessionId] = bySession[r.sessionId] || []).push(r);
   }
   const summary = summarizeStudentAttendance({ sessions, records, absences, enrolledCourses, overrides });
-  const courseSummaries = summarizeStudentAttendanceByCourse({ sessions, records, absences, enrolledCourses, overrides });
-  const summaryCards = [
-    { label: 'Attended days', value: summary.attendedDays, icon: <CalendarCheck size={16} />, tone: '#059669', bg: 'rgba(16,185,129,0.09)' },
-    { label: 'Absent days', value: summary.absentUnjustifiedDays + summary.absentJustifiedDays, icon: <Clock size={16} />, tone: '#dc2626', bg: 'rgba(239,68,68,0.09)' },
-  ].filter(card => card.value >= 0);
 
   if (loading) return <Layout><div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div></Layout>;
 
@@ -132,40 +127,26 @@ export default function StudentHistory() {
         subtitle="Review your class attendance history"
       />
 
-      {summaryCards.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 max-w-3xl">
-          {summaryCards.map(card => (
-            <div
-              key={card.label}
-              className="rounded-3xl px-4 py-4 animate-fadeIn"
-              style={{ background: 'rgba(255,255,255,0.90)', border: '1px solid rgba(139,92,246,0.10)' }}
-            >
-              <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-2" style={{ background: card.bg, color: card.tone }}>
-                {card.icon}
-              </div>
-              <p className="text-2xl font-black" style={{ color: '#1e1b4b' }}>{card.value}</p>
-              <p className="text-xs font-semibold" style={{ color: '#9ca3af' }}>{card.label}</p>
-            </div>
-          ))}
+      <div
+        className="rounded-3xl px-4 py-4 mb-4 animate-fadeIn max-w-xs"
+        style={{ background: 'rgba(255,255,255,0.90)', border: '1px solid rgba(139,92,246,0.10)' }}
+      >
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center mb-2" style={{ background: 'rgba(16,185,129,0.09)', color: '#059669' }}>
+          <CalendarCheck size={16} />
         </div>
-      )}
+        <p className="text-2xl font-black" style={{ color: '#1e1b4b' }}>{summary.attendedDays}</p>
+        <p className="text-xs font-semibold" style={{ color: '#9ca3af' }}>Days You Have Marked Attendance through Yoobees</p>
+      </div>
 
-      <p className="text-sm font-medium mb-5" style={{ color: '#6b7280' }}>
-        Your attendance is recorded for each class checkpoint shown below.
-      </p>
-
-      {courseSummaries.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5 max-w-4xl">
-          {courseSummaries.map(courseSummary => (
-            <div key={courseSummary.course} className="rounded-3xl px-4 py-4" style={{ background: 'rgba(255,255,255,0.90)', border: '1px solid rgba(139,92,246,0.10)' }}>
-              <p className="font-bold text-sm" style={{ color: '#1e1b4b' }}>{courseSummary.course}</p>
-              <p className="text-xs mt-1" style={{ color: '#059669' }}>Attended: {courseSummary.attendedDays}</p>
-              <p className="text-xs" style={{ color: '#dc2626' }}>Absent: {courseSummary.absentUnjustifiedDays + courseSummary.absentJustifiedDays}</p>
-              <p className="text-[11px]" style={{ color: '#9ca3af' }}>Total sessions: {courseSummary.totalDays}</p>
-            </div>
-          ))}
-        </div>
-      )}
+      <div
+        className="flex items-start gap-3 rounded-2xl px-4 py-3 mb-5 max-w-2xl"
+        style={{ background: 'rgba(124,58,237,0.05)', border: '1px solid rgba(124,58,237,0.12)' }}
+      >
+        <Info size={15} className="flex-shrink-0 mt-0.5" style={{ color: '#7c3aed' }} />
+        <p className="text-xs font-medium leading-relaxed" style={{ color: '#4c1d95' }}>
+          Yoobees is a tool to support students and to keep students engaged. The final attendance will be recorded in the Yoobee Official Internal system.
+        </p>
+      </div>
 
       {records.length === 0 ? (
         <div
@@ -262,30 +243,6 @@ export default function StudentHistory() {
         </div>
       )}
 
-      {absences.length > 0 && (
-        <div className="mt-6 max-w-2xl">
-          <h3 className="font-bold text-sm mb-3" style={{ color: '#1e1b4b' }}>Submitted absence notices</h3>
-          <div className="space-y-2">
-            {absences.map(a => (
-              <div
-                key={a.id}
-                className="rounded-2xl px-4 py-3 flex items-start justify-between gap-3"
-                style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid rgba(139,92,246,0.10)' }}
-              >
-                <div className="min-w-0">
-                  <p className="text-xs font-bold uppercase tracking-wide" style={{ color: a.status === 'excused' ? '#2563eb' : '#dc2626' }}>
-                    {a.status} · {a.reportDateKey}
-                  </p>
-                  <p className="text-sm font-medium mt-1" style={{ color: '#6b7280' }}>{a.reason}</p>
-                </div>
-                <span className="text-[11px] font-medium whitespace-nowrap" style={{ color: '#9ca3af' }}>
-                  {formatDateTime(a.createdAt)}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </Layout>
   );
 }

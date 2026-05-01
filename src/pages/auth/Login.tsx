@@ -313,7 +313,7 @@ export default function Login() {
         if (nextPath) { navigate(nextPath); return; }
         const r = role;
         if (r === 'lecturer' || r === 'teachingAssistant') navigate('/lecturer/dashboard');
-        else navigate('/student/profile');
+        else navigate('/student/dashboard');
       }, 100);
     } catch (err: unknown) {
       showToast({ type: 'error', title: 'Sign-in failed', description: friendlyError(err) });

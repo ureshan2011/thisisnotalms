@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { QUOTE_ITEMS, FADE_MS, HOLD_MS } from '../../lib/quotes';
 
 export default function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   const dims = size === 'sm' ? 'h-4 w-4' : size === 'lg' ? 'h-10 w-10' : 'h-6 w-6';
@@ -13,99 +14,34 @@ export default function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | '
   );
 }
 
-// ─── Rotating content shown during the full-page auth / route load ───────────
-
-type ItemType = 'quote' | 'reminder';
-
-interface Item {
-  text: string;
-  author: string;
-  label: string;
-  type: ItemType;
-}
-
-const ITEMS: Item[] = [
-  {
-    text: 'Your work is going to fill a large part of your life, and the only way to be truly satisfied is to do what you believe is great work.',
-    author: 'Steve Jobs',
-    label: 'Apple Co-Founder',
-    type: 'quote',
-  },
-  {
-    text: 'Never share your assessment answer scripts via email or Microsoft Teams — your academic integrity defines your professional future.',
-    author: 'A reminder from your faculty',
-    label: '',
-    type: 'reminder',
-  },
-  {
-    text: 'Imagination is more important than knowledge. Knowledge is limited. Imagination encircles the world.',
-    author: 'Albert Einstein',
-    label: 'Theoretical Physicist',
-    type: 'quote',
-  },
-  {
-    text: 'You are a postgraduate student. Your thesis will be read, cited, and remembered for years — make it something you are genuinely proud of.',
-    author: 'A reminder from your faculty',
-    label: '',
-    type: 'reminder',
-  },
-  {
-    text: 'You should hope to do something in your life that is hard. Things that are easy are not worth doing.',
-    author: 'Jensen Huang',
-    label: 'CEO, NVIDIA',
-    type: 'quote',
-  },
-  {
-    text: 'Logical reasoning is a skill built through practice and discipline — it cannot be outsourced to AI. It must be developed by you.',
-    author: 'A reminder from your faculty',
-    label: '',
-    type: 'reminder',
-  },
-  {
-    text: 'In the middle of every difficulty lies opportunity.',
-    author: 'Albert Einstein',
-    label: 'Theoretical Physicist',
-    type: 'quote',
-  },
-  {
-    text: 'Stay hungry, stay foolish.',
-    author: 'Steve Jobs',
-    label: 'Apple Co-Founder',
-    type: 'quote',
-  },
-  {
-    text: 'Do things others say cannot be done. The future belongs to those who refuse to accept limits.',
-    author: 'Jensen Huang',
-    label: 'CEO, NVIDIA',
-    type: 'quote',
-  },
-  {
-    text: 'The measure of intelligence is the ability to change.',
-    author: 'Albert Einstein',
-    label: 'Theoretical Physicist',
-    type: 'quote',
-  },
-];
-
-const FADE_MS = 400;
-const HOLD_MS = 5000;
-
 export function FullPageSpinner() {
   const [index,   setIndex]   = useState(0);
   const [visible, setVisible] = useState(true);
 
+  // Cycle through quotes; 5-second hold gives students time to read each one
   useEffect(() => {
     const timer = setInterval(() => {
       setVisible(false);
       setTimeout(() => {
-        setIndex(i => (i + 1) % ITEMS.length);
+        setIndex(i => (i + 1) % QUOTE_ITEMS.length);
         setVisible(true);
       }, FADE_MS);
     }, HOLD_MS);
     return () => clearInterval(timer);
   }, []);
 
-  const item = ITEMS[index];
+  // Prefetch high-traffic page chunks in the background while the screen shows
+  useEffect(() => {
+    const t = setTimeout(() => {
+      import('../../pages/student/StudentDashboard').catch(() => {});
+      import('../../pages/student/StudentProfile').catch(() => {});
+      import('../../pages/lecturer/Dashboard').catch(() => {});
+      import('../../pages/auth/Login').catch(() => {});
+    }, 300);
+    return () => clearTimeout(t);
+  }, []);
+
+  const item = QUOTE_ITEMS[index];
 
   return (
     <div style={{
@@ -186,7 +122,7 @@ export function FullPageSpinner() {
 
       {/* Progress dots */}
       <div style={{ display: 'flex', gap: 6, marginTop: '2.5rem', alignItems: 'center' }}>
-        {ITEMS.map((_, i) => (
+        {QUOTE_ITEMS.map((_, i) => (
           <div key={i} style={{
             width: i === index ? 20 : 6, height: 6, borderRadius: 3,
             background: i === index ? '#7c3aed' : 'rgba(139,92,246,0.22)',

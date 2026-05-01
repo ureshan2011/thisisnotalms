@@ -19,7 +19,10 @@ import type { UserRole } from '../lib/types';
 import { logEvent } from '../lib/eventLog';
 
 const SESSION_START_KEY = 'yoobees_session_start';
-const SESSION_UID_KEY = 'yoobees_session_uid';
+const SESSION_UID_KEY   = 'yoobees_session_uid';
+
+// Show the loading screen for at least this long so students can read the quotes
+const MIN_LOADING_MS = 5_000;
 
 const SIGNIN_EMAIL_KEY = 'yoobees_signin_email';
 
@@ -50,6 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const startedAt = Date.now();
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       try {
         if (firebaseUser) {
@@ -61,7 +65,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setRole(null);
         }
       } finally {
-        setLoading(false);
+        // Ensure the loading screen is visible for at least MIN_LOADING_MS so
+        // students have time to read at least one full quote before proceeding.
+        const elapsed = Date.now() - startedAt;
+        const wait    = Math.max(0, MIN_LOADING_MS - elapsed);
+        setTimeout(() => setLoading(false), wait);
       }
     });
     return unsub;

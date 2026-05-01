@@ -1,71 +1,71 @@
+import { lazy, Suspense } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { FullPageSpinner } from './components/ui/LoadingSpinner';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import { ToastProvider } from './components/ui/ToastProvider';
 
-// Auth pages
-import Login    from './pages/auth/Login';
-import Register from './pages/auth/Register';
+// Auth pages — lazy-loaded; only downloaded when the user reaches login/register
+const Login    = lazy(() => import('./pages/auth/Login'));
+const Register = lazy(() => import('./pages/auth/Register'));
 
-// Student pages
-import StudentDashboard  from './pages/student/StudentDashboard';
-import StudentProfile    from './pages/student/StudentProfile';
-import StudentAttendance from './pages/student/StudentAttendance';
-import StudentHistory    from './pages/student/StudentHistory';
-import QuickAttend       from './pages/student/QuickAttend';
-import MBI802Resources   from './pages/student/MBI802Resources';
-import CourseResources   from './pages/student/CourseResources';
+// Student pages — lazy-loaded per route
+const StudentDashboard  = lazy(() => import('./pages/student/StudentDashboard'));
+const StudentProfile    = lazy(() => import('./pages/student/StudentProfile'));
+const StudentAttendance = lazy(() => import('./pages/student/StudentAttendance'));
+const StudentHistory    = lazy(() => import('./pages/student/StudentHistory'));
+const QuickAttend       = lazy(() => import('./pages/student/QuickAttend'));
+const CourseResources   = lazy(() => import('./pages/student/CourseResources'));
+const StudentPlayground = lazy(() => import('./pages/student/StudentPlayground'));
 
-// Lecturer pages
-import Dashboard          from './pages/lecturer/Dashboard';
-import StudentList        from './pages/lecturer/StudentList';
-import StudentDetail      from './pages/lecturer/StudentDetail';
-import AttendanceSessions from './pages/lecturer/AttendanceSessions';
-import AttendanceResults  from './pages/lecturer/AttendanceResults';
-import LivePlayground     from './pages/lecturer/LivePlayground';
-
-// Student playground
-import StudentPlayground  from './pages/student/StudentPlayground';
+// Lecturer pages — lazy-loaded per route
+const Dashboard          = lazy(() => import('./pages/lecturer/Dashboard'));
+const StudentList        = lazy(() => import('./pages/lecturer/StudentList'));
+const StudentDetail      = lazy(() => import('./pages/lecturer/StudentDetail'));
+const AttendanceSessions = lazy(() => import('./pages/lecturer/AttendanceSessions'));
+const AttendanceResults  = lazy(() => import('./pages/lecturer/AttendanceResults'));
+const LivePlayground     = lazy(() => import('./pages/lecturer/LivePlayground'));
 
 function RootRedirect() {
   const { user, role, loading } = useAuth();
-  if (loading)          return <FullPageSpinner />;
-  if (!user)            return <Navigate to="/login"              replace />;
+  if (loading) return <FullPageSpinner />;
+  if (!user)   return <Navigate to="/login" replace />;
   if (role === 'lecturer' || role === 'teachingAssistant') return <Navigate to="/lecturer/dashboard" replace />;
-  return                       <Navigate to="/student/dashboard"  replace />;
+  return <Navigate to="/student/dashboard" replace />;
 }
 
 function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/"        element={<RootRedirect />} />
-      <Route path="/login"        element={<Login />} />
-      <Route path="/register"     element={<Register />} />
-      <Route path="/attend/:code" element={<QuickAttend />} />
+    <Suspense fallback={<FullPageSpinner />}>
+      <Routes>
+        <Route path="/"             element={<RootRedirect />} />
+        <Route path="/login"        element={<Login />} />
+        <Route path="/register"     element={<Register />} />
+        <Route path="/attend/:code" element={<QuickAttend />} />
 
-      {/* Student routes */}
-      <Route path="/student/dashboard"  element={<ProtectedRoute allowedRoles={["student"]}><StudentDashboard /></ProtectedRoute>} />
-      <Route path="/student/profile"    element={<ProtectedRoute allowedRoles={["student"]}><StudentProfile /></ProtectedRoute>} />
-      <Route path="/student/attendance" element={<ProtectedRoute allowedRoles={["student"]}><StudentAttendance /></ProtectedRoute>} />
-      <Route path="/student/history"    element={<ProtectedRoute allowedRoles={["student"]}><StudentHistory /></ProtectedRoute>} />
-      <Route path="/student/course-resources"  element={<ProtectedRoute allowedRoles={["student"]}><CourseResources /></ProtectedRoute>} />
-      <Route path="/student/mbi802-resources"  element={<Navigate to="/student/course-resources" replace />} />
-      <Route path="/student/playground"      element={<ProtectedRoute allowedRoles={["student"]}><StudentPlayground /></ProtectedRoute>} />
+        {/* Student routes */}
+        <Route path="/student/dashboard"       element={<ProtectedRoute allowedRoles={['student']}><StudentDashboard /></ProtectedRoute>} />
+        <Route path="/student/profile"         element={<ProtectedRoute allowedRoles={['student']}><StudentProfile /></ProtectedRoute>} />
+        <Route path="/student/attendance"      element={<ProtectedRoute allowedRoles={['student']}><StudentAttendance /></ProtectedRoute>} />
+        <Route path="/student/history"         element={<ProtectedRoute allowedRoles={['student']}><StudentHistory /></ProtectedRoute>} />
+        <Route path="/student/course-resources" element={<ProtectedRoute allowedRoles={['student']}><CourseResources /></ProtectedRoute>} />
+        <Route path="/student/mbi802-resources" element={<Navigate to="/student/course-resources" replace />} />
+        <Route path="/student/playground"      element={<ProtectedRoute allowedRoles={['student']}><StudentPlayground /></ProtectedRoute>} />
 
-      {/* Lecturer routes */}
-      <Route path="/lecturer/dashboard"         element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><Dashboard /></ProtectedRoute>} />
-      <Route path="/lecturer/students"          element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><StudentList /></ProtectedRoute>} />
-      <Route path="/lecturer/students/:id"      element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><StudentDetail /></ProtectedRoute>} />
-      <Route path="/lecturer/attendance"        element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><AttendanceSessions /></ProtectedRoute>} />
-      <Route path="/lecturer/attendance/:id"    element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><AttendanceResults /></ProtectedRoute>} />
-      <Route path="/lecturer/course-resources"  element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><CourseResources /></ProtectedRoute>} />
-      <Route path="/lecturer/mbi802-resources"  element={<Navigate to="/lecturer/course-resources" replace />} />
-      <Route path="/lecturer/playground"      element={<ProtectedRoute allowedRoles={["lecturer", "teachingAssistant"]}><LivePlayground /></ProtectedRoute>} />
+        {/* Lecturer routes */}
+        <Route path="/lecturer/dashboard"        element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><Dashboard /></ProtectedRoute>} />
+        <Route path="/lecturer/students"         element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><StudentList /></ProtectedRoute>} />
+        <Route path="/lecturer/students/:id"     element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><StudentDetail /></ProtectedRoute>} />
+        <Route path="/lecturer/attendance"       element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><AttendanceSessions /></ProtectedRoute>} />
+        <Route path="/lecturer/attendance/:id"   element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><AttendanceResults /></ProtectedRoute>} />
+        <Route path="/lecturer/course-resources" element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><CourseResources /></ProtectedRoute>} />
+        <Route path="/lecturer/mbi802-resources" element={<Navigate to="/lecturer/course-resources" replace />} />
+        <Route path="/lecturer/playground"       element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><LivePlayground /></ProtectedRoute>} />
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 }
 

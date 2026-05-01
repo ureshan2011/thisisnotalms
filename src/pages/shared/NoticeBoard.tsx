@@ -13,6 +13,14 @@ import Layout from '../../components/layout/Layout';
 import Modal from '../../components/ui/Modal';
 import type { Notice } from '../../lib/types';
 
+const STAFF_NAME_MAP: Record<string, string> = {
+  'ureshan2011@gmail.com': 'Dr. Yasas',
+};
+
+function resolveAuthorName(raw: string): string {
+  return STAFF_NAME_MAP[raw.toLowerCase()] ?? raw;
+}
+
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 function SkeletonCards() {
   return (
@@ -139,7 +147,7 @@ function NoticeCard({
       {/* Footer */}
       <div className="flex items-center gap-1 mt-3 pt-3" style={{ borderTop: '1px solid rgba(139,92,246,0.08)' }}>
         <span className="text-xs text-gray-400">
-          Posted by <span className="font-medium text-gray-500">{notice.authorName}</span>
+          Posted by <span className="font-medium text-gray-500">{resolveAuthorName(notice.authorName)}</span>
           {timeAgo ? ` · ${timeAgo}` : ''}
         </span>
       </div>
@@ -207,7 +215,7 @@ export default function NoticeBoard() {
         await addDoc(collection(db, 'notices'), {
           ...form,
           authorUid:  user.uid,
-          authorName: user.displayName || user.email || 'Staff',
+          authorName: resolveAuthorName(user.displayName || user.email || 'Staff'),
           createdAt:  serverTimestamp(),
         });
         showToast({ type: 'success', title: 'Notice posted' });

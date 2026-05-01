@@ -23,6 +23,7 @@ import MBI802Quiz from '../../components/quiz/MBI802Quiz';
 import QuizResultsDashboard from '../../components/quiz/QuizResultsDashboard';
 import SQLProgrammingDeck from '../../components/slides/SQLProgrammingDeck';
 import ERDiagramsDeck from '../../components/slides/ERDiagramsDeck';
+import SISPPromptLab from '../../components/lab/SISPPromptLab';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
 import type { StudentProfile } from '../../lib/types';
@@ -53,7 +54,15 @@ const COURSES: Course[] = [
     tagline: 'Business Information Systems',
     accentColor: '#0ea5e9',
     bgGradient: 'linear-gradient(135deg, rgba(14,165,233,0.08), rgba(56,189,248,0.04))',
-    lessons: [],
+    lessons: [
+      {
+        id: 'sisp-lab',
+        title: 'SISP Prompt Engineering Lab',
+        subtitle: '5 scenario-based challenges · AI-evaluated · Covers Iceberg Model, Process Dimensions, Participation, Consistency & Methodology',
+        icon: <FlaskConical size={18} />,
+        accentColor: '#0ea5e9',
+      },
+    ],
   },
   {
     id: 'MBI802',
@@ -564,6 +573,7 @@ export default function CourseResources() {
                   {lesson.id === 'quiz' && (
                     <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                   )}
+                  {lesson.id === 'sisp-lab' && <SISPPromptLab />}
                 </LessonRow>
               ))}
             </div>

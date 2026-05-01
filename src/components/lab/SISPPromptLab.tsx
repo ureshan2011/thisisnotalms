@@ -69,7 +69,7 @@ interface ChallengeState {
 
 const ACCENT = '#0ea5e9';
 const LS_PROGRESS = 'sisp_lab_v1_progress';
-const LS_API_KEY  = 'sisp_lab_v1_gemini_key';
+const LS_API_KEY  = 'sisp_lab_v1_groq_key';
 
 const PERF_CONFIG = {
   Weak:       { color: '#ef4444', bg: 'rgba(239,68,68,0.10)',    label: 'Weak',       range: '0–40'   },
@@ -272,32 +272,40 @@ Return a JSON object with exactly these fields:
   "overallFeedback": "<2-3 sentences: encouraging but honest professional assessment>"
 }`;
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 1400,
-          responseMimeType: 'application/json',
-        },
-      }),
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
     },
-  );
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user',   content: userMessage },
+      ],
+      temperature: 0.2,
+      max_tokens: 1400,
+      response_format: { type: 'json_object' },
+    }),
+  });
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({})) as { error?: { message?: string } };
-    throw new Error(err?.error?.message ?? `API error ${res.status}`);
+    const msg = err?.error?.message ?? `API error ${res.status}`;
+    throw new Error(
+      res.status === 429
+        ? 'Rate limit reached. Wait a moment and try again — Groq\'s free tier allows 30 requests per minute.'
+        : res.status === 401
+        ? 'Invalid API key. Make sure you copied the full key from console.groq.com.'
+        : msg,
+    );
   }
 
-  const data = await res.json() as { candidates?: { content: { parts: { text: string }[] } }[] };
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+  const data = await res.json() as { choices?: { message: { content: string } }[] };
+  const text = data.choices?.[0]?.message?.content ?? '';
   const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error('Could not parse evaluation response.');
+  if (!jsonMatch) throw new Error('Could not parse evaluation response. Please try again.');
   return JSON.parse(jsonMatch[0]) as EvaluationResult;
 }
 
@@ -712,7 +720,7 @@ export default function SISPPromptLab() {
   }, [keyDraft]);
 
   const handleEvaluate = useCallback(async (challenge: Challenge) => {
-    if (!apiKey) { updateState(challenge.id, { error: 'Please save your Gemini API key first. Get one free at aistudio.google.com.' }); return; }
+    if (!apiKey) { updateState(challenge.id, { error: 'Please save your Groq API key first. Get one free at console.groq.com — no credit card required.' }); return; }
     const prompt = states[challenge.id].prompt.trim();
     if (prompt.length < 80) return;
 
@@ -827,7 +835,7 @@ export default function SISPPromptLab() {
           <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider"
             style={{ color: apiKey ? '#10b981' : '#d97706' }}>
             <Key size={13} />
-            {apiKey ? 'Gemini API Key · Configured' : 'Gemini API Key · Required to Evaluate (Free)'}
+            {apiKey ? 'Groq API Key · Configured' : 'Groq API Key · Required to Evaluate (100% Free)'}
             {keySaved && <Check size={13} />}
           </span>
           <ChevronDown size={16} style={{
@@ -839,14 +847,15 @@ export default function SISPPromptLab() {
           <div className="px-5 pb-5 pt-3 animate-fadeIn"
             style={{ borderTop: `1px solid ${apiKey ? 'rgba(16,185,129,0.15)' : 'rgba(234,179,8,0.2)'}` }}>
             <p className="text-xs leading-5 mb-3" style={{ color: '#6b7280' }}>
-              This lab uses Google Gemini's free API tier — no credit card required. Your key is stored
-              only in this browser's localStorage and sent only to Google's servers during evaluation.
-              Get a free key at{' '}
-              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer"
+              This lab uses the <strong>Groq API</strong> — completely free, no credit card required,
+              no usage fees. Your key is stored only in this browser's localStorage and sent only to
+              Groq's servers during evaluation. Get a free key at{' '}
+              <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer"
                 className="font-semibold underline" style={{ color: ACCENT }}>
-                aistudio.google.com/apikey
+                console.groq.com/keys
               </a>{' '}
-              (sign in with any Google account, then click <em>Create API key</em>).
+              (sign up with email or Google, then click <em>Create API key</em>).
+              Your key will start with <code className="font-mono">gsk_</code>.
             </p>
             <div className="flex gap-2">
               <div className="relative flex-1">
@@ -854,7 +863,7 @@ export default function SISPPromptLab() {
                   type={showKey ? 'text' : 'password'}
                   value={keyDraft}
                   onChange={e => setKeyDraft(e.target.value)}
-                  placeholder="sk-ant-…"
+                  placeholder="gsk_…"
                   className="w-full rounded-xl px-4 py-2.5 text-sm outline-none transition-all pr-10"
                   style={{ border: '1.5px solid rgba(139,92,246,0.20)', background: 'rgba(255,255,255,0.9)', color: '#1e1b4b' }}
                 />

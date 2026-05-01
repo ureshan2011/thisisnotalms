@@ -3,7 +3,7 @@ import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import {
   LayoutDashboard, Users, CalendarCheck, LogOut,
-  User, History, Menu, X, ChevronRight, BookOpen, Radio,
+  User, History, Menu, X, ChevronRight, BookOpen, Radio, Bell,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import BrandMark from '../ui/BrandMark';
@@ -38,6 +38,7 @@ function SidebarContent({
     { to: '/student/profile',    icon: <User size={18} />,            label: 'My Profile' },
     { to: '/student/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
     { to: '/student/history',    icon: <History size={18} />,         label: 'My History' },
+    { to: '/student/notices',    icon: <Bell size={18} />,            label: 'Notice Board' },
     { to: '/student/playground', icon: <Radio size={18} />,           label: 'Live Lesson' },
     ...(canViewCourseResources
       ? [{ to: '/student/course-resources', icon: <BookOpen size={18} />, label: 'Course Resources', isNew: showNewBadge }]
@@ -46,6 +47,7 @@ function SidebarContent({
 
   const lecturerLinks: NavItem[] = [
     { to: '/lecturer/dashboard',  icon: <LayoutDashboard size={18} />, label: 'Dashboard' },
+    { to: '/lecturer/notices',    icon: <Bell size={18} />,            label: 'Notice Board' },
     { to: '/lecturer/students',   icon: <Users size={18} />,           label: 'Students' },
     { to: '/lecturer/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
     { to: '/lecturer/playground', icon: <Radio size={18} />,           label: 'Live Playground' },

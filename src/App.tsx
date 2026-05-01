@@ -18,6 +18,9 @@ const QuickAttend       = lazy(() => import('./pages/student/QuickAttend'));
 const CourseResources   = lazy(() => import('./pages/student/CourseResources'));
 const StudentPlayground = lazy(() => import('./pages/student/StudentPlayground'));
 
+// Shared pages — lazy-loaded per route
+const NoticeBoard = lazy(() => import('./pages/shared/NoticeBoard'));
+
 // Lecturer pages — lazy-loaded per route
 const Dashboard          = lazy(() => import('./pages/lecturer/Dashboard'));
 const StudentList        = lazy(() => import('./pages/lecturer/StudentList'));
@@ -51,6 +54,7 @@ function AppRoutes() {
         <Route path="/student/course-resources" element={<ProtectedRoute allowedRoles={['student']}><CourseResources /></ProtectedRoute>} />
         <Route path="/student/mbi802-resources" element={<Navigate to="/student/course-resources" replace />} />
         <Route path="/student/playground"      element={<ProtectedRoute allowedRoles={['student']}><StudentPlayground /></ProtectedRoute>} />
+        <Route path="/student/notices"         element={<ProtectedRoute allowedRoles={['student']}><NoticeBoard /></ProtectedRoute>} />
 
         {/* Lecturer routes */}
         <Route path="/lecturer/dashboard"        element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><Dashboard /></ProtectedRoute>} />
@@ -61,6 +65,7 @@ function AppRoutes() {
         <Route path="/lecturer/course-resources" element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><CourseResources /></ProtectedRoute>} />
         <Route path="/lecturer/mbi802-resources" element={<Navigate to="/lecturer/course-resources" replace />} />
         <Route path="/lecturer/playground"       element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><LivePlayground /></ProtectedRoute>} />
+        <Route path="/lecturer/notices"          element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><NoticeBoard /></ProtectedRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -69,7 +69,7 @@ interface ChallengeState {
 
 const ACCENT = '#0ea5e9';
 const LS_PROGRESS = 'sisp_lab_v1_progress';
-const LS_API_KEY  = 'sisp_lab_v1_apikey';
+const LS_API_KEY  = 'sisp_lab_v1_gemini_key';
 
 const PERF_CONFIG = {
   Weak:       { color: '#ef4444', bg: 'rgba(239,68,68,0.10)',    label: 'Weak',       range: '0–40'   },
@@ -272,29 +272,30 @@ Return a JSON object with exactly these fields:
   "overallFeedback": "<2-3 sentences: encouraging but honest professional assessment>"
 }`;
 
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 1400,
+          responseMimeType: 'application/json',
+        },
+      }),
     },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1400,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: userMessage }],
-    }),
-  });
+  );
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({})) as { error?: { message?: string } };
     throw new Error(err?.error?.message ?? `API error ${res.status}`);
   }
 
-  const data = await res.json() as { content: { text: string }[] };
-  const text = data.content?.[0]?.text ?? '';
+  const data = await res.json() as { candidates?: { content: { parts: { text: string }[] } }[] };
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error('Could not parse evaluation response.');
   return JSON.parse(jsonMatch[0]) as EvaluationResult;
@@ -711,7 +712,7 @@ export default function SISPPromptLab() {
   }, [keyDraft]);
 
   const handleEvaluate = useCallback(async (challenge: Challenge) => {
-    if (!apiKey) { updateState(challenge.id, { error: 'Please save your Claude API key first.' }); return; }
+    if (!apiKey) { updateState(challenge.id, { error: 'Please save your Gemini API key first. Get one free at aistudio.google.com.' }); return; }
     const prompt = states[challenge.id].prompt.trim();
     if (prompt.length < 80) return;
 
@@ -826,7 +827,7 @@ export default function SISPPromptLab() {
           <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider"
             style={{ color: apiKey ? '#10b981' : '#d97706' }}>
             <Key size={13} />
-            {apiKey ? 'Claude API Key · Configured' : 'Claude API Key · Required to Evaluate'}
+            {apiKey ? 'Gemini API Key · Configured' : 'Gemini API Key · Required to Evaluate (Free)'}
             {keySaved && <Check size={13} />}
           </span>
           <ChevronDown size={16} style={{
@@ -838,9 +839,14 @@ export default function SISPPromptLab() {
           <div className="px-5 pb-5 pt-3 animate-fadeIn"
             style={{ borderTop: `1px solid ${apiKey ? 'rgba(16,185,129,0.15)' : 'rgba(234,179,8,0.2)'}` }}>
             <p className="text-xs leading-5 mb-3" style={{ color: '#6b7280' }}>
-              This lab calls the Claude API directly from your browser. Your key is stored only in this
-              browser's localStorage and never sent anywhere except Anthropic's servers.
-              Obtain a key at <span className="font-semibold">console.anthropic.com</span>.
+              This lab uses Google Gemini's free API tier — no credit card required. Your key is stored
+              only in this browser's localStorage and sent only to Google's servers during evaluation.
+              Get a free key at{' '}
+              <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer"
+                className="font-semibold underline" style={{ color: ACCENT }}>
+                aistudio.google.com/apikey
+              </a>{' '}
+              (sign in with any Google account, then click <em>Create API key</em>).
             </p>
             <div className="flex gap-2">
               <div className="relative flex-1">

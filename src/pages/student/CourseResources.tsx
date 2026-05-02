@@ -24,6 +24,7 @@ import QuizResultsDashboard from '../../components/quiz/QuizResultsDashboard';
 import SQLProgrammingDeck from '../../components/slides/SQLProgrammingDeck';
 import ERDiagramsDeck from '../../components/slides/ERDiagramsDeck';
 import ERDiagramActivitiesDeck from '../../components/slides/ERDiagramActivitiesDeck';
+import ERAdvancedConceptsDeck from '../../components/slides/ERAdvancedConceptsDeck';
 import SISPPromptLab from '../../components/lab/SISPPromptLab';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
@@ -99,6 +100,13 @@ const COURSES: Course[] = [
         subtitle: '12-slide activity deck · 5 real-world scenarios · Library, University, Hospital, Online Store, Hotel',
         icon: <FlaskConical size={18} />,
         accentColor: '#1d4ed8',
+      },
+      {
+        id: 'er-advanced',
+        title: 'Advanced ER Concepts',
+        subtitle: '11-slide deck · Weak entities, identifying relationships, multivalued & derived attributes · 2 exercises',
+        icon: <BookOpen size={18} />,
+        accentColor: '#3b82f6',
       },
       {
         id: 'quiz',
@@ -579,6 +587,7 @@ export default function CourseResources() {
                   {lesson.id === 'slides' && <SlidesLesson />}
                   {lesson.id === 'er' && <ERDiagramsDeck />}
                   {lesson.id === 'er-activities' && <ERDiagramActivitiesDeck />}
+                  {lesson.id === 'er-advanced' && <ERAdvancedConceptsDeck />}
                   {lesson.id === 'quiz' && (
                     <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                   )}

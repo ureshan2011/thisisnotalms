@@ -53,60 +53,44 @@ interface Course {
 
 // ── Video clip data — replace placeholder URLs with real SharePoint sharing links ──
 
-const ER_VIDEOS: VideoClip[] = [
-  {
-    title: 'ER Diagram – Part 1',
-    description: 'Introduction to entities and attributes',
-    url: 'PASTE_SHAREPOINT_URL',
-  },
-  {
-    title: 'ER Diagram – Part 2',
-    description: 'Relationships and cardinality',
-    url: 'PASTE_SHAREPOINT_URL',
-  },
-  {
-    title: 'ER Diagram – Part 3',
-    description: 'Worked examples and practice',
-    url: 'PASTE_SHAREPOINT_URL',
-  },
-];
+const BASE = import.meta.env.BASE_URL;
 
 const ADVANCED_ER_VIDEOS: VideoClip[] = [
   {
     title: 'Advanced ER Activities – Introduction',
     description: 'Introductory Video for the Adcanced ER Diagram Activities',
     url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQCRe7UEzG6kS7qnD0YIKL26AXyVXup4iuZNvCtm-H_bWM0?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=YwGTJM',
-    thumbnailUrl: '/Intro.png',
+    thumbnailUrl: `${BASE}Intro.png`,
   },
   {
     title: 'Advanced ER – Activity 1 Answer',
     description: 'Discussion for the Activity 1',
     url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQCWj89h_cAfR5PdPJKJ6n6FAXxIUVcLFYr_ZWS9C2Z6jB4?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=KSzPeg',
-    thumbnailUrl: '/Activity1.png',
+    thumbnailUrl: `${BASE}Activity1.png`,
   },
   {
     title: 'Advanced ER – Activity 2 Answer',
     description: 'Discussion for the Activity 2',
     url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQDIM1P8eEAGSJ40okuBoQIjAQWu9LRaOkyerxnAQSwuyps?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=OjX2gq',
-    thumbnailUrl: '/Activity2.png',
+    thumbnailUrl: `${BASE}Activity2.png`,
   },
   {
     title: 'Advanced ER – Activity 3 Answer',
     description: 'Discussion for the Activity 3',
     url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQD5DSbZ-mhTTaozgGbU3wPxAe4p7vmen4W4ugIUFGPsBLY?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=DQzH0y',
-    thumbnailUrl: '/Activity3.png',
+    thumbnailUrl: `${BASE}Activity3.png`,
   },
   {
     title: 'Advanced ER – Activity 4 Answer',
     description: 'Discussion for the Activity 4',
     url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQD5DSbZ-mhTTaozgGbU3wPxAe4p7vmen4W4ugIUFGPsBLY?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=sLu72l',
-    thumbnailUrl: '/Activity4.png',
+    thumbnailUrl: `${BASE}Activity4.png`,
   },
   {
     title: 'Advanced ER – Activity 5 Answer',
     description: 'Discussion for the Activity 5',
     url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQCckQ8T7ucbT5G_5j-94JV8Aei2NKaqfnJQIaQ_30vBWDg?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=0HJNTl',
-    thumbnailUrl: '/Activity5.png',
+    thumbnailUrl: `${BASE}Activity5.png`,
   },
 ];
 
@@ -646,12 +630,7 @@ export default function CourseResources() {
                 >
                   {lesson.id === 'setup' && <SetupLesson />}
                   {lesson.id === 'slides' && <SlidesLesson />}
-{lesson.id === 'er' && (
-  <div>
-    <ERDiagramsDeck />
-    <VideoGallery videos={ER_VIDEOS} accentColor="#0d7a72" />
-  </div>
-)}
+                  {lesson.id === 'er' && <ERDiagramsDeck />}
 {lesson.id === 'er-activities' && <ERDiagramActivitiesDeck />}
 {lesson.id === 'er-advanced' && (
   <div>

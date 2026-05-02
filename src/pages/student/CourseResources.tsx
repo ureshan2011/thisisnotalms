@@ -16,6 +16,7 @@ import {
   Presentation,
   ClipboardList,
   GitBranch,
+  Film,
 } from 'lucide-react';
 import Layout from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -23,6 +24,7 @@ import MBI802Quiz from '../../components/quiz/MBI802Quiz';
 import QuizResultsDashboard from '../../components/quiz/QuizResultsDashboard';
 import SQLProgrammingDeck from '../../components/slides/SQLProgrammingDeck';
 import ERDiagramsDeck from '../../components/slides/ERDiagramsDeck';
+import VideoGallery, { type VideoClip } from '../../components/slides/VideoGallery';
 import ERDiagramActivitiesDeck from '../../components/slides/ERDiagramActivitiesDeck';
 import ERAdvancedConceptsDeck from '../../components/slides/ERAdvancedConceptsDeck';
 import SISPPromptLab from '../../components/lab/SISPPromptLab';
@@ -48,6 +50,59 @@ interface Course {
   bgGradient: string;
   lessons: Lesson[];
 }
+
+// ── Video clip data — replace placeholder URLs with real SharePoint sharing links ──
+
+const ER_VIDEOS: VideoClip[] = [
+  {
+    title: 'ER Diagram – Part 1',
+    description: 'Introduction to entities and attributes',
+    url: 'PASTE_SHAREPOINT_URL',
+  },
+  {
+    title: 'ER Diagram – Part 2',
+    description: 'Relationships and cardinality',
+    url: 'PASTE_SHAREPOINT_URL',
+  },
+  {
+    title: 'ER Diagram – Part 3',
+    description: 'Worked examples and practice',
+    url: 'PASTE_SHAREPOINT_URL',
+  },
+];
+
+const ADVANCED_ER_VIDEOS: VideoClip[] = [
+  {
+    title: 'Advanced ER Activities – Introduction',
+    description: 'Introductory Video for the Adcanced ER Diagram Activities',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQCRe7UEzG6kS7qnD0YIKL26AXyVXup4iuZNvCtm-H_bWM0?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=YwGTJM',
+  },
+  {
+    title: 'Advanced ER – Activity 1 Answer',
+    description: 'Discussion for the Activity 1',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQCWj89h_cAfR5PdPJKJ6n6FAXxIUVcLFYr_ZWS9C2Z6jB4?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=KSzPeg',
+  },
+  {
+    title: 'Advanced ER – Activity 2 Answer',
+    description: 'Discussion for the Activity 2',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQDIM1P8eEAGSJ40okuBoQIjAQWu9LRaOkyerxnAQSwuyps?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=OjX2gq',
+  },
+    {
+    title: 'Advanced ER – Activity 3 Answer',
+    description: 'Discussion for the Activity 3',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQD5DSbZ-mhTTaozgGbU3wPxAe4p7vmen4W4ugIUFGPsBLY?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=DQzH0y',
+  },
+    {
+    title: 'Advanced ER – Activity 4 Answer',
+    description: 'Discussion for the Activity 4',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQD5DSbZ-mhTTaozgGbU3wPxAe4p7vmen4W4ugIUFGPsBLY?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=sLu72l',
+  },
+    {
+    title: 'Advanced ER – Activity 5 Answer',
+    description: 'Discussion for the Activity 5',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQCckQ8T7ucbT5G_5j-94JV8Aei2NKaqfnJQIaQ_30vBWDg?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=0HJNTl',
+  },
+];
 
 const COURSES: Course[] = [
   {
@@ -114,6 +169,13 @@ const COURSES: Course[] = [
         subtitle: '38 questions · No time limit · Unlimited attempts',
         icon: <ClipboardList size={18} />,
         accentColor: '#059669',
+      },
+      {
+        id: 'er-advanced',
+        title: 'Advanced ER Diagrams',
+        subtitle: 'Video clips covering advanced entity-relationship modelling concepts',
+        icon: <Film size={18} />,
+        accentColor: '#0d7a72',
       },
     ],
   },
@@ -585,9 +647,19 @@ export default function CourseResources() {
                 >
                   {lesson.id === 'setup' && <SetupLesson />}
                   {lesson.id === 'slides' && <SlidesLesson />}
-                  {lesson.id === 'er' && <ERDiagramsDeck />}
-                  {lesson.id === 'er-activities' && <ERDiagramActivitiesDeck />}
-                  {lesson.id === 'er-advanced' && <ERAdvancedConceptsDeck />}
+{lesson.id === 'er' && (
+  <div>
+    <ERDiagramsDeck />
+    <VideoGallery videos={ER_VIDEOS} accentColor="#0d7a72" />
+  </div>
+)}
+{lesson.id === 'er-activities' && <ERDiagramActivitiesDeck />}
+{lesson.id === 'er-advanced' && (
+  <div>
+    <ERAdvancedConceptsDeck />
+    <VideoGallery videos={ADVANCED_ER_VIDEOS} accentColor="#0d7a72" />
+  </div>
+)}
                   {lesson.id === 'quiz' && (
                     <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                   )}

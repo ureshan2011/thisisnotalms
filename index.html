@@ -6,12 +6,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="YooBees — Smart student management and live attendance for university lecturers" />
     <title>YooBees</title>
+    <!-- DNS prefetch for external services to speed up cold connections -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+    <link rel="dns-prefetch" href="https://identitytoolkit.googleapis.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <!-- Static loading screen: visible instantly while the JS bundle downloads.
+         Hidden automatically by the MutationObserver below once React mounts. -->
+    <div id="initial-loader" style="
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(135deg, #f5f4ff 0%, #ede9fe 50%, #f0f4ff 100%);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 2rem; text-align: center;
+      transition: opacity 0.35s ease;
+    ">
+      <!-- Decorative background blobs -->
+      <div style="position:absolute;top:-8%;right:-4%;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,0.09) 0%,transparent 70%);pointer-events:none;"></div>
+      <div style="position:absolute;bottom:-8%;left:-4%;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,0.11) 0%,transparent 70%);pointer-events:none;"></div>
+
+      <!-- Brand -->
+      <div style="margin-bottom:2.5rem;">
+        <div style="font-size:2rem;font-weight:800;background:linear-gradient(135deg,#7c3aed,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-0.02em;">YooBees</div>
+        <p style="margin-top:0.4rem;font-size:0.8rem;color:#a78bfa;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;">Smart Student Platform</p>
+      </div>
+
+      <!-- Quote -->
+      <div style="max-width:620px;margin-bottom:3rem;">
+        <div style="font-size:5rem;line-height:1;color:rgba(139,92,246,0.18);font-family:Georgia,serif;margin-bottom:-0.75rem;user-select:none;">&ldquo;</div>
+        <p style="font-size:1.3rem;font-weight:500;line-height:1.65;color:#1e1b4b;font-style:italic;margin-bottom:1.25rem;">
+          The people who are crazy enough to think they can change the world are the ones who do.
+        </p>
+        <span style="font-size:0.9rem;font-weight:700;color:#7c3aed;">— Steve Jobs</span><br/>
+        <span style="font-size:0.78rem;color:#a78bfa;font-weight:500;">Apple Co-Founder</span>
+      </div>
+
+      <!-- Spinner -->
+      <div style="width:40px;height:40px;border-radius:50%;border:3px solid rgba(139,92,246,0.15);border-top-color:#7c3aed;animation:yb-spin 0.9s linear infinite;"></div>
+      <p style="margin-top:1rem;font-size:0.82rem;font-weight:600;color:#a78bfa;">Getting things ready&hellip;</p>
+
+      <style>@keyframes yb-spin{to{transform:rotate(360deg);}}</style>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Hide the static loader as soon as React renders its first child into #root -->
+    <script>
+      (function () {
+        var loader = document.getElementById('initial-loader');
+        var root   = document.getElementById('root');
+        if (!loader || !root) return;
+        var obs = new MutationObserver(function () {
+          if (root.children.length > 0) {
+            loader.style.opacity = '0';
+            loader.style.pointerEvents = 'none';
+            setTimeout(function () { loader && loader.remove(); }, 350);
+            obs.disconnect();
+          }
+        });
+        obs.observe(root, { childList: true });
+      })();
+    </script>
   </body>
 </html>

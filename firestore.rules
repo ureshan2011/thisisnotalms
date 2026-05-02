@@ -102,6 +102,12 @@ service cloud.firestore {
       allow write: if request.auth != null && isStaff();
     }
 
+    // Notice board: all authenticated users can read; only staff can write.
+    match /notices/{noticeId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && isStaff();
+    }
+
     // MBI802 DBMS quiz results.
     // Students create their own results; staff can read all results.
     match /mbi802QuizResults/{resultId} {

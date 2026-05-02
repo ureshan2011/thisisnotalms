@@ -25,6 +25,9 @@ import QuizResultsDashboard from '../../components/quiz/QuizResultsDashboard';
 import SQLProgrammingDeck from '../../components/slides/SQLProgrammingDeck';
 import ERDiagramsDeck from '../../components/slides/ERDiagramsDeck';
 import VideoGallery, { type VideoClip } from '../../components/slides/VideoGallery';
+import ERDiagramActivitiesDeck from '../../components/slides/ERDiagramActivitiesDeck';
+import ERAdvancedConceptsDeck from '../../components/slides/ERAdvancedConceptsDeck';
+import SISPPromptLab from '../../components/lab/SISPPromptLab';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
 import type { StudentProfile } from '../../lib/types';
@@ -93,7 +96,15 @@ const COURSES: Course[] = [
     tagline: 'Business Information Systems',
     accentColor: '#0ea5e9',
     bgGradient: 'linear-gradient(135deg, rgba(14,165,233,0.08), rgba(56,189,248,0.04))',
-    lessons: [],
+    lessons: [
+      {
+        id: 'sisp-lab',
+        title: 'SISP Prompt Engineering Lab',
+        subtitle: '5 scenario-based challenges · AI-evaluated · Covers Iceberg Model, Process Dimensions, Participation, Consistency & Methodology',
+        icon: <FlaskConical size={18} />,
+        accentColor: '#0ea5e9',
+      },
+    ],
   },
   {
     id: 'MBI802',
@@ -122,6 +133,20 @@ const COURSES: Course[] = [
         subtitle: '24-slide deck · Chen\'s notation · entities, attributes, relationships & cardinality',
         icon: <GitBranch size={18} />,
         accentColor: '#0d7a72',
+      },
+      {
+        id: 'er-activities',
+        title: 'ER Diagram Activities',
+        subtitle: '12-slide activity deck · 5 real-world scenarios · Library, University, Hospital, Online Store, Hotel',
+        icon: <FlaskConical size={18} />,
+        accentColor: '#1d4ed8',
+      },
+      {
+        id: 'er-advanced',
+        title: 'Advanced ER Concepts',
+        subtitle: '11-slide deck · Weak entities, identifying relationships, multivalued & derived attributes · 2 exercises',
+        icon: <BookOpen size={18} />,
+        accentColor: '#3b82f6',
       },
       {
         id: 'quiz',
@@ -607,18 +632,23 @@ export default function CourseResources() {
                 >
                   {lesson.id === 'setup' && <SetupLesson />}
                   {lesson.id === 'slides' && <SlidesLesson />}
-                  {lesson.id === 'er' && (
-                    <div>
-                      <ERDiagramsDeck />
-                      <VideoGallery videos={ER_VIDEOS} accentColor="#0d7a72" />
-                    </div>
-                  )}
-                  {lesson.id === 'er-advanced' && (
-                    <VideoGallery videos={ADVANCED_ER_VIDEOS} accentColor="#0d7a72" />
-                  )}
+{lesson.id === 'er' && (
+  <div>
+    <ERDiagramsDeck />
+    <VideoGallery videos={ER_VIDEOS} accentColor="#0d7a72" />
+  </div>
+)}
+{lesson.id === 'er-activities' && <ERDiagramActivitiesDeck />}
+{lesson.id === 'er-advanced' && (
+  <div>
+    <ERAdvancedConceptsDeck />
+    <VideoGallery videos={ADVANCED_ER_VIDEOS} accentColor="#0d7a72" />
+  </div>
+)}
                   {lesson.id === 'quiz' && (
                     <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                   )}
+                  {lesson.id === 'sisp-lab' && <SISPPromptLab />}
                 </LessonRow>
               ))}
             </div>

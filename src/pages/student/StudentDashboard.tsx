@@ -40,11 +40,6 @@ function haversineKm(a: [number, number], b: [number, number]): number {
   return 2 * R * Math.asin(Math.min(1, Math.sqrt(x)));
 }
 
-function uidToOffset(uid: string): number {
-  let h = 0;
-  for (let i = 0; i < uid.length; i++) h = (Math.imul(31, h) + uid.charCodeAt(i)) | 0;
-  return h >>> 0;
-}
 
 interface ScoredMatch {
   student: StudentProfile;
@@ -84,7 +79,7 @@ function pickDailyMatch(me: StudentProfile, pool: StudentProfile[]): ScoredMatch
       reasons.push(`Also from ${s.homeCountry}`);
     }
 
-    // Hometown proximity (within 400 km of each other)
+    // Hometown proximity (within 800 km of each other)
     if (
       typeof me.hometownLat === 'number' && typeof me.hometownLng === 'number' &&
       typeof s.hometownLat === 'number' && typeof s.hometownLng === 'number'
@@ -107,20 +102,32 @@ function pickDailyMatch(me: StudentProfile, pool: StudentProfile[]): ScoredMatch
     return { student: s, score, reasons };
   });
 
-  // Keep only students that actually share something
-  const meaningful = scored.filter(m => m.score > 0);
-  const fallback   = scored;
-
-  // Pick the top-N candidates, then rotate the pick daily so each day
-  // feels fresh instead of always showing the exact same person.
-  const candidates = (meaningful.length > 0 ? meaningful : fallback)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, Math.min(6, fallback.length));
+  // Sort by score descending; use the full meaningful pool so the rotation
+  // has more variety — wider than the old top-6 cap.
+  const meaningful = scored.filter(m => m.score > 0).sort((a, b) => b.score - a.score);
+  const candidates = meaningful.length > 0 ? meaningful : scored;
 
   if (candidates.length === 0) return null;
 
-  const dayIdx = Math.floor(Date.now() / 86_400_000);
-  const idx    = (dayIdx + uidToOffset(me.uid || 'anon')) % candidates.length;
+  // Per-login, per-day pick stored in sessionStorage.
+  // Key includes the date so the suggestion refreshes at midnight even if the
+  // same session is still open.  A new login always gets a new sessionStorage
+  // which means a fresh random pick — students will no longer see the same
+  // person every time they sign in.
+  const today      = new Date().toDateString();
+  const storeKey   = `yb_match_${me.uid}_${today}`;
+  const stored     = sessionStorage.getItem(storeKey);
+  let idx: number;
+
+  if (stored !== null) {
+    const parsed = parseInt(stored, 10);
+    idx = Number.isFinite(parsed) && parsed < candidates.length ? parsed : 0;
+  } else {
+    // New login or new day → truly random pick
+    idx = Math.floor(Math.random() * candidates.length);
+    try { sessionStorage.setItem(storeKey, String(idx)); } catch { /* private mode */ }
+  }
+
   return candidates[idx];
 }
 
@@ -135,7 +142,6 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [weather, setWeather] = useState<WeatherInfo | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
-  const [todayKey, setTodayKey] = useState(() => new Date().toDateString());
 
   useEffect(() => {
     if (!user) return;
@@ -217,12 +223,7 @@ export default function StudentDashboard() {
     return () => controller.abort();
   }, [me?.campus]);
 
-  useEffect(() => {
-    const id = setInterval(() => setTodayKey(new Date().toDateString()), 60_000);
-    return () => clearInterval(id);
-  }, []);
-
-  const peersWithPins = useMemo(
+const peersWithPins = useMemo(
     () => batchMates.filter(
       s => typeof s.hometownLat === 'number' && typeof s.hometownLng === 'number',
     ),
@@ -231,7 +232,7 @@ export default function StudentDashboard() {
 
   const dailyMatch = useMemo(
     () => (me ? pickDailyMatch(me, batchMates) : null),
-    [me, batchMates, todayKey],
+    [me, batchMates],
   );
 
   if (loading) {

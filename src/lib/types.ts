@@ -1,4 +1,18 @@
+import type { Timestamp } from 'firebase/firestore';
+
 export type UserRole = 'student' | 'lecturer' | 'teachingAssistant';
+
+export interface Notice {
+  id: string;
+  title: string;
+  body: string;
+  category: 'general' | 'urgent' | 'auckland' | 'christchurch';
+  pinned: boolean;
+  authorUid: string;
+  authorName: string;
+  createdAt: Timestamp;
+  updatedAt?: Timestamp;
+}
 
 export interface UserRecord {
   uid: string;

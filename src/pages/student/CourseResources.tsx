@@ -16,6 +16,7 @@ import {
   Presentation,
   ClipboardList,
   GitBranch,
+  Film,
 } from 'lucide-react';
 import Layout from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -23,6 +24,7 @@ import MBI802Quiz from '../../components/quiz/MBI802Quiz';
 import QuizResultsDashboard from '../../components/quiz/QuizResultsDashboard';
 import SQLProgrammingDeck from '../../components/slides/SQLProgrammingDeck';
 import ERDiagramsDeck from '../../components/slides/ERDiagramsDeck';
+import VideoGallery, { type VideoClip } from '../../components/slides/VideoGallery';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
 import type { StudentProfile } from '../../lib/types';
@@ -45,6 +47,44 @@ interface Course {
   bgGradient: string;
   lessons: Lesson[];
 }
+
+// ── Video clip data — replace placeholder URLs with real SharePoint sharing links ──
+
+const ER_VIDEOS: VideoClip[] = [
+  {
+    title: 'ER Diagram – Part 1',
+    description: 'Introduction to entities and attributes',
+    url: 'PASTE_SHAREPOINT_URL',
+  },
+  {
+    title: 'ER Diagram – Part 2',
+    description: 'Relationships and cardinality',
+    url: 'PASTE_SHAREPOINT_URL',
+  },
+  {
+    title: 'ER Diagram – Part 3',
+    description: 'Worked examples and practice',
+    url: 'PASTE_SHAREPOINT_URL',
+  },
+];
+
+const ADVANCED_ER_VIDEOS: VideoClip[] = [
+  {
+    title: 'Advanced ER – Part 1',
+    description: 'Weak entities and identifying relationships',
+    url: 'PASTE_SHAREPOINT_URL',
+  },
+  {
+    title: 'Advanced ER – Part 2',
+    description: 'Ternary relationships and complex modelling',
+    url: 'PASTE_SHAREPOINT_URL',
+  },
+  {
+    title: 'Advanced ER – Part 3',
+    description: 'Full case study walkthrough',
+    url: 'PASTE_SHAREPOINT_URL',
+  },
+];
 
 const COURSES: Course[] = [
   {
@@ -89,6 +129,13 @@ const COURSES: Course[] = [
         subtitle: '38 questions · No time limit · Unlimited attempts',
         icon: <ClipboardList size={18} />,
         accentColor: '#059669',
+      },
+      {
+        id: 'er-advanced',
+        title: 'Advanced ER Diagrams',
+        subtitle: 'Video clips covering advanced entity-relationship modelling concepts',
+        icon: <Film size={18} />,
+        accentColor: '#0d7a72',
       },
     ],
   },
@@ -560,7 +607,15 @@ export default function CourseResources() {
                 >
                   {lesson.id === 'setup' && <SetupLesson />}
                   {lesson.id === 'slides' && <SlidesLesson />}
-                  {lesson.id === 'er' && <ERDiagramsDeck />}
+                  {lesson.id === 'er' && (
+                    <div>
+                      <ERDiagramsDeck />
+                      <VideoGallery videos={ER_VIDEOS} accentColor="#0d7a72" />
+                    </div>
+                  )}
+                  {lesson.id === 'er-advanced' && (
+                    <VideoGallery videos={ADVANCED_ER_VIDEOS} accentColor="#0d7a72" />
+                  )}
                   {lesson.id === 'quiz' && (
                     <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                   )}

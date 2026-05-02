@@ -23,6 +23,7 @@ import MBI802Quiz from '../../components/quiz/MBI802Quiz';
 import QuizResultsDashboard from '../../components/quiz/QuizResultsDashboard';
 import SQLProgrammingDeck from '../../components/slides/SQLProgrammingDeck';
 import ERDiagramsDeck from '../../components/slides/ERDiagramsDeck';
+import ERDiagramActivitiesDeck from '../../components/slides/ERDiagramActivitiesDeck';
 import SISPPromptLab from '../../components/lab/SISPPromptLab';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
@@ -91,6 +92,13 @@ const COURSES: Course[] = [
         subtitle: '24-slide deck · Chen\'s notation · entities, attributes, relationships & cardinality',
         icon: <GitBranch size={18} />,
         accentColor: '#0d7a72',
+      },
+      {
+        id: 'er-activities',
+        title: 'ER Diagram Activities',
+        subtitle: '12-slide activity deck · 5 real-world scenarios · Library, University, Hospital, Online Store, Hotel',
+        icon: <FlaskConical size={18} />,
+        accentColor: '#1d4ed8',
       },
       {
         id: 'quiz',
@@ -570,6 +578,7 @@ export default function CourseResources() {
                   {lesson.id === 'setup' && <SetupLesson />}
                   {lesson.id === 'slides' && <SlidesLesson />}
                   {lesson.id === 'er' && <ERDiagramsDeck />}
+                  {lesson.id === 'er-activities' && <ERDiagramActivitiesDeck />}
                   {lesson.id === 'quiz' && (
                     <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                   )}

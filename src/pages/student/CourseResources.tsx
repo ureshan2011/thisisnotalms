@@ -631,13 +631,13 @@ export default function CourseResources() {
                   {lesson.id === 'setup' && <SetupLesson />}
                   {lesson.id === 'slides' && <SlidesLesson />}
                   {lesson.id === 'er' && <ERDiagramsDeck />}
-{lesson.id === 'er-activities' && <ERDiagramActivitiesDeck />}
-{lesson.id === 'er-advanced' && (
+{lesson.id === 'er-activities' && (
   <div>
-    <ERAdvancedConceptsDeck />
+    <ERDiagramActivitiesDeck />
     <VideoGallery videos={ADVANCED_ER_VIDEOS} accentColor="#0d7a72" />
   </div>
 )}
+{lesson.id === 'er-advanced' && <ERAdvancedConceptsDeck />}
                   {lesson.id === 'quiz' && (
                     <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                   )}

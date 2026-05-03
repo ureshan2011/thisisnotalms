@@ -27,6 +27,7 @@ import ERDiagramsDeck from '../../components/slides/ERDiagramsDeck';
 import VideoGallery, { type VideoClip } from '../../components/slides/VideoGallery';
 import ERDiagramActivitiesDeck from '../../components/slides/ERDiagramActivitiesDeck';
 import ERAdvancedConceptsDeck from '../../components/slides/ERAdvancedConceptsDeck';
+import NormalizationDeck from '../../components/slides/NormalizationDeck';
 import SISPPromptLab from '../../components/lab/SISPPromptLab';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
@@ -152,6 +153,13 @@ const COURSES: Course[] = [
         subtitle: '11-slide deck · Weak entities, identifying relationships, multivalued & derived attributes · 2 exercises',
         icon: <BookOpen size={18} />,
         accentColor: '#3b82f6',
+      },
+      {
+        id: 'normalization',
+        title: 'Database Normalization & Functional Dependencies',
+        subtitle: '20-slide deck · 1NF, 2NF, 3NF, BCNF · Functional dependencies · Decomposition · 3 activities',
+        icon: <BookOpen size={18} />,
+        accentColor: '#6366f1',
       },
       {
         id: 'quiz',
@@ -638,6 +646,7 @@ export default function CourseResources() {
   </div>
 )}
 {lesson.id === 'er-advanced' && <ERAdvancedConceptsDeck />}
+{lesson.id === 'normalization' && <NormalizationDeck />}
                   {lesson.id === 'quiz' && (
                     <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                   )}

@@ -496,7 +496,7 @@ export default function StudentProfilePage() {
           >
             <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{ background: 'rgba(251,191,36,0.18)' }}>
-              <Star size={22} style={{ fill: '#f59e0b', strokeWidth: 0, color: '#f59e0b' }} />
+              <Star size={22} className="fill-amber-500 text-amber-500 stroke-0" />
             </div>
             <div>
               <p className="text-sm font-bold" style={{ color: '#92400e' }}>ER Distinction Badge</p>

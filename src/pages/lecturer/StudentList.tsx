@@ -429,7 +429,7 @@ export default function StudentList() {
                         {s.fullName || <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>No name</span>}
                       </p>
                       {s.erMcqBadge && (
-                        <Star size={12} className="fill-amber-500 text-amber-500 stroke-0 shrink-0" title="ER Distinction Badge" />
+                        <Star size={12} className="fill-amber-500 text-amber-500 stroke-0 shrink-0" />
                       )}
                     </div>
                     <p className="text-xs truncate font-medium" style={{ color: '#9ca3af' }}>

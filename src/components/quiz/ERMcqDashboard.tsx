@@ -243,7 +243,7 @@ export default function ERMcqDashboard() {
                               {r.studentName}
                             </p>
                             {r.badgeEarned && (
-                              <Star size={13} className="fill-amber-500 text-amber-500 stroke-0" title="ER Distinction Badge" />
+                              <Star size={13} className="fill-amber-500 text-amber-500 stroke-0" />
                             )}
                           </div>
                           {r.studentDisplayId && (
@@ -302,7 +302,7 @@ export default function ERMcqDashboard() {
                                     <span className="text-xs" style={{ color: '#6b7280' }}>
                                       Attempt {ai + 1}
                                       {ai === 0 && r.badgeEarned && (
-                                        <Star size={11} className="fill-amber-500 text-amber-500 stroke-0 inline ml-1" title="Badge earned" />
+                                        <Star size={11} className="fill-amber-500 text-amber-500 stroke-0 inline ml-1" />
                                       )}
                                     </span>
                                     <span className="text-xs font-semibold" style={{

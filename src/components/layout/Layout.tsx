@@ -165,7 +165,7 @@ function SidebarContent({
             <div className="flex items-center gap-1">
               <p className="text-xs font-semibold text-gray-800 truncate">{user?.email?.split('@')[0]}</p>
               {erMcqBadge && role === 'student' && (
-                <Star size={11} fill="#f59e0b" strokeWidth={0} title="ER Distinction Badge" className="flex-shrink-0" />
+                <Star size={11} style={{ fill: '#f59e0b', strokeWidth: 0, color: '#f59e0b', flexShrink: 0 }} title="ER Distinction Badge" />
               )}
             </div>
             <p className="text-[10px] text-gray-400 truncate">

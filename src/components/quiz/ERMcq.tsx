@@ -202,7 +202,7 @@ export default function ERMcq({ studentProfile, onPassStatusChange }: Props) {
             <div className="flex justify-center mb-3">
               <span className="inline-flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full"
                 style={{ background: 'rgba(251,191,36,0.2)', color: '#b45309', border: '1px solid rgba(251,191,36,0.4)' }}>
-                <Star size={14} fill="#f59e0b" strokeWidth={0} /> ER Distinction Badge Earned
+                <Star size={14} style={{ fill: '#f59e0b', strokeWidth: 0, color: '#f59e0b' }} /> ER Distinction Badge Earned
               </span>
             </div>
           )}
@@ -233,7 +233,7 @@ export default function ERMcq({ studentProfile, onPassStatusChange }: Props) {
         {badgeEarned && (
           <div className="rounded-xl px-4 py-3 flex items-center gap-3"
             style={{ background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.35)' }}>
-            <Star size={16} fill="#f59e0b" strokeWidth={0} style={{ flexShrink: 0 }} />
+            <Star size={16} style={{ fill: '#f59e0b', strokeWidth: 0, color: '#f59e0b', flexShrink: 0 }} />
             <p className="text-xs font-semibold" style={{ color: '#b45309' }}>
               You earned the ER Distinction Badge on your first attempt!
             </p>
@@ -296,7 +296,7 @@ export default function ERMcq({ studentProfile, onPassStatusChange }: Props) {
         {earnedBadgeThisAttempt && (
           <div className="rounded-2xl px-5 py-4 text-center border"
             style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.15), rgba(245,158,11,0.08))', borderColor: 'rgba(251,191,36,0.4)' }}>
-            <Star size={32} fill="#f59e0b" strokeWidth={0} style={{ margin: '0 auto 8px' }} />
+            <Star size={32} style={{ fill: '#f59e0b', strokeWidth: 0, color: '#f59e0b', margin: '0 auto 8px' }} />
             <p className="text-sm font-bold" style={{ color: '#92400e' }}>ER Distinction Badge Earned!</p>
             <p className="text-xs mt-1" style={{ color: '#b45309' }}>
               You scored {pct}% on your first attempt — outstanding! A badge has been added to your profile.

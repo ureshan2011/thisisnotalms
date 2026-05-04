@@ -125,7 +125,7 @@ export default function ERMcq({ studentProfile, onPassStatusChange }: Props) {
           studentDisplayId: studentProfile?.studentId ?? '',
           studentSection: studentProfile?.section ?? '',
           studentCampus: studentProfile?.campus ?? '',
-          attempts: [{ score: correct, total, percentage: pct, completedAt: serverTimestamp() }],
+          attempts: [{ score: correct, total, percentage: pct, completedAt: new Date() }],
           bestPercentage: pct,
           badgeEarned: earnedBadge,
           passed,

@@ -95,6 +95,33 @@ const ADVANCED_ER_VIDEOS: VideoClip[] = [
   },
 ];
 
+const NORMALIZATION_VIDEOS: VideoClip[] = [
+  {
+    title: 'Normalization – Introduction',
+    description: 'Introductory video for Database Normalization & Functional Dependencies',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQAowdJDkOhQTq1zdGLQEhuVAVOSCBFxoYfC_6R_udOvPx8?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=tDjwog',
+    thumbnailUrl: `${BASE}NormIntro.png`,
+  },
+  {
+    title: 'Normalization – Why Normalise?',
+    description: 'Understanding the need for database normalization',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQB8pA9SvlmuQ7FBkSDvkwuAAabog23pf1imS32sfOJWjnU?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=y0Xrms',
+    thumbnailUrl: `${BASE}NormWhy.png`,
+  },
+  {
+    title: 'Normalization – Functional Dependencies',
+    description: 'Introduction to functional dependencies in relational databases',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQBJVg0hKdB1SZJcHC2qHBxcASVGMpngLuFNOcPSWisP73Q?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=3AOjNd',
+    thumbnailUrl: `${BASE}NormFD.png`,
+  },
+  {
+    title: 'Normalization – First Normal Form (1NF)',
+    description: 'Understanding and applying First Normal Form',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQDwiXe1GAG4QornPClJYm6PAej3l8tqwmUvRsE9xRboIsA?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=INiQAM',
+    thumbnailUrl: `${BASE}Norm1NF.png`,
+  },
+];
+
 const COURSES: Course[] = [
   {
     id: 'MBI800',
@@ -646,7 +673,12 @@ export default function CourseResources() {
   </div>
 )}
 {lesson.id === 'er-advanced' && <ERAdvancedConceptsDeck />}
-{lesson.id === 'normalization' && <NormalizationDeck />}
+{lesson.id === 'normalization' && (
+  <div>
+    <NormalizationDeck />
+    <VideoGallery videos={NORMALIZATION_VIDEOS} accentColor="#6366f1" />
+  </div>
+)}
                   {lesson.id === 'quiz' && (
                     <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                   )}

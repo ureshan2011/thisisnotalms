@@ -3,7 +3,7 @@ import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import {
   LayoutDashboard, Users, CalendarCheck, LogOut,
-  User, History, Menu, X, ChevronRight, BookOpen, Radio, Bell,
+  User, History, Menu, X, ChevronRight, BookOpen, Radio, Bell, Star,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import BrandMark from '../ui/BrandMark';
@@ -23,12 +23,14 @@ function SidebarContent({
   onOpenPhotoModal,
   canViewCourseResources,
   showNewBadge,
+  erMcqBadge,
 }: {
   onClose?: () => void;
   photoURL?: string | null;
   onOpenPhotoModal?: () => void;
   canViewCourseResources: boolean;
   showNewBadge: boolean;
+  erMcqBadge?: boolean;
 }) {
   const { user, role, logout } = useAuth();
   const navigate = useNavigate();
@@ -160,7 +162,12 @@ function SidebarContent({
               : initials}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold text-gray-800 truncate">{user?.email?.split('@')[0]}</p>
+            <div className="flex items-center gap-1">
+              <p className="text-xs font-semibold text-gray-800 truncate">{user?.email?.split('@')[0]}</p>
+              {erMcqBadge && role === 'student' && (
+                <Star size={11} style={{ fill: '#f59e0b', strokeWidth: 0, color: '#f59e0b', flexShrink: 0 }} title="ER Distinction Badge" />
+              )}
+            </div>
             <p className="text-[10px] text-gray-400 truncate">
               {role === 'student' ? (photoURL ? 'Photo uploaded ✓' : 'Tap to add photo') : user?.email}
             </p>
@@ -186,16 +193,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [intake, setIntake] = useState<'2511' | '2604' | ''>('');
   const [showMBI802NewBadge, setShowMBI802NewBadge] = useState(false);
   const [savingIntake, setSavingIntake] = useState(false);
+  const [erMcqBadge, setErMcqBadge] = useState(false);
 
   useEffect(() => {
     if (!user || role !== 'student') return;
     (async () => {
       const snap = await getDoc(doc(db, 'students', user.uid));
       if (!snap.exists()) return;
-      const data = snap.data() as { intake?: string; photoURL?: string; subjects?: string[] };
+      const data = snap.data() as { intake?: string; photoURL?: string; subjects?: string[]; erMcqBadge?: boolean };
 
       // Load current photo
       if (data.photoURL) setCurrentPhotoURL(data.photoURL);
+      if (data.erMcqBadge) setErMcqBadge(true);
       const knownSubjects = ['MBI800', 'MBI802', 'MBI804'];
       setCanViewCourseResources((data.subjects || []).some(s => knownSubjects.includes(s)));
 
@@ -314,6 +323,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           onOpenPhotoModal={() => setPhotoPromptOpen(true)}
           canViewCourseResources={canViewCourseResources}
           showNewBadge={showMBI802NewBadge}
+          erMcqBadge={erMcqBadge}
         />
       </aside>
 
@@ -338,7 +348,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               photoURL={currentPhotoURL}
               onOpenPhotoModal={() => { setMobileOpen(false); setPhotoPromptOpen(true); }}
               canViewCourseResources={canViewCourseResources}
-          showNewBadge={showMBI802NewBadge}
+              showNewBadge={showMBI802NewBadge}
+              erMcqBadge={erMcqBadge}
             />
           </aside>
         </div>

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { collection, doc, getDoc, getDocs, limit, query, serverTimestamp, setDoc, where } from 'firebase/firestore';
-import { MapPin, Save, User, BookOpen, Globe, Briefcase, GraduationCap, Heart, Camera, KeyRound } from 'lucide-react';
+import { MapPin, Save, User, BookOpen, Globe, Briefcase, GraduationCap, Heart, Camera, KeyRound, Star } from 'lucide-react';
 import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet';
 import type { LeafletMouseEvent } from 'leaflet';
 import { db } from '../../lib/firebase';
@@ -160,6 +160,7 @@ export default function StudentProfilePage() {
   const [notes,   setNotes]   = useState('');
   const [loading, setLoading] = useState(true);
   const [saving,  setSaving]  = useState(false);
+  const [erMcqBadge, setErMcqBadge] = useState(false);
   const [photoModalOpen, setPhotoModalOpen] = useState(false);
   const { showToast } = useToast();
 
@@ -227,6 +228,7 @@ export default function StudentProfilePage() {
           photoURL: d.photoURL || '',
         });
         setNotes(d.specialNeedsNotes || '');
+        if (d.erMcqBadge) setErMcqBadge(true);
       } else {
         setForm(f => ({ ...f, email: user.email || '' }));
       }
@@ -483,6 +485,27 @@ export default function StudentProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* ER Distinction Badge */}
+        {erMcqBadge && (
+          <div className="rounded-2xl px-5 py-4 flex items-center gap-4"
+            style={{
+              background: 'linear-gradient(135deg, rgba(251,191,36,0.12), rgba(245,158,11,0.06))',
+              border: '1.5px solid rgba(251,191,36,0.35)',
+            }}
+          >
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(251,191,36,0.18)' }}>
+              <Star size={22} style={{ fill: '#f59e0b', strokeWidth: 0, color: '#f59e0b' }} />
+            </div>
+            <div>
+              <p className="text-sm font-bold" style={{ color: '#92400e' }}>ER Distinction Badge</p>
+              <p className="text-xs mt-0.5" style={{ color: '#b45309' }}>
+                Awarded for scoring 90%+ on the ER Knowledge Check on your first attempt.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Personal Details */}
         <Section icon={<User size={16} />} title="Personal details">

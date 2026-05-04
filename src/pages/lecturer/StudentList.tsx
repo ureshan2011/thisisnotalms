@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { collection, deleteDoc, doc, getDocs, query, where } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, Download, Globe, Briefcase, BookOpen, ChevronRight, Users, Trash2, KeyRound } from 'lucide-react';
+import { Search, Filter, Download, Globe, Briefcase, BookOpen, ChevronRight, Users, Trash2, KeyRound, Star } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -428,6 +428,9 @@ export default function StudentList() {
                       <p className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>
                         {s.fullName || <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>No name</span>}
                       </p>
+                      {s.erMcqBadge && (
+                        <Star size={12} style={{ fill: '#f59e0b', strokeWidth: 0, color: '#f59e0b', flexShrink: 0 }} title="ER Distinction Badge" />
+                      )}
                     </div>
                     <p className="text-xs truncate font-medium" style={{ color: '#9ca3af' }}>
                       {s.studentId || s.email}

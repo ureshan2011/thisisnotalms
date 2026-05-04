@@ -17,16 +17,20 @@ import {
   ClipboardList,
   GitBranch,
   Film,
+  Lock,
 } from 'lucide-react';
 import Layout from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import MBI802Quiz from '../../components/quiz/MBI802Quiz';
 import QuizResultsDashboard from '../../components/quiz/QuizResultsDashboard';
+import ERMcq from '../../components/quiz/ERMcq';
+import ERMcqDashboard from '../../components/quiz/ERMcqDashboard';
 import SQLProgrammingDeck from '../../components/slides/SQLProgrammingDeck';
 import ERDiagramsDeck from '../../components/slides/ERDiagramsDeck';
 import VideoGallery, { type VideoClip } from '../../components/slides/VideoGallery';
 import ERDiagramActivitiesDeck from '../../components/slides/ERDiagramActivitiesDeck';
 import ERAdvancedConceptsDeck from '../../components/slides/ERAdvancedConceptsDeck';
+import NormalizationDeck from '../../components/slides/NormalizationDeck';
 import SISPPromptLab from '../../components/lab/SISPPromptLab';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
@@ -110,6 +114,33 @@ const ADVANCED_ER_VIDEOS: VideoClip[] = [
   },
 ];
 
+const NORMALIZATION_VIDEOS: VideoClip[] = [
+  {
+    title: 'Normalization – Introduction',
+    description: 'Introductory video for Database Normalization & Functional Dependencies',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQAowdJDkOhQTq1zdGLQEhuVAVOSCBFxoYfC_6R_udOvPx8?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=tDjwog',
+    thumbnailUrl: '/NormIntro.png',
+  },
+  {
+    title: 'Normalization – Why Normalise?',
+    description: 'Understanding the need for database normalization',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQB8pA9SvlmuQ7FBkSDvkwuAAabog23pf1imS32sfOJWjnU?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=y0Xrms',
+    thumbnailUrl: '/NormWhy.png',
+  },
+  {
+    title: 'Normalization – Functional Dependencies',
+    description: 'Introduction to functional dependencies in relational databases',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQBJVg0hKdB1SZJcHC2qHBxcASVGMpngLuFNOcPSWisP73Q?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=3AOjNd',
+    thumbnailUrl: '/NormFD.png',
+  },
+  {
+    title: 'Normalization – First Normal Form (1NF)',
+    description: 'Understanding and applying First Normal Form',
+    url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQDwiXe1GAG4QornPClJYm6PAej3l8tqwmUvRsE9xRboIsA?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=INiQAM',
+    thumbnailUrl: '/Norm1NF.png',
+  },
+];
+
 const COURSES: Course[] = [
   {
     id: 'MBI800',
@@ -168,6 +199,20 @@ const COURSES: Course[] = [
         subtitle: '11-slide deck · Weak entities, identifying relationships, multivalued & derived attributes · 2 exercises',
         icon: <BookOpen size={18} />,
         accentColor: '#3b82f6',
+      },
+      {
+        id: 'er-mcq',
+        title: 'ER Knowledge Check',
+        subtitle: '20 questions · 3 attempts · Score >50% to unlock remaining lessons · 90%+ on first attempt earns a badge',
+        icon: <ClipboardList size={18} />,
+        accentColor: '#6366f1',
+      },
+      {
+        id: 'normalization',
+        title: 'Database Normalization & Functional Dependencies',
+        subtitle: '20-slide deck · 1NF, 2NF, 3NF, BCNF · Functional dependencies · Decomposition · 3 activities',
+        icon: <BookOpen size={18} />,
+        accentColor: '#8b5cf6',
       },
       {
         id: 'quiz',
@@ -369,66 +414,82 @@ function LessonRow({
   isOpen,
   onToggle,
   children,
+  locked = false,
 }: {
   lesson: Lesson;
   index: number;
   isOpen: boolean;
   onToggle: () => void;
   children: React.ReactNode;
+  locked?: boolean;
 }) {
   return (
     <div
       className="rounded-2xl overflow-hidden transition-all"
       style={{
-        border: isOpen
-          ? `1.5px solid ${lesson.accentColor}40`
-          : '1.5px solid rgba(139,92,246,0.10)',
-        background: isOpen ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.7)',
-        boxShadow: isOpen
-          ? `0 4px 24px ${lesson.accentColor}18`
-          : '0 1px 4px rgba(0,0,0,0.04)',
+        border: locked
+          ? '1.5px solid rgba(156,163,175,0.25)'
+          : isOpen
+            ? `1.5px solid ${lesson.accentColor}40`
+            : '1.5px solid rgba(139,92,246,0.10)',
+        background: locked ? 'rgba(249,250,251,0.7)' : isOpen ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.7)',
+        boxShadow: locked ? 'none' : isOpen ? `0 4px 24px ${lesson.accentColor}18` : '0 1px 4px rgba(0,0,0,0.04)',
+        opacity: locked ? 0.7 : 1,
       }}
     >
       {/* Header */}
       <button
-        onClick={onToggle}
+        onClick={locked ? undefined : onToggle}
+        disabled={locked}
         className="w-full text-left flex items-center gap-4 px-5 py-4 transition-all"
         style={{
-          background: isOpen ? `${lesson.accentColor}08` : 'transparent',
+          background: locked ? 'transparent' : isOpen ? `${lesson.accentColor}08` : 'transparent',
+          cursor: locked ? 'not-allowed' : 'pointer',
         }}
       >
         <div
           className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
-          style={{ background: `${lesson.accentColor}15`, color: lesson.accentColor }}
+          style={{
+            background: locked ? 'rgba(156,163,175,0.12)' : `${lesson.accentColor}15`,
+            color: locked ? '#9ca3af' : lesson.accentColor,
+          }}
         >
-          {lesson.icon}
+          {locked ? <Lock size={18} /> : lesson.icon}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span
               className="text-xs font-bold uppercase tracking-wider"
-              style={{ color: lesson.accentColor, opacity: 0.7 }}
+              style={{ color: locked ? '#9ca3af' : lesson.accentColor, opacity: locked ? 1 : 0.7 }}
             >
               Lesson {index + 1}
             </span>
+            {locked && (
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                style={{ background: 'rgba(239,68,68,0.1)', color: '#dc2626' }}>
+                Locked
+              </span>
+            )}
           </div>
-          <p className="text-sm font-semibold mt-0.5" style={{ color: '#1e1b4b' }}>
+          <p className="text-sm font-semibold mt-0.5" style={{ color: locked ? '#9ca3af' : '#1e1b4b' }}>
             {lesson.title}
           </p>
-          <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>
-            {lesson.subtitle}
+          <p className="text-xs mt-0.5" style={{ color: locked ? '#d1d5db' : '#6b7280' }}>
+            {locked ? 'Score above 50% in the ER Knowledge Check to unlock this lesson.' : lesson.subtitle}
           </p>
         </div>
-        <div
-          className="flex-shrink-0 transition-transform duration-200"
-          style={{ color: lesson.accentColor, transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
-        >
-          <ChevronDown size={18} />
-        </div>
+        {!locked && (
+          <div
+            className="flex-shrink-0 transition-transform duration-200"
+            style={{ color: lesson.accentColor, transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          >
+            <ChevronDown size={18} />
+          </div>
+        )}
       </button>
 
       {/* Content */}
-      {isOpen && (
+      {isOpen && !locked && (
         <div
           className="px-5 pb-5 pt-1 border-t animate-fadeIn"
           style={{ borderColor: `${lesson.accentColor}20` }}
@@ -454,12 +515,16 @@ export default function CourseResources() {
 
   const [selectedCourse, setSelectedCourse] = useState('MBI802');
   const [openLesson, setOpenLesson] = useState<string | null>(null);
+  const [erMcqPassed, setErMcqPassed] = useState(false);
 
   useEffect(() => {
     if (!user || isStaff) return;
     (async () => {
-      const snap = await getDoc(doc(db, 'students', user.uid));
-      const profile = snap.exists() ? (snap.data() as StudentProfile) : null;
+      const [studentSnap, erMcqSnap] = await Promise.all([
+        getDoc(doc(db, 'students', user.uid)),
+        getDoc(doc(db, 'erMcqResults', user.uid)),
+      ]);
+      const profile = studentSnap.exists() ? (studentSnap.data() as StudentProfile) : null;
       setStudentProfile(profile);
       const subjects = profile?.subjects ?? [];
       setEnrolledSubjects(subjects);
@@ -467,6 +532,11 @@ export default function CourseResources() {
       const known = COURSES.map(c => c.id);
       const first = known.find(id => subjects.includes(id));
       if (first) setSelectedCourse(first);
+      // Check er-mcq gate
+      if (erMcqSnap.exists()) {
+        const best = erMcqSnap.data().bestPercentage ?? 0;
+        setErMcqPassed(best > 50);
+      }
       setLoading(false);
     })();
   }, [user, isStaff]);
@@ -636,35 +706,52 @@ export default function CourseResources() {
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {course.lessons.map((lesson, i) => (
-                <LessonRow
-                  key={lesson.id}
-                  lesson={lesson}
-                  index={i}
-                  isOpen={openLesson === lesson.id}
-                  onToggle={() => toggleLesson(lesson.id)}
-                >
-                  {lesson.id === 'setup' && <SetupLesson />}
-                  {lesson.id === 'slides' && <SlidesLesson />}
-{lesson.id === 'er' && (
-  <div>
-    <ERDiagramsDeck />
-    <VideoGallery videos={ER_VIDEOS} accentColor="#0d7a72" />
-  </div>
-)}
-{lesson.id === 'er-activities' && <ERDiagramActivitiesDeck />}
-{lesson.id === 'er-advanced' && (
-  <div>
-    <ERAdvancedConceptsDeck />
-    <VideoGallery videos={ADVANCED_ER_VIDEOS} accentColor="#0d7a72" />
-  </div>
-)}
-                  {lesson.id === 'quiz' && (
-                    <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
-                  )}
-                  {lesson.id === 'sisp-lab' && <SISPPromptLab />}
-                </LessonRow>
-              ))}
+              {course.lessons.map((lesson, i) => {
+                const gated = !isStaff && ['normalization', 'quiz'].includes(lesson.id) && !erMcqPassed;
+                return (
+                  <LessonRow
+                    key={lesson.id}
+                    lesson={lesson}
+                    index={i}
+                    isOpen={openLesson === lesson.id}
+                    onToggle={() => toggleLesson(lesson.id)}
+                    locked={gated}
+                  >
+                    {lesson.id === 'setup' && <SetupLesson />}
+                    {lesson.id === 'slides' && <SlidesLesson />}
+                    {lesson.id === 'er' && (
+                      <div>
+                        <ERDiagramsDeck />
+                        <VideoGallery videos={ER_VIDEOS} accentColor="#0d7a72" />
+                      </div>
+                    )}
+                    {lesson.id === 'er-activities' && (
+                      <div>
+                        <ERDiagramActivitiesDeck />
+                        <VideoGallery videos={ADVANCED_ER_VIDEOS} accentColor="#0d7a72" />
+                      </div>
+                    )}
+                    {lesson.id === 'er-advanced' && <ERAdvancedConceptsDeck />}
+                    {lesson.id === 'er-mcq' && isStaff && <ERMcqDashboard />}
+                    {lesson.id === 'er-mcq' && !isStaff && (
+                      <ERMcq
+                        studentProfile={studentProfile}
+                        onPassStatusChange={(passed) => setErMcqPassed(passed)}
+                      />
+                    )}
+                    {lesson.id === 'normalization' && (
+                      <div>
+                        <NormalizationDeck />
+                        <VideoGallery videos={NORMALIZATION_VIDEOS} accentColor="#8b5cf6" />
+                      </div>
+                    )}
+                    {lesson.id === 'quiz' && (
+                      <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
+                    )}
+                    {lesson.id === 'sisp-lab' && <SISPPromptLab />}
+                  </LessonRow>
+                );
+              })}
             </div>
           )}
         </div>

@@ -40,6 +40,7 @@ export interface StudentProfile {
   educationalBackground: string;
   specialNeeds: string;
   photoURL?: string;
+  erMcqBadge?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

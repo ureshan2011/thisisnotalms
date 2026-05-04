@@ -17,11 +17,14 @@ import {
   ClipboardList,
   GitBranch,
   Film,
+  Lock,
 } from 'lucide-react';
 import Layout from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import MBI802Quiz from '../../components/quiz/MBI802Quiz';
 import QuizResultsDashboard from '../../components/quiz/QuizResultsDashboard';
+import ERMcq from '../../components/quiz/ERMcq';
+import ERMcqDashboard from '../../components/quiz/ERMcqDashboard';
 import SQLProgrammingDeck from '../../components/slides/SQLProgrammingDeck';
 import ERDiagramsDeck from '../../components/slides/ERDiagramsDeck';
 import VideoGallery, { type VideoClip } from '../../components/slides/VideoGallery';
@@ -180,6 +183,13 @@ const COURSES: Course[] = [
         subtitle: '11-slide deck · Weak entities, identifying relationships, multivalued & derived attributes · 2 exercises',
         icon: <BookOpen size={18} />,
         accentColor: '#3b82f6',
+      },
+      {
+        id: 'er-mcq',
+        title: 'ER Knowledge Check',
+        subtitle: '20 questions · 3 attempts · Score >50% to unlock remaining lessons · 90%+ on first attempt earns a badge',
+        icon: <ClipboardList size={18} />,
+        accentColor: '#6366f1',
       },
       {
         id: 'normalization',
@@ -388,66 +398,85 @@ function LessonRow({
   isOpen,
   onToggle,
   children,
+  locked = false,
 }: {
   lesson: Lesson;
   index: number;
   isOpen: boolean;
   onToggle: () => void;
   children: React.ReactNode;
+  locked?: boolean;
 }) {
   return (
     <div
       className="rounded-2xl overflow-hidden transition-all"
       style={{
-        border: isOpen
-          ? `1.5px solid ${lesson.accentColor}40`
-          : '1.5px solid rgba(139,92,246,0.10)',
-        background: isOpen ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.7)',
-        boxShadow: isOpen
+        border: locked
+          ? '1.5px solid rgba(156,163,175,0.25)'
+          : isOpen
+            ? `1.5px solid ${lesson.accentColor}40`
+            : '1.5px solid rgba(139,92,246,0.10)',
+        background: locked ? 'rgba(249,250,251,0.7)' : isOpen ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.7)',
+        boxShadow: locked ? 'none' : isOpen
           ? `0 4px 24px ${lesson.accentColor}18`
           : '0 1px 4px rgba(0,0,0,0.04)',
+        opacity: locked ? 0.7 : 1,
       }}
     >
       {/* Header */}
       <button
-        onClick={onToggle}
+        onClick={locked ? undefined : onToggle}
+        disabled={locked}
         className="w-full text-left flex items-center gap-4 px-5 py-4 transition-all"
         style={{
-          background: isOpen ? `${lesson.accentColor}08` : 'transparent',
+          background: locked ? 'transparent' : isOpen ? `${lesson.accentColor}08` : 'transparent',
+          cursor: locked ? 'not-allowed' : 'pointer',
         }}
       >
         <div
           className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center"
-          style={{ background: `${lesson.accentColor}15`, color: lesson.accentColor }}
+          style={{
+            background: locked ? 'rgba(156,163,175,0.12)' : `${lesson.accentColor}15`,
+            color: locked ? '#9ca3af' : lesson.accentColor,
+          }}
         >
-          {lesson.icon}
+          {locked ? <Lock size={18} /> : lesson.icon}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span
               className="text-xs font-bold uppercase tracking-wider"
-              style={{ color: lesson.accentColor, opacity: 0.7 }}
+              style={{ color: locked ? '#9ca3af' : lesson.accentColor, opacity: locked ? 1 : 0.7 }}
             >
               Lesson {index + 1}
             </span>
+            {locked && (
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full"
+                style={{ background: 'rgba(239,68,68,0.1)', color: '#dc2626' }}>
+                Locked
+              </span>
+            )}
           </div>
-          <p className="text-sm font-semibold mt-0.5" style={{ color: '#1e1b4b' }}>
+          <p className="text-sm font-semibold mt-0.5" style={{ color: locked ? '#9ca3af' : '#1e1b4b' }}>
             {lesson.title}
           </p>
-          <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>
-            {lesson.subtitle}
+          <p className="text-xs mt-0.5" style={{ color: locked ? '#d1d5db' : '#6b7280' }}>
+            {locked ? 'Score above 50% in the ER Knowledge Check to unlock this lesson.' : lesson.subtitle}
           </p>
         </div>
         <div
           className="flex-shrink-0 transition-transform duration-200"
-          style={{ color: lesson.accentColor, transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+          style={{
+            color: locked ? '#d1d5db' : lesson.accentColor,
+            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+          }}
         >
-          <ChevronDown size={18} />
+          {!locked && <ChevronDown size={18} />}
         </div>
       </button>
 
       {/* Content */}
-      {isOpen && (
+      {isOpen && !locked && (
         <div
           className="px-5 pb-5 pt-1 border-t animate-fadeIn"
           style={{ borderColor: `${lesson.accentColor}20` }}
@@ -470,6 +499,7 @@ export default function CourseResources() {
   const [enrolledSubjects, setEnrolledSubjects] = useState<string[]>(
     isStaff ? ['MBI800', 'MBI802', 'MBI804'] : []
   );
+  const [erMcqPassed, setErMcqPassed] = useState(false);
 
   const [selectedCourse, setSelectedCourse] = useState('MBI802');
   const [openLesson, setOpenLesson] = useState<string | null>(null);
@@ -477,8 +507,11 @@ export default function CourseResources() {
   useEffect(() => {
     if (!user || isStaff) return;
     (async () => {
-      const snap = await getDoc(doc(db, 'students', user.uid));
-      const profile = snap.exists() ? (snap.data() as StudentProfile) : null;
+      const [studentSnap, erMcqSnap] = await Promise.all([
+        getDoc(doc(db, 'students', user.uid)),
+        getDoc(doc(db, 'erMcqResults', user.uid)),
+      ]);
+      const profile = studentSnap.exists() ? (studentSnap.data() as StudentProfile) : null;
       setStudentProfile(profile);
       const subjects = profile?.subjects ?? [];
       setEnrolledSubjects(subjects);
@@ -486,6 +519,11 @@ export default function CourseResources() {
       const known = COURSES.map(c => c.id);
       const first = known.find(id => subjects.includes(id));
       if (first) setSelectedCourse(first);
+      // Check er-mcq gate
+      if (erMcqSnap.exists()) {
+        const best = erMcqSnap.data().bestPercentage ?? 0;
+        setErMcqPassed(best > 50);
+      }
       setLoading(false);
     })();
   }, [user, isStaff]);
@@ -655,36 +693,47 @@ export default function CourseResources() {
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {course.lessons.map((lesson, i) => (
-                <LessonRow
-                  key={lesson.id}
-                  lesson={lesson}
-                  index={i}
-                  isOpen={openLesson === lesson.id}
-                  onToggle={() => toggleLesson(lesson.id)}
-                >
-                  {lesson.id === 'setup' && <SetupLesson />}
-                  {lesson.id === 'slides' && <SlidesLesson />}
-                  {lesson.id === 'er' && <ERDiagramsDeck />}
-{lesson.id === 'er-activities' && (
-  <div>
-    <ERDiagramActivitiesDeck />
-    <VideoGallery videos={ADVANCED_ER_VIDEOS} accentColor="#0d7a72" />
-  </div>
-)}
-{lesson.id === 'er-advanced' && <ERAdvancedConceptsDeck />}
-{lesson.id === 'normalization' && (
-  <div>
-    <NormalizationDeck />
-    <VideoGallery videos={NORMALIZATION_VIDEOS} accentColor="#6366f1" />
-  </div>
-)}
-                  {lesson.id === 'quiz' && (
-                    <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
-                  )}
-                  {lesson.id === 'sisp-lab' && <SISPPromptLab />}
-                </LessonRow>
-              ))}
+              {course.lessons.map((lesson, i) => {
+                const gated = !isStaff && ['normalization', 'quiz'].includes(lesson.id) && !erMcqPassed;
+                return (
+                  <LessonRow
+                    key={lesson.id}
+                    lesson={lesson}
+                    index={i}
+                    isOpen={openLesson === lesson.id}
+                    onToggle={() => toggleLesson(lesson.id)}
+                    locked={gated}
+                  >
+                    {lesson.id === 'setup' && <SetupLesson />}
+                    {lesson.id === 'slides' && <SlidesLesson />}
+                    {lesson.id === 'er' && <ERDiagramsDeck />}
+                    {lesson.id === 'er-activities' && (
+                      <div>
+                        <ERDiagramActivitiesDeck />
+                        <VideoGallery videos={ADVANCED_ER_VIDEOS} accentColor="#0d7a72" />
+                      </div>
+                    )}
+                    {lesson.id === 'er-advanced' && <ERAdvancedConceptsDeck />}
+                    {lesson.id === 'er-mcq' && isStaff && <ERMcqDashboard />}
+                    {lesson.id === 'er-mcq' && !isStaff && (
+                      <ERMcq
+                        studentProfile={studentProfile}
+                        onPassStatusChange={(passed) => setErMcqPassed(passed)}
+                      />
+                    )}
+                    {lesson.id === 'normalization' && (
+                      <div>
+                        <NormalizationDeck />
+                        <VideoGallery videos={NORMALIZATION_VIDEOS} accentColor="#6366f1" />
+                      </div>
+                    )}
+                    {lesson.id === 'quiz' && (
+                      <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
+                    )}
+                    {lesson.id === 'sisp-lab' && <SISPPromptLab />}
+                  </LessonRow>
+                );
+              })}
             </div>
           )}
         </div>

@@ -95,6 +95,45 @@ const ADVANCED_ER_VIDEOS: VideoClip[] = [
   },
 ];
 
+const NORMALIZATION_VIDEOS: VideoClip[] = [
+  {
+    title: 'Normalization – Introduction',
+    description: 'Introductory video for Database Normalization & Functional Dependencies',
+    url: 'https://placeholder.example.com/norm-intro',
+    thumbnailUrl: `${BASE}NormIntro.png`,
+  },
+  {
+    title: 'Normalization – First Normal Form (1NF)',
+    description: 'Understanding and applying First Normal Form',
+    url: 'https://placeholder.example.com/norm-1nf',
+    thumbnailUrl: `${BASE}Norm1NF.png`,
+  },
+  {
+    title: 'Normalization – Second Normal Form (2NF)',
+    description: 'Understanding and applying Second Normal Form',
+    url: 'https://placeholder.example.com/norm-2nf',
+    thumbnailUrl: `${BASE}Norm2NF.png`,
+  },
+  {
+    title: 'Normalization – Third Normal Form (3NF)',
+    description: 'Understanding and applying Third Normal Form',
+    url: 'https://placeholder.example.com/norm-3nf',
+    thumbnailUrl: `${BASE}Norm3NF.png`,
+  },
+  {
+    title: 'Normalization – Boyce-Codd Normal Form (BCNF)',
+    description: 'Understanding and applying Boyce-Codd Normal Form',
+    url: 'https://placeholder.example.com/norm-bcnf',
+    thumbnailUrl: `${BASE}NormBCNF.png`,
+  },
+  {
+    title: 'Normalization – Activity',
+    description: 'Worked normalization activity and discussion',
+    url: 'https://placeholder.example.com/norm-activity',
+    thumbnailUrl: `${BASE}NormAct.png`,
+  },
+];
+
 const COURSES: Course[] = [
   {
     id: 'MBI800',
@@ -646,7 +685,12 @@ export default function CourseResources() {
   </div>
 )}
 {lesson.id === 'er-advanced' && <ERAdvancedConceptsDeck />}
-{lesson.id === 'normalization' && <NormalizationDeck />}
+{lesson.id === 'normalization' && (
+  <div>
+    <NormalizationDeck />
+    <VideoGallery videos={NORMALIZATION_VIDEOS} accentColor="#6366f1" />
+  </div>
+)}
                   {lesson.id === 'quiz' && (
                     <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                   )}

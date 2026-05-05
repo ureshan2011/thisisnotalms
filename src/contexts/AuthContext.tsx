@@ -13,7 +13,7 @@ import {
   updatePassword,
   onAuthStateChanged,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import type { UserRole } from '../lib/types';
 import { logEvent } from '../lib/eventLog';
@@ -60,6 +60,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(firebaseUser);
           const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
           setRole(snap.exists() ? (snap.data().role as UserRole) : null);
+
+          // Count this visit once per browser session (sessionStorage clears on tab close)
+          const countedKey = `yoobees_counted_${firebaseUser.uid}`;
+          if (!sessionStorage.getItem(countedKey) && snap.exists()) {
+            sessionStorage.setItem(countedKey, '1');
+            updateDoc(doc(db, 'users', firebaseUser.uid), {
+              loginCount: increment(1),
+            }).catch(() => undefined);
+          }
         } else {
           setUser(null);
           setRole(null);
@@ -126,6 +135,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     localStorage.removeItem(SESSION_START_KEY);
     localStorage.removeItem(SESSION_UID_KEY);
+    // Clear session flag so a subsequent login in the same tab is counted
+    if (user) sessionStorage.removeItem(`yoobees_counted_${user.uid}`);
     await signOut(auth);
   };
 

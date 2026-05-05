@@ -28,6 +28,7 @@ const StudentDetail      = lazy(() => import('./pages/lecturer/StudentDetail'));
 const AttendanceSessions = lazy(() => import('./pages/lecturer/AttendanceSessions'));
 const AttendanceResults  = lazy(() => import('./pages/lecturer/AttendanceResults'));
 const LivePlayground     = lazy(() => import('./pages/lecturer/LivePlayground'));
+const SiteAnalytics      = lazy(() => import('./pages/lecturer/SiteAnalytics'));
 
 function RootRedirect() {
   const { user, role, loading } = useAuth();
@@ -66,6 +67,7 @@ function AppRoutes() {
         <Route path="/lecturer/mbi802-resources" element={<Navigate to="/lecturer/course-resources" replace />} />
         <Route path="/lecturer/playground"       element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><LivePlayground /></ProtectedRoute>} />
         <Route path="/lecturer/notices"          element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><NoticeBoard /></ProtectedRoute>} />
+        <Route path="/lecturer/analytics"        element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><SiteAnalytics /></ProtectedRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

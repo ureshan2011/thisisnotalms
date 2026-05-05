@@ -28,7 +28,8 @@ const StudentDetail      = lazy(() => import('./pages/lecturer/StudentDetail'));
 const AttendanceSessions = lazy(() => import('./pages/lecturer/AttendanceSessions'));
 const AttendanceResults  = lazy(() => import('./pages/lecturer/AttendanceResults'));
 const LivePlayground     = lazy(() => import('./pages/lecturer/LivePlayground'));
-const SiteAnalytics      = lazy(() => import('./pages/lecturer/SiteAnalytics'));
+const SiteAnalytics        = lazy(() => import('./pages/lecturer/SiteAnalytics'));
+const VideoLessonManager   = lazy(() => import('./pages/lecturer/VideoLessonManager'));
 
 function RootRedirect() {
   const { user, role, loading } = useAuth();
@@ -68,6 +69,7 @@ function AppRoutes() {
         <Route path="/lecturer/playground"       element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><LivePlayground /></ProtectedRoute>} />
         <Route path="/lecturer/notices"          element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><NoticeBoard /></ProtectedRoute>} />
         <Route path="/lecturer/analytics"        element={<ProtectedRoute allowedRoles={['lecturer']}><SiteAnalytics /></ProtectedRoute>} />
+        <Route path="/lecturer/video-manager"   element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><VideoLessonManager /></ProtectedRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

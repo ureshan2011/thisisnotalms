@@ -3,7 +3,7 @@ import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import {
   LayoutDashboard, Users, CalendarCheck, LogOut,
-  User, History, Menu, X, ChevronRight, BookOpen, Radio, Bell, Star,
+  User, History, Menu, X, ChevronRight, BookOpen, Radio, Bell, Star, BarChart2,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import BrandMark from '../ui/BrandMark';
@@ -54,6 +54,7 @@ function SidebarContent({
     { to: '/lecturer/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
     { to: '/lecturer/playground', icon: <Radio size={18} />,           label: 'Live Playground' },
     { to: '/lecturer/course-resources', icon: <BookOpen size={18} />,  label: 'Course Resources', isNew: showNewBadge },
+    { to: '/lecturer/analytics',  icon: <BarChart2 size={18} />,       label: 'Site Analytics' },
   ];
 
   const links = role === 'student' ? studentLinks : lecturerLinks;

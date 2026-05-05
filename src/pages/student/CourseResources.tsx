@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, getDocs, collection } from 'firebase/firestore';
 import {
   BookOpen,
   ChevronDown,
@@ -44,6 +44,7 @@ interface Lesson {
   subtitle: string;
   icon: React.ReactNode;
   accentColor: string;
+  isCustom?: boolean;
 }
 
 interface Course {
@@ -504,6 +505,14 @@ export default function CourseResources() {
   const [selectedCourse, setSelectedCourse] = useState('MBI802');
   const [openLesson, setOpenLesson] = useState<string | null>(null);
 
+  // Dynamic videos loaded from Firestore (lecturer-managed)
+  // Key: `${courseId}_${lessonId}` → extra VideoClip[] for that lesson
+  const [dynamicVideoMap, setDynamicVideoMap] = useState<Record<string, VideoClip[]>>({});
+  // Custom lessons added by lecturers (not in COURSES array)
+  const [customLessonsByCourse, setCustomLessonsByCourse] = useState<
+    Record<string, Lesson[]>
+  >({});
+
   useEffect(() => {
     if (!user || isStaff) return;
     (async () => {
@@ -527,6 +536,47 @@ export default function CourseResources() {
       setLoading(false);
     })();
   }, [user, isStaff]);
+
+  // Fetch lecturer-managed video lessons from Firestore
+  useEffect(() => {
+    (async () => {
+      const snap = await getDocs(collection(db, 'videoLessons'));
+      const videoMap: Record<string, VideoClip[]>  = {};
+      const customMap: Record<string, Lesson[]>    = {};
+
+      snap.docs.forEach(d => {
+        const data = d.data() as {
+          courseId: string;
+          lessonId: string;
+          lessonTitle: string;
+          lessonSubtitle?: string;
+          accentColor?: string;
+          isCustomLesson: boolean;
+          videos?: VideoClip[];
+        };
+        const videos = data.videos ?? [];
+        if (data.isCustomLesson) {
+          if (!customMap[data.courseId]) customMap[data.courseId] = [];
+          customMap[data.courseId].push({
+            id:          data.lessonId,
+            title:       data.lessonTitle,
+            subtitle:    data.lessonSubtitle ?? '',
+            icon:        <Film size={18} />,
+            accentColor: data.accentColor ?? '#7c3aed',
+            isCustom:    true,
+          });
+          if (videos.length > 0) {
+            videoMap[`${data.courseId}_${data.lessonId}`] = videos;
+          }
+        } else if (videos.length > 0) {
+          videoMap[`${data.courseId}_${data.lessonId}`] = videos;
+        }
+      });
+
+      setDynamicVideoMap(videoMap);
+      setCustomLessonsByCourse(customMap);
+    })();
+  }, []);
 
   if (loading) {
     return (
@@ -555,7 +605,15 @@ export default function CourseResources() {
     );
   }
 
-  const course = COURSES.find(c => c.id === selectedCourse) ?? visibleCourses[0];
+  const baseCourse = COURSES.find(c => c.id === selectedCourse) ?? visibleCourses[0];
+  // Merge hardcoded lessons with any custom ones added by lecturers
+  const course = {
+    ...baseCourse,
+    lessons: [
+      ...baseCourse.lessons,
+      ...(customLessonsByCourse[baseCourse.id] ?? []),
+    ],
+  };
 
   const toggleLesson = (id: string) =>
     setOpenLesson(prev => (prev === id ? null : id));
@@ -633,7 +691,10 @@ export default function CourseResources() {
                     className="text-xs mt-1.5 font-semibold"
                     style={{ color: isActive ? 'rgba(255,255,255,0.6)' : c.accentColor, opacity: isActive ? 1 : 0.8 }}
                   >
-                    {c.lessons.length > 0 ? `${c.lessons.length} lesson${c.lessons.length !== 1 ? 's' : ''}` : 'Coming soon'}
+                    {(() => {
+                      const total = c.lessons.length + (customLessonsByCourse[c.id]?.length ?? 0);
+                      return total > 0 ? `${total} lesson${total !== 1 ? 's' : ''}` : 'Coming soon';
+                    })()}
                   </p>
                 </button>
               );
@@ -731,6 +792,25 @@ export default function CourseResources() {
                       <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                     )}
                     {lesson.id === 'sisp-lab' && <SISPPromptLab />}
+
+                    {/* Lecturer-added videos for this lesson (appended after existing content) */}
+                    {(() => {
+                      const extra = dynamicVideoMap[`${course.id}_${lesson.id}`];
+                      if (!extra?.length) return null;
+                      return (
+                        <VideoGallery
+                          videos={extra}
+                          accentColor={lesson.accentColor}
+                        />
+                      );
+                    })()}
+
+                    {/* Empty state for custom lessons with no videos yet */}
+                    {lesson.isCustom && !dynamicVideoMap[`${course.id}_${lesson.id}`]?.length && (
+                      <p className="text-sm text-center py-6" style={{ color: '#9ca3af' }}>
+                        No videos have been added to this lesson yet.
+                      </p>
+                    )}
                   </LessonRow>
                 );
               })}

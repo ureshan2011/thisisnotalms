@@ -54,7 +54,9 @@ function SidebarContent({
     { to: '/lecturer/attendance', icon: <CalendarCheck size={18} />,   label: 'Attendance' },
     { to: '/lecturer/playground', icon: <Radio size={18} />,           label: 'Live Playground' },
     { to: '/lecturer/course-resources', icon: <BookOpen size={18} />,  label: 'Course Resources', isNew: showNewBadge },
-    { to: '/lecturer/analytics',  icon: <BarChart2 size={18} />,       label: 'Site Analytics' },
+    ...(role === 'lecturer'
+      ? [{ to: '/lecturer/analytics', icon: <BarChart2 size={18} />, label: 'Site Analytics' }]
+      : []),
   ];
 
   const links = role === 'student' ? studentLinks : lecturerLinks;

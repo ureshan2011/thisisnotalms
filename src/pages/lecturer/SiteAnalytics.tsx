@@ -7,6 +7,7 @@ import { BarChart2, LogIn, Users, RefreshCw } from 'lucide-react';
 interface UserLoginData {
   uid: string;
   email: string;
+  displayName: string;
   role: string;
   loginCount: number;
 }
@@ -23,23 +24,41 @@ const ROLE_COLORS: Record<string, { bg: string; text: string }> = {
   student:           { bg: 'rgba(59,130,246,0.12)', text: '#1e40af' },
 };
 
+// Derive a readable name from email prefix (no extra Firestore reads needed)
+function nameFromEmail(email: string): string {
+  const prefix = email.split('@')[0];
+  return prefix
+    .replace(/[._-]+/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// Module-level cache — persists for the lifetime of the browser session.
+// Re-visiting the page reuses this; only a manual Refresh re-fetches.
+let cache: UserLoginData[] | null = null;
+
 export default function SiteAnalytics() {
-  const [users, setUsers] = useState<UserLoginData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState<'loginCount' | 'role' | 'email'>('loginCount');
+  const [users, setUsers] = useState<UserLoginData[]>(cache ?? []);
+  const [loading, setLoading] = useState(cache === null);
+  const [sortBy, setSortBy] = useState<'loginCount' | 'role' | 'displayName'>('loginCount');
   const [roleFilter, setRoleFilter] = useState<string>('all');
 
-  const load = async () => {
+  const load = async (force = false) => {
+    if (!force && cache !== null) return;
     setLoading(true);
-    const snap = await getDocs(collection(db, 'users'));
-    const data: UserLoginData[] = snap.docs.map(d => ({
-      uid: d.id,
-      email: d.data().email || '',
-      role: d.data().role || '',
-      loginCount: d.data().loginCount ?? 0,
-    }));
-    setUsers(data);
-    setLoading(false);
+    try {
+      const snap = await getDocs(collection(db, 'users'));
+      const data: UserLoginData[] = snap.docs.map(d => ({
+        uid: d.id,
+        email: d.data().email ?? '',
+        displayName: nameFromEmail(d.data().email ?? ''),
+        role: d.data().role ?? '',
+        loginCount: d.data().loginCount ?? 0,
+      }));
+      cache = data;
+      setUsers(data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
@@ -49,12 +68,12 @@ export default function SiteAnalytics() {
     .sort((a, b) => {
       if (sortBy === 'loginCount') return b.loginCount - a.loginCount;
       if (sortBy === 'role') return a.role.localeCompare(b.role);
-      return a.email.localeCompare(b.email);
+      return a.displayName.localeCompare(b.displayName);
     });
 
-  const totalLogins  = users.reduce((s, u) => s + u.loginCount, 0);
-  const activeUsers  = users.filter(u => u.loginCount > 0).length;
-  const maxCount     = Math.max(...users.map(u => u.loginCount), 1);
+  const totalLogins = users.reduce((s, u) => s + u.loginCount, 0);
+  const activeUsers = users.filter(u => u.loginCount > 0).length;
+  const maxCount    = Math.max(...users.map(u => u.loginCount), 1);
 
   const statCard = (icon: React.ReactNode, label: string, value: string | number) => (
     <div
@@ -83,7 +102,7 @@ export default function SiteAnalytics() {
         subtitle="Login visit counts per user — one count per browser session"
         actions={
           <button
-            onClick={load}
+            onClick={() => load(true)}
             disabled={loading}
             className="btn-secondary flex items-center gap-2"
           >
@@ -119,7 +138,7 @@ export default function SiteAnalytics() {
         >
           <option value="loginCount">Sort: Most visits</option>
           <option value="role">Sort: Role</option>
-          <option value="email">Sort: Email</option>
+          <option value="displayName">Sort: Name</option>
         </select>
         <span className="text-xs text-gray-400 ml-1">{filtered.length} user{filtered.length !== 1 ? 's' : ''}</span>
       </div>
@@ -141,8 +160,8 @@ export default function SiteAnalytics() {
           <table className="w-full text-sm">
             <thead>
               <tr style={{ borderBottom: '1px solid rgba(139,92,246,0.08)' }}>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">#</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">User</th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide w-12">#</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Name</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Role</th>
                 <th className="text-right px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide">Visits</th>
                 <th className="px-6 py-3 text-xs font-semibold text-gray-400 uppercase tracking-wide w-40">Activity</th>
@@ -151,7 +170,7 @@ export default function SiteAnalytics() {
             <tbody>
               {filtered.map((u, i) => {
                 const colors = ROLE_COLORS[u.role] ?? { bg: 'rgba(107,114,128,0.10)', text: '#374151' };
-                const barPct = maxCount > 0 ? (u.loginCount / maxCount) * 100 : 0;
+                const barPct = (u.loginCount / maxCount) * 100;
                 return (
                   <tr
                     key={u.uid}
@@ -159,7 +178,7 @@ export default function SiteAnalytics() {
                     className="hover:bg-brand-50/30 transition-colors"
                   >
                     <td className="px-6 py-3 text-gray-300 font-mono text-xs">{i + 1}</td>
-                    <td className="px-4 py-3 font-medium text-gray-700 max-w-xs truncate">{u.email}</td>
+                    <td className="px-4 py-3 font-medium text-gray-700">{u.displayName}</td>
                     <td className="px-4 py-3">
                       <span
                         className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold"

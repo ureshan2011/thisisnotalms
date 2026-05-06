@@ -787,7 +787,10 @@ export default function CourseResources() {
                     {lesson.id === 'er-activities' && (
                       <div>
                         <ERDiagramActivitiesDeck />
-                        <VideoGallery videos={ADVANCED_ER_VIDEOS} accentColor="#0d7a72" />
+                        <VideoGallery
+                          videos={[...ADVANCED_ER_VIDEOS, ...(dynamicVideoMap[`${course.id}_${lesson.id}`] ?? [])]}
+                          accentColor="#0d7a72"
+                        />
                       </div>
                     )}
                     {lesson.id === 'er-advanced' && <ERAdvancedConceptsDeck />}
@@ -801,7 +804,10 @@ export default function CourseResources() {
                     {lesson.id === 'normalization' && (
                       <div>
                         <NormalizationDeck />
-                        <VideoGallery videos={NORMALIZATION_VIDEOS} accentColor="#6366f1" />
+                        <VideoGallery
+                          videos={[...NORMALIZATION_VIDEOS, ...(dynamicVideoMap[`${course.id}_${lesson.id}`] ?? [])]}
+                          accentColor="#6366f1"
+                        />
                       </div>
                     )}
                     {lesson.id === 'quiz' && (
@@ -809,8 +815,9 @@ export default function CourseResources() {
                     )}
                     {lesson.id === 'sisp-lab' && <SISPPromptLab />}
 
-                    {/* Lecturer-added videos for this lesson (appended after existing content) */}
+                    {/* Lecturer-added videos — skipped for lessons that already merged them above */}
                     {(() => {
+                      if (['er-activities', 'normalization'].includes(lesson.id)) return null;
                       const extra = dynamicVideoMap[`${course.id}_${lesson.id}`];
                       if (!extra?.length) return null;
                       return (

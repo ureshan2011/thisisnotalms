@@ -47,6 +47,15 @@ interface Lesson {
   isCustom?: boolean;
 }
 
+// ── Module-level session cache for videoLessons ────────────────────────────
+// Avoids re-reading Firestore every time Course Resources is opened.
+// Cleared automatically on page refresh (module re-evaluates).
+interface VideoLessonsCache {
+  videoMap:    Record<string, VideoClip[]>;
+  customMap:   Record<string, Lesson[]>;
+}
+let _videoLessonsCache: VideoLessonsCache | null = null;
+
 interface Course {
   id: string;
   name: string;
@@ -537,8 +546,14 @@ export default function CourseResources() {
     })();
   }, [user, isStaff]);
 
-  // Fetch lecturer-managed video lessons from Firestore
+  // Fetch lecturer-managed video lessons — uses a module-level cache so
+  // navigating away and back doesn't re-read Firestore within the same session.
   useEffect(() => {
+    if (_videoLessonsCache) {
+      setDynamicVideoMap(_videoLessonsCache.videoMap);
+      setCustomLessonsByCourse(_videoLessonsCache.customMap);
+      return;
+    }
     (async () => {
       const snap = await getDocs(collection(db, 'videoLessons'));
       const videoMap: Record<string, VideoClip[]>  = {};
@@ -573,6 +588,7 @@ export default function CourseResources() {
         }
       });
 
+      _videoLessonsCache = { videoMap, customMap };
       setDynamicVideoMap(videoMap);
       setCustomLessonsByCourse(customMap);
     })();

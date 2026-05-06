@@ -16,6 +16,7 @@ import {
 import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import type { UserRole } from '../lib/types';
+import type { StudentProfile } from '../lib/types';
 import { logEvent } from '../lib/eventLog';
 
 const SESSION_START_KEY = 'yoobees_session_start';
@@ -32,10 +33,12 @@ export const SIGN_IN_LINK_ACTION_SETTINGS = {
 };
 
 interface AuthContextValue {
-  user:        User | null;
-  role:        UserRole | null;
-  loading:     boolean;
-  login:       (email: string, password: string) => Promise<void>;
+  user:                  User | null;
+  role:                  UserRole | null;
+  loading:               boolean;
+  studentProfile:        StudentProfile | null;
+  refreshStudentProfile: () => Promise<void>;
+  login:                 (email: string, password: string) => Promise<void>;
   resetPassword:       (email: string) => Promise<void>;
   sendLoginLink:       (email: string) => Promise<void>;
   isSignInLink:        (url: string) => boolean;
@@ -48,9 +51,10 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user,    setUser]    = useState<User | null>(null);
-  const [role,    setRole]    = useState<UserRole | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user,           setUser]           = useState<User | null>(null);
+  const [role,           setRole]           = useState<UserRole | null>(null);
+  const [loading,        setLoading]        = useState(true);
+  const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
 
   useEffect(() => {
     const startedAt = Date.now();
@@ -58,12 +62,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         if (firebaseUser) {
           setUser(firebaseUser);
-          const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
-          setRole(snap.exists() ? (snap.data().role as UserRole) : null);
+          // Fetch user role and student profile in parallel — one round-trip instead of two.
+          const [userSnap, studentSnap] = await Promise.all([
+            getDoc(doc(db, 'users',    firebaseUser.uid)),
+            getDoc(doc(db, 'students', firebaseUser.uid)),
+          ]);
+          setRole(userSnap.exists() ? (userSnap.data().role as UserRole) : null);
+          setStudentProfile(studentSnap.exists() ? (studentSnap.data() as StudentProfile) : null);
 
           // Count this visit once per browser session (sessionStorage clears on tab close)
           const countedKey = `yoobees_counted_${firebaseUser.uid}`;
-          if (!sessionStorage.getItem(countedKey) && snap.exists()) {
+          if (!sessionStorage.getItem(countedKey) && userSnap.exists()) {
             sessionStorage.setItem(countedKey, '1');
             updateDoc(doc(db, 'users', firebaseUser.uid), {
               loginCount: increment(1),
@@ -72,6 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           setUser(null);
           setRole(null);
+          setStudentProfile(null);
         }
       } finally {
         // Ensure the loading screen is visible for at least MIN_LOADING_MS so
@@ -159,6 +169,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(SESSION_UID_KEY, cred.user.uid);
   };
 
+  const refreshStudentProfile = async () => {
+    if (!auth.currentUser) return;
+    const snap = await getDoc(doc(db, 'students', auth.currentUser.uid));
+    setStudentProfile(snap.exists() ? (snap.data() as StudentProfile) : null);
+  };
+
   const changePassword = async (currentPassword: string, newPassword: string) => {
     if (!auth.currentUser?.email) throw new Error('Not signed in');
     const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
@@ -168,7 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{
-      user, role, loading,
+      user, role, loading, studentProfile, refreshStudentProfile,
       login, resetPassword, sendLoginLink, isSignInLink, completeSignInWithLink, changePassword,
       register, logout,
     }}>

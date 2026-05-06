@@ -7,6 +7,7 @@ import {
 } from 'recharts';
 import { Users, Globe, GraduationCap, Briefcase, Heart, CalendarCheck, TrendingUp } from 'lucide-react';
 import { db } from '../../lib/firebase';
+import { getCachedStudents, setCachedStudents } from '../../lib/studentsCache';
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import StatCard from '../../components/ui/StatCard';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -47,11 +48,21 @@ export default function Dashboard() {
 
   useEffect(() => {
     (async () => {
-      const [stuSnap, sesSnap] = await Promise.all([
-        getDocs(collection(db, 'students')),
+      // Reuse students already fetched by StudentList (shared module cache).
+      const cached = getCachedStudents();
+      const [stuResult, sesSnap] = await Promise.all([
+        cached ? Promise.resolve(null) : getDocs(collection(db, 'students')),
         getDocs(query(collection(db, 'attendanceSessions'), orderBy('createdAt', 'desc'), limit(100))),
       ]);
-      setStudents(stuSnap.docs.map(d => d.data() as StudentProfile));
+
+      if (cached) {
+        setStudents(cached);
+      } else if (stuResult) {
+        const loaded = stuResult.docs.map(d => d.data() as StudentProfile);
+        setCachedStudents(loaded);
+        setStudents(loaded);
+      }
+
       setSessions(sesSnap.docs.map(d => {
         const data = d.data();
         return {

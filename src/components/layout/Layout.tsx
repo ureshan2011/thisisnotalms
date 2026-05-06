@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
-import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import {
   LayoutDashboard, Users, CalendarCheck, LogOut,
   User, History, Menu, X, ChevronRight, BookOpen, Radio, Bell, Star, BarChart2, Film,
@@ -187,7 +187,7 @@ function SidebarContent({
 }
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { user, role } = useAuth();
+  const { user, role, studentProfile, refreshStudentProfile } = useAuth();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [intakePromptOpen, setIntakePromptOpen] = useState(false);
@@ -199,26 +199,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [savingIntake, setSavingIntake] = useState(false);
   const [erMcqBadge, setErMcqBadge] = useState(false);
 
+  // Derive local UI state from AuthContext studentProfile — no extra Firestore read per page.
   useEffect(() => {
-    if (!user || role !== 'student') return;
-    (async () => {
-      const snap = await getDoc(doc(db, 'students', user.uid));
-      if (!snap.exists()) return;
-      const data = snap.data() as { intake?: string; photoURL?: string; subjects?: string[]; erMcqBadge?: boolean };
-
-      // Load current photo
-      if (data.photoURL) setCurrentPhotoURL(data.photoURL);
-      if (data.erMcqBadge) setErMcqBadge(true);
-      const knownSubjects = ['MBI800', 'MBI802', 'MBI804'];
-      setCanViewCourseResources((data.subjects || []).some(s => knownSubjects.includes(s)));
-
-      // Show intake prompt if missing
-      if (!data.intake) { setIntakePromptOpen(true); return; }
-
-      // Show photo prompt if profile exists but no photo uploaded yet
-      if (!data.photoURL) setPhotoPromptOpen(true);
-    })();
-  }, [user, role]);
+    if (role !== 'student' || !studentProfile) return;
+    if (studentProfile.photoURL) setCurrentPhotoURL(studentProfile.photoURL);
+    if (studentProfile.erMcqBadge) setErMcqBadge(true);
+    const knownSubjects = ['MBI800', 'MBI802', 'MBI804'];
+    setCanViewCourseResources((studentProfile.subjects || []).some(s => knownSubjects.includes(s)));
+    if (!studentProfile.intake) { setIntakePromptOpen(true); return; }
+    if (!studentProfile.photoURL) setPhotoPromptOpen(true);
+  }, [studentProfile, role]);
 
 
   useEffect(() => {
@@ -249,15 +239,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (!user || !intake) return;
     setSavingIntake(true);
     const subjects = intake === '2511' ? ['MBI804'] : ['MBI800', 'MBI802'];
-    setCanViewCourseResources(subjects.length > 0);
     await setDoc(doc(db, 'students', user.uid), {
       intake,
       subjects,
       updatedAt: serverTimestamp(),
     }, { merge: true });
+    // Refresh AuthContext profile — the useEffect above will update all local state.
+    await refreshStudentProfile();
     setSavingIntake(false);
     setIntakePromptOpen(false);
-    // Show photo prompt right after intake is set
     setPhotoPromptOpen(true);
   };
 

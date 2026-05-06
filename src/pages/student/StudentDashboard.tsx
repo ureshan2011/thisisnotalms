@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { Briefcase, Clock, Cloud, CloudFog, CloudRain, CloudSun, Globe, GraduationCap, Mail, MapPin, Sparkles, Sun, Users, BookOpen } from 'lucide-react';
 import { db } from '../../lib/firebase';
@@ -133,10 +133,12 @@ function pickDailyMatch(me: StudentProfile, pool: StudentProfile[]): ScoredMatch
 
 /* ── Main component ─────────────────────────────────────────── */
 export default function StudentDashboard() {
-  const { user } = useAuth();
+  const { user, studentProfile } = useAuth();
   useFeatureTracking('Student Dashboard');
 
-  const [me, setMe] = useState<StudentProfile | null>(null);
+  // studentProfile from AuthContext IS the current student — no extra getDoc needed.
+  const me = studentProfile;
+
   const [batchMates, setBatchMates] = useState<StudentProfile[]>([]);
   const [batchTotal, setBatchTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -145,38 +147,29 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     if (!user) return;
+    const myIntake = (me?.intake || '').toString().trim();
+
+    if (!myIntake) {
+      setBatchTotal(0);
+      setBatchMates([]);
+      setLoading(false);
+      return;
+    }
+
+    // Filter by intake server-side — reads only same-intake students, not the whole collection.
     (async () => {
       try {
-        const [mySnap, allSnap] = await Promise.all([
-          getDoc(doc(db, 'students', user.uid)),
-          getDocs(collection(db, 'students')),
-        ]);
-
-        const myProfile = mySnap.exists() ? (mySnap.data() as StudentProfile) : null;
-        setMe(myProfile);
-
-        // Normalize intake to a trimmed string so '2511 ' == '2511' etc.
-        // The batch is defined by intake ONLY — subjects (MBI800/802/804)
-        // are derived from intake, never used to narrow peers.
-        const myIntake = (myProfile?.intake || '').toString().trim();
-
-        if (myIntake) {
-          const allStudents = allSnap.docs.map(d => d.data() as StudentProfile);
-          const inBatch = allStudents.filter(
-            s => (s.intake || '').toString().trim() === myIntake,
-          );
-          // Total includes the viewer, peers excludes them.
-          setBatchTotal(inBatch.length);
-          setBatchMates(inBatch.filter(s => s.uid !== user.uid));
-        } else {
-          setBatchTotal(0);
-          setBatchMates([]);
-        }
+        const batchSnap = await getDocs(
+          query(collection(db, 'students'), where('intake', '==', myIntake))
+        );
+        const inBatch = batchSnap.docs.map(d => d.data() as StudentProfile);
+        setBatchTotal(inBatch.length);
+        setBatchMates(inBatch.filter(s => s.uid !== user.uid));
       } finally {
         setLoading(false);
       }
     })();
-  }, [user]);
+  }, [user, me?.intake]);
 
   useEffect(() => {
     const campus = me?.campus;

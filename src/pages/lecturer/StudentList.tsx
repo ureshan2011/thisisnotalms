@@ -10,6 +10,7 @@ import { summarizeStudentAttendance } from '../../lib/attendanceSummary';
 import { useToast } from '../../components/ui/ToastProvider';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFeatureTracking } from '../../lib/useFeatureTracking';
+import { setCachedStudents } from '../../lib/studentsCache';
 
 interface TeachingAssistantAccount {
   uid: string;
@@ -96,6 +97,7 @@ export default function StudentList() {
         // Fetch students first so they always render even if auxiliary data fails.
         const studentSnap = await getDocs(collection(db, 'students'));
         const loadedStudents = studentSnap.docs.map(d => d.data() as StudentProfile);
+        setCachedStudents(loadedStudents); // populate shared cache for Dashboard
         setStudents(loadedStudents);
 
         // Fetch auxiliary data with allSettled so a permission error on one

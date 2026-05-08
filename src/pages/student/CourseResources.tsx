@@ -32,6 +32,7 @@ import ERDiagramActivitiesDeck from '../../components/slides/ERDiagramActivities
 import ERAdvancedConceptsDeck from '../../components/slides/ERAdvancedConceptsDeck';
 import NormalizationDeck from '../../components/slides/NormalizationDeck';
 import SISPPromptLab from '../../components/lab/SISPPromptLab';
+import AgileScrumDeck from '../../components/slides/AgileScrumDeck';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
 import type { StudentProfile } from '../../lib/types';
@@ -223,7 +224,15 @@ const COURSES: Course[] = [
     tagline: 'Networking & Systems',
     accentColor: '#059669',
     bgGradient: 'linear-gradient(135deg, rgba(5,150,105,0.08), rgba(52,211,153,0.04))',
-    lessons: [],
+    lessons: [
+      {
+        id: 'agile-scrum',
+        title: 'Agile Scrum Process in IT',
+        subtitle: '22-slide interactive deck · Roles, Artifacts, Events, Sprint Cycle, User Stories & Scrum Board',
+        icon: <GitBranch size={18} />,
+        accentColor: '#059669',
+      },
+    ],
   },
 ];
 
@@ -813,6 +822,7 @@ export default function CourseResources() {
                     {lesson.id === 'quiz' && (
                       <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                     )}
+                    {lesson.id === 'agile-scrum' && <AgileScrumDeck />}
                     {lesson.id === 'sisp-lab' && <SISPPromptLab />}
 
                     {/* Lecturer-added videos — skipped for lessons that already merged them above */}

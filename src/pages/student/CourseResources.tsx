@@ -33,6 +33,8 @@ import ERAdvancedConceptsDeck from '../../components/slides/ERAdvancedConceptsDe
 import NormalizationDeck from '../../components/slides/NormalizationDeck';
 import SISPPromptLab from '../../components/lab/SISPPromptLab';
 import AgileScrumDeck from '../../components/slides/AgileScrumDeck';
+import AgileScrumMcq from '../../components/quiz/AgileScrumMcq';
+import AgileScrumMcqDashboard from '../../components/quiz/AgileScrumMcqDashboard';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
 import type { StudentProfile } from '../../lib/types';
@@ -231,6 +233,13 @@ const COURSES: Course[] = [
         subtitle: '22-slide interactive deck · Roles, Artifacts, Events, Sprint Cycle, User Stories & Scrum Board',
         icon: <GitBranch size={18} />,
         accentColor: '#059669',
+      },
+      {
+        id: 'agile-scrum-mcq',
+        title: 'Agile Scrum Knowledge Check',
+        subtitle: '30 multiple-choice questions · 3 attempts · Score ≥90% on first attempt to earn a badge',
+        icon: <ClipboardList size={18} />,
+        accentColor: '#0d9488',
       },
     ],
   },
@@ -823,6 +832,10 @@ export default function CourseResources() {
                       <QuizLesson studentProfile={studentProfile} isStaff={isStaff} />
                     )}
                     {lesson.id === 'agile-scrum' && <AgileScrumDeck />}
+                    {lesson.id === 'agile-scrum-mcq' && isStaff && <AgileScrumMcqDashboard />}
+                    {lesson.id === 'agile-scrum-mcq' && !isStaff && (
+                      <AgileScrumMcq studentProfile={studentProfile} />
+                    )}
                     {lesson.id === 'sisp-lab' && <SISPPromptLab />}
 
                     {/* Lecturer-added videos — skipped for lessons that already merged them above */}

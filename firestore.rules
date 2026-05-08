@@ -135,6 +135,15 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Agile Scrum MCQ quiz results (one document per student, updated on each attempt).
+    // Students can read/write their own doc; staff can read all.
+    match /agileScrumMcqResults/{studentUid} {
+      allow read:  if request.auth != null && (request.auth.uid == studentUid || isStaff());
+      allow create: if request.auth != null && request.auth.uid == studentUid;
+      allow update: if request.auth != null && request.auth.uid == studentUid;
+      allow delete: if false;
+    }
+
     function isStaff() {
       return isLecturer() || isTeachingAssistant();
     }

@@ -403,8 +403,6 @@ function StudentPractice() {
                 </div>
               )}
 
-              <CodeBlock code={taskSqlFor(key, scenario)} />
-
               {/* Action */}
               {!isDone && (
                 <div className="pt-1 flex items-center gap-3">

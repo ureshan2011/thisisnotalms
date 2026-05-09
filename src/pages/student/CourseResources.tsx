@@ -32,6 +32,7 @@ import ERDiagramActivitiesDeck from '../../components/slides/ERDiagramActivities
 import ERAdvancedConceptsDeck from '../../components/slides/ERAdvancedConceptsDeck';
 import NormalizationDeck from '../../components/slides/NormalizationDeck';
 import SISPPromptLab from '../../components/lab/SISPPromptLab';
+import SQLPracticeLesson from '../../components/lab/SQLPracticeLesson';
 import AgileScrumDeck from '../../components/slides/AgileScrumDeck';
 import AgileScrumMcq from '../../components/quiz/AgileScrumMcq';
 import AgileScrumMcqDashboard from '../../components/quiz/AgileScrumMcqDashboard';
@@ -217,6 +218,13 @@ const COURSES: Course[] = [
         subtitle: '38 questions · No time limit · Unlimited attempts',
         icon: <ClipboardList size={18} />,
         accentColor: '#059669',
+      },
+      {
+        id: 'sql-practice',
+        title: 'SQL Practice Lab',
+        subtitle: 'Hands-on SQL activity · Personalised scenario · Create database, table, insert & retrieve data · TA-verified',
+        icon: <FlaskConical size={18} />,
+        accentColor: '#7c3aed',
       },
     ],
   },
@@ -837,6 +845,7 @@ export default function CourseResources() {
                       <AgileScrumMcq studentProfile={studentProfile} />
                     )}
                     {lesson.id === 'sisp-lab' && <SISPPromptLab />}
+                    {lesson.id === 'sql-practice' && <SQLPracticeLesson />}
 
                     {/* Lecturer-added videos — skipped for lessons that already merged them above */}
                     {(() => {

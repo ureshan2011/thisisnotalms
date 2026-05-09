@@ -223,7 +223,7 @@ const COURSES: Course[] = [
   {
     id: 'MBI804',
     name: 'MBI804',
-    tagline: 'Networking & Systems',
+    tagline: 'IT Project Management',
     accentColor: '#059669',
     bgGradient: 'linear-gradient(135deg, rgba(5,150,105,0.08), rgba(52,211,153,0.04))',
     lessons: [

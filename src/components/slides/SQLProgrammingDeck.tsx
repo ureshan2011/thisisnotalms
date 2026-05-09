@@ -450,7 +450,7 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
           <div class="code-label" style="margin-top:12px;">Step 2 — Create a Table</div>
           <div class="code-block" style="font-size:27px;">
             <span class="kw">CREATE TABLE</span> <span class="tbl">students</span> (<br/>
-            &nbsp;&nbsp;<span class="col">id</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">INT</span> <span class="kw">AUTO_INCREMENT</span> <span class="kw">PRIMARY KEY</span>,<br/>
+            &nbsp;&nbsp;<span class="col">id</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">INT</span> <span class="kw">PRIMARY KEY</span>,<br/>
             &nbsp;&nbsp;<span class="col">name</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">VARCHAR</span>(<span class="num">100</span>),<br/>
             &nbsp;&nbsp;<span class="col">age</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">INT</span>,<br/>
             &nbsp;&nbsp;<span class="col">email</span>&nbsp;&nbsp;&nbsp;<span class="fn">VARCHAR</span>(<span class="num">150</span>),<br/>
@@ -464,7 +464,6 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
             <div class="card-title" style="color:var(--blue2);font-size:26px;margin-bottom:16px;">🔑 Key Concepts</div>
             <ul style="list-style:none;display:flex;flex-direction:column;gap:14px;">
               <li style="display:flex;gap:14px;align-items:flex-start;font-size:26px;"><span style="color:var(--blue2);font-weight:700;font-family:var(--mono);">PRIMARY KEY</span><span style="opacity:.8;">— unique identifier for each row</span></li>
-              <li style="display:flex;gap:14px;align-items:flex-start;font-size:26px;"><span style="color:var(--blue2);font-weight:700;font-family:var(--mono);">AUTO_INCREMENT</span><span style="opacity:.8;">— MySQL auto-assigns the next number</span></li>
               <li style="display:flex;gap:14px;align-items:flex-start;font-size:26px;"><span style="color:var(--blue2);font-weight:700;font-family:var(--mono);">VARCHAR(n)</span><span style="opacity:.8;">— text up to <em>n</em> characters</span></li>
               <li style="display:flex;gap:14px;align-items:flex-start;font-size:26px;"><span style="color:var(--blue2);font-weight:700;font-family:var(--mono);">DECIMAL(3,2)</span><span style="opacity:.8;">— 3 digits, 2 after decimal (e.g. 3.75)</span></li>
             </ul>
@@ -511,11 +510,11 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
 
           <div class="code-label" style="margin-top:12px;">Example — Insert 3 students</div>
           <div class="code-block" style="font-size:26px;">
-            <span class="kw">INSERT INTO</span> <span class="tbl">students</span> (<span class="col">name</span>, <span class="col">age</span>, <span class="col">email</span>, <span class="col">gpa</span>)<br/>
+            <span class="kw">INSERT INTO</span> <span class="tbl">students</span> (<span class="col">id</span>, <span class="col">name</span>, <span class="col">age</span>, <span class="col">email</span>, <span class="col">gpa</span>)<br/>
             <span class="kw">VALUES</span><br/>
-            &nbsp;&nbsp;(<span class="str">'Alice'</span>, <span class="num">20</span>, <span class="str">'alice@uni.edu'</span>, <span class="num">3.80</span>),<br/>
-            &nbsp;&nbsp;(<span class="str">'Bob'</span>,&nbsp;&nbsp; <span class="num">22</span>, <span class="str">'bob@uni.edu'</span>,&nbsp;&nbsp;<span class="num">3.50</span>),<br/>
-            &nbsp;&nbsp;(<span class="str">'Carol'</span>, <span class="num">21</span>, <span class="str">'carol@uni.edu'</span>,<span class="num">3.90</span>);
+            &nbsp;&nbsp;(<span class="num">1</span>, <span class="str">'Alice'</span>, <span class="num">20</span>, <span class="str">'alice@uni.edu'</span>, <span class="num">3.80</span>),<br/>
+            &nbsp;&nbsp;(<span class="num">2</span>, <span class="str">'Bob'</span>,&nbsp;&nbsp; <span class="num">22</span>, <span class="str">'bob@uni.edu'</span>,&nbsp;&nbsp;<span class="num">3.50</span>),<br/>
+            &nbsp;&nbsp;(<span class="num">3</span>, <span class="str">'Carol'</span>, <span class="num">21</span>, <span class="str">'carol@uni.edu'</span>,<span class="num">3.90</span>);
           </div>
         </div>
 
@@ -547,7 +546,7 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
           </table>
 
           <div class="highlight-box green" style="font-size:26px;">
-            💡 You don't need to insert <code>id</code> — <code>AUTO_INCREMENT</code> handles it automatically.
+            💡 You must supply a value for <code>id</code> — it is the PRIMARY KEY and must be unique for every row.
           </div>
         </div>
       </div>

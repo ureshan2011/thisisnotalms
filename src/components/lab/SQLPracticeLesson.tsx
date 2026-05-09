@@ -112,14 +112,83 @@ function formatVerifDate(ts: any): string {
   return d.toLocaleDateString('en-NZ', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
+// ── Password Gate ─────────────────────────────────────────────────────────────
+
+const LAB_PASSWORD = 'READY';
+
+function unlockKey(uid: string) {
+  return `sql_lab_unlocked_${uid}`;
+}
+
+function PasswordGate({ uid, onUnlock }: { uid: string; onUnlock: () => void }) {
+  const [value, setValue] = useState('');
+  const [error, setError] = useState(false);
+
+  const attempt = () => {
+    if (value.trim() === LAB_PASSWORD) {
+      localStorage.setItem(unlockKey(uid), '1');
+      onUnlock();
+    } else {
+      setError(true);
+      setValue('');
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+      <div
+        className="rounded-xl p-8 w-full max-w-sm"
+        style={{ border: '1px solid rgba(124,58,237,0.2)', background: 'linear-gradient(135deg, rgba(124,58,237,0.06), rgba(167,139,250,0.03))' }}
+      >
+        <Lock size={32} className="mx-auto mb-4" style={{ color: ACCENT }} />
+        <p className="text-base font-bold mb-1" style={{ color: '#1e1b4b' }}>Lab Access Required</p>
+        <p className="text-sm mb-6" style={{ color: '#6b7280' }}>
+          Enter the password provided by your lecturer to unlock this lab.
+        </p>
+        <input
+          type="text"
+          value={value}
+          onChange={e => { setValue(e.target.value); setError(false); }}
+          onKeyDown={e => e.key === 'Enter' && attempt()}
+          placeholder="Enter password…"
+          autoFocus
+          className="w-full text-center text-sm rounded-lg px-3 py-2.5 outline-none mb-3"
+          style={{
+            border: `1px solid ${error ? '#ef4444' : 'rgba(124,58,237,0.25)'}`,
+            background: '#fff',
+            letterSpacing: '0.1em',
+          }}
+        />
+        {error && (
+          <p className="text-xs mb-3" style={{ color: '#ef4444' }}>Incorrect password. Try again.</p>
+        )}
+        <button
+          onClick={attempt}
+          className="w-full text-sm font-semibold py-2.5 rounded-lg transition-opacity hover:opacity-90"
+          style={{ background: ACCENT, color: '#fff' }}
+        >
+          Unlock Lab
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // ── Student Practice View ─────────────────────────────────────────────────────
 
 function StudentPractice() {
   const { user, studentProfile } = useAuth();
+  const [unlocked, setUnlocked] = useState(() =>
+    user ? localStorage.getItem(unlockKey(user.uid)) === '1' : false
+  );
   const [data, setData] = useState<SQLPracticeDoc | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<TaskKey | null>(null);
   const [confirming, setConfirming] = useState<TaskKey | null>(null);
+
+  if (!unlocked) {
+    return <PasswordGate uid={user!.uid} onUnlock={() => setUnlocked(true)} />;
+  }
 
   useEffect(() => {
     if (!user) return;

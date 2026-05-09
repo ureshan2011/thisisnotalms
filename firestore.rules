@@ -144,6 +144,16 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // SQL Practice Lab — one document per student.
+    // Students read/write their own doc (tasks field only via app logic).
+    // Staff can read all docs and update verification fields.
+    match /sqlPractice/{studentUid} {
+      allow read: if request.auth != null && (request.auth.uid == studentUid || isStaff());
+      allow create: if request.auth != null && request.auth.uid == studentUid;
+      allow update: if request.auth != null && (request.auth.uid == studentUid || isStaff());
+      allow delete: if false;
+    }
+
     function isStaff() {
       return isLecturer() || isTeachingAssistant();
     }

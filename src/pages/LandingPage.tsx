@@ -170,24 +170,24 @@ function DashboardMockup() {
   ];
 
   const gallery = [
-    { name: 'Nadia Patel',     seed: 'nadia-patel'     },
-    { name: 'Marcus Chen',     seed: 'marcus-chen'     },
-    { name: 'Sofia Garcia',    seed: 'sofia-garcia'    },
-    { name: 'Hiroshi T.',      seed: 'hiroshi-tanaka'  },
-    { name: 'Amara Osei',      seed: 'amara-osei'      },
-    { name: 'Lucas Ferreira',  seed: 'lucas-ferreira'  },
-    { name: 'Mei-Ling Z.',     seed: 'meiling-zhang'   },
-    { name: 'Raj Sharma',      seed: 'raj-sharma'      },
-    { name: 'Fatima Hassan',   seed: 'fatima-hassan'   },
-    { name: 'Tobias Werner',   seed: 'tobias-werner'   },
-    { name: 'Priya Krishna',   seed: 'priya-krishna'   },
-    { name: 'James Nguyen',    seed: 'james-nguyen'    },
-    { name: 'Elena Popescu',   seed: 'elena-popescu'   },
-    { name: 'Arjun Mehta',     seed: 'arjun-mehta'     },
-    { name: 'Yuki Sato',       seed: 'yuki-sato'       },
-    { name: 'Diego Castro',    seed: 'diego-castro'    },
-    { name: 'Nairobi Brown',   seed: 'nairobi-brown'   },
-    { name: 'Min-jun Lee',     seed: 'minjun-lee'      },
+    { name: 'Nadia Patel',     photo: 'https://randomuser.me/api/portraits/women/44.jpg' },
+    { name: 'Marcus Chen',     photo: 'https://randomuser.me/api/portraits/men/33.jpg'   },
+    { name: 'Sofia Garcia',    photo: 'https://randomuser.me/api/portraits/women/26.jpg' },
+    { name: 'Hiroshi T.',      photo: 'https://randomuser.me/api/portraits/men/60.jpg'   },
+    { name: 'Amara Osei',      photo: 'https://randomuser.me/api/portraits/women/65.jpg' },
+    { name: 'Lucas Ferreira',  photo: 'https://randomuser.me/api/portraits/men/72.jpg'   },
+    { name: 'Mei-Ling Z.',     photo: 'https://randomuser.me/api/portraits/women/39.jpg' },
+    { name: 'Raj Sharma',      photo: 'https://randomuser.me/api/portraits/men/46.jpg'   },
+    { name: 'Fatima Hassan',   photo: 'https://randomuser.me/api/portraits/women/90.jpg' },
+    { name: 'Tobias Werner',   photo: 'https://randomuser.me/api/portraits/men/22.jpg'   },
+    { name: 'Priya Krishna',   photo: 'https://randomuser.me/api/portraits/women/43.jpg' },
+    { name: 'James Nguyen',    photo: 'https://randomuser.me/api/portraits/men/58.jpg'   },
+    { name: 'Elena Popescu',   photo: 'https://randomuser.me/api/portraits/women/31.jpg' },
+    { name: 'Arjun Mehta',     photo: 'https://randomuser.me/api/portraits/men/49.jpg'   },
+    { name: 'Yuki Sato',       photo: 'https://randomuser.me/api/portraits/women/37.jpg' },
+    { name: 'Diego Castro',    photo: 'https://randomuser.me/api/portraits/men/68.jpg'   },
+    { name: 'Nairobi Brown',   photo: 'https://randomuser.me/api/portraits/women/57.jpg' },
+    { name: 'Min-jun Lee',     photo: 'https://randomuser.me/api/portraits/men/53.jpg'   },
   ];
 
   return (
@@ -277,7 +277,7 @@ function DashboardMockup() {
           <div style={{ padding: '0 14px 14px', display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 7 }}>
             {gallery.map(s => (
               <div key={s.name} style={{ position: 'relative', aspectRatio: '3/4', borderRadius: 10, overflow: 'hidden', background: '#e0d9f7' }}>
-                <img src={`https://api.dicebear.com/9.x/personas/svg?seed=${s.seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`} alt={s.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                <img src={s.photo} alt={s.name} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' }} />
                 <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(0,0,0,.75), transparent)', padding: '12px 5px 5px', color: '#fff', fontSize: 7.5, lineHeight: 1.2, wordBreak: 'break-word' }}>{s.name}</div>
               </div>
             ))}
@@ -619,6 +619,8 @@ export default function LandingPage() {
         @keyframes lpSlideIn { from{opacity:0;transform:translateX(-14px)} to{opacity:1;transform:translateX(0)} }
         @keyframes lpScaleIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
         @keyframes lpPulse  { 0%,100%{opacity:1} 50%{opacity:.3} }
+        @keyframes lpIconBounce { 0%,100%{transform:translateY(0) scale(1)} 50%{transform:translateY(-7px) scale(1.08)} }
+        @keyframes lpArrowPulse { 0%,100%{opacity:.4;transform:translateX(0)} 50%{opacity:1;transform:translateX(4px)} }
         .lp-reveal-item { opacity:0; transform:translateY(24px); transition:opacity .75s cubic-bezier(.2,.7,.2,1), transform .75s cubic-bezier(.2,.7,.2,1); }
         .lp-reveal-item.lp-visible { opacity:1; transform:none; }
         .lp-stagger.lp-visible .lp-reveal-item { opacity:1; transform:none; }
@@ -1017,21 +1019,43 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className={`lp-stagger lp-sql-steps ${sqlInView ? 'lp-visible' : ''}`} style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 48 }}>
-            {[
-              { n: '01', icon: '🗂', title: 'Pick a Scenario', desc: 'Library · Hospital · School — each with real tables, foreign keys, and edge-case data.' },
-              { n: '02', icon: '📝', title: 'Read the Schema', desc: 'Students see the full table structure before writing. Context mirrors real-world database design.' },
-              { n: '03', icon: '⌨', title: 'Write SQL', desc: 'An in-browser editor with syntax hints. No locked-down interface — students use real SQL patterns.' },
-              { n: '04', icon: '🔬', title: '5-Step Verify', desc: 'Syntax → Schema match → Logic → Output compare → Edge cases. Each step runs in sequence with clear pass/fail.' },
-              { n: '05', icon: '📊', title: 'Staff Tracks All', desc: 'Lecturer dashboard shows per-student completion, last-active time, and scenario progress bars.' },
-            ].map(s => (
-              <div key={s.n} className="lp-reveal-item" style={{ background: 'rgba(255,255,255,.92)', border: '1px solid rgba(139,92,246,.12)', borderRadius: 16, padding: '20px', textAlign: 'center' }}>
-                <div style={{ fontSize: 26, marginBottom: 10 }}>{s.icon}</div>
-                <div style={{ fontFamily: 'monospace', fontSize: 10, color: '#a78bfa', letterSpacing: '0.12em', marginBottom: 8 }}>{s.n}</div>
-                <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 8, color: '#1e1b4b' }}>{s.title}</div>
-                <div style={{ fontSize: 12, color: '#6b7280', lineHeight: 1.5 }}>{s.desc}</div>
-              </div>
-            ))}
+          {/* Animated pipeline steps */}
+          <div className={`lp-stagger ${sqlInView ? 'lp-visible' : ''}`} style={{ marginBottom: 48 }}>
+            <div style={{ display: 'flex', alignItems: 'stretch', overflowX: 'auto', paddingBottom: 4, gap: 0 }}>
+              {[
+                { n: '01', icon: '🗂', title: 'Pick a Scenario', desc: 'Library · Hospital · School — real tables, foreign keys, edge-case data.', color: '#7c3aed', colorLight: 'rgba(124,58,237,.08)', colorBorder: 'rgba(124,58,237,.22)', delay: 0 },
+                { n: '02', icon: '📝', title: 'Read the Schema', desc: 'Full table structure shown before writing — mirrors real-world database design.', color: '#2563eb', colorLight: 'rgba(37,99,235,.07)', colorBorder: 'rgba(37,99,235,.2)', delay: 0.1 },
+                { n: '03', icon: '⌨', title: 'Write SQL', desc: 'In-browser editor with syntax hints. Real SQL patterns, no locked-down sandbox.', color: '#0891b2', colorLight: 'rgba(8,145,178,.07)', colorBorder: 'rgba(8,145,178,.2)', delay: 0.2 },
+                { n: '04', icon: '🔬', title: '5-Step Verify', desc: 'Syntax → Schema → Logic → Output → Edge cases — each step pass/fail in sequence.', color: '#059669', colorLight: 'rgba(5,150,105,.07)', colorBorder: 'rgba(5,150,105,.2)', delay: 0.3 },
+                { n: '05', icon: '📊', title: 'Staff Tracks All', desc: 'Lecturer sees per-student completion, last-active time, and scenario progress bars.', color: '#d97706', colorLight: 'rgba(217,119,6,.07)', colorBorder: 'rgba(217,119,6,.2)', delay: 0.4 },
+              ].map((s, i) => (
+                <div key={s.n} className="lp-reveal-item" style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 172, animation: `lpReveal .5s ease ${s.delay}s both` }}>
+                  {/* Step card */}
+                  <div
+                    style={{ flex: 1, background: s.colorLight, border: `1px solid ${s.colorBorder}`, borderRadius: 18, padding: '26px 18px 22px', textAlign: 'center', transition: 'transform .28s ease, box-shadow .28s ease', cursor: 'default', alignSelf: 'stretch', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-8px)'; e.currentTarget.style.boxShadow = `0 16px 40px ${s.colorBorder}`; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none'; }}
+                  >
+                    {/* Floating icon */}
+                    <div style={{ fontSize: 40, marginBottom: 14, display: 'inline-block', animation: `lpIconBounce 3.2s ease-in-out ${i * 0.55}s infinite` }}>{s.icon}</div>
+                    {/* Numbered badge */}
+                    <div style={{ width: 26, height: 26, borderRadius: '50%', background: s.color, color: '#fff', fontFamily: 'monospace', fontSize: 10, fontWeight: 700, display: 'grid', placeItems: 'center', marginBottom: 12, letterSpacing: '0.04em', flexShrink: 0 }}>{s.n}</div>
+                    {/* Title */}
+                    <div style={{ fontWeight: 700, fontSize: 13, color: '#1e1b4b', marginBottom: 8, lineHeight: 1.3 }}>{s.title}</div>
+                    {/* Description */}
+                    <div style={{ fontSize: 11.5, color: '#6b7280', lineHeight: 1.55, flexGrow: 1 }}>{s.desc}</div>
+                    {/* Bottom accent line */}
+                    <div style={{ width: 28, height: 2, borderRadius: 99, background: s.color, marginTop: 16, opacity: 0.5 }} />
+                  </div>
+                  {/* Connector arrow */}
+                  {i < 4 && (
+                    <div style={{ padding: '0 6px', flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                      <div style={{ fontSize: 20, color: '#a78bfa', animation: `lpArrowPulse 2s ease-in-out ${i * 0.4}s infinite` }}>›</div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           <div style={{ background: 'rgba(255,255,255,.8)', borderRadius: 20, border: '1px solid rgba(139,92,246,.15)', overflow: 'hidden' }}>

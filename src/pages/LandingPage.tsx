@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import BrandMark from '../components/ui/BrandMark';
-import { ContainerScroll } from '../components/ui/container-scroll-animation';
 
 // ─── Scroll-reveal hook ──────────────────────────────────────────────────────
 function useInView(threshold = 0.12) {
@@ -162,7 +161,7 @@ function DashboardMockup() {
 
   const statCards = [
     { label: 'TOTAL STUDENTS', value: 228, color: '#7c3aed', bg: '#ede9fe', icon: '👥' },
-    { label: 'COURSES', value: 2, color: '#2563eb', bg: '#dbeafe', icon: '🎓' },
+    { label: 'COURSES', value: 3, color: '#2563eb', bg: '#dbeafe', icon: '🎓' },
     { label: 'COUNTRIES', value: 24, color: '#0891b2', bg: '#cffafe', icon: '🌐' },
     { label: 'WITH WORK EXP.', value: 210, color: '#059669', bg: '#d1fae5', icon: '💼' },
     { label: 'SPECIAL NEEDS', value: 3, color: '#e11d48', bg: '#fee2e2', icon: '♥' },
@@ -170,24 +169,24 @@ function DashboardMockup() {
   ];
 
   const gallery = [
-    { name: 'Poonam Shrestha', initials: 'PS', grad: 'linear-gradient(135deg,#7c3aed,#a78bfa)' },
-    { name: 'Induruwa K.', initials: 'IK', grad: 'linear-gradient(135deg,#0891b2,#2dd4bf)' },
-    { name: 'Hashari K.', initials: 'HK', grad: 'linear-gradient(135deg,#059669,#34d399)' },
-    { name: 'Pujan Kalu', initials: 'PK', grad: 'linear-gradient(135deg,#d97706,#fbbf24)' },
-    { name: 'Muhammad R.', initials: 'MR', grad: 'linear-gradient(135deg,#e11d48,#fb7185)' },
-    { name: 'Rejina B.', initials: 'RB', grad: 'linear-gradient(135deg,#7c3aed,#ec4899)' },
-    { name: 'Daniela', initials: 'D', grad: 'linear-gradient(135deg,#2563eb,#60a5fa)' },
-    { name: 'Nisansala H.', initials: 'NH', grad: 'linear-gradient(135deg,#059669,#2dd4bf)' },
-    { name: 'Ethige I.', initials: 'EI', grad: 'linear-gradient(135deg,#d97706,#f97316)' },
-    { name: 'Carlos R.', initials: 'CR', grad: 'linear-gradient(135deg,#0891b2,#60a5fa)' },
-    { name: 'Min-jun L.', initials: 'ML', grad: 'linear-gradient(135deg,#6d28d9,#a78bfa)' },
-    { name: 'Priya N.', initials: 'PN', grad: 'linear-gradient(135deg,#e11d48,#a78bfa)' },
-    { name: 'Amara O.', initials: 'AO', grad: 'linear-gradient(135deg,#059669,#a78bfa)' },
-    { name: 'Ben Kumar', initials: 'BK', grad: 'linear-gradient(135deg,#2563eb,#2dd4bf)' },
-    { name: 'Yasas W.', initials: 'YW', grad: 'linear-gradient(135deg,#7c3aed,#fbbf24)' },
-    { name: 'Selin A.', initials: 'SA', grad: 'linear-gradient(135deg,#d97706,#ec4899)' },
-    { name: 'Reka S.', initials: 'RS', grad: 'linear-gradient(135deg,#0891b2,#7c3aed)' },
-    { name: 'Liu Yang', initials: 'LY', grad: 'linear-gradient(135deg,#e11d48,#fbbf24)' },
+    { name: 'Nadia Patel',     seed: 'nadia-patel'     },
+    { name: 'Marcus Chen',     seed: 'marcus-chen'     },
+    { name: 'Sofia Garcia',    seed: 'sofia-garcia'    },
+    { name: 'Hiroshi T.',      seed: 'hiroshi-tanaka'  },
+    { name: 'Amara Osei',      seed: 'amara-osei'      },
+    { name: 'Lucas Ferreira',  seed: 'lucas-ferreira'  },
+    { name: 'Mei-Ling Z.',     seed: 'meiling-zhang'   },
+    { name: 'Raj Sharma',      seed: 'raj-sharma'      },
+    { name: 'Fatima Hassan',   seed: 'fatima-hassan'   },
+    { name: 'Tobias Werner',   seed: 'tobias-werner'   },
+    { name: 'Priya Krishna',   seed: 'priya-krishna'   },
+    { name: 'James Nguyen',    seed: 'james-nguyen'    },
+    { name: 'Elena Popescu',   seed: 'elena-popescu'   },
+    { name: 'Arjun Mehta',     seed: 'arjun-mehta'     },
+    { name: 'Yuki Sato',       seed: 'yuki-sato'       },
+    { name: 'Diego Castro',    seed: 'diego-castro'    },
+    { name: 'Nairobi Brown',   seed: 'nairobi-brown'   },
+    { name: 'Min-jun Lee',     seed: 'minjun-lee'      },
   ];
 
   return (
@@ -236,7 +235,7 @@ function DashboardMockup() {
         <div style={{ padding: '18px 22px 0' }}>
           <div style={{ color: '#7c3aed', fontSize: 12, fontWeight: 500 }}>Welcome back 👋</div>
           <div style={{ fontSize: 20, fontWeight: 800, color: '#1e1b4b', letterSpacing: '-0.025em', marginTop: 3 }}>Dashboard Overview</div>
-          <div style={{ color: '#8b7fa6', fontSize: 11, marginTop: 3 }}>228 enrolled students across 2 courses</div>
+          <div style={{ color: '#8b7fa6', fontSize: 11, marginTop: 3 }}>228 enrolled students across 3 courses</div>
         </div>
 
         {/* Filter bar */}
@@ -281,8 +280,8 @@ function DashboardMockup() {
           </div>
           <div style={{ padding: '0 14px 14px', display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 7 }}>
             {gallery.map(s => (
-              <div key={s.name} style={{ position: 'relative', aspectRatio: '3/4', borderRadius: 10, background: s.grad, display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
-                <div style={{ fontSize: 20, fontWeight: 800, color: 'rgba(255,255,255,.9)', textShadow: '0 1px 4px rgba(0,0,0,.3)' }}>{s.initials}</div>
+              <div key={s.name} style={{ position: 'relative', aspectRatio: '3/4', borderRadius: 10, overflow: 'hidden', background: '#e0d9f7' }}>
+                <img src={`https://api.dicebear.com/9.x/personas/svg?seed=${s.seed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`} alt={s.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(0,0,0,.75), transparent)', padding: '12px 5px 5px', color: '#fff', fontSize: 7.5, lineHeight: 1.2, wordBreak: 'break-word' }}>{s.name}</div>
               </div>
             ))}
@@ -471,21 +470,86 @@ export default function LandingPage() {
   const [activeStoryStep, setActiveStoryStep] = useState(0);
   const [sqlTab, setSqlTab] = useState<'student' | 'staff'>('student');
 
+  // Video fade refs
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const fadingOutRef = useRef(false);
+  const rafRef = useRef<number | null>(null);
+  // Story auto-advance timer
+  const storyTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  function goToStep(i: number) {
+    setActiveStoryStep(i);
+    if (storyTimerRef.current) clearInterval(storyTimerRef.current);
+    storyTimerRef.current = setInterval(() => setActiveStoryStep(s => (s + 1) % 5), 4500);
+  }
+
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', fn, { passive: true });
     return () => window.removeEventListener('scroll', fn);
   }, []);
 
-  // Scroll-spy for story steps
-  const stepRefs = [useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null), useRef<HTMLDivElement>(null)];
+  // Auto-advance story steps
   useEffect(() => {
-    const ios = stepRefs.map((ref, i) => {
-      const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) setActiveStoryStep(i); }, { threshold: 0.55, rootMargin: '-20% 0px -30% 0px' });
-      if (ref.current) io.observe(ref.current);
-      return io;
-    });
-    return () => ios.forEach(io => io.disconnect());
+    storyTimerRef.current = setInterval(() => setActiveStoryStep(s => (s + 1) % 5), 4500);
+    return () => { if (storyTimerRef.current) clearInterval(storyTimerRef.current); };
+  }, []);
+
+  // Video background fade system
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    function cancelFade() {
+      if (rafRef.current !== null) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+    }
+    function fadeIn(from: number) {
+      cancelFade();
+      const t0 = performance.now();
+      function step(now: number) {
+        const p = Math.min((now - t0) / 500, 1);
+        if (video) video.style.opacity = String(from + (1 - from) * p);
+        if (p < 1) rafRef.current = requestAnimationFrame(step); else rafRef.current = null;
+      }
+      rafRef.current = requestAnimationFrame(step);
+    }
+    function fadeOut(from: number) {
+      cancelFade();
+      const t0 = performance.now();
+      function step(now: number) {
+        const p = Math.min((now - t0) / 500, 1);
+        if (video) video.style.opacity = String(from * (1 - p));
+        if (p < 1) rafRef.current = requestAnimationFrame(step); else rafRef.current = null;
+      }
+      rafRef.current = requestAnimationFrame(step);
+    }
+    function onTimeUpdate() {
+      if (!video || fadingOutRef.current || !video.duration) return;
+      if (video.duration - video.currentTime <= 0.55) {
+        fadingOutRef.current = true;
+        fadeOut(parseFloat(video.style.opacity || '1'));
+      }
+    }
+    function onEnded() {
+      if (!video) return;
+      video.style.opacity = '0';
+      fadingOutRef.current = false;
+      const v = video;
+      setTimeout(() => { v.currentTime = 0; v.play().catch(() => {}); fadeIn(0); }, 100);
+    }
+    function onCanPlay() {
+      if (!video) return;
+      if (parseFloat(video.style.opacity || '0') < 0.1) fadeIn(0);
+    }
+    video.style.opacity = '0';
+    video.addEventListener('timeupdate', onTimeUpdate);
+    video.addEventListener('ended', onEnded);
+    video.addEventListener('canplay', onCanPlay);
+    return () => {
+      cancelFade();
+      video.removeEventListener('timeupdate', onTimeUpdate);
+      video.removeEventListener('ended', onEnded);
+      video.removeEventListener('canplay', onCanPlay);
+    };
   }, []);
 
   // Metric refs + counters
@@ -497,18 +561,19 @@ export default function LandingPage() {
   const c5 = useCounter(100, metricsInView);
   const c6 = useCounter(16, metricsInView);
   const c7 = useCounter(210, metricsInView);
-  const c8 = useCounter(2, metricsInView);
+  const c8 = useCounter(3, metricsInView);
 
   const [problemRef, problemInView] = useInView();
   const [audRef, audInView] = useInView();
   const [sqlRef, sqlInView] = useInView();
   const [techRef, techInView] = useInView();
 
-  const storyScreens = [
-    <AttendanceScreen key="attendance" />,
-    <PlaygroundScreen key="playground" />,
-    <FraudScreen key="fraud" />,
-    <MatchScreen key="match" />,
+  const storySteps = [
+    { label: 'Opening Code', time: '9:00', title: '9:00 — Opening code launches.', body: "The lecturer clicks Launch Opening. A six-character code from a deliberately ambiguity-free alphabet (no 0/O/1/I) appears, plus a scannable QR. Students have four minutes to submit — opening and mid-session checkpoints together verify real presence.", screen: <AttendanceScreen key="attendance" /> },
+    { label: 'Live Playground', time: '9:15', title: '9:15 — Live playground opens.', body: "A real-time canvas, polls, and a shared checklist materialise. Every student's presence is tracked. Drawings sync across all devices as the lecturer draws. Votes tally live as they're cast.", screen: <PlaygroundScreen key="playground" /> },
+    { label: 'Fraud Detected', time: '10:30', title: '10:30 — Suspicious activity flagged.', body: "Two students submitted within 11 seconds from the same IP. Another's GPS is 1.2 km off the cohort cluster. Three detection algorithms ran automatically. The platform raised the flags before the lecturer even checked the results.", screen: <FraudScreen key="fraud" /> },
+    { label: 'Daily Match', time: '11:00', title: '11:00 — Daily Match queued.', body: "The matching algorithm scores every pairing in the cohort. Each student opens their dashboard to three new peers ranked by shared background, industry, and hometown — with the reasons visible alongside each score.", screen: <MatchScreen key="match" /> },
+    { label: 'Dashboard', time: '11:05', title: '11:05 — Dashboard overview.', body: "228 students across 3 courses and 24 countries — visible at a glance. Attendance rates, quiz completions, session history, and cohort analytics all live in one place. No spreadsheets, no manual aggregation.", screen: <DashboardMockup key="dashboard" /> },
   ];
 
   const studentFeatures = [
@@ -537,7 +602,7 @@ export default function LandingPage() {
     { n: c5, suffix: '+', label: 'MCQ Questions', desc: 'Across ER, Agile/Scrum, and DBMS banks' },
     { n: c6, suffix: '', label: 'Video Lessons', desc: 'Full recorded lectures and tutorials' },
     { n: c7, suffix: '', label: 'With Work Experience', desc: 'Students with professional backgrounds' },
-    { n: c8, suffix: '', label: 'Courses', desc: 'MBI800 and MBI802' },
+    { n: c8, suffix: '', label: 'Courses', desc: 'MBI800, MBI802 and MBI804' },
   ];
 
   const tech = [
@@ -556,6 +621,7 @@ export default function LandingPage() {
   return (
     <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: 'var(--bg-page)', color: '#1e1b4b', overflowX: 'hidden' }}>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
         @keyframes lpFloat  { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-10px)} }
         @keyframes lpFloatB { 0%,100%{transform:translateY(-6px)} 50%{transform:translateY(6px)} }
         @keyframes lpFloatC { 0%,100%{transform:translateY(4px)}  50%{transform:translateY(-8px)} }
@@ -570,23 +636,26 @@ export default function LandingPage() {
         @keyframes lpDrawLine { to{stroke-dashoffset:0} }
         .lp-reveal-item { opacity:0; transform:translateY(24px); transition:opacity .75s cubic-bezier(.2,.7,.2,1), transform .75s cubic-bezier(.2,.7,.2,1); }
         .lp-reveal-item.lp-visible { opacity:1; transform:none; }
+        .lp-stagger.lp-visible .lp-reveal-item { opacity:1; transform:none; }
         .lp-stagger > *:nth-child(1) { transition-delay:.04s }
         .lp-stagger > *:nth-child(2) { transition-delay:.13s }
         .lp-stagger > *:nth-child(3) { transition-delay:.22s }
         .lp-stagger > *:nth-child(4) { transition-delay:.31s }
         .lp-stagger > *:nth-child(5) { transition-delay:.40s }
         .lp-stagger > *:nth-child(6) { transition-delay:.49s }
+        .liquid-glass { background:rgba(255,255,255,0.01); background-blend-mode:luminosity; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); border:none; box-shadow:inset 0 1px 1px rgba(255,255,255,0.1); position:relative; overflow:hidden; }
+        .liquid-glass::before { content:''; position:absolute; inset:0; border-radius:inherit; padding:1.4px; background:linear-gradient(180deg,rgba(255,255,255,0.45) 0%,rgba(255,255,255,0.15) 20%,rgba(255,255,255,0) 40%,rgba(255,255,255,0) 60%,rgba(255,255,255,0.15) 80%,rgba(255,255,255,0.45) 100%); -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; }
       `}</style>
 
       {/* ── Navigation ──────────────────────────────────────────────────── */}
-      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 32px', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', background: scrolled ? 'rgba(245,244,255,.92)' : 'rgba(245,244,255,.60)', borderBottom: scrolled ? '1px solid rgba(139,92,246,.15)' : '1px solid transparent', transition: 'all .3s ease' }}>
+      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 32px', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', background: scrolled ? 'rgba(245,244,255,.92)' : 'rgba(0,0,0,.25)', borderBottom: scrolled ? '1px solid rgba(139,92,246,.15)' : '1px solid rgba(255,255,255,.1)', transition: 'all .3s ease' }}>
         <a href="#top" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: 'inherit' }}>
           <BrandMark className="h-8 w-8" />
           <span style={{ fontWeight: 800, fontSize: 20, letterSpacing: '-0.02em', background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>YooBees</span>
         </a>
         <ul style={{ display: 'flex', gap: 28, listStyle: 'none', margin: 0, padding: 0 }}>
           {[['#problem', 'Problem'], ['#audience', "Who it's for"], ['#story', 'How it works'], ['#sql-lab', 'SQL Lab'], ['#numbers', 'Stats']].map(([href, label]) => (
-            <li key={href}><a href={href} style={{ fontSize: 13, color: '#6b7280', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => (e.currentTarget.style.color = '#7c3aed')} onMouseLeave={e => (e.currentTarget.style.color = '#6b7280')}>{label}</a></li>
+            <li key={href}><a href={href} style={{ fontSize: 13, color: scrolled ? '#6b7280' : 'rgba(255,255,255,.8)', textDecoration: 'none', transition: 'color .2s' }} onMouseEnter={e => (e.currentTarget.style.color = scrolled ? '#7c3aed' : '#fff')} onMouseLeave={e => (e.currentTarget.style.color = scrolled ? '#6b7280' : 'rgba(255,255,255,.8)')}>{label}</a></li>
           ))}
         </ul>
         <div style={{ display: 'flex', gap: 10 }}>
@@ -596,7 +665,7 @@ export default function LandingPage() {
             </Link>
           ) : (
             <>
-              <Link to="/login" style={{ padding: '9px 18px', borderRadius: 99, border: '1px solid rgba(124,58,237,.3)', color: '#7c3aed', fontWeight: 600, fontSize: 13, textDecoration: 'none', transition: 'all .2s' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(124,58,237,.06)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
+              <Link to="/login" style={{ padding: '9px 18px', borderRadius: 99, border: `1px solid ${scrolled ? 'rgba(124,58,237,.3)' : 'rgba(255,255,255,.3)'}`, color: scrolled ? '#7c3aed' : 'rgba(255,255,255,.9)', fontWeight: 600, fontSize: 13, textDecoration: 'none', transition: 'all .2s' }}>
                 Sign In
               </Link>
               <Link to="/register" style={{ padding: '9px 20px', borderRadius: 99, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', color: '#fff', fontWeight: 600, fontSize: 13, textDecoration: 'none', boxShadow: '0 4px 14px rgba(124,58,237,.35)' }}>
@@ -607,69 +676,76 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* ── Hero — ContainerScroll ───────────────────────────────────────── */}
-      <section id="top" style={{ position: 'relative', overflow: 'hidden', paddingTop: 72 }}>
-        {/* Background orbs */}
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
-          <div style={{ position: 'absolute', width: 900, height: 900, borderRadius: '50%', background: 'radial-gradient(circle, rgba(167,139,250,.16) 0%, transparent 70%)', top: -200, right: -150, animation: 'lpOrbDrift 20s ease-in-out infinite' }} />
-          <div style={{ position: 'absolute', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,121,160,.10) 0%, transparent 70%)', bottom: 200, left: -100, animation: 'lpOrbDrift 16s ease-in-out infinite 3s' }} />
-          <div style={{ position: 'absolute', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(124,58,237,.12) 0%, transparent 70%)', top: '30%', left: '20%', animation: 'lpFloat 12s ease-in-out infinite 1s' }} />
-        </div>
-
-        <ContainerScroll
-          titleComponent={
-            <div style={{ paddingTop: 60 }}>
-              {/* Eyebrow */}
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(124,58,237,.08)', border: '1px solid rgba(124,58,237,.2)', borderRadius: 99, padding: '6px 18px', marginBottom: 32, animation: 'lpReveal .6s ease both' }}>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#7c3aed', display: 'inline-block', animation: 'lpPulse 1.8s ease-in-out infinite' }} />
-                <span style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#7c3aed' }}>Postgraduate teaching platform · Yoobee Colleges · 2026</span>
-              </div>
-
-              {/* Headline */}
-              <h1 style={{ fontSize: 'clamp(48px, 8vw, 96px)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 0.92, margin: '0 0 24px', animation: 'lpReveal .7s ease .1s both', color: '#1e1b4b' }}>
-                Teaching,{' '}
-                <span style={{ background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontStyle: 'italic' }}>attended</span>.<br />
-                Learning,{' '}
-                <span style={{ WebkitTextStroke: '2.5px #7c3aed', color: 'transparent' }}>measured</span>.
-              </h1>
-
-              {/* Subtext */}
-              <p style={{ fontSize: 18, color: '#6b7280', lineHeight: 1.6, maxWidth: '54ch', margin: '0 auto 32px', animation: 'lpReveal .7s ease .2s both' }}>
-                <strong style={{ color: '#1e1b4b' }}>YooBees</strong> combines fraud-resistant attendance, a real-time lesson playground, and a full resource library — all built for <strong style={{ color: '#7c3aed' }}>Masters of Business Informatics</strong> at Yoobee Colleges.
-              </p>
-
-              {/* CTA buttons */}
-              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center', animation: 'lpReveal .7s ease .3s both' }}>
-                {user ? (
-                  <Link to={dashPath} style={{ padding: '14px 32px', borderRadius: 99, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', color: '#fff', fontWeight: 700, fontSize: 15, textDecoration: 'none', boxShadow: '0 6px 24px rgba(124,58,237,.4)' }}>
-                    Open Dashboard →
-                  </Link>
-                ) : (
-                  <>
-                    <Link to="/register" style={{ padding: '14px 32px', borderRadius: 99, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', color: '#fff', fontWeight: 700, fontSize: 15, textDecoration: 'none', boxShadow: '0 6px 24px rgba(124,58,237,.4)' }}>
-                      Get Started →
-                    </Link>
-                    <Link to="/login" style={{ padding: '14px 28px', borderRadius: 99, border: '1.5px solid rgba(124,58,237,.3)', color: '#7c3aed', fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
-                      Sign In
-                    </Link>
-                  </>
-                )}
-              </div>
-
-              {/* Live stats row */}
-              <div style={{ display: 'flex', gap: 40, justifyContent: 'center', marginTop: 40, paddingTop: 28, borderTop: '1px solid rgba(139,92,246,.12)', animation: 'lpReveal .7s ease .4s both' }}>
-                {[['228', 'Enrolled students'], ['2', 'Courses'], ['24', 'Countries'], ['2,500+', 'Platform sessions']].map(([n, l]) => (
-                  <div key={l} style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 28, fontWeight: 800, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}>{n}</div>
-                    <div style={{ fontSize: 10.5, color: '#8b7fa6', marginTop: 3, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{l}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          }
+      {/* ── Hero — Full-screen video ─────────────────────────────────────── */}
+      <section id="top" style={{ position: 'relative', overflow: 'hidden', minHeight: '100vh', background: '#000' }}>
+        {/* Background video */}
+        <video
+          ref={videoRef}
+          autoPlay
+          muted
+          playsInline
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', transform: 'translateY(17%)', opacity: 0, zIndex: 0 }}
         >
-          <DashboardMockup />
-        </ContainerScroll>
+          <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_115001_bcdaa3b4-03de-47e7-ad63-ae3e392c32d4.mp4" type="video/mp4" />
+        </video>
+        {/* Gradient overlay */}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,.58) 0%, rgba(0,0,0,.32) 45%, rgba(0,0,0,.68) 100%)', zIndex: 1 }} />
+
+        {/* Hero content */}
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', minHeight: '100vh', paddingTop: 80 }}>
+          {/* Main content */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 24px 60px', textAlign: 'center', transform: 'translateY(-8%)' }}>
+            {/* Badge */}
+            <div className="liquid-glass" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 99, padding: '6px 18px', marginBottom: 28 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#a78bfa', display: 'inline-block', animation: 'lpPulse 1.8s ease-in-out infinite' }} />
+              <span style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,.8)' }}>Postgraduate teaching platform · Yoobee Colleges · 2026</span>
+            </div>
+            {/* Headline */}
+            <h1 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(52px, 9vw, 108px)', fontWeight: 400, color: '#fff', margin: '0 0 28px', letterSpacing: '-0.02em', lineHeight: 1.0 }}>
+              Teaching, <em>attended.</em><br />
+              Learning, <em>measured.</em>
+            </h1>
+            {/* Subtext */}
+            <p style={{ fontSize: 16, color: 'rgba(255,255,255,.72)', lineHeight: 1.65, maxWidth: '52ch', margin: '0 0 36px' }}>
+              YooBees combines fraud-resistant attendance, a real-time lesson playground, and a full resource library — all built for <strong style={{ color: '#c4b5fd' }}>Masters of Business Informatics</strong> at Yoobee Colleges.
+            </p>
+            {/* CTA bar */}
+            <div className="liquid-glass" style={{ borderRadius: 99, padding: '6px 8px 6px 22px', display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 36, maxWidth: '100%', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,.72)', whiteSpace: 'nowrap' }}>Join 228 enrolled students</span>
+              {user ? (
+                <Link to={dashPath} style={{ background: '#fff', borderRadius: 99, padding: '10px 24px', color: '#1e1b4b', fontWeight: 700, fontSize: 13, textDecoration: 'none', flexShrink: 0 }}>
+                  Dashboard →
+                </Link>
+              ) : (
+                <>
+                  <Link to="/register" style={{ background: '#fff', borderRadius: 99, padding: '10px 22px', color: '#1e1b4b', fontWeight: 700, fontSize: 13, textDecoration: 'none', flexShrink: 0 }}>
+                    Get Started
+                  </Link>
+                  <Link to="/login" className="liquid-glass" style={{ borderRadius: 99, padding: '10px 18px', color: '#fff', fontWeight: 600, fontSize: 13, textDecoration: 'none', flexShrink: 0 }}>
+                    Sign In
+                  </Link>
+                </>
+              )}
+            </div>
+            {/* Stats row */}
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+              {[['228', 'Students'], ['3', 'Courses'], ['24', 'Countries'], ['2,500+', 'Sessions']].map(([n, l]) => (
+                <div key={l} className="liquid-glass" style={{ textAlign: 'center', borderRadius: 16, padding: '14px 22px' }}>
+                  <div style={{ fontSize: 26, fontWeight: 700, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1 }}>{n}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,.6)', marginTop: 4, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{l}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          {/* Social footer */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, paddingBottom: 40 }}>
+            {[['Instagram', '◌'], ['Twitter / X', '✕'], ['Website', '◎']].map(([label, icon]) => (
+              <button key={label} aria-label={label} className="liquid-glass" style={{ width: 48, height: 48, borderRadius: '50%', display: 'grid', placeItems: 'center', color: 'rgba(255,255,255,.8)', cursor: 'pointer', border: 'none', background: 'none', fontSize: 18 }}>
+                {icon}
+              </button>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* ── Marquee ─────────────────────────────────────────────────────── */}
@@ -748,52 +824,60 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── How it works (sticky story) ──────────────────────────────────── */}
-      <section id="story" style={{ padding: '80px 0 140px' }}>
+      {/* ── How it works ─────────────────────────────────────────────────── */}
+      <section id="story" style={{ padding: '80px 0 100px' }}>
         <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 60, marginBottom: 72 }}>
+          {/* Header */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 60, marginBottom: 52 }}>
             <div><div style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#a78bfa' }}>02 — How it works</div></div>
             <div>
               <h2 style={{ fontSize: 'clamp(36px,5vw,68px)', fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
-                Four flagship moments in a <em style={{ color: '#7c3aed' }}>single class.</em>
+                Five flagship moments in a <em style={{ color: '#7c3aed' }}>single class.</em>
               </h2>
-              <p style={{ fontSize: 17, color: '#6b7280', lineHeight: 1.55 }}>From walking through the door to the post-session analytics — a typical Wednesday in MBI802.</p>
+              <p style={{ fontSize: 17, color: '#6b7280', lineHeight: 1.55 }}>From walking through the door to the post-session dashboard — a typical Wednesday in MBI802.</p>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
-            {/* Steps */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '22vh', paddingTop: '10vh' }}>
-              {[
-                { title: '9:00 — Opening code launches.', body: "The lecturer clicks Launch Opening. A six-character code from a deliberately ambiguity-free alphabet (no 0/O/1/I) appears, plus a scannable QR. Students have four minutes to submit — opening and mid-session checkpoints together verify real presence." },
-                { title: '9:15 — Live playground opens.', body: "A real-time canvas, polls, and a shared checklist materialise. Every student's presence is tracked. Drawings sync across all devices as the lecturer draws. Votes tally live as they're cast." },
-                { title: '10:30 — Suspicious activity flagged.', body: "Two students submitted within 11 seconds from the same IP. Another's GPS is 1.2 km off the cohort cluster. Three detection algorithms ran automatically. The platform raised the flags before the lecturer even checked the results." },
-                { title: '11:00 — Daily Match queued.', body: "The matching algorithm scores every pairing in the cohort. Each student opens their dashboard to three new peers ranked by shared background, industry, and hometown — with the reasons visible alongside each score." },
-              ].map((step, i) => (
-                <div key={i} ref={stepRefs[i]} data-step={i} style={{ opacity: activeStoryStep === i ? 1 : 0.25, transition: 'opacity .5s ease', maxWidth: '44ch' }}>
-                  <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#a78bfa', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
-                    Step 0{i + 1} <div style={{ flex: 1, height: 1, background: 'rgba(167,139,250,.25)' }} />
-                  </div>
-                  <h3 style={{ fontFamily: 'serif', fontSize: 38, fontWeight: 400, lineHeight: 1.05, letterSpacing: '-0.02em', marginBottom: 14 }}>{step.title}</h3>
-                  <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.65 }}>{step.body}</p>
-                </div>
-              ))}
+          {/* Step tab pills */}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 44, flexWrap: 'wrap' }}>
+            {storySteps.map((step, i) => (
+              <button key={i} onClick={() => goToStep(i)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 99, border: `1px solid ${activeStoryStep === i ? '#7c3aed' : 'rgba(139,92,246,.2)'}`, background: activeStoryStep === i ? 'linear-gradient(135deg,#7c3aed,#a78bfa)' : 'transparent', color: activeStoryStep === i ? '#fff' : '#7c3aed', fontWeight: 600, fontSize: 12, cursor: 'pointer', transition: 'all 0.25s ease' }}>
+                <span style={{ fontFamily: 'monospace', fontSize: 10, opacity: 0.75 }}>{String(i + 1).padStart(2, '0')}</span>
+                {step.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Content: description + mockup */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.6fr', gap: 56, alignItems: 'center' }}>
+            {/* Description */}
+            <div key={activeStoryStep + '_d'} style={{ animation: 'lpReveal .4s ease both' }}>
+              <div style={{ fontFamily: 'monospace', fontSize: 11, color: '#a78bfa', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+                Step {String(activeStoryStep + 1).padStart(2, '0')}
+                <div style={{ flex: 1, height: 1, background: 'rgba(167,139,250,.25)' }} />
+              </div>
+              <h3 style={{ fontFamily: 'serif', fontSize: 'clamp(26px,3vw,38px)', fontWeight: 400, lineHeight: 1.05, letterSpacing: '-0.02em', marginBottom: 16, color: '#1e1b4b' }}>{storySteps[activeStoryStep].title}</h3>
+              <p style={{ fontSize: 15, color: '#6b7280', lineHeight: 1.65 }}>{storySteps[activeStoryStep].body}</p>
+              {/* Progress indicator */}
+              <div style={{ display: 'flex', gap: 7, marginTop: 32 }}>
+                {storySteps.map((_, i) => (
+                  <button key={i} onClick={() => goToStep(i)} style={{ height: 3, flex: i === activeStoryStep ? 3 : 1, borderRadius: 99, background: i === activeStoryStep ? 'linear-gradient(90deg,#7c3aed,#a78bfa)' : 'rgba(139,92,246,.2)', border: 'none', cursor: 'pointer', transition: 'flex .45s cubic-bezier(.4,0,.2,1), background .45s ease', padding: 0 }} />
+                ))}
+              </div>
             </div>
 
-            {/* Sticky screen */}
-            <div style={{ position: 'sticky', top: '18vh', height: '62vh', display: 'grid', placeItems: 'center' }}>
-              <div style={{ width: '100%', background: 'rgba(255,255,255,.92)', backdropFilter: 'blur(20px)', border: '1px solid rgba(139,92,246,.15)', borderRadius: 24, boxShadow: '0 24px 64px rgba(124,58,237,.14)', overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 480 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '16px 20px', borderBottom: '1px solid rgba(139,92,246,.1)', background: 'rgba(245,243,255,.5)' }}>
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#e6a39a' }} />
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#e6cf8c' }} />
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#a8cba6' }} />
-                  <div style={{ flex: 1, marginLeft: 10, background: 'rgba(124,58,237,.06)', borderRadius: 6, padding: '3px 10px', fontFamily: 'monospace', fontSize: 10, color: '#8b7fa6' }}>
-                    yoobees.app / {['attendance/opening', 'playground', 'attendance/results', 'dashboard'][activeStoryStep]}
-                  </div>
+            {/* Screen mockup */}
+            <div style={{ background: 'rgba(255,255,255,.95)', border: '1px solid rgba(139,92,246,.15)', borderRadius: 24, boxShadow: '0 24px 64px rgba(124,58,237,.14)', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '14px 18px', borderBottom: '1px solid rgba(139,92,246,.1)', background: 'rgba(245,243,255,.6)' }}>
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#e6a39a' }} />
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#e6cf8c' }} />
+                <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#a8cba6' }} />
+                <div style={{ flex: 1, marginLeft: 10, background: 'rgba(124,58,237,.06)', borderRadius: 6, padding: '3px 10px', fontFamily: 'monospace', fontSize: 10, color: '#8b7fa6' }}>
+                  yoobees.app / {['attendance/opening', 'playground', 'attendance/results', 'dashboard', 'dashboard'][activeStoryStep]}
                 </div>
-                <div key={activeStoryStep} style={{ flex: 1, padding: '20px', display: 'flex', flexDirection: 'column', animation: 'lpScaleIn .4s ease both' }}>
-                  {storyScreens[activeStoryStep]}
-                </div>
+              </div>
+              <div key={activeStoryStep + '_s'} style={{ padding: 20, minHeight: 420, display: 'flex', flexDirection: 'column', animation: 'lpScaleIn .35s ease both' }}>
+                {storySteps[activeStoryStep].screen}
               </div>
             </div>
           </div>

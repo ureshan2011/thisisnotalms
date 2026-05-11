@@ -345,29 +345,29 @@ function SQLLabSim({ activeTab }: { activeTab: 'student' | 'staff' }) {
       { name: 'Amara Osei', id: 'S56789', lib: 1, hosp: 0, school: 0, pct: 11 },
     ];
     return (
-      <div style={{ background: '#fff', borderRadius: 16, border: '1px solid rgba(139,92,246,0.15)', overflow: 'hidden' }}>
-        <div style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.06), rgba(167,139,250,0.04))', padding: '16px 20px', borderBottom: '1px solid rgba(139,92,246,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ background: D.card, borderRadius: 16, border: `1px solid ${D.border}`, overflow: 'hidden' }}>
+        <div style={{ background: 'rgba(124,58,237,.08)', padding: '16px 20px', borderBottom: `1px solid ${D.border}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div style={{ fontWeight: 700, fontSize: 15, color: '#1e1b4b' }}>SQL Lab Progress</div>
-            <div style={{ fontSize: 12, color: '#8b7fa6', marginTop: 2 }}>MBI802 · Library · Hospital · School scenarios</div>
+            <div style={{ fontWeight: 700, fontSize: 15, color: D.txt1 }}>SQL Lab Progress</div>
+            <div style={{ fontSize: 12, color: D.txt2, marginTop: 2 }}>MBI802 · Library · Hospital · School scenarios</div>
           </div>
           <div style={{ fontFamily: 'monospace', fontSize: 11, background: 'rgba(124,58,237,0.08)', color: '#7c3aed', padding: '4px 10px', borderRadius: 99 }}>Live</div>
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, minWidth: 400 }}>
             <thead>
-              <tr style={{ background: 'rgba(124,58,237,0.03)' }}>
+              <tr style={{ background: 'rgba(124,58,237,.06)' }}>
                 {['Student', 'Library', 'Hospital', 'School', 'Progress'].map(h => (
-                  <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#a78bfa', fontWeight: 600, borderBottom: '1px solid rgba(139,92,246,0.08)' }}>{h}</th>
+                  <th key={h} style={{ padding: '10px 16px', textAlign: 'left', fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#a78bfa', fontWeight: 600, borderBottom: `1px solid ${D.border}` }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {students.map((s, i) => (
-                <tr key={s.id} style={{ borderBottom: i < students.length - 1 ? '1px solid rgba(139,92,246,0.06)' : 'none' }}>
+                <tr key={s.id} style={{ borderBottom: i < students.length - 1 ? `1px solid ${D.border}` : 'none' }}>
                   <td style={{ padding: '10px 16px' }}>
-                    <div style={{ fontWeight: 600, color: '#1e1b4b' }}>{s.name}</div>
-                    <div style={{ fontFamily: 'monospace', fontSize: 10, color: '#8b7fa6' }}>{s.id}</div>
+                    <div style={{ fontWeight: 600, color: D.txt1 }}>{s.name}</div>
+                    <div style={{ fontFamily: 'monospace', fontSize: 10, color: D.txt2 }}>{s.id}</div>
                   </td>
                   {[s.lib, s.hosp, s.school].map((v, j) => (
                     <td key={j} style={{ padding: '10px 16px' }}>
@@ -402,9 +402,9 @@ function SQLLabSim({ activeTab }: { activeTab: 'student' | 'staff' }) {
           </button>
         ))}
       </div>
-      <div style={{ background: 'rgba(124,58,237,0.05)', borderRadius: 12, padding: '12px 16px', borderLeft: '3px solid #7c3aed' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#7c3aed', marginBottom: 6 }}>Question</div>
-        <div style={{ fontSize: 14, color: '#1e1b4b' }}>{sc.question}</div>
+      <div style={{ background: 'rgba(124,58,237,.1)', borderRadius: 12, padding: '12px 16px', borderLeft: '3px solid #7c3aed' }}>
+        <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#a78bfa', marginBottom: 6 }}>Question</div>
+        <div style={{ fontSize: 14, color: D.txt1 }}>{sc.question}</div>
       </div>
       <div style={{ background: '#0f0f1a', borderRadius: 12, overflow: 'hidden' }}>
         <div style={{ background: '#1a1a2e', padding: '8px 16px', display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -427,9 +427,9 @@ function SQLLabSim({ activeTab }: { activeTab: 'student' | 'staff' }) {
           );
         })}</pre>
       </div>
-      <div style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(139,92,246,0.15)', padding: '14px 16px' }}>
+      <div style={{ background: D.card, borderRadius: 12, border: `1px solid ${D.border}`, padding: '14px 16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <div style={{ fontWeight: 700, fontSize: 13, color: '#1e1b4b' }}>Verification Pipeline</div>
+          <div style={{ fontWeight: 700, fontSize: 13, color: D.txt1 }}>Verification Pipeline</div>
           <button onClick={runVerify} disabled={running} style={{ padding: '6px 16px', borderRadius: 99, background: running ? 'rgba(139,92,246,0.15)' : 'linear-gradient(135deg,#7c3aed,#a78bfa)', color: running ? '#8b7fa6' : '#fff', border: 'none', fontSize: 12, fontWeight: 600, cursor: running ? 'not-allowed' : 'pointer' }}>
             {running ? 'Checking…' : 'Run Check'}
           </button>
@@ -439,10 +439,10 @@ function SQLLabSim({ activeTab }: { activeTab: 'student' | 'staff' }) {
             const done = step >= i;
             const active = step === i - 1 && running;
             return (
-              <div key={vs.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', borderRadius: 8, background: done ? 'rgba(52,211,153,0.06)' : active ? 'rgba(124,58,237,0.06)' : 'rgba(139,92,246,0.02)', border: `1px solid ${done ? 'rgba(52,211,153,0.2)' : active ? 'rgba(124,58,237,0.2)' : 'rgba(139,92,246,0.08)'}`, transition: 'all 0.35s ease' }}>
+              <div key={vs.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 12px', borderRadius: 8, background: done ? 'rgba(52,211,153,.08)' : active ? 'rgba(124,58,237,.08)' : D.card, border: `1px solid ${done ? 'rgba(52,211,153,.25)' : active ? 'rgba(124,58,237,.25)' : D.border}`, transition: 'all 0.35s ease' }}>
                 <span style={{ fontSize: 16 }}>{vs.icon}</span>
-                <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: done ? '#059669' : '#4a4a6a' }}>{vs.label}</span>
-                <span style={{ fontFamily: 'monospace', fontSize: 11, color: done ? '#059669' : active ? '#7c3aed' : '#9ca3af' }}>
+                <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: done ? '#34d399' : D.txt1 }}>{vs.label}</span>
+                <span style={{ fontFamily: 'monospace', fontSize: 11, color: done ? '#34d399' : active ? '#a78bfa' : D.txt3 }}>
                   {done ? `✓ ${vs.pass}` : active ? '…' : '—'}
                 </span>
               </div>
@@ -453,6 +453,23 @@ function SQLLabSim({ activeTab }: { activeTab: 'student' | 'staff' }) {
     </div>
   );
 }
+
+// ─── Dark theme palette ───────────────────────────────────────────────────────
+const D = {
+  bg0:   '#030211',
+  bg1:   '#06041a',
+  bg2:   '#080520',
+  bg3:   '#0b0728',
+  card:  'rgba(255,255,255,.04)',
+  cardH: 'rgba(255,255,255,.07)',
+  border:'rgba(255,255,255,.07)',
+  txt1:  '#f0edff',
+  txt2:  'rgba(240,237,255,.6)',
+  txt3:  'rgba(240,237,255,.35)',
+  pur:   '#7c3aed',
+  purL:  '#a78bfa',
+  purLL: '#c4b5fd',
+};
 
 // ─── Main component ──────────────────────────────────────────────────────────
 export default function LandingPage() {
@@ -608,7 +625,7 @@ export default function LandingPage() {
   ];
 
   return (
-    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: 'var(--bg-page)', color: '#1e1b4b', overflowX: 'hidden' }}>
+    <div style={{ fontFamily: "'Inter', system-ui, sans-serif", background: D.bg0, color: D.txt1, overflowX: 'hidden' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
         @keyframes lpFloat  { 0%,100%{transform:translateY(0)}  50%{transform:translateY(-10px)} }
@@ -680,10 +697,10 @@ export default function LandingPage() {
       `}</style>
 
       {/* ── Navigation ──────────────────────────────────────────────────── */}
-      <nav className="lp-nav" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 32px', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', background: scrolled ? 'rgba(245,244,255,.92)' : 'rgba(0,0,0,.18)', borderBottom: scrolled ? '1px solid rgba(139,92,246,.15)' : '1px solid rgba(255,255,255,.08)', transition: 'all .3s ease' }}>
+      <nav className="lp-nav" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 32px', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', background: scrolled ? 'rgba(6,4,26,.95)' : 'rgba(0,0,0,.18)', borderBottom: scrolled ? '1px solid rgba(139,92,246,.2)' : '1px solid rgba(255,255,255,.08)', transition: 'all .3s ease' }}>
         <a href="#top" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: 'inherit' }}>
           <BrandMark className="h-7 w-7" />
-          <span style={{ fontWeight: 800, fontSize: 19, letterSpacing: '-0.02em', background: scrolled ? 'linear-gradient(135deg,#7c3aed,#a78bfa)' : 'none', WebkitBackgroundClip: scrolled ? 'text' : 'unset', WebkitTextFillColor: scrolled ? 'transparent' : '#fff' }}>YooBees</span>
+          <span style={{ fontWeight: 800, fontSize: 19, letterSpacing: '-0.02em', background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>YooBees</span>
         </a>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {user ? (
@@ -692,10 +709,10 @@ export default function LandingPage() {
             </Link>
           ) : (
             <>
-              <Link to="/login" style={{ padding: '8px 18px', borderRadius: 99, border: `1px solid ${scrolled ? 'rgba(124,58,237,.3)' : 'rgba(255,255,255,.3)'}`, color: scrolled ? '#7c3aed' : 'rgba(255,255,255,.9)', fontWeight: 600, fontSize: 13, textDecoration: 'none', transition: 'all .2s' }}>
+              <Link to="/login" style={{ padding: '8px 18px', borderRadius: 99, border: '1px solid rgba(255,255,255,.3)', color: 'rgba(255,255,255,.9)', fontWeight: 600, fontSize: 13, textDecoration: 'none', transition: 'all .2s' }}>
                 Sign In
               </Link>
-              <Link to="/register" style={{ padding: '8px 20px', borderRadius: 99, background: scrolled ? 'linear-gradient(135deg,#7c3aed,#a78bfa)' : '#fff', color: scrolled ? '#fff' : '#1e1b4b', fontWeight: 700, fontSize: 13, textDecoration: 'none', boxShadow: scrolled ? '0 4px 14px rgba(124,58,237,.35)' : 'none' }}>
+              <Link to="/register" style={{ padding: '8px 20px', borderRadius: 99, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', color: '#fff', fontWeight: 700, fontSize: 13, textDecoration: 'none', boxShadow: '0 4px 14px rgba(124,58,237,.35)' }}>
                 Get Started →
               </Link>
             </>
@@ -771,7 +788,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Dashboard scroll reveal ──────────────────────────────────────── */}
-      <section style={{ background: 'linear-gradient(180deg, #000 0%, #0a0618 55%, #f5f4ff 100%)', padding: '0 0 0' }}>
+      <section style={{ background: `linear-gradient(180deg, #000 0%, ${D.bg1} 100%)`, padding: '0 0 0' }}>
         <ContainerScroll
           titleComponent={
             <div style={{ textAlign: 'center', paddingBottom: 0 }}>
@@ -790,10 +807,10 @@ export default function LandingPage() {
       </section>
 
       {/* ── Marquee ─────────────────────────────────────────────────────── */}
-      <div style={{ borderTop: '1px solid rgba(139,92,246,.12)', borderBottom: '1px solid rgba(139,92,246,.12)', background: 'rgba(255,255,255,.6)', backdropFilter: 'blur(8px)', padding: '14px 0', overflow: 'hidden' }}>
+      <div style={{ borderTop: '1px solid rgba(139,92,246,.15)', borderBottom: '1px solid rgba(139,92,246,.15)', background: D.bg2, padding: '14px 0', overflow: 'hidden' }}>
         <div style={{ display: 'inline-flex', gap: 64, whiteSpace: 'nowrap', animation: 'lpMarquee 36s linear infinite', willChange: 'transform' }}>
           {['Live attendance', 'Fraud detection', 'Real-time canvas', 'Peer matching', 'Quiz analytics', 'SQL lab', 'Multi-campus', 'ER diagrams', 'Agile/Scrum MCQ', 'Video lessons', 'Live attendance', 'Fraud detection', 'Real-time canvas', 'Peer matching', 'Quiz analytics', 'SQL lab', 'Multi-campus', 'ER diagrams', 'Agile/Scrum MCQ', 'Video lessons'].map((t, i) => (
-            <span key={i} className="lp-marquee-text" style={{ fontStyle: 'italic', fontSize: 20, color: '#8b7fa6', fontFamily: 'serif' }}>
+            <span key={i} className="lp-marquee-text" style={{ fontStyle: 'italic', fontSize: 20, color: D.txt3, fontFamily: 'serif' }}>
               <span style={{ color: '#7c3aed', fontStyle: 'normal', marginRight: 44, fontSize: 13 }}>✦</span>{t}
             </span>
           ))}
@@ -801,7 +818,7 @@ export default function LandingPage() {
       </div>
 
       {/* ── Problem ─────────────────────────────────────────────────────── */}
-      <section id="problem" className="lp-section-pad" style={{ padding: '100px 0 80px' }}>
+      <section id="problem" className="lp-section-pad" style={{ padding: '100px 0 80px', background: D.bg1 }}>
         <div className="lp-inner" style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px' }}>
           {/* Header */}
           <div ref={problemRef} className={`lp-reveal-item lp-hdr-grid ${problemInView ? 'lp-visible' : ''}`} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 60, marginBottom: 72 }}>
@@ -809,10 +826,10 @@ export default function LandingPage() {
               <div style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#a78bfa' }}>01 — The problem</div>
             </div>
             <div>
-              <h2 style={{ fontSize: 'clamp(34px,5vw,64px)', fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 18 }}>
+              <h2 style={{ fontSize: 'clamp(34px,5vw,64px)', fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 18, color: D.txt1 }}>
                 Postgraduate classrooms need <em style={{ color: '#7c3aed', fontStyle: 'italic' }}>more</em> than a roll call.
               </h2>
-              <p style={{ fontSize: 17, color: '#6b7280', lineHeight: 1.6 }}>
+              <p style={{ fontSize: 17, color: D.txt2, lineHeight: 1.6 }}>
                 Spreadsheet attendance, fragmented tools, passive lectures, and no real way to know if students are engaged — or even present. Existing LMS platforms are built for large undergraduate cohorts. Masters teaching is a different sport.
               </p>
             </div>
@@ -829,8 +846,8 @@ export default function LandingPage() {
                 detail: 'Students sign each other in. Roll-call codes get screenshotted and shared. Staff spend hours on manual audits that still miss half the cases.',
                 solution: 'YooBees flags the patterns automatically — shared IPs, GPS outliers, and rapid multi-submissions detected before the session ends.',
                 accent: '#7c3aed',
-                accentBg: '#f5f3ff',
-                accentBorder: 'rgba(124,58,237,.15)',
+                accentBg: 'rgba(124,58,237,.1)',
+                accentBorder: 'rgba(124,58,237,.25)',
               },
               {
                 num: '02',
@@ -840,8 +857,8 @@ export default function LandingPage() {
                 detail: "Postgraduates expect interaction — not a whiteboard the back row can't read and silence when the lecturer asks 'any questions?'",
                 solution: 'YooBees turns every lesson into a live, two-way space — shared canvas, instant polls, real-time checklists, all synced across every device.',
                 accent: '#0891b2',
-                accentBg: '#ecfeff',
-                accentBorder: 'rgba(8,145,178,.15)',
+                accentBg: 'rgba(8,145,178,.1)',
+                accentBorder: 'rgba(8,145,178,.25)',
               },
               {
                 num: '03',
@@ -851,11 +868,11 @@ export default function LandingPage() {
                 detail: "Students fly in from twenty-four countries and don't realise they share a degree, a hometown, or a decade of industry experience.",
                 solution: 'YooBees pairs them on day one — a compatibility score built from education, industry, nationality, and learning goals.',
                 accent: '#059669',
-                accentBg: '#ecfdf5',
-                accentBorder: 'rgba(5,150,105,.15)',
+                accentBg: 'rgba(5,150,105,.1)',
+                accentBorder: 'rgba(5,150,105,.25)',
               },
             ].map(({ num, badge, icon, problem, detail, solution, accent, accentBg, accentBorder }, idx) => (
-              <div key={num} className={`lp-reveal-item lp-problem-row`} style={{ display: 'grid', gridTemplateColumns: '100px 1fr 1fr', gap: 48, padding: '52px 0', borderBottom: idx < 2 ? '1px solid rgba(139,92,246,.1)' : 'none', alignItems: 'center' }}>
+              <div key={num} className={`lp-reveal-item lp-problem-row`} style={{ display: 'grid', gridTemplateColumns: '100px 1fr 1fr', gap: 48, padding: '52px 0', borderBottom: idx < 2 ? `1px solid ${D.border}` : 'none', alignItems: 'center' }}>
                 {/* Number + icon column */}
                 <div className="lp-problem-num" style={{ textAlign: 'center' }}>
                   <div style={{ fontFamily: 'monospace', fontSize: 52, fontWeight: 900, color: 'rgba(139,92,246,.1)', lineHeight: 1, userSelect: 'none', letterSpacing: '-0.04em' }}>{num}</div>
@@ -867,8 +884,8 @@ export default function LandingPage() {
                     <span style={{ width: 5, height: 5, borderRadius: '50%', background: accent, display: 'inline-block' }} />
                     <span style={{ fontFamily: 'monospace', fontSize: 9.5, color: accent, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600 }}>{badge}</span>
                   </div>
-                  <h3 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(22px, 2.5vw, 34px)', color: '#1e1b4b', lineHeight: 1.15, fontWeight: 400, marginBottom: 14 }}>{problem}</h3>
-                  <p style={{ fontSize: 14.5, color: '#6b7280', lineHeight: 1.65 }}>{detail}</p>
+                  <h3 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 'clamp(22px, 2.5vw, 34px)', color: D.txt1, lineHeight: 1.15, fontWeight: 400, marginBottom: 14 }}>{problem}</h3>
+                  <p style={{ fontSize: 14.5, color: D.txt2, lineHeight: 1.65 }}>{detail}</p>
                 </div>
                 {/* Solution card */}
                 <div style={{ background: accentBg, borderRadius: 20, padding: '28px 28px', border: `1px solid ${accentBorder}` }}>
@@ -876,7 +893,7 @@ export default function LandingPage() {
                     <div style={{ width: 34, height: 34, borderRadius: 10, background: accent, display: 'grid', placeItems: 'center', color: '#fff', fontSize: 16, flexShrink: 0 }}>✓</div>
                     <div style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: accent, fontWeight: 700 }}>The solution</div>
                   </div>
-                  <p style={{ fontSize: 14.5, color: '#374151', lineHeight: 1.65, margin: 0 }}>{solution}</p>
+                  <p style={{ fontSize: 14.5, color: D.txt1, lineHeight: 1.65, margin: 0 }}>{solution}</p>
                 </div>
               </div>
             ))}
@@ -885,7 +902,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Audience ────────────────────────────────────────────────────── */}
-      <section id="audience" style={{ background: '#0f0a1e', padding: '100px 0', margin: '0', position: 'relative', overflow: 'hidden' }}>
+      <section id="audience" style={{ background: D.bg2, padding: '100px 0', margin: '0', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(900px 500px at 80% 20%, rgba(124,58,237,.22), transparent 60%), radial-gradient(600px 400px at 10% 90%, rgba(167,139,250,.1), transparent 60%)', pointerEvents: 'none' }} />
         <div ref={audRef} className="lp-inner" style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px', position: 'relative' }}>
           <div className={`lp-reveal-item ${audInView ? 'lp-visible' : ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 52, flexWrap: 'wrap', gap: 20 }}>
@@ -915,7 +932,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── How it works — full redesign ─────────────────────────────────── */}
-      <section id="story" style={{ background: '#080514', padding: '100px 0 80px', position: 'relative', overflow: 'hidden' }}>
+      <section id="story" style={{ background: D.bg3, padding: '100px 0 80px', position: 'relative', overflow: 'hidden' }}>
         {/* Ambient glows */}
         <div style={{ position: 'absolute', top: '-80px', left: '-160px', width: 520, height: 520, borderRadius: '50%', background: 'rgba(124,58,237,.14)', filter: 'blur(90px)', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: '-60px', right: '-80px', width: 360, height: 360, borderRadius: '50%', background: 'rgba(167,139,250,.09)', filter: 'blur(70px)', pointerEvents: 'none' }} />
@@ -1005,15 +1022,15 @@ export default function LandingPage() {
       </section>
 
       {/* ── SQL Lab Deep Dive ─────────────────────────────────────────────── */}
-      <section id="sql-lab" className="lp-section-pad" style={{ padding: '100px 0', background: 'rgba(255,255,255,.5)', borderTop: '1px solid rgba(139,92,246,.1)', borderBottom: '1px solid rgba(139,92,246,.1)' }}>
+      <section id="sql-lab" className="lp-section-pad" style={{ padding: '100px 0', background: D.bg1, borderTop: `1px solid ${D.border}`, borderBottom: `1px solid ${D.border}` }}>
         <div ref={sqlRef} className="lp-sql-inner lp-inner" style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px' }}>
           <div className={`lp-reveal-item lp-hdr-grid ${sqlInView ? 'lp-visible' : ''}`} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 60, marginBottom: 60 }}>
             <div><div style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#a78bfa' }}>03 — Novel SQL Learning Lab</div></div>
             <div>
-              <h2 style={{ fontSize: 'clamp(34px,5vw,64px)', fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16 }}>
-                Not textbook queries.<br /><span style={{ color: '#7c3aed' }}>Real schemas, real feedback.</span>
+              <h2 style={{ fontSize: 'clamp(34px,5vw,64px)', fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.05, marginBottom: 16, color: D.txt1 }}>
+                Not textbook queries.<br /><span style={{ color: '#a78bfa' }}>Real schemas, real feedback.</span>
               </h2>
-              <p style={{ fontSize: 17, color: '#6b7280', lineHeight: 1.6, maxWidth: '58ch' }}>
+              <p style={{ fontSize: 17, color: D.txt2, lineHeight: 1.6, maxWidth: '58ch' }}>
                 The SQL Practice Lab drops students into realistic database scenarios — a library management system, a hospital records database, a school grade tracker — and asks them to solve real problems. Five automated verification steps deliver instant, actionable feedback. Staff see every student's progress live.
               </p>
             </div>
@@ -1023,11 +1040,11 @@ export default function LandingPage() {
           <div className={`lp-stagger ${sqlInView ? 'lp-visible' : ''}`} style={{ marginBottom: 48 }}>
             <div style={{ display: 'flex', alignItems: 'stretch', overflowX: 'auto', paddingBottom: 4, gap: 0 }}>
               {[
-                { n: '01', icon: '🗂', title: 'Pick a Scenario', desc: 'Library · Hospital · School — real tables, foreign keys, edge-case data.', color: '#7c3aed', colorLight: 'rgba(124,58,237,.08)', colorBorder: 'rgba(124,58,237,.22)', delay: 0 },
-                { n: '02', icon: '📝', title: 'Read the Schema', desc: 'Full table structure shown before writing — mirrors real-world database design.', color: '#2563eb', colorLight: 'rgba(37,99,235,.07)', colorBorder: 'rgba(37,99,235,.2)', delay: 0.1 },
-                { n: '03', icon: '⌨', title: 'Write SQL', desc: 'In-browser editor with syntax hints. Real SQL patterns, no locked-down sandbox.', color: '#0891b2', colorLight: 'rgba(8,145,178,.07)', colorBorder: 'rgba(8,145,178,.2)', delay: 0.2 },
-                { n: '04', icon: '🔬', title: '5-Step Verify', desc: 'Syntax → Schema → Logic → Output → Edge cases — each step pass/fail in sequence.', color: '#059669', colorLight: 'rgba(5,150,105,.07)', colorBorder: 'rgba(5,150,105,.2)', delay: 0.3 },
-                { n: '05', icon: '📊', title: 'Staff Tracks All', desc: 'Lecturer sees per-student completion, last-active time, and scenario progress bars.', color: '#d97706', colorLight: 'rgba(217,119,6,.07)', colorBorder: 'rgba(217,119,6,.2)', delay: 0.4 },
+                { n: '01', icon: '🗂', title: 'Pick a Scenario', desc: 'Library · Hospital · School — real tables, foreign keys, edge-case data.', color: '#a78bfa', colorLight: 'rgba(124,58,237,.12)', colorBorder: 'rgba(124,58,237,.32)', delay: 0 },
+                { n: '02', icon: '📝', title: 'Read the Schema', desc: 'Full table structure shown before writing — mirrors real-world database design.', color: '#60a5fa', colorLight: 'rgba(37,99,235,.1)', colorBorder: 'rgba(37,99,235,.28)', delay: 0.1 },
+                { n: '03', icon: '⌨', title: 'Write SQL', desc: 'In-browser editor with syntax hints. Real SQL patterns, no locked-down sandbox.', color: '#22d3ee', colorLight: 'rgba(8,145,178,.1)', colorBorder: 'rgba(8,145,178,.28)', delay: 0.2 },
+                { n: '04', icon: '🔬', title: '5-Step Verify', desc: 'Syntax → Schema → Logic → Output → Edge cases — each step pass/fail in sequence.', color: '#34d399', colorLight: 'rgba(5,150,105,.1)', colorBorder: 'rgba(5,150,105,.28)', delay: 0.3 },
+                { n: '05', icon: '📊', title: 'Staff Tracks All', desc: 'Lecturer sees per-student completion, last-active time, and scenario progress bars.', color: '#fbbf24', colorLight: 'rgba(217,119,6,.1)', colorBorder: 'rgba(217,119,6,.28)', delay: 0.4 },
               ].map((s, i) => (
                 <div key={s.n} className="lp-reveal-item" style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 172, animation: `lpReveal .5s ease ${s.delay}s both` }}>
                   {/* Step card */}
@@ -1041,9 +1058,9 @@ export default function LandingPage() {
                     {/* Numbered badge */}
                     <div style={{ width: 26, height: 26, borderRadius: '50%', background: s.color, color: '#fff', fontFamily: 'monospace', fontSize: 10, fontWeight: 700, display: 'grid', placeItems: 'center', marginBottom: 12, letterSpacing: '0.04em', flexShrink: 0 }}>{s.n}</div>
                     {/* Title */}
-                    <div style={{ fontWeight: 700, fontSize: 13, color: '#1e1b4b', marginBottom: 8, lineHeight: 1.3 }}>{s.title}</div>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: D.txt1, marginBottom: 8, lineHeight: 1.3 }}>{s.title}</div>
                     {/* Description */}
-                    <div style={{ fontSize: 11.5, color: '#6b7280', lineHeight: 1.55, flexGrow: 1 }}>{s.desc}</div>
+                    <div style={{ fontSize: 11.5, color: D.txt2, lineHeight: 1.55, flexGrow: 1 }}>{s.desc}</div>
                     {/* Bottom accent line */}
                     <div style={{ width: 28, height: 2, borderRadius: 99, background: s.color, marginTop: 16, opacity: 0.5 }} />
                   </div>
@@ -1058,9 +1075,9 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div style={{ background: 'rgba(255,255,255,.8)', borderRadius: 20, border: '1px solid rgba(139,92,246,.15)', overflow: 'hidden' }}>
-            <div className="lp-sql-demo-tabs" style={{ borderBottom: '1px solid rgba(139,92,246,.1)', padding: '14px 24px', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-              <span style={{ fontWeight: 700, color: '#1e1b4b', fontSize: 14 }}>Interactive Preview</span>
+          <div style={{ background: D.card, borderRadius: 20, border: `1px solid ${D.border}`, overflow: 'hidden' }}>
+            <div className="lp-sql-demo-tabs" style={{ borderBottom: `1px solid ${D.border}`, padding: '14px 24px', display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <span style={{ fontWeight: 700, color: D.txt1, fontSize: 14 }}>Interactive Preview</span>
               <div style={{ marginLeft: 'auto', display: 'flex', background: 'rgba(124,58,237,.06)', border: '1px solid rgba(124,58,237,.15)', borderRadius: 99, padding: 4 }}>
                 {(['student', 'staff'] as const).map(t => (
                   <button key={t} onClick={() => setSqlTab(t)} style={{ padding: '7px 18px', borderRadius: 99, border: 'none', background: sqlTab === t ? 'linear-gradient(135deg,#7c3aed,#a78bfa)' : 'transparent', color: sqlTab === t ? '#fff' : '#7c3aed', fontWeight: 600, fontSize: 12, cursor: 'pointer', textTransform: 'capitalize' }}>
@@ -1077,27 +1094,27 @@ export default function LandingPage() {
       </section>
 
       {/* ── Metrics ─────────────────────────────────────────────────────── */}
-      <section id="numbers" className="lp-section-pad" style={{ padding: '100px 0', borderTop: '1px solid rgba(139,92,246,.1)' }}>
+      <section id="numbers" className="lp-section-pad" style={{ padding: '100px 0', borderTop: `1px solid ${D.border}`, background: D.bg2 }}>
         <div className="lp-inner" style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px' }}>
           <div className="lp-hdr-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 60, marginBottom: 60 }}>
             <div><div style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#a78bfa' }}>04 — By the numbers</div></div>
             <div>
-              <h2 style={{ fontSize: 'clamp(34px,5vw,64px)', fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.05 }}>
-                What's actually <em style={{ color: '#7c3aed' }}>built.</em>
+              <h2 style={{ fontSize: 'clamp(34px,5vw,64px)', fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.05, color: D.txt1 }}>
+                What's actually <em style={{ color: '#a78bfa' }}>built.</em>
               </h2>
-              <p style={{ fontSize: 17, color: '#6b7280', lineHeight: 1.6, marginTop: 16 }}>Not a prototype. Not a pitch deck. A live system, deployed, used weekly in postgraduate teaching.</p>
+              <p style={{ fontSize: 17, color: D.txt2, lineHeight: 1.6, marginTop: 16 }}>Not a prototype. Not a pitch deck. A live system, deployed, used weekly in postgraduate teaching.</p>
             </div>
           </div>
 
           <div ref={metricsRef} className="lp-metrics-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0 }}>
             {metrics.map(({ n, suffix, label, desc }, i) => (
-              <div key={label} className="lp-metrics-item" style={{ padding: '0 32px', borderLeft: i === 0 ? 'none' : '1px solid rgba(139,92,246,.12)', paddingLeft: i === 0 ? 0 : 32 }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, fontFamily: 'serif', fontSize: 'clamp(40px,5.5vw,76px)', fontWeight: 400, lineHeight: 1, letterSpacing: '-0.03em', color: '#1e1b4b' }}>
+              <div key={label} className="lp-metrics-item" style={{ padding: '0 32px', borderLeft: i === 0 ? 'none' : `1px solid ${D.border}`, paddingLeft: i === 0 ? 0 : 32 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, fontFamily: 'serif', fontSize: 'clamp(40px,5.5vw,76px)', fontWeight: 400, lineHeight: 1, letterSpacing: '-0.03em', color: D.txt1 }}>
                   {n.toLocaleString()}
-                  {suffix && <span style={{ fontSize: 20, color: '#7c3aed', fontStyle: 'italic' }}>{suffix}</span>}
+                  {suffix && <span style={{ fontSize: 20, color: '#a78bfa', fontStyle: 'italic' }}>{suffix}</span>}
                 </div>
-                <div style={{ marginTop: 12, fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#8b7fa6' }}>{label}</div>
-                <div style={{ marginTop: 6, fontSize: 13, color: '#9ca3af', lineHeight: 1.45 }}>{desc}</div>
+                <div style={{ marginTop: 12, fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: D.txt2 }}>{label}</div>
+                <div style={{ marginTop: 6, fontSize: 13, color: D.txt3, lineHeight: 1.45 }}>{desc}</div>
               </div>
             ))}
           </div>
@@ -1105,14 +1122,14 @@ export default function LandingPage() {
       </section>
 
       {/* ── Tech Stack ──────────────────────────────────────────────────── */}
-      <section id="tech" className="lp-section-pad" style={{ padding: '100px 0', background: 'rgba(255,255,255,.4)', borderTop: '1px solid rgba(139,92,246,.1)' }}>
+      <section id="tech" className="lp-section-pad" style={{ padding: '100px 0', background: D.bg3, borderTop: `1px solid ${D.border}` }}>
         <div ref={techRef} className="lp-inner" style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px' }}>
           <div className={`lp-reveal-item lp-tech-grid ${techInView ? 'lp-visible' : ''}`} style={{ display: 'grid', gridTemplateColumns: '1.2fr .8fr', gap: 80, alignItems: 'center' }}>
-            <div className="lp-tech-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'rgba(139,92,246,.12)', border: '1px solid rgba(139,92,246,.12)', borderRadius: 20, overflow: 'hidden' }}>
+            <div className="lp-tech-stack-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: D.border, border: `1px solid ${D.border}`, borderRadius: 20, overflow: 'hidden' }}>
               {tech.map(({ layer, name }) => (
-                <div key={name} style={{ background: 'rgba(255,255,255,.9)', padding: '18px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background .2s' }} onMouseEnter={e => (e.currentTarget.style.background = 'rgba(245,243,255,.95)')} onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,.9)')}>
-                  <span style={{ fontSize: 12, color: '#9ca3af', fontFamily: 'monospace', letterSpacing: '0.05em' }}>{layer}</span>
-                  <span style={{ fontFamily: 'serif', fontSize: 20 }}>{name}</span>
+                <div key={name} style={{ background: D.card, padding: '18px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'background .2s' }} onMouseEnter={e => (e.currentTarget.style.background = D.cardH)} onMouseLeave={e => (e.currentTarget.style.background = D.card)}>
+                  <span style={{ fontSize: 12, color: D.txt3, fontFamily: 'monospace', letterSpacing: '0.05em' }}>{layer}</span>
+                  <span style={{ fontFamily: 'serif', fontSize: 20, color: D.txt1 }}>{name}</span>
                 </div>
               ))}
             </div>
@@ -1121,22 +1138,22 @@ export default function LandingPage() {
                 <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#7c3aed', display: 'inline-block', animation: 'lpPulse 1.8s ease-in-out infinite' }} />
                 <span style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#a78bfa' }}>05 — Built right</span>
               </div>
-              <h3 style={{ fontSize: 'clamp(28px,4vw,50px)', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.05, marginBottom: 18 }}>Production-grade architecture, zero servers to maintain.</h3>
-              <p style={{ color: '#6b7280', fontSize: 16, lineHeight: 1.65, marginBottom: 14 }}>Serverless on Firebase, deployed on GitHub Pages — runtime costs scale to zero between classes, but real-time sync, authentication, and storage all behave like a fully managed enterprise stack.</p>
-              <p style={{ color: '#6b7280', fontSize: 16, lineHeight: 1.65 }}>Every route is lazy-loaded, every page is type-safe, and every database write is governed by Firestore security rules that enforce the role model at the database layer — not just in the UI.</p>
+              <h3 style={{ fontSize: 'clamp(28px,4vw,50px)', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.05, marginBottom: 18, color: D.txt1 }}>Production-grade architecture, zero servers to maintain.</h3>
+              <p style={{ color: D.txt2, fontSize: 16, lineHeight: 1.65, marginBottom: 14 }}>Serverless on Firebase, deployed on GitHub Pages — runtime costs scale to zero between classes, but real-time sync, authentication, and storage all behave like a fully managed enterprise stack.</p>
+              <p style={{ color: D.txt2, fontSize: 16, lineHeight: 1.65 }}>Every route is lazy-loaded, every page is type-safe, and every database write is governed by Firestore security rules that enforce the role model at the database layer — not just in the UI.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* ── CTA ─────────────────────────────────────────────────────────── */}
-      <section className="lp-cta-section" style={{ padding: '140px 0 100px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(1000px 500px at 50% 30%, rgba(124,58,237,.08), transparent 60%)', pointerEvents: 'none' }} />
+      <section className="lp-cta-section" style={{ padding: '140px 0 100px', textAlign: 'center', position: 'relative', overflow: 'hidden', background: D.bg1 }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(1000px 500px at 50% 30%, rgba(124,58,237,.18), transparent 60%)', pointerEvents: 'none' }} />
         <div className="lp-cta-inner" style={{ maxWidth: 800, margin: '0 auto', padding: '0 40px', position: 'relative' }}>
-          <h2 style={{ fontFamily: 'serif', fontWeight: 400, fontSize: 'clamp(42px,8vw,108px)', lineHeight: 0.95, letterSpacing: '-0.03em', marginBottom: 36 }}>
-            A teaching tool,<br /><em style={{ color: '#7c3aed' }}>already shipping.</em>
+          <h2 style={{ fontFamily: 'serif', fontWeight: 400, fontSize: 'clamp(42px,8vw,108px)', lineHeight: 0.95, letterSpacing: '-0.03em', marginBottom: 36, color: D.txt1 }}>
+            A teaching tool,<br /><em style={{ color: '#a78bfa' }}>already shipping.</em>
           </h2>
-          <p style={{ color: '#6b7280', fontSize: 18, maxWidth: '50ch', margin: '0 auto 44px', lineHeight: 1.55 }}>
+          <p style={{ color: D.txt2, fontSize: 18, maxWidth: '50ch', margin: '0 auto 44px', lineHeight: 1.55 }}>
             Built independently to solve real problems in real Masters classrooms. Ready for you to explore — no installation, no setup.
           </p>
           <div style={{ display: 'inline-flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -1149,7 +1166,7 @@ export default function LandingPage() {
                 <Link to="/register" style={{ padding: '16px 32px', borderRadius: 99, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', color: '#fff', fontWeight: 700, fontSize: 15, textDecoration: 'none', boxShadow: '0 8px 28px rgba(124,58,237,.4)' }}>
                   Create Account →
                 </Link>
-                <Link to="/login" style={{ padding: '16px 32px', borderRadius: 99, border: '1.5px solid rgba(124,58,237,.3)', color: '#7c3aed', fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
+                <Link to="/login" style={{ padding: '16px 32px', borderRadius: 99, border: '1.5px solid rgba(167,139,250,.4)', color: '#a78bfa', fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
                   Sign In
                 </Link>
               </>
@@ -1159,7 +1176,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ──────────────────────────────────────────────────────── */}
-      <footer style={{ padding: '52px 40px 36px', borderTop: '1px solid rgba(139,92,246,.12)', background: 'rgba(245,243,255,.4)' }}>
+      <footer style={{ padding: '52px 40px 36px', borderTop: `1px solid ${D.border}`, background: D.bg0 }}>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <div className="lp-footer-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 40, marginBottom: 40 }}>
             <div>
@@ -1167,24 +1184,24 @@ export default function LandingPage() {
                 <BrandMark className="h-8 w-8" />
                 <span style={{ fontFamily: 'serif', fontSize: 26, letterSpacing: '-0.02em', background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>YooBees</span>
               </div>
-              <p style={{ color: '#9ca3af', fontSize: 14, maxWidth: '34ch', lineHeight: 1.55 }}>A real-time teaching and learning platform built for postgraduate education at Yoobee Colleges.</p>
+              <p style={{ color: D.txt2, fontSize: 14, maxWidth: '34ch', lineHeight: 1.55 }}>A real-time teaching and learning platform built for postgraduate education at Yoobee Colleges.</p>
             </div>
             <div>
-              <div style={{ fontFamily: 'monospace', fontSize: 10, color: '#9ca3af', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14 }}>Platform</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 10, color: D.txt3, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14 }}>Platform</div>
               {[['Attendance', '/student/attendance'], ['Live Playground', '/student/playground'], ['Resources', '/student/course-resources'], ['Analytics', '/lecturer/analytics']].map(([l, p]) => (
-                <div key={l}><Link to={p} style={{ display: 'block', fontSize: 14, color: '#6b7280', padding: '4px 0', textDecoration: 'none' }}>{l}</Link></div>
+                <div key={l}><Link to={p} style={{ display: 'block', fontSize: 14, color: D.txt2, padding: '4px 0', textDecoration: 'none' }}>{l}</Link></div>
               ))}
             </div>
             <div>
-              <div style={{ fontFamily: 'monospace', fontSize: 10, color: '#9ca3af', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14 }}>Courses</div>
-              {['MBI800', 'MBI802', 'MBI804'].map(c => <div key={c} style={{ fontSize: 14, color: '#6b7280', padding: '4px 0' }}>{c}</div>)}
+              <div style={{ fontFamily: 'monospace', fontSize: 10, color: D.txt3, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14 }}>Courses</div>
+              {['MBI800', 'MBI802', 'MBI804'].map(c => <div key={c} style={{ fontSize: 14, color: D.txt2, padding: '4px 0' }}>{c}</div>)}
             </div>
             <div>
-              <div style={{ fontFamily: 'monospace', fontSize: 10, color: '#9ca3af', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14 }}>Built by</div>
-              <div style={{ fontSize: 14, color: '#6b7280', lineHeight: 1.7 }}>Dr Yasas Sri Wickramasinghe<br />HIT Lab NZ<br />Yoobee Colleges</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 10, color: D.txt3, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14 }}>Built by</div>
+              <div style={{ fontSize: 14, color: D.txt2, lineHeight: 1.7 }}>Dr Yasas Sri Wickramasinghe<br />HIT Lab NZ<br />Yoobee Colleges</div>
             </div>
           </div>
-          <div className="lp-footer-bottom" style={{ borderTop: '1px solid rgba(139,92,246,.1)', paddingTop: 22, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'monospace', fontSize: 10, color: '#9ca3af', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          <div className="lp-footer-bottom" style={{ borderTop: `1px solid ${D.border}`, paddingTop: 22, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'monospace', fontSize: 10, color: D.txt3, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
             <span>v1.0 · 2026</span>
             <span>Christchurch · Aotearoa New Zealand</span>
           </div>

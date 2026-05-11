@@ -12,6 +12,7 @@ import { useToast } from '../../components/ui/ToastProvider';
 import Layout from '../../components/layout/Layout';
 import Modal from '../../components/ui/Modal';
 import type { Notice } from '../../lib/types';
+import { sendNoticeAlerts } from '../../lib/emailService';
 
 const STAFF_NAME_MAP: Record<string, string> = {
   'ureshan2011@gmail.com': 'Dr. Yasas',
@@ -212,13 +213,19 @@ export default function NoticeBoard() {
         });
         showToast({ type: 'success', title: 'Notice updated' });
       } else {
+        const authorName = resolveAuthorName(user.displayName || user.email || 'Staff');
         await addDoc(collection(db, 'notices'), {
           ...form,
           authorUid:  user.uid,
-          authorName: resolveAuthorName(user.displayName || user.email || 'Staff'),
+          authorName,
           createdAt:  serverTimestamp(),
         });
         showToast({ type: 'success', title: 'Notice posted' });
+        // Fire email alerts in the background — does not block the UI
+        sendNoticeAlerts(
+          { title: form.title, body: form.body, category: form.category, authorName },
+          user.email ?? '',
+        ).catch(console.error);
       }
       closeModal();
       setLoading(true);

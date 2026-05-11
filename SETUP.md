@@ -39,6 +39,9 @@ In your repo → **Settings → Secrets and variables → Actions**, add:
 | `VITE_FIREBASE_APP_ID` | from Firebase config |
 | `VITE_LECTURER_CODE` | your secret lecturer registration code |
 | `VITE_TA_CODE` | your secret teaching assistant registration code |
+| `VITE_EMAILJS_SERVICE_ID` | from EmailJS dashboard (optional — see §9) |
+| `VITE_EMAILJS_TEMPLATE_ID` | from EmailJS dashboard (optional — see §9) |
+| `VITE_EMAILJS_PUBLIC_KEY` | from EmailJS dashboard (optional — see §9) |
 
 ### b. Enable GitHub Pages
 
@@ -71,7 +74,64 @@ The default code is `PROF2024`. Change `VITE_LECTURER_CODE` in your `.env`
 The default TA code is `YOOBEETA`. Change `VITE_TA_CODE` in your `.env`
 (or GitHub Secret) to something private before sharing with TAs.
 
-## 8. How attendance works
+## 9. Email alerts for new notices (free, optional)
+
+When a new notice is posted, the app can automatically email relevant students for free using **EmailJS** (200 emails/month on the free tier — one email per notice, regardless of class size).
+
+### a. Create a free EmailJS account
+
+1. Go to [emailjs.com](https://www.emailjs.com) → **Sign Up** (free)
+2. **Email Services → Add New Service** → choose Gmail → follow the OAuth flow
+3. Copy the **Service ID** (looks like `service_xxxxxxx`)
+
+### b. Create an email template
+
+**Email Templates → Create New Template**. Paste this as the template body:
+
+```
+Subject: [YooBees Notice] {{notice_title}}
+
+A new {{notice_category}} notice has been posted on the YooBees notice board.
+
+──────────────────────────────
+{{notice_title}}
+──────────────────────────────
+
+{{notice_body}}
+
+──────────────────────────────
+Posted by {{author_name}}
+
+View on the notice board → {{app_url}}
+```
+
+Set the template fields:
+
+| Field | Value |
+|-------|-------|
+| **To Email** | `{{to_email}}` |
+| **BCC** | `{{bcc_email}}` |
+| **Subject** | `[YooBees Notice] {{notice_title}}` |
+
+Save and copy the **Template ID** (looks like `template_xxxxxxx`).
+
+### c. Get your Public Key
+
+**Account → General** → copy the **Public Key**.
+
+### d. Add the three values to `.env` (local) and GitHub Secrets (deployed)
+
+```
+VITE_EMAILJS_SERVICE_ID=service_xxxxxxx
+VITE_EMAILJS_TEMPLATE_ID=template_xxxxxxx
+VITE_EMAILJS_PUBLIC_KEY=xxxxxxxxxxxxxxxxxxxx
+```
+
+That's it — the next time a lecturer posts a notice the relevant students will receive an email automatically. Campus-specific notices (Auckland / Christchurch) are only sent to students on that campus.
+
+> Leaving these three variables unset simply disables email alerts — the rest of the app works normally.
+
+## 10. How attendance works
 
 1. **Lecturer** clicks **New session** → fills in title and course
 2. During class, clicks **Launch Opening** → a 6-character code appears on screen

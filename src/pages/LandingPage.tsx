@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import BrandMark from '../components/ui/BrandMark';
+import { ContainerScroll } from '../components/ui/container-scroll-animation';
 
 // ─── Scroll-reveal hook ──────────────────────────────────────────────────────
 function useInView(threshold = 0.12) {
@@ -142,6 +143,156 @@ function MatchScreen() {
           <div style={{ fontFamily: 'monospace', fontSize: 14, fontWeight: 700, color: '#7c3aed' }}>{m.score} / 10</div>
         </div>
       ))}
+    </div>
+  );
+}
+
+// ─── Dashboard Mockup (hero scroll card content) ─────────────────────────────
+function DashboardMockup() {
+  const navItems = [
+    { label: 'Dashboard', icon: '⊞', active: true },
+    { label: 'Notice Board', icon: '🔔', active: false },
+    { label: 'Students', icon: '👤', active: false },
+    { label: 'Attendance', icon: '📋', active: false },
+    { label: 'Live Playground', icon: '◎', active: false },
+    { label: 'Course Resources', icon: '📖', active: false },
+    { label: 'Video Manager', icon: '⊟', active: false },
+    { label: 'Site Analytics', icon: '📊', active: false },
+  ];
+
+  const statCards = [
+    { label: 'TOTAL STUDENTS', value: 228, color: '#7c3aed', bg: '#ede9fe', icon: '👥' },
+    { label: 'COURSES', value: 2, color: '#2563eb', bg: '#dbeafe', icon: '🎓' },
+    { label: 'COUNTRIES', value: 24, color: '#0891b2', bg: '#cffafe', icon: '🌐' },
+    { label: 'WITH WORK EXP.', value: 210, color: '#059669', bg: '#d1fae5', icon: '💼' },
+    { label: 'SPECIAL NEEDS', value: 3, color: '#e11d48', bg: '#fee2e2', icon: '♥' },
+    { label: 'SESSIONS', value: 12, color: '#d97706', bg: '#fef3c7', icon: '📅' },
+  ];
+
+  const gallery = [
+    { name: 'Poonam Shrestha', initials: 'PS', grad: 'linear-gradient(135deg,#7c3aed,#a78bfa)' },
+    { name: 'Induruwa K.', initials: 'IK', grad: 'linear-gradient(135deg,#0891b2,#2dd4bf)' },
+    { name: 'Hashari K.', initials: 'HK', grad: 'linear-gradient(135deg,#059669,#34d399)' },
+    { name: 'Pujan Kalu', initials: 'PK', grad: 'linear-gradient(135deg,#d97706,#fbbf24)' },
+    { name: 'Muhammad R.', initials: 'MR', grad: 'linear-gradient(135deg,#e11d48,#fb7185)' },
+    { name: 'Rejina B.', initials: 'RB', grad: 'linear-gradient(135deg,#7c3aed,#ec4899)' },
+    { name: 'Daniela', initials: 'D', grad: 'linear-gradient(135deg,#2563eb,#60a5fa)' },
+    { name: 'Nisansala H.', initials: 'NH', grad: 'linear-gradient(135deg,#059669,#2dd4bf)' },
+    { name: 'Ethige I.', initials: 'EI', grad: 'linear-gradient(135deg,#d97706,#f97316)' },
+    { name: 'Carlos R.', initials: 'CR', grad: 'linear-gradient(135deg,#0891b2,#60a5fa)' },
+    { name: 'Min-jun L.', initials: 'ML', grad: 'linear-gradient(135deg,#6d28d9,#a78bfa)' },
+    { name: 'Priya N.', initials: 'PN', grad: 'linear-gradient(135deg,#e11d48,#a78bfa)' },
+    { name: 'Amara O.', initials: 'AO', grad: 'linear-gradient(135deg,#059669,#a78bfa)' },
+    { name: 'Ben Kumar', initials: 'BK', grad: 'linear-gradient(135deg,#2563eb,#2dd4bf)' },
+    { name: 'Yasas W.', initials: 'YW', grad: 'linear-gradient(135deg,#7c3aed,#fbbf24)' },
+    { name: 'Selin A.', initials: 'SA', grad: 'linear-gradient(135deg,#d97706,#ec4899)' },
+    { name: 'Reka S.', initials: 'RS', grad: 'linear-gradient(135deg,#0891b2,#7c3aed)' },
+    { name: 'Liu Yang', initials: 'LY', grad: 'linear-gradient(135deg,#e11d48,#fbbf24)' },
+  ];
+
+  return (
+    <div style={{ display: 'flex', height: '100%', fontSize: 11, lineHeight: 1.4, overflow: 'hidden', fontFamily: 'Inter, system-ui, sans-serif' }}>
+      {/* ── Sidebar ── */}
+      <div style={{ width: 168, background: '#1e1b4b', display: 'flex', flexDirection: 'column', flexShrink: 0, boxShadow: '4px 0 24px rgba(0,0,0,.15)' }}>
+        <div style={{ padding: '16px 14px 12px', borderBottom: '1px solid rgba(255,255,255,.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 800, fontSize: 14, flexShrink: 0 }}>Y</div>
+            <div>
+              <div style={{ color: '#f5f3ff', fontWeight: 700, fontSize: 14, letterSpacing: '-0.01em' }}>YooBees</div>
+              <div style={{ color: '#6b7280', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' }}>HIVE</div>
+            </div>
+          </div>
+          <div style={{ marginTop: 10, display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(124,58,237,.18)', border: '1px solid rgba(124,58,237,.3)', borderRadius: 99, padding: '3px 10px' }}>
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#a78bfa' }} />
+            <span style={{ color: '#a78bfa', fontSize: 9, fontWeight: 600, letterSpacing: '0.06em' }}>Lecturer</span>
+          </div>
+        </div>
+        <div style={{ padding: '10px 8px', flex: 1, overflow: 'hidden' }}>
+          <div style={{ fontSize: 8.5, color: '#4b5563', letterSpacing: '0.12em', padding: '2px 6px 8px', textTransform: 'uppercase', fontWeight: 700 }}>Menu</div>
+          {navItems.map(item => (
+            <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 8px', borderRadius: 10, background: item.active ? 'linear-gradient(135deg, rgba(124,58,237,.16), rgba(139,92,246,.08))' : 'transparent', color: item.active ? '#a78bfa' : '#6b7280', fontWeight: item.active ? 600 : 400, marginBottom: 1, fontSize: 10.5 }}>
+              <span style={{ fontSize: 12, width: 14, textAlign: 'center' }}>{item.icon}</span>
+              {item.label}
+            </div>
+          ))}
+        </div>
+        <div style={{ padding: '10px 12px 14px', borderTop: '1px solid rgba(255,255,255,.06)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', display: 'grid', placeItems: 'center', color: '#fff', fontSize: 11, fontWeight: 700, flexShrink: 0 }}>U</div>
+            <div style={{ overflow: 'hidden' }}>
+              <div style={{ color: '#f5f3ff', fontSize: 10.5, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>ureshan2011</div>
+              <div style={{ color: '#6b7280', fontSize: 9, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>ureshan2011@gmail.com</div>
+            </div>
+          </div>
+          <div style={{ color: '#6b7280', fontSize: 9.5, marginTop: 10, display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span>→</span> Sign out
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main content ── */}
+      <div style={{ flex: 1, overflowY: 'auto', background: '#f5f4ff' }}>
+        {/* Page header */}
+        <div style={{ padding: '18px 22px 0' }}>
+          <div style={{ color: '#7c3aed', fontSize: 12, fontWeight: 500 }}>Welcome back 👋</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: '#1e1b4b', letterSpacing: '-0.025em', marginTop: 3 }}>Dashboard Overview</div>
+          <div style={{ color: '#8b7fa6', fontSize: 11, marginTop: 3 }}>228 enrolled students across 2 courses</div>
+        </div>
+
+        {/* Filter bar */}
+        <div style={{ padding: '12px 22px 8px' }}>
+          <div style={{ background: '#fff', borderRadius: 14, border: '1px solid rgba(139,92,246,.1)', padding: '12px 16px', boxShadow: '0 1px 4px rgba(124,58,237,.06)' }}>
+            <div style={{ fontWeight: 700, color: '#1e1b4b', fontSize: 11, marginBottom: 4 }}>Filters</div>
+            <div style={{ color: '#9ca3af', fontSize: 10, marginBottom: 10 }}>Filter by course, intake, and subject.</div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              {['All courses', 'All intakes', 'All subjects'].map(f => (
+                <div key={f} style={{ flex: 1, background: '#f9f8ff', border: '1px solid rgba(139,92,246,.14)', borderRadius: 8, padding: '6px 10px', color: '#6b7280', fontSize: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  {f} <span style={{ color: '#a78bfa' }}>⌄</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Stat cards */}
+        <div style={{ padding: '0 22px 12px', display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8 }}>
+          {statCards.map(s => (
+            <div key={s.label} style={{ background: '#fff', borderRadius: 12, border: '1px solid rgba(139,92,246,.08)', padding: '12px 10px', display: 'flex', flexDirection: 'column', gap: 6, boxShadow: '0 1px 4px rgba(124,58,237,.05)' }}>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: s.bg, display: 'grid', placeItems: 'center', fontSize: 14 }}>{s.icon}</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 8.5, color: '#9ca3af', letterSpacing: '0.06em', lineHeight: 1.3, textTransform: 'uppercase' }}>{s.label}</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: s.color, letterSpacing: '-0.025em', lineHeight: 1 }}>{s.value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Student Gallery */}
+        <div style={{ margin: '0 22px 16px', background: '#1e1b4b', borderRadius: 18, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,.2)' }}>
+          <div style={{ padding: '14px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ color: '#f5f3ff', fontWeight: 700, fontSize: 13 }}>Student Gallery</div>
+              <div style={{ color: '#6b7280', fontSize: 10, marginTop: 2 }}>178 with photos · 50 with initials</div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <div style={{ background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 99, padding: '4px 12px', color: '#9ca3af', fontSize: 9.5, display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span>👥</span> 228
+              </div>
+              <div style={{ background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 8, padding: '4px 12px', color: '#9ca3af', fontSize: 9.5 }}>Pause</div>
+            </div>
+          </div>
+          <div style={{ padding: '0 14px 14px', display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 7 }}>
+            {gallery.map(s => (
+              <div key={s.name} style={{ position: 'relative', aspectRatio: '3/4', borderRadius: 10, background: s.grad, display: 'grid', placeItems: 'center', overflow: 'hidden' }}>
+                <div style={{ fontSize: 20, fontWeight: 800, color: 'rgba(255,255,255,.9)', textShadow: '0 1px 4px rgba(0,0,0,.3)' }}>{s.initials}</div>
+                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(to top, rgba(0,0,0,.75), transparent)', padding: '12px 5px 5px', color: '#fff', fontSize: 7.5, lineHeight: 1.2, wordBreak: 'break-word' }}>{s.name}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ padding: '4px 0 14px', textAlign: 'center', color: '#9ca3af', fontSize: 9.5 }}>
+          © 2026 All Rights Reserved • Created by <span style={{ color: '#7c3aed' }}>@yasassri.me</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -339,14 +490,14 @@ export default function LandingPage() {
 
   // Metric refs + counters
   const [metricsRef, metricsInView] = useInView();
-  const c1 = useCounter(2847, metricsInView);
-  const c2 = useCounter(47, metricsInView);
-  const c3 = useCounter(23, metricsInView);
-  const c4 = useCounter(34, metricsInView);
+  const c1 = useCounter(2500, metricsInView);
+  const c2 = useCounter(228, metricsInView);
+  const c3 = useCounter(24, metricsInView);
+  const c4 = useCounter(12, metricsInView);
   const c5 = useCounter(100, metricsInView);
-  const c6 = useCounter(22, metricsInView);
-  const c7 = useCounter(8, metricsInView);
-  const c8 = useCounter(3, metricsInView);
+  const c6 = useCounter(16, metricsInView);
+  const c7 = useCounter(210, metricsInView);
+  const c8 = useCounter(2, metricsInView);
 
   const [problemRef, problemInView] = useInView();
   const [audRef, audInView] = useInView();
@@ -379,14 +530,14 @@ export default function LandingPage() {
   ];
 
   const metrics = [
-    { n: c1, suffix: '+', label: 'Site Visits', desc: 'Since platform launch this semester' },
-    { n: c2, suffix: '', label: 'Registered Students', desc: 'Across Auckland and Christchurch campuses' },
-    { n: c3, suffix: '', label: 'Daily Active Users', desc: 'Average on teaching days' },
-    { n: c4, suffix: '+', label: 'Sessions Held', desc: 'Attendance sessions run this semester' },
+    { n: c1, suffix: '+', label: 'Platform Sessions', desc: 'Since platform launch this semester' },
+    { n: c2, suffix: '', label: 'Enrolled Students', desc: 'Across Auckland and Christchurch campuses' },
+    { n: c3, suffix: '', label: 'Countries Represented', desc: 'International cohort across 24 nations' },
+    { n: c4, suffix: '', label: 'Attendance Sessions', desc: 'Recorded sessions this semester' },
     { n: c5, suffix: '+', label: 'MCQ Questions', desc: 'Across ER, Agile/Scrum, and DBMS banks' },
-    { n: c6, suffix: '', label: 'Learning Resources', desc: 'Decks, videos, quizzes, and SQL labs' },
-    { n: c7, suffix: '', label: 'Fraud Flags Raised', desc: 'Suspicious patterns auto-detected' },
-    { n: c8, suffix: '', label: 'Courses Covered', desc: 'MBI800, MBI802, MBI804' },
+    { n: c6, suffix: '', label: 'Video Lessons', desc: 'Full recorded lectures and tutorials' },
+    { n: c7, suffix: '', label: 'With Work Experience', desc: 'Students with professional backgrounds' },
+    { n: c8, suffix: '', label: 'Courses', desc: 'MBI800 and MBI802' },
   ];
 
   const tech = [
@@ -456,42 +607,46 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <section id="top" style={{ minHeight: '100vh', paddingTop: 120, paddingBottom: 80, position: 'relative', overflow: 'hidden' }}>
+      {/* ── Hero — ContainerScroll ───────────────────────────────────────── */}
+      <section id="top" style={{ position: 'relative', overflow: 'hidden', paddingTop: 72 }}>
         {/* Background orbs */}
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-          <div style={{ position: 'absolute', width: 800, height: 800, borderRadius: '50%', background: 'radial-gradient(circle, rgba(167,139,250,.18) 0%, transparent 70%)', top: -200, right: -100, animation: 'lpOrbDrift 18s ease-in-out infinite' }} />
-          <div style={{ position: 'absolute', width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,121,160,.12) 0%, transparent 70%)', bottom: -100, left: -80, animation: 'lpOrbDrift 14s ease-in-out infinite 3s' }} />
-          <div style={{ position: 'absolute', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(124,58,237,.14) 0%, transparent 70%)', top: '40%', left: '25%', animation: 'lpFloat 10s ease-in-out infinite 1s' }} />
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
+          <div style={{ position: 'absolute', width: 900, height: 900, borderRadius: '50%', background: 'radial-gradient(circle, rgba(167,139,250,.16) 0%, transparent 70%)', top: -200, right: -150, animation: 'lpOrbDrift 20s ease-in-out infinite' }} />
+          <div style={{ position: 'absolute', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(232,121,160,.10) 0%, transparent 70%)', bottom: 200, left: -100, animation: 'lpOrbDrift 16s ease-in-out infinite 3s' }} />
+          <div style={{ position: 'absolute', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(124,58,237,.12) 0%, transparent 70%)', top: '30%', left: '20%', animation: 'lpFloat 12s ease-in-out infinite 1s' }} />
         </div>
 
-        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 40px', position: 'relative' }}>
-          {/* Eyebrow */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(124,58,237,.08)', border: '1px solid rgba(124,58,237,.2)', borderRadius: 99, padding: '6px 16px', marginBottom: 36, animation: 'lpReveal .6s ease both' }}>
-            <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#7c3aed', display: 'inline-block', animation: 'lpPulse 1.8s ease-in-out infinite' }} />
-            <span style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#7c3aed' }}>A platform for postgraduate teaching · Yoobee Colleges · 2026</span>
-          </div>
+        <ContainerScroll
+          titleComponent={
+            <div style={{ paddingTop: 60 }}>
+              {/* Eyebrow */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(124,58,237,.08)', border: '1px solid rgba(124,58,237,.2)', borderRadius: 99, padding: '6px 18px', marginBottom: 32, animation: 'lpReveal .6s ease both' }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#7c3aed', display: 'inline-block', animation: 'lpPulse 1.8s ease-in-out infinite' }} />
+                <span style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#7c3aed' }}>Postgraduate teaching platform · Yoobee Colleges · 2026</span>
+              </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
-            {/* Left: text */}
-            <div>
-              <h1 style={{ fontSize: 'clamp(52px, 8vw, 100px)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 0.92, margin: '0 0 28px', animation: 'lpReveal .7s ease .1s both' }}>
-                Teaching,<br />
+              {/* Headline */}
+              <h1 style={{ fontSize: 'clamp(48px, 8vw, 96px)', fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 0.92, margin: '0 0 24px', animation: 'lpReveal .7s ease .1s both', color: '#1e1b4b' }}>
+                Teaching,{' '}
                 <span style={{ background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontStyle: 'italic' }}>attended</span>.<br />
-                Learning,<br />
-                <span style={{ WebkitTextStroke: '2px #7c3aed', color: 'transparent' }}>measured</span>.
+                Learning,{' '}
+                <span style={{ WebkitTextStroke: '2.5px #7c3aed', color: 'transparent' }}>measured</span>.
               </h1>
-              <p style={{ fontSize: 18, color: '#6b7280', lineHeight: 1.6, maxWidth: '46ch', marginBottom: 36, animation: 'lpReveal .7s ease .2s both' }}>
-                <strong style={{ color: '#1e1b4b' }}>YooBees</strong> is a real-time platform built specifically for postgraduate education — combining fraud-resistant attendance, a live lesson playground, and a learning resource library currently teaching <strong style={{ color: '#7c3aed' }}>Masters of Business Informatics</strong> at Yoobee Colleges.
+
+              {/* Subtext */}
+              <p style={{ fontSize: 18, color: '#6b7280', lineHeight: 1.6, maxWidth: '54ch', margin: '0 auto 32px', animation: 'lpReveal .7s ease .2s both' }}>
+                <strong style={{ color: '#1e1b4b' }}>YooBees</strong> combines fraud-resistant attendance, a real-time lesson playground, and a full resource library — all built for <strong style={{ color: '#7c3aed' }}>Masters of Business Informatics</strong> at Yoobee Colleges.
               </p>
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', animation: 'lpReveal .7s ease .3s both' }}>
+
+              {/* CTA buttons */}
+              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center', animation: 'lpReveal .7s ease .3s both' }}>
                 {user ? (
-                  <Link to={dashPath} style={{ padding: '14px 28px', borderRadius: 99, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', color: '#fff', fontWeight: 700, fontSize: 15, textDecoration: 'none', boxShadow: '0 6px 20px rgba(124,58,237,.4)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  <Link to={dashPath} style={{ padding: '14px 32px', borderRadius: 99, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', color: '#fff', fontWeight: 700, fontSize: 15, textDecoration: 'none', boxShadow: '0 6px 24px rgba(124,58,237,.4)' }}>
                     Open Dashboard →
                   </Link>
                 ) : (
                   <>
-                    <Link to="/register" style={{ padding: '14px 28px', borderRadius: 99, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', color: '#fff', fontWeight: 700, fontSize: 15, textDecoration: 'none', boxShadow: '0 6px 20px rgba(124,58,237,.4)' }}>
+                    <Link to="/register" style={{ padding: '14px 32px', borderRadius: 99, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', color: '#fff', fontWeight: 700, fontSize: 15, textDecoration: 'none', boxShadow: '0 6px 24px rgba(124,58,237,.4)' }}>
                       Get Started →
                     </Link>
                     <Link to="/login" style={{ padding: '14px 28px', borderRadius: 99, border: '1.5px solid rgba(124,58,237,.3)', color: '#7c3aed', fontWeight: 700, fontSize: 15, textDecoration: 'none' }}>
@@ -500,59 +655,21 @@ export default function LandingPage() {
                   </>
                 )}
               </div>
-              {/* Mini stats */}
-              <div style={{ display: 'flex', gap: 28, marginTop: 44, paddingTop: 28, borderTop: '1px solid rgba(139,92,246,.12)', animation: 'lpReveal .7s ease .4s both' }}>
-                {[['47', 'Students'], ['22', 'Routes'], ['3', 'Fraud algs']].map(([n, l]) => (
-                  <div key={l}>
-                    <div style={{ fontSize: 28, fontWeight: 800, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{n}</div>
-                    <div style={{ fontSize: 11, color: '#8b7fa6', marginTop: 2, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{l}</div>
+
+              {/* Live stats row */}
+              <div style={{ display: 'flex', gap: 40, justifyContent: 'center', marginTop: 40, paddingTop: 28, borderTop: '1px solid rgba(139,92,246,.12)', animation: 'lpReveal .7s ease .4s both' }}>
+                {[['228', 'Enrolled students'], ['2', 'Courses'], ['24', 'Countries'], ['2,500+', 'Platform sessions']].map(([n, l]) => (
+                  <div key={l} style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: 28, fontWeight: 800, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}>{n}</div>
+                    <div style={{ fontSize: 10.5, color: '#8b7fa6', marginTop: 3, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{l}</div>
                   </div>
                 ))}
               </div>
             </div>
-
-            {/* Right: floating mock windows */}
-            <div style={{ position: 'relative', height: 520, animation: 'lpReveal .8s ease .2s both' }}>
-              {/* Main window */}
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, background: 'rgba(255,255,255,.92)', backdropFilter: 'blur(20px)', borderRadius: 20, border: '1px solid rgba(139,92,246,.2)', boxShadow: '0 24px 64px rgba(124,58,237,.16)', padding: 20, animation: 'lpFloat 8s ease-in-out infinite' }}>
-                <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#e6a39a' }} />
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#e6cf8c' }} />
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#a8cba6' }} />
-                  <div style={{ flex: 1, marginLeft: 10, background: 'rgba(124,58,237,.06)', borderRadius: 6, padding: '3px 10px', fontFamily: 'monospace', fontSize: 10, color: '#8b7fa6' }}>yoobees.app / attendance / opening</div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14, padding: '8px 0' }}>
-                  <div style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#8b7fa6' }}>Opening Code · MBI802</div>
-                  <div style={{ fontFamily: 'monospace', fontSize: 42, letterSpacing: '0.18em', fontWeight: 700, background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>3KM7QP</div>
-                  <div style={{ fontFamily: 'monospace', fontSize: 12, color: '#ef4444' }}>Expires in 3:42</div>
-                  <div style={{ width: 72, height: 72, background: 'repeating-conic-gradient(#7c3aed 0% 25%, transparent 0% 50%) 0 0 / 8px 8px', borderRadius: 8, border: '3px solid #7c3aed', imageRendering: 'pixelated', opacity: .85 }} />
-                </div>
-              </div>
-              {/* Floating fraud flag */}
-              <div style={{ position: 'absolute', bottom: 40, right: -20, width: 260, background: 'rgba(255,255,255,.95)', borderRadius: 14, border: '1px solid rgba(220,38,38,.15)', boxShadow: '0 12px 36px rgba(220,38,38,.1)', padding: '12px 16px', animation: 'lpFloatB 7s ease-in-out infinite' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
-                  <span style={{ background: '#fef2f2', color: '#dc2626', fontFamily: 'monospace', fontSize: 10, padding: '2px 7px', borderRadius: 4, fontWeight: 700 }}>HIGH</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#1e1b4b' }}>Shared IP Detected</span>
-                </div>
-                <div style={{ fontSize: 11, color: '#6b7280' }}>2 students · 203.0.113.42 · Opening</div>
-              </div>
-              {/* Floating match card */}
-              <div style={{ position: 'absolute', bottom: -20, left: -20, background: 'rgba(255,255,255,.95)', borderRadius: 14, border: '1px solid rgba(139,92,246,.15)', boxShadow: '0 12px 36px rgba(124,58,237,.12)', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, animation: 'lpFloatC 9s ease-in-out infinite' }}>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', display: 'grid', placeItems: 'center', color: '#fff', fontWeight: 700, fontSize: 15 }}>P</div>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 13 }}>Priya N.</div>
-                  <div style={{ fontSize: 11, color: '#8b7fa6' }}>Match score: <span style={{ color: '#7c3aed', fontWeight: 700 }}>9/10</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Scroll hint */}
-        <div style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, animation: 'lpReveal 1s ease .8s both' }}>
-          <span style={{ fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9ca3af' }}>Scroll</span>
-          <div style={{ width: 1, height: 32, background: 'linear-gradient(to bottom, #a78bfa, transparent)', animation: 'lpFloat 2s ease-in-out infinite' }} />
-        </div>
+          }
+        >
+          <DashboardMockup />
+        </ContainerScroll>
       </section>
 
       {/* ── Marquee ─────────────────────────────────────────────────────── */}

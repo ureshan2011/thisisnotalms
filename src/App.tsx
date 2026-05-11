@@ -5,6 +5,8 @@ import { FullPageSpinner } from './components/ui/LoadingSpinner';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import { ToastProvider } from './components/ui/ToastProvider';
 
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+
 // Auth pages — lazy-loaded; only downloaded when the user reaches login/register
 const Login    = lazy(() => import('./pages/auth/Login'));
 const Register = lazy(() => import('./pages/auth/Register'));
@@ -34,7 +36,7 @@ const VideoLessonManager   = lazy(() => import('./pages/lecturer/VideoLessonMana
 function RootRedirect() {
   const { user, role, loading } = useAuth();
   if (loading) return <FullPageSpinner />;
-  if (!user)   return <Navigate to="/login" replace />;
+  if (!user)   return <LandingPage />;
   if (role === 'lecturer' || role === 'teachingAssistant') return <Navigate to="/lecturer/dashboard" replace />;
   return <Navigate to="/student/dashboard" replace />;
 }

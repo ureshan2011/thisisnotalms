@@ -6,6 +6,8 @@ import ProtectedRoute from './components/layout/ProtectedRoute';
 import { ToastProvider } from './components/ui/ToastProvider';
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
+const StudentSQLRace = lazy(() => import('./pages/student/SQLRacePage'));
+const LecturerSQLRace = lazy(() => import('./pages/lecturer/SQLRacePage'));
 
 // Auth pages — lazy-loaded; only downloaded when the user reaches login/register
 const Login    = lazy(() => import('./pages/auth/Login'));
@@ -59,6 +61,7 @@ function AppRoutes() {
         <Route path="/student/mbi802-resources" element={<Navigate to="/student/course-resources" replace />} />
         <Route path="/student/playground"      element={<ProtectedRoute allowedRoles={['student']}><StudentPlayground /></ProtectedRoute>} />
         <Route path="/student/notices"         element={<ProtectedRoute allowedRoles={['student']}><NoticeBoard /></ProtectedRoute>} />
+        <Route path="/student/sql-race"        element={<ProtectedRoute allowedRoles={['student']}><StudentSQLRace /></ProtectedRoute>} />
 
         {/* Lecturer routes */}
         <Route path="/lecturer/dashboard"        element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><Dashboard /></ProtectedRoute>} />
@@ -72,6 +75,7 @@ function AppRoutes() {
         <Route path="/lecturer/notices"          element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><NoticeBoard /></ProtectedRoute>} />
         <Route path="/lecturer/analytics"        element={<ProtectedRoute allowedRoles={['lecturer']}><SiteAnalytics /></ProtectedRoute>} />
         <Route path="/lecturer/video-manager"   element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><VideoLessonManager /></ProtectedRoute>} />
+        <Route path="/lecturer/sql-race"         element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><LecturerSQLRace /></ProtectedRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

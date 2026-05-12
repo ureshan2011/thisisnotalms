@@ -3,7 +3,7 @@ import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import {
   LayoutDashboard, Users, CalendarCheck, LogOut,
-  User, History, Menu, X, ChevronRight, BookOpen, Radio, Bell, Star, BarChart2, Film,
+  User, History, Menu, X, ChevronRight, BookOpen, Radio, Bell, Star, BarChart2, Film, Trophy,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import BrandMark from '../ui/BrandMark';
@@ -22,6 +22,7 @@ function SidebarContent({
   photoURL,
   onOpenPhotoModal,
   canViewCourseResources,
+  canViewSQLRace,
   showNewBadge,
   erMcqBadge,
 }: {
@@ -29,6 +30,7 @@ function SidebarContent({
   photoURL?: string | null;
   onOpenPhotoModal?: () => void;
   canViewCourseResources: boolean;
+  canViewSQLRace: boolean;
   showNewBadge: boolean;
   erMcqBadge?: boolean;
 }) {
@@ -45,6 +47,9 @@ function SidebarContent({
     ...(canViewCourseResources
       ? [{ to: '/student/course-resources', icon: <BookOpen size={18} />, label: 'Course Resources', isNew: showNewBadge }]
       : []),
+    ...(canViewSQLRace
+      ? [{ to: '/student/sql-race', icon: <Trophy size={18} />, label: 'SQL Grand Prix' }]
+      : []),
   ];
 
   const lecturerLinks: NavItem[] = [
@@ -55,6 +60,7 @@ function SidebarContent({
     { to: '/lecturer/playground', icon: <Radio size={18} />,           label: 'Live Playground' },
     { to: '/lecturer/course-resources', icon: <BookOpen size={18} />,  label: 'Course Resources', isNew: showNewBadge },
     { to: '/lecturer/video-manager',    icon: <Film size={18} />,      label: 'Video Manager' },
+    { to: '/lecturer/sql-race',         icon: <Trophy size={18} />,    label: 'SQL Grand Prix' },
     ...(role === 'lecturer'
       ? [{ to: '/lecturer/analytics', icon: <BarChart2 size={18} />, label: 'Site Analytics' }]
       : []),
@@ -194,6 +200,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [photoPromptOpen, setPhotoPromptOpen] = useState(false);
   const [currentPhotoURL, setCurrentPhotoURL] = useState<string | null>(null);
   const [canViewCourseResources, setCanViewCourseResources] = useState(role !== 'student');
+  const [canViewSQLRace, setCanViewSQLRace] = useState(role !== 'student');
   const [intake, setIntake] = useState<'2511' | '2604' | ''>('');
   const [showMBI802NewBadge, setShowMBI802NewBadge] = useState(false);
   const [savingIntake, setSavingIntake] = useState(false);
@@ -206,13 +213,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     if (studentProfile.erMcqBadge) setErMcqBadge(true);
     const knownSubjects = ['MBI800', 'MBI802', 'MBI804'];
     setCanViewCourseResources((studentProfile.subjects || []).some(s => knownSubjects.includes(s)));
+    setCanViewSQLRace((studentProfile.subjects || []).includes('MBI802'));
     if (!studentProfile.intake) { setIntakePromptOpen(true); return; }
     if (!studentProfile.photoURL) setPhotoPromptOpen(true);
   }, [studentProfile, role]);
 
 
   useEffect(() => {
-    if (role !== 'student') setCanViewCourseResources(true);
+    if (role !== 'student') {
+      setCanViewCourseResources(true);
+      setCanViewSQLRace(true);
+    }
   }, [role]);
 
 
@@ -316,6 +327,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           photoURL={currentPhotoURL}
           onOpenPhotoModal={() => setPhotoPromptOpen(true)}
           canViewCourseResources={canViewCourseResources}
+          canViewSQLRace={canViewSQLRace}
           showNewBadge={showMBI802NewBadge}
           erMcqBadge={erMcqBadge}
         />
@@ -342,6 +354,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               photoURL={currentPhotoURL}
               onOpenPhotoModal={() => { setMobileOpen(false); setPhotoPromptOpen(true); }}
               canViewCourseResources={canViewCourseResources}
+              canViewSQLRace={canViewSQLRace}
               showNewBadge={showMBI802NewBadge}
               erMcqBadge={erMcqBadge}
             />

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, useMemo, type ReactNode } from 'react';
 import {
   collection, query, onSnapshot, orderBy, doc, updateDoc,
   serverTimestamp, where, getDocs, writeBatch,
@@ -123,6 +123,14 @@ export default function LecturerSQLRacePage() {
     }
   };
 
+  const sectionStudentCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const s of students) {
+      if (s.section) counts[s.section] = (counts[s.section] ?? 0) + 1;
+    }
+    return counts;
+  }, [students]);
+
   const totalMarks = challenges.reduce((sum, c) => sum + c.pointValue, 0);
   const activeChallenges = challenges.filter(c => c.status === 'active');
 
@@ -190,7 +198,7 @@ export default function LecturerSQLRacePage() {
         {/* Tab: Live Race */}
         {tab === 'race' && (
           <div className="space-y-4">
-            <RaceTrack challenges={challenges} submissions={allSubmissions} />
+            <RaceTrack challenges={challenges} submissions={allSubmissions} sectionStudentCounts={sectionStudentCounts} />
             <div className="space-y-3">
               <h2 className="section-label">All Challenges</h2>
               {loading ? (

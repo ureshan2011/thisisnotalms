@@ -161,9 +161,12 @@ service cloud.firestore {
     }
 
     // SQL Race Submissions — students create own; staff can read all and update (override)
+    // Correct submissions are readable by all authenticated users (public race data for the track)
     match /sqlRaceSubmissions/{submissionId} {
       allow read: if request.auth != null && (
-        resource.data.studentUid == request.auth.uid || isStaff()
+        resource.data.studentUid == request.auth.uid ||
+        resource.data.isCorrect == true ||
+        isStaff()
       );
       allow create: if request.auth != null &&
         request.resource.data.studentUid == request.auth.uid;

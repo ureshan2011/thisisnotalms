@@ -7,7 +7,7 @@ import Layout from '../../components/layout/Layout';
 import RaceTrack from '../../components/sqlrace/RaceTrack';
 import ChallengeCard from '../../components/sqlrace/ChallengeCard';
 import type { SqlRaceChallenge, SqlRaceSubmission } from '../../lib/sqlRaceTypes';
-import { autoValidate, MAX_ATTEMPTS } from '../../lib/sqlRaceTypes';
+import { autoValidate, MAX_ATTEMPTS, getSectionDisplayName } from '../../lib/sqlRaceTypes';
 import { useToast } from '../../components/ui/ToastProvider';
 
 export default function SQLRacePage() {
@@ -19,16 +19,19 @@ export default function SQLRacePage() {
   const [mySubmissions, setMySubmissions] = useState<SqlRaceSubmission[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Load all challenges
+  const mySection = studentProfile?.section || 'Section Default (No Section)';
+  const mySectionDisplay = getSectionDisplayName(mySection);
+
+  // All challenges (sorted by creation order so preloaded ones show in order)
   useEffect(() => {
-    const q = query(collection(db, 'sqlRaceChallenges'), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, 'sqlRaceChallenges'), orderBy('createdAt', 'asc'));
     return onSnapshot(q, snap => {
       setChallenges(snap.docs.map(d => ({ id: d.id, ...d.data() } as SqlRaceChallenge)));
       setLoading(false);
     });
   }, []);
 
-  // Load all correct submissions for race track (public data)
+  // All correct submissions for the race track + collaboration info
   useEffect(() => {
     const q = query(collection(db, 'sqlRaceSubmissions'), where('isCorrect', '==', true));
     return onSnapshot(q, snap => {
@@ -36,7 +39,7 @@ export default function SQLRacePage() {
     });
   }, []);
 
-  // Load own submissions
+  // Own submissions (all, including incorrect, for attempt tracking)
   useEffect(() => {
     if (!user) return;
     const q = query(collection(db, 'sqlRaceSubmissions'), where('studentUid', '==', user.uid));
@@ -64,7 +67,7 @@ export default function SQLRacePage() {
       studentUid: user.uid,
       studentName: studentProfile.fullName || user.email || '',
       studentDisplayId: studentProfile.studentId || '',
-      studentSection: studentProfile.section || 'Section Default (No Section)',
+      studentSection: mySection,
       studentCampus: studentProfile.campus || '',
       query: queryText,
       isCorrect,
@@ -75,7 +78,7 @@ export default function SQLRacePage() {
 
     const remaining = MAX_ATTEMPTS - existingForChallenge.length - 1;
     if (isCorrect) {
-      showToast({ type: 'success', title: `Correct! +${challenge.pointValue} pts`, description: `Earned for ${studentProfile.section || 'your section'}` });
+      showToast({ type: 'success', title: `Correct! +${challenge.pointValue} pts`, description: `Earned for ${mySectionDisplay} 🏎` });
     } else if (remaining > 0) {
       showToast({ type: 'error', title: 'Not quite', description: `${remaining} attempt${remaining !== 1 ? 's' : ''} remaining` });
     } else {
@@ -97,7 +100,6 @@ export default function SQLRacePage() {
             boxShadow: '0 8px 32px rgba(99,102,241,0.25)',
           }}
         >
-          {/* Decorative elements */}
           <div className="absolute top-0 right-0 w-48 h-48 rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #818cf8, transparent)', transform: 'translate(30%, -30%)' }} />
           <div className="absolute bottom-0 left-24 w-32 h-32 rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #f59e0b, transparent)', transform: 'translateY(50%)' }} />
 
@@ -118,7 +120,7 @@ export default function SQLRacePage() {
               <Flag size={28} className="text-white opacity-20" />
               {studentProfile?.section && (
                 <span className="text-[11px] font-bold text-indigo-200 uppercase tracking-wide">
-                  {studentProfile.section === 'Section Default (No Section)' ? 'Default Section' : studentProfile.section}
+                  {mySectionDisplay}
                 </span>
               )}
             </div>
@@ -154,6 +156,8 @@ export default function SQLRacePage() {
                     challenge={challenge}
                     submissions={mySubmissions.filter(s => s.challengeId === challenge.id)}
                     onSubmit={handleSubmit}
+                    allSubmissions={allSubmissions}
+                    studentSection={mySection}
                   />
                 ))}
               </section>
@@ -169,6 +173,8 @@ export default function SQLRacePage() {
                     submissions={mySubmissions.filter(s => s.challengeId === challenge.id)}
                     onSubmit={handleSubmit}
                     readOnly
+                    allSubmissions={allSubmissions}
+                    studentSection={mySection}
                   />
                 ))}
               </section>

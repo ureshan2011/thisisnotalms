@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { collection, query, onSnapshot, addDoc, serverTimestamp, where, orderBy } from 'firebase/firestore';
+import { useEffect, useState, useMemo } from 'react';
+import { collection, query, onSnapshot, addDoc, serverTimestamp, where, orderBy, getDocs } from 'firebase/firestore';
 import { Trophy, Flag, Zap } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
@@ -9,6 +9,7 @@ import ChallengeCard from '../../components/sqlrace/ChallengeCard';
 import type { SqlRaceChallenge, SqlRaceSubmission } from '../../lib/sqlRaceTypes';
 import { autoValidate, MAX_ATTEMPTS, getSectionDisplayName } from '../../lib/sqlRaceTypes';
 import { useToast } from '../../components/ui/ToastProvider';
+import type { StudentProfile } from '../../lib/types';
 
 export default function SQLRacePage() {
   const { user, studentProfile } = useAuth();
@@ -17,12 +18,13 @@ export default function SQLRacePage() {
   const [challenges, setChallenges] = useState<SqlRaceChallenge[]>([]);
   const [allSubmissions, setAllSubmissions] = useState<SqlRaceSubmission[]>([]);
   const [mySubmissions, setMySubmissions] = useState<SqlRaceSubmission[]>([]);
+  const [students, setStudents] = useState<StudentProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
   const mySection = studentProfile?.section || 'Section Default (No Section)';
   const mySectionDisplay = getSectionDisplayName(mySection);
 
-  // All challenges (sorted by creation order so preloaded ones show in order)
+  // All challenges (sorted by creation order)
   useEffect(() => {
     const q = query(collection(db, 'sqlRaceChallenges'), orderBy('createdAt', 'asc'));
     return onSnapshot(q, snap => {
@@ -47,6 +49,22 @@ export default function SQLRacePage() {
       setMySubmissions(snap.docs.map(d => ({ id: d.id, ...d.data() } as SqlRaceSubmission)));
     });
   }, [user]);
+
+  // MBI802 students for accurate section counts
+  useEffect(() => {
+    getDocs(query(collection(db, 'students'), where('subjects', 'array-contains', 'MBI802')))
+      .then(snap => setStudents(snap.docs.map(d => d.data() as StudentProfile)));
+  }, []);
+
+  const sectionStudentCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const s of students) {
+      if (s.section) counts[s.section] = (counts[s.section] ?? 0) + 1;
+    }
+    return counts;
+  }, [students]);
+
+  const mySectionCount = sectionStudentCounts[mySection];
 
   const handleSubmit = async (challengeId: string, queryText: string) => {
     if (!user || !studentProfile) return;
@@ -87,7 +105,6 @@ export default function SQLRacePage() {
   };
 
   const activeChallenges = challenges.filter(c => c.status === 'active');
-  const closedChallenges = challenges.filter(c => c.status === 'closed');
 
   return (
     <Layout>
@@ -128,58 +145,42 @@ export default function SQLRacePage() {
         </div>
 
         {/* Race track */}
-        <RaceTrack challenges={challenges} submissions={allSubmissions} />
+        <RaceTrack
+          challenges={challenges}
+          submissions={allSubmissions}
+          sectionStudentCounts={sectionStudentCounts}
+        />
 
-        {/* Active challenges */}
+        {/* Active challenges only */}
         {loading ? (
           <div className="card p-8 text-center text-gray-400">
             <div className="w-6 h-6 border-2 border-brand-400 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
             <p className="text-sm">Loading challenges…</p>
           </div>
-        ) : activeChallenges.length === 0 && closedChallenges.length === 0 ? (
+        ) : activeChallenges.length === 0 ? (
           <div className="card p-10 text-center">
             <Zap size={32} className="text-gray-300 mx-auto mb-3" />
-            <p className="font-semibold text-gray-500">No challenges yet</p>
-            <p className="text-sm text-gray-400 mt-1">Your lecturer will post SQL challenges here when the race begins.</p>
+            <p className="font-semibold text-gray-500">No active challenges</p>
+            <p className="text-sm text-gray-400 mt-1">Your lecturer will activate SQL challenges when the race begins.</p>
           </div>
         ) : (
-          <>
-            {activeChallenges.length > 0 && (
-              <section className="space-y-3">
-                <h2 className="section-label flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  Active Challenges
-                </h2>
-                {activeChallenges.map(challenge => (
-                  <ChallengeCard
-                    key={challenge.id}
-                    challenge={challenge}
-                    submissions={mySubmissions.filter(s => s.challengeId === challenge.id)}
-                    onSubmit={handleSubmit}
-                    allSubmissions={allSubmissions}
-                    studentSection={mySection}
-                  />
-                ))}
-              </section>
-            )}
-
-            {closedChallenges.length > 0 && (
-              <section className="space-y-3">
-                <h2 className="section-label text-gray-400">Closed Challenges</h2>
-                {closedChallenges.map(challenge => (
-                  <ChallengeCard
-                    key={challenge.id}
-                    challenge={challenge}
-                    submissions={mySubmissions.filter(s => s.challengeId === challenge.id)}
-                    onSubmit={handleSubmit}
-                    readOnly
-                    allSubmissions={allSubmissions}
-                    studentSection={mySection}
-                  />
-                ))}
-              </section>
-            )}
-          </>
+          <section className="space-y-3">
+            <h2 className="section-label flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Active Challenges
+            </h2>
+            {activeChallenges.map(challenge => (
+              <ChallengeCard
+                key={challenge.id}
+                challenge={challenge}
+                submissions={mySubmissions.filter(s => s.challengeId === challenge.id)}
+                onSubmit={handleSubmit}
+                allSubmissions={allSubmissions}
+                studentSection={mySection}
+                sectionStudentCount={mySectionCount}
+              />
+            ))}
+          </section>
         )}
       </div>
     </Layout>

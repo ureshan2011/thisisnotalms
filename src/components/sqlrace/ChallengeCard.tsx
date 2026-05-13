@@ -14,6 +14,7 @@ interface Props {
   readOnly?: boolean;
   allSubmissions?: SqlRaceSubmission[];    // all correct submissions (for collaboration info)
   studentSection?: string;                 // viewer's section
+  sectionStudentCount?: number;            // total students enrolled in viewer's section
 }
 
 function useCountdown(challenge: SqlRaceChallenge): number | null {
@@ -55,7 +56,7 @@ function CountdownBadge({ seconds }: { seconds: number }) {
 
 export default function ChallengeCard({
   challenge, submissions, onSubmit,
-  readOnly = false, allSubmissions = [], studentSection,
+  readOnly = false, allSubmissions = [], studentSection, sectionStudentCount,
 }: Props) {
   const [schemaOpen, setSchemaOpen] = useState(false);
 
@@ -166,9 +167,21 @@ export default function ChallengeCard({
             </div>
           )}
           {!readOnly && teammateCorrectCount > 0 && (
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-emerald-700 bg-emerald-50">
-              <Users size={11} />
-              {teammateCorrectCount} teammate{teammateCorrectCount !== 1 ? 's' : ''} answered correctly — keep going!
+            <div className="inline-flex flex-col gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-emerald-700 bg-emerald-50">
+              <div className="flex items-center gap-1.5">
+                <Users size={11} />
+                {sectionStudentCount
+                  ? `${teammateCorrectCount} / ${sectionStudentCount} section members solved this!`
+                  : `${teammateCorrectCount} teammate${teammateCorrectCount !== 1 ? 's' : ''} answered correctly — keep going!`}
+              </div>
+              {sectionStudentCount && sectionStudentCount > 0 && (
+                <div className="h-1.5 rounded-full bg-emerald-200 overflow-hidden">
+                  <div
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-700"
+                    style={{ width: `${Math.min((teammateCorrectCount / sectionStudentCount) * 100, 100)}%` }}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>

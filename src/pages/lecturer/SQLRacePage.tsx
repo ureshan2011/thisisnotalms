@@ -1,17 +1,52 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { collection, query, onSnapshot, orderBy, doc, updateDoc, serverTimestamp, where, getDocs } from 'firebase/firestore';
-import { Trophy, Plus, Flag, ToggleLeft, ToggleRight, Users, BarChart2 } from 'lucide-react';
+import {
+  collection, query, onSnapshot, orderBy, doc, updateDoc,
+  serverTimestamp, where, getDocs, writeBatch,
+} from 'firebase/firestore';
+import { Trophy, Plus, Flag, ToggleRight, Users, BarChart2, Download, Clock } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout from '../../components/layout/Layout';
 import RaceTrack from '../../components/sqlrace/RaceTrack';
 import ChallengeCard from '../../components/sqlrace/ChallengeCard';
 import CreateChallengeModal from '../../components/sqlrace/CreateChallengeModal';
+import ActivateChallengeModal from '../../components/sqlrace/ActivateChallengeModal';
 import ContributionPanel from '../../components/sqlrace/ContributionPanel';
 import type { SqlRaceChallenge, SqlRaceSubmission } from '../../lib/sqlRaceTypes';
+import { getChallengeSecondsLeft, formatCountdown } from '../../lib/sqlRaceTypes';
+import { PRELOADED_CHALLENGES } from '../../lib/sqlRacePreload';
 import type { StudentProfile } from '../../lib/types';
 
 type Tab = 'race' | 'challenges' | 'contributions';
+
+function LiveTimer({ challenge }: { challenge: SqlRaceChallenge }) {
+  const [secs, setSecs] = useState<number | null>(() => getChallengeSecondsLeft(challenge));
+
+  useEffect(() => {
+    const initial = getChallengeSecondsLeft(challenge);
+    if (initial === null) { setSecs(null); return; }
+    setSecs(initial);
+    if (initial === 0) return;
+    const id = setInterval(() => {
+      const left = getChallengeSecondsLeft(challenge);
+      setSecs(left);
+      if (left === 0) clearInterval(id);
+    }, 1000);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [challenge.id, challenge.timeLimit, challenge.activatedAt?.seconds]);
+
+  if (secs === null) return <span className="text-xs text-gray-400">No time limit</span>;
+  if (secs === 0) return <span className="text-xs font-bold text-rose-600">⏰ Expired</span>;
+
+  const color = secs > 60 ? '#10b981' : secs > 30 ? '#f59e0b' : '#ef4444';
+  return (
+    <span className="text-xs font-bold tabular-nums flex items-center gap-1" style={{ color }}>
+      <Clock size={11} />
+      {formatCountdown(secs)}
+    </span>
+  );
+}
 
 export default function LecturerSQLRacePage() {
   const { user } = useAuth();
@@ -21,12 +56,14 @@ export default function LecturerSQLRacePage() {
   const [allSubmissions, setAllSubmissions] = useState<SqlRaceSubmission[]>([]);
   const [students, setStudents] = useState<StudentProfile[]>([]);
   const [showCreate, setShowCreate] = useState(false);
+  const [activatingChallenge, setActivatingChallenge] = useState<SqlRaceChallenge | null>(null);
   const [loading, setLoading] = useState(true);
-  const [toggling, setToggling] = useState<string | null>(null);
+  const [closing, setClosing] = useState<string | null>(null);
+  const [preloading, setPreloading] = useState(false);
 
-  // Load challenges
+  // Load challenges ordered by creation time (so preloaded ones appear in order)
   useEffect(() => {
-    const q = query(collection(db, 'sqlRaceChallenges'), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, 'sqlRaceChallenges'), orderBy('createdAt', 'asc'));
     return onSnapshot(q, snap => {
       setChallenges(snap.docs.map(d => ({ id: d.id, ...d.data() } as SqlRaceChallenge)));
       setLoading(false);
@@ -41,26 +78,51 @@ export default function LecturerSQLRacePage() {
     });
   }, []);
 
-  // Load MBI802 students (one-time fetch, students list doesn't change often)
+  // Load MBI802 students
   useEffect(() => {
     getDocs(query(collection(db, 'students'), where('subjects', 'array-contains', 'MBI802')))
       .then(snap => setStudents(snap.docs.map(d => d.data() as StudentProfile)));
   }, []);
 
-  const toggleStatus = async (challenge: SqlRaceChallenge) => {
-    setToggling(challenge.id);
-    const newStatus = challenge.status === 'active' ? 'closed' : 'active';
+  const closeChallenge = async (challengeId: string) => {
+    setClosing(challengeId);
     try {
-      await updateDoc(doc(db, 'sqlRaceChallenges', challenge.id), {
-        status: newStatus,
-        ...(newStatus === 'closed' ? { closedAt: serverTimestamp() } : { closedAt: null }),
+      await updateDoc(doc(db, 'sqlRaceChallenges', challengeId), {
+        status: 'closed',
+        closedAt: serverTimestamp(),
       });
     } finally {
-      setToggling(null);
+      setClosing(null);
     }
   };
 
-  const correctSubmissions = allSubmissions.filter(s => s.isCorrect === true);
+  const handlePreload = async () => {
+    if (!user) return;
+    setPreloading(true);
+    try {
+      const batch = writeBatch(db);
+      for (const ch of PRELOADED_CHALLENGES) {
+        const ref = doc(collection(db, 'sqlRaceChallenges'));
+        batch.set(ref, {
+          title: ch.title,
+          description: ch.description,
+          schemaContext: ch.schemaContext,
+          question: ch.question,
+          requiredKeywords: ch.requiredKeywords,
+          pointValue: ch.pointValue,
+          status: 'closed',
+          createdByUid: user.uid,
+          createdAt: serverTimestamp(),
+          timeLimit: null,
+          activatedAt: null,
+        });
+      }
+      await batch.commit();
+    } finally {
+      setPreloading(false);
+    }
+  };
+
   const totalMarks = challenges.reduce((sum, c) => sum + c.pointValue, 0);
   const activeChallenges = challenges.filter(c => c.status === 'active');
 
@@ -87,19 +149,17 @@ export default function LecturerSQLRacePage() {
               <h1 className="text-2xl font-black text-white tracking-tight mb-1">SQL Grand Prix</h1>
               <p className="text-indigo-200 text-sm">Manage challenges, track the race, and monitor student contributions.</p>
             </div>
-            <div className="flex gap-3 flex-wrap">
-              <div className="text-center">
-                <p className="text-2xl font-black text-white">{activeChallenges.length}</p>
-                <p className="text-[11px] text-indigo-300 uppercase tracking-wide">Active</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-black text-white">{totalMarks}</p>
-                <p className="text-[11px] text-indigo-300 uppercase tracking-wide">Total pts</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-black text-white">{students.length}</p>
-                <p className="text-[11px] text-indigo-300 uppercase tracking-wide">Students</p>
-              </div>
+            <div className="flex gap-4 flex-wrap">
+              {[
+                { value: activeChallenges.length, label: 'Active' },
+                { value: totalMarks, label: 'Total pts' },
+                { value: students.length, label: 'Students' },
+              ].map(({ value, label }) => (
+                <div key={label} className="text-center">
+                  <p className="text-2xl font-black text-white">{value}</p>
+                  <p className="text-[11px] text-indigo-300 uppercase tracking-wide">{label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -131,14 +191,12 @@ export default function LecturerSQLRacePage() {
         {tab === 'race' && (
           <div className="space-y-4">
             <RaceTrack challenges={challenges} submissions={allSubmissions} />
-
-            {/* All challenge results summary */}
             <div className="space-y-3">
               <h2 className="section-label">All Challenges</h2>
               {loading ? (
                 <div className="card p-6 text-center text-gray-400 text-sm">Loading…</div>
               ) : challenges.length === 0 ? (
-                <div className="card p-8 text-center text-gray-400 text-sm">No challenges created yet.</div>
+                <div className="card p-8 text-center text-gray-400 text-sm">No challenges yet.</div>
               ) : (
                 challenges.map(challenge => (
                   <ChallengeCard
@@ -147,6 +205,7 @@ export default function LecturerSQLRacePage() {
                     submissions={allSubmissions.filter(s => s.challengeId === challenge.id)}
                     onSubmit={async () => {}}
                     readOnly
+                    allSubmissions={allSubmissions}
                   />
                 ))
               )}
@@ -154,18 +213,30 @@ export default function LecturerSQLRacePage() {
           </div>
         )}
 
-        {/* Tab: Challenges management */}
+        {/* Tab: Challenges */}
         {tab === 'challenges' && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
               <h2 className="page-subtitle">Manage Challenges</h2>
-              <button
-                onClick={() => setShowCreate(true)}
-                className="btn-primary flex items-center gap-2 text-sm px-4 py-2"
-              >
-                <Plus size={15} />
-                New Challenge
-              </button>
+              <div className="flex gap-2">
+                {challenges.length === 0 && (
+                  <button
+                    onClick={handlePreload}
+                    disabled={preloading}
+                    className="btn-secondary flex items-center gap-2 text-sm px-4 py-2 disabled:opacity-50"
+                  >
+                    <Download size={14} />
+                    {preloading ? 'Loading…' : 'Load 10 Starter Challenges'}
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowCreate(true)}
+                  className="btn-primary flex items-center gap-2 text-sm px-4 py-2"
+                >
+                  <Plus size={15} />
+                  New Challenge
+                </button>
+              </div>
             </div>
 
             {loading ? (
@@ -174,21 +245,36 @@ export default function LecturerSQLRacePage() {
               <div className="card p-10 text-center">
                 <Trophy size={32} className="text-gray-300 mx-auto mb-3" />
                 <p className="font-semibold text-gray-500">No challenges yet</p>
-                <p className="text-sm text-gray-400 mt-1 mb-4">Create your first SQL challenge to start the race.</p>
-                <button onClick={() => setShowCreate(true)} className="btn-primary text-sm px-5 py-2">
-                  Create First Challenge
-                </button>
+                <p className="text-sm text-gray-400 mt-1 mb-4">
+                  Load the 10 starter challenges or create your own.
+                </p>
+                <div className="flex justify-center gap-3 flex-wrap">
+                  <button onClick={handlePreload} disabled={preloading} className="btn-secondary text-sm px-5 py-2 disabled:opacity-50 flex items-center gap-2">
+                    <Download size={14} />
+                    {preloading ? 'Loading…' : 'Load Starter Challenges'}
+                  </button>
+                  <button onClick={() => setShowCreate(true)} className="btn-primary text-sm px-5 py-2">Create Custom</button>
+                </div>
               </div>
             ) : (
               <div className="space-y-3">
-                {challenges.map(challenge => {
+                {challenges.map((challenge, idx) => {
                   const subCount = allSubmissions.filter(s => s.challengeId === challenge.id).length;
                   const correctCount = allSubmissions.filter(s => s.challengeId === challenge.id && s.isCorrect).length;
+                  const isActive = challenge.status === 'active';
+
                   return (
-                    <div key={challenge.id} className="card p-4">
+                    <div
+                      key={challenge.id}
+                      className="card p-4"
+                      style={isActive ? { borderColor: 'rgba(16,185,129,0.25)', background: 'rgba(16,185,129,0.02)' } : undefined}
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md">
+                              #{idx + 1}
+                            </span>
                             <h3 className="font-bold text-gray-800 text-sm">{challenge.title}</h3>
                             <span
                               className="text-[10px] font-bold px-2 py-0.5 rounded-full"
@@ -198,38 +284,42 @@ export default function LecturerSQLRacePage() {
                             </span>
                             <span
                               className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                challenge.status === 'active'
-                                  ? 'bg-emerald-50 text-emerald-700'
-                                  : 'bg-gray-100 text-gray-500'
+                                isActive ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-500'
                               }`}
                             >
-                              {challenge.status === 'active' ? 'Active' : 'Closed'}
+                              {isActive ? '● Active' : 'Closed'}
                             </span>
                           </div>
                           {challenge.description && (
-                            <p className="text-xs text-gray-500 mb-2">{challenge.description}</p>
+                            <p className="text-xs text-gray-500 mb-1.5">{challenge.description}</p>
                           )}
-                          <div className="flex gap-3 text-xs text-gray-400">
+                          <div className="flex items-center gap-3 text-xs text-gray-400 flex-wrap">
                             <span>{subCount} submission{subCount !== 1 ? 's' : ''}</span>
                             <span>{correctCount} correct</span>
-                            <span>{challenge.requiredKeywords.length} keyword{challenge.requiredKeywords.length !== 1 ? 's' : ''}</span>
+                            {isActive && <LiveTimer challenge={challenge} />}
                           </div>
                         </div>
 
-                        <button
-                          onClick={() => toggleStatus(challenge)}
-                          disabled={toggling === challenge.id}
-                          className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl transition-all disabled:opacity-50"
-                          style={
-                            challenge.status === 'active'
-                              ? { background: 'rgba(239,68,68,0.08)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.2)' }
-                              : { background: 'rgba(16,185,129,0.08)', color: '#059669', border: '1px solid rgba(16,185,129,0.2)' }
-                          }
-                        >
-                          {challenge.status === 'active'
-                            ? <><ToggleRight size={13} /> Close</>
-                            : <><ToggleLeft size={13} /> Activate</>}
-                        </button>
+                        {/* Action button */}
+                        {isActive ? (
+                          <button
+                            onClick={() => closeChallenge(challenge.id)}
+                            disabled={closing === challenge.id}
+                            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl transition-all disabled:opacity-50 flex-shrink-0"
+                            style={{ background: 'rgba(239,68,68,0.08)', color: '#dc2626', border: '1px solid rgba(239,68,68,0.2)' }}
+                          >
+                            <ToggleRight size={13} />
+                            {closing === challenge.id ? 'Closing…' : 'Close'}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => setActivatingChallenge(challenge)}
+                            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl transition-all flex-shrink-0"
+                            style={{ background: 'rgba(16,185,129,0.08)', color: '#059669', border: '1px solid rgba(16,185,129,0.2)' }}
+                          >
+                            🚦 Activate
+                          </button>
+                        )}
                       </div>
                     </div>
                   );
@@ -241,11 +331,7 @@ export default function LecturerSQLRacePage() {
 
         {/* Tab: Contributions */}
         {tab === 'contributions' && (
-          <ContributionPanel
-            students={students}
-            challenges={challenges}
-            submissions={allSubmissions}
-          />
+          <ContributionPanel students={students} challenges={challenges} submissions={allSubmissions} />
         )}
       </div>
 
@@ -253,6 +339,13 @@ export default function LecturerSQLRacePage() {
         <CreateChallengeModal
           onClose={() => setShowCreate(false)}
           onCreated={() => {}}
+        />
+      )}
+
+      {activatingChallenge && (
+        <ActivateChallengeModal
+          challenge={activatingChallenge}
+          onClose={() => setActivatingChallenge(null)}
         />
       )}
     </Layout>

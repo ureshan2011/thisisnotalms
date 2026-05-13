@@ -5,7 +5,7 @@ import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import type { StudentProfile } from '../../lib/types';
 import type { SqlRaceChallenge, SqlRaceSubmission } from '../../lib/sqlRaceTypes';
-import { SECTION_COLORS } from '../../lib/sqlRaceTypes';
+import { SECTION_COLORS, getSectionDisplayName } from '../../lib/sqlRaceTypes';
 
 interface Props {
   students: StudentProfile[];
@@ -16,7 +16,7 @@ interface Props {
 type FilterSection = 'All' | string;
 type FilterStatus = 'All' | 'Correct' | 'Incorrect' | 'Not Submitted';
 
-const ALL_SECTIONS = ['All', 'Section A', 'Section B', 'Section C', 'Section Default (No Section)'];
+const ALL_SECTIONS = ['All', 'Section A', 'Section B', 'Section C', 'Section Default (No Section)', 'Section CHC'];
 
 export default function ContributionPanel({ students, challenges, submissions }: Props) {
   const { user } = useAuth();
@@ -52,7 +52,7 @@ export default function ContributionPanel({ students, challenges, submissions }:
   });
 
   // Section summary
-  const sectionSummary = ['Section A', 'Section B', 'Section C', 'Section Default (No Section)'].map(section => {
+  const sectionSummary = ['Section A', 'Section B', 'Section C', 'Section Default (No Section)', 'Section CHC'].map(section => {
     const sectionStudents = mbi802Students.filter(s => s.section === section);
     const contributed = sectionStudents.filter(s => {
       const subs = getStudentSubmissions(s.uid);
@@ -85,7 +85,7 @@ export default function ContributionPanel({ students, challenges, submissions }:
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {sectionSummary.map(({ section, total, contributed, totalMarks }) => {
             const color = SECTION_COLORS[section] ?? '#8b5cf6';
-            const label = section === 'Section Default (No Section)' ? 'Default' : section;
+            const label = getSectionDisplayName(section);
             return (
               <div
                 key={section}
@@ -129,7 +129,7 @@ export default function ContributionPanel({ students, challenges, submissions }:
             onChange={e => setFilterSection(e.target.value)}
           >
             {ALL_SECTIONS.map(s => (
-              <option key={s} value={s}>{s === 'Section Default (No Section)' ? 'Default' : s}</option>
+              <option key={s} value={s}>{s === 'All' ? 'All' : getSectionDisplayName(s)}</option>
             ))}
           </select>
         </div>
@@ -194,7 +194,7 @@ export default function ContributionPanel({ students, challenges, submissions }:
                             style={{ background: `${sectionColor}18`, color: sectionColor }}
                           >
                             <span className="w-1.5 h-1.5 rounded-full" style={{ background: sectionColor }} />
-                            {student.section === 'Section Default (No Section)' ? 'Default' : student.section || '—'}
+                            {getSectionDisplayName(student.section) || '—'}
                           </span>
                         </td>
                         <td className="px-4 py-3 text-center">

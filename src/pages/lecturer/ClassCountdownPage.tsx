@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
-import { ArrowLeft, Maximize2, Minimize2, Users } from 'lucide-react';
+import { ArrowLeft, Maximize2, Users } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import type { StudentProfile } from '../../lib/types';
 import { avatarGradient } from '../../components/ui/PhotoUploadModal';
@@ -508,22 +508,24 @@ export default function ClassCountdownPage() {
             </span>
           </div>
 
-          <button
-            onClick={toggleFullscreen}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 7,
-              padding: '8px 18px', borderRadius: 10,
-              border: `1px solid ${cfg.accent}40`,
-              background: `${cfg.accent}14`,
-              color: cfg.accent,
-              fontSize: 12, fontWeight: 700, cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              letterSpacing: '0.02em',
-            }}
-          >
-            {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-            {isFullscreen ? 'Exit Full Screen' : 'Full Screen'}
-          </button>
+          {!isFullscreen && (
+            <button
+              onClick={toggleFullscreen}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '8px 18px', borderRadius: 10,
+                border: `1px solid ${cfg.accent}40`,
+                background: `${cfg.accent}14`,
+                color: cfg.accent,
+                fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                letterSpacing: '0.02em',
+              }}
+            >
+              <Maximize2 size={14} />
+              Full Screen
+            </button>
+          )}
         </div>
       </div>
 
@@ -593,9 +595,13 @@ export default function ClassCountdownPage() {
             </div>
           </div>
 
-          {/* Course code — massive gradient */}
+          {/* Course code — massive gradient.
+              key forces DOM remount on course change, avoiding a browser
+              repaint bug where -webkit-background-clip:text shows a solid
+              rectangle after a dynamic background gradient update. */}
           <div style={{ marginBottom: 'clamp(8px,1.2vh,16px)', lineHeight: 1 }}>
             <span
+              key={selectedCourse}
               style={{
                 fontSize: 'clamp(60px,8vw,108px)',
                 fontWeight: 900,

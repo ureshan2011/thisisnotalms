@@ -767,8 +767,7 @@ function FreeAgileCertsLesson() {
             <p className="font-bold text-white mb-1">💡 What to write in your post</p>
             <p style={{ color: 'rgba(219,234,254,0.9)' }}>
               Share what you learned, why you chose the certification, and how it connects to your career goals.
-              End with <span className="font-semibold text-white">"Thank you to my lecturer Yasas Sri Wickramasinghe"</span> and
-              tag <span className="font-semibold text-white">@YasasSriWickramasinghe</span> — your post becomes a story, not just a certificate image.
+              Tag <span className="font-semibold text-white">@YasasSriWickramasinghe</span>
             </p>
           </div>
 

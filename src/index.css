@@ -520,3 +520,10 @@ button, a {
   50%       { border-color: rgba(124,58,237,0.80); box-shadow: 0 0 0 6px rgba(124,58,237,0.12); }
 }
 .drag-over-pulse { animation: borderPulse 0.9s ease-in-out infinite; }
+
+/* ─── Class Countdown Page ────────────────────────────────────── */
+@keyframes countdownSweep {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(350%); }
+}
+.countdown-sweep { animation: countdownSweep 2.8s ease-in-out infinite; }

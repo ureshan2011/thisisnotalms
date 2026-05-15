@@ -3,7 +3,7 @@ import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import {
   LayoutDashboard, Users, CalendarCheck, LogOut,
-  User, History, Menu, X, ChevronRight, BookOpen, Radio, Bell, Star, BarChart2, Film, Trophy,
+  User, History, Menu, X, ChevronRight, BookOpen, Radio, Bell, Star, BarChart2, Film, Trophy, MonitorPlay,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import BrandMark from '../ui/BrandMark';
@@ -61,6 +61,7 @@ function SidebarContent({
     { to: '/lecturer/course-resources', icon: <BookOpen size={18} />,  label: 'Course Resources', isNew: showNewBadge },
     { to: '/lecturer/video-manager',    icon: <Film size={18} />,      label: 'Video Manager' },
     { to: '/lecturer/sql-race',         icon: <Trophy size={18} />,    label: 'SQL Grand Prix' },
+    { to: '/lecturer/class-countdown',  icon: <MonitorPlay size={18} />, label: 'Class Countdown', isNew: true },
     ...(role === 'lecturer'
       ? [{ to: '/lecturer/analytics', icon: <BarChart2 size={18} />, label: 'Site Analytics' }]
       : []),

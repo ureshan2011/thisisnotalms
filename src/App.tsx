@@ -26,6 +26,7 @@ const StudentPlayground = lazy(() => import('./pages/student/StudentPlayground')
 const NoticeBoard = lazy(() => import('./pages/shared/NoticeBoard'));
 
 // Lecturer pages — lazy-loaded per route
+const ClassCountdownPage = lazy(() => import('./pages/lecturer/ClassCountdownPage'));
 const Dashboard          = lazy(() => import('./pages/lecturer/Dashboard'));
 const StudentList        = lazy(() => import('./pages/lecturer/StudentList'));
 const StudentDetail      = lazy(() => import('./pages/lecturer/StudentDetail'));
@@ -76,6 +77,7 @@ function AppRoutes() {
         <Route path="/lecturer/analytics"        element={<ProtectedRoute allowedRoles={['lecturer']}><SiteAnalytics /></ProtectedRoute>} />
         <Route path="/lecturer/video-manager"   element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><VideoLessonManager /></ProtectedRoute>} />
         <Route path="/lecturer/sql-race"         element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><LecturerSQLRace /></ProtectedRoute>} />
+        <Route path="/lecturer/class-countdown"  element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><ClassCountdownPage /></ProtectedRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -18,6 +18,7 @@ import {
   GitBranch,
   Film,
   Lock,
+  Award,
 } from 'lucide-react';
 import Layout from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
@@ -249,6 +250,13 @@ const COURSES: Course[] = [
         icon: <ClipboardList size={18} />,
         accentColor: '#0d9488',
       },
+      {
+        id: 'free-agile-certs',
+        title: 'Free Agile & Scrum Certifications',
+        subtitle: 'Four no-cost options where both the course and the completion certificate are free · Recommended to complement your Agile Scrum coursework',
+        icon: <Award size={18} />,
+        accentColor: '#059669',
+      },
     ],
   },
 ];
@@ -422,6 +430,156 @@ function QuizLesson({
       ) : (
         <MBI802Quiz studentProfile={studentProfile} />
       )}
+    </div>
+  );
+}
+
+function FreeAgileCertsLesson() {
+  const certs = [
+    {
+      badge: 'SFC™',
+      badgeBg: 'rgba(5,150,105,0.12)',
+      badgeColor: '#065f46',
+      title: 'SCRUMstudy – Scrum Fundamentals Certified',
+      tag: 'SCRUM FUNDAMENTALS',
+      tagColor: '#059669',
+      description:
+        'One of the most established free Scrum credentials. Covers all core Scrum principles, phases, and team roles based on the SBOK® Guide. No time limit — study at your own pace, then take a 40-question online exam (75% to pass). The certificate has no expiry and is recognised globally as a solid entry-level credential to add to your CV or LinkedIn.',
+      linkLabel: 'scrumstudy.com',
+      href: 'https://www.scrumstudy.com/certification/scrum-fundamentals-certified',
+      cardBg: 'linear-gradient(135deg, rgba(209,250,229,0.7), rgba(167,243,208,0.4))',
+      borderColor: 'rgba(5,150,105,0.2)',
+      accentColor: '#059669',
+    },
+    {
+      badge: 'RSB',
+      badgeBg: 'rgba(37,99,235,0.1)',
+      badgeColor: '#1e3a8a',
+      title: 'Scrum Inc. – Registered Scrum Basics™',
+      tag: 'SCRUM BASICS',
+      tagColor: '#1d4ed8',
+      description:
+        'Developed by Scrum Inc. — the organisation founded by Scrum co-creator Dr. Jeff Sutherland — in partnership with Atlassian and Accenture. Covers the Agile mindset, the full Scrum framework, and how Scrum is applied in real teams. Complete the Atlassian Community learning path, then pass a short online assessment to receive a verifiable digital credential from Scrum Inc. Takes only a few hours.',
+      linkLabel: 'community.atlassian.com',
+      href: 'https://community.atlassian.com/t5/Agile/ct-p/agile',
+      cardBg: 'linear-gradient(135deg, rgba(219,234,254,0.7), rgba(186,230,253,0.4))',
+      borderColor: 'rgba(37,99,235,0.18)',
+      accentColor: '#1d4ed8',
+    },
+    {
+      badge: 'SkillUp',
+      badgeBg: 'rgba(217,119,6,0.1)',
+      badgeColor: '#78350f',
+      title: 'Simplilearn SkillUp – Agile Scrum Master Basics',
+      tag: 'SCRUM MASTER BASICS',
+      tagColor: '#b45309',
+      description:
+        'A ~5-hour self-paced video course introducing Agile, the Scrum framework, the Scrum Master role, and an overview of the Scaled Agile Framework (SAFe). A course completion certificate is automatically unlocked in your dashboard once all modules are done — no extra exam or upgrade required. Best used as structured self-study to deepen understanding of the Scrum Master role before pursuing paid industry credentials.',
+      linkLabel: 'simplilearn.com',
+      href: 'https://www.simplilearn.com/agile-and-scrum-free-course-skillup',
+      cardBg: 'linear-gradient(135deg, rgba(254,243,199,0.8), rgba(253,230,138,0.4))',
+      borderColor: 'rgba(217,119,6,0.18)',
+      accentColor: '#b45309',
+    },
+    {
+      badge: 'ACH Badge',
+      badgeBg: 'rgba(79,70,229,0.1)',
+      badgeColor: '#312e81',
+      title: 'Atlassian University – Agile & Jira Fundamentals',
+      tag: 'AGILE + JIRA',
+      tagColor: '#4338ca',
+      description:
+        'A practical, tool-focused credential from Atlassian covering Agile principles and how to manage Scrum teams using Jira — sprint planning, backlog management, Scrum boards, and Kanban. Complete a short course then pass a free online assessment (80% pass mark) to earn a free Atlassian Credentials Hub (ACH) digital badge. Especially useful as most real-world Scrum teams use Jira as their project tool.',
+      linkLabel: 'university.atlassian.com',
+      href: 'https://university.atlassian.com',
+      cardBg: 'linear-gradient(135deg, rgba(237,233,254,0.8), rgba(224,231,255,0.5))',
+      borderColor: 'rgba(79,70,229,0.18)',
+      accentColor: '#4338ca',
+    },
+  ];
+
+  return (
+    <div className="space-y-5">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#059669' }}>
+          Resource
+        </p>
+        <h3 className="text-lg font-bold mt-1" style={{ color: '#1e1b4b' }}>
+          Free Agile &amp; Scrum Certifications
+        </h3>
+        <p
+          className="text-xs mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full"
+          style={{ color: '#065f46', background: 'rgba(167,243,208,0.45)' }}
+        >
+          <Sparkles size={12} /> MBI804 · IT Project Management
+        </p>
+      </div>
+
+      <p className="text-sm leading-6" style={{ color: '#374151' }}>
+        Four no-cost options where both the course and the completion certificate are free.
+        Recommended to complement your Agile Scrum coursework.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {certs.map((cert) => (
+          <div
+            key={cert.badge}
+            className="rounded-2xl p-4 border flex flex-col gap-3"
+            style={{ background: cert.cardBg, borderColor: cert.borderColor }}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <p
+                  className="text-xs font-bold uppercase tracking-wider"
+                  style={{ color: cert.tagColor }}
+                >
+                  {cert.tag}
+                </p>
+                <p className="text-sm font-semibold mt-0.5" style={{ color: '#1e1b4b' }}>
+                  {cert.title}
+                </p>
+              </div>
+              <span
+                className="text-xs font-bold px-2 py-0.5 rounded-full shrink-0"
+                style={{ background: cert.badgeBg, color: cert.badgeColor }}
+              >
+                {cert.badge}
+              </span>
+            </div>
+
+            <p className="text-xs leading-5" style={{ color: '#374151' }}>
+              {cert.description}
+            </p>
+
+            <a
+              href={cert.href}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-auto inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
+              style={{ color: cert.accentColor }}
+            >
+              <ExternalLink size={13} />
+              {cert.linkLabel}
+            </a>
+          </div>
+        ))}
+      </div>
+
+      <div
+        className="rounded-xl p-3 border text-xs leading-5"
+        style={{
+          background: 'rgba(249,250,251,0.8)',
+          borderColor: 'rgba(209,213,219,0.6)',
+          color: '#6b7280',
+        }}
+      >
+        <span className="font-semibold" style={{ color: '#374151' }}>A note before you enrol: </span>
+        These platforms may update their pricing, enrolment processes, or certificate availability at
+        any time — always read the course page carefully before signing up to confirm it is still
+        free. These are independent suggestions only. This course has no affiliation with,
+        sponsorship from, or endorsement by any of the platforms listed above. All trademarks and
+        certifications belong to their respective owners.
+      </div>
     </div>
   );
 }
@@ -844,6 +1002,7 @@ export default function CourseResources() {
                     {lesson.id === 'agile-scrum-mcq' && !isStaff && (
                       <AgileScrumMcq studentProfile={studentProfile} />
                     )}
+                    {lesson.id === 'free-agile-certs' && <FreeAgileCertsLesson />}
                     {lesson.id === 'sisp-lab' && <SISPPromptLab />}
                     {lesson.id === 'sql-practice' && <SQLPracticeLesson />}
 

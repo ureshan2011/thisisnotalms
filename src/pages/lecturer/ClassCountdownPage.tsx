@@ -26,7 +26,7 @@ interface CourseConfig {
 const COURSES: Record<CourseCode, CourseConfig> = {
   MBI800: {
     code: 'MBI800',
-    name: 'Business Information Systems',
+    name: 'Strategic Information System Planning',
     label: 'BIS',
     accent: '#f59e0b',
     accentLight: '#fde68a',

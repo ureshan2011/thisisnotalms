@@ -498,8 +498,88 @@ function FreeAgileCertsLesson() {
     },
   ];
 
+  const whyLinkedIn = [
+    { icon: '👁️', title: 'Recruiter Visibility', desc: 'Hiring managers actively search LinkedIn for certified Agile & Scrum professionals every single day.' },
+    { icon: '🤝', title: 'Grow Your Network', desc: 'Your post reaches your connections, their connections, and beyond — compounding your professional presence.' },
+    { icon: '💼', title: 'Instant Credibility', desc: 'A public certificate post signals drive and initiative — the exact traits employers look for in graduates.' },
+    { icon: '🚀', title: 'Career Momentum', desc: 'Every credential you post builds a public track record that speaks for you before any interview begins.' },
+  ];
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
+      {/* ── Injected keyframe animations ── */}
+      <style>{`
+        @keyframes fac-float {
+          0%, 100% { transform: translateY(0px) rotate(-3deg); }
+          50%       { transform: translateY(-12px) rotate(3deg); }
+        }
+        @keyframes fac-float2 {
+          0%, 100% { transform: translateY(0px) rotate(5deg); }
+          50%       { transform: translateY(-10px) rotate(-5deg); }
+        }
+        @keyframes fac-float3 {
+          0%, 100% { transform: translateY(0px) scale(1); }
+          50%       { transform: translateY(-8px) scale(1.15); }
+        }
+        @keyframes fac-glow {
+          0%, 100% { box-shadow: 0 0 24px rgba(0,119,181,0.35), 0 8px 32px rgba(0,119,181,0.2); }
+          50%       { box-shadow: 0 0 48px rgba(0,119,181,0.65), 0 12px 48px rgba(0,119,181,0.35); }
+        }
+        @keyframes fac-shimmer {
+          0%   { background-position: -300% center; }
+          100% { background-position: 300% center; }
+        }
+        @keyframes fac-pop {
+          0%   { transform: scale(0.85); opacity: 0; }
+          60%  { transform: scale(1.04); }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fac-spin-slow {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes fac-twinkle {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50%      { opacity: 0.25; transform: scale(0.6); }
+        }
+        @keyframes fac-ping-slow {
+          0%   { transform: scale(1); opacity: 0.7; }
+          70%  { transform: scale(1.6); opacity: 0; }
+          100% { transform: scale(1.6); opacity: 0; }
+        }
+        @keyframes fac-slide-up {
+          from { transform: translateY(16px); opacity: 0; }
+          to   { transform: translateY(0); opacity: 1; }
+        }
+        .fac-float-1 { animation: fac-float  2.8s ease-in-out infinite; }
+        .fac-float-2 { animation: fac-float2 3.2s ease-in-out infinite 0.4s; }
+        .fac-float-3 { animation: fac-float3 2.4s ease-in-out infinite 0.8s; }
+        .fac-float-4 { animation: fac-float  3.6s ease-in-out infinite 1.2s; }
+        .fac-float-5 { animation: fac-float2 2.6s ease-in-out infinite 0.2s; }
+        .fac-glow-card { animation: fac-glow 3s ease-in-out infinite; }
+        .fac-shimmer-text {
+          background: linear-gradient(90deg, #fff 0%, #bfdbfe 40%, #fff 60%, #93c5fd 100%);
+          background-size: 300% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: fac-shimmer 4s linear infinite;
+        }
+        .fac-btn-shimmer {
+          background: linear-gradient(90deg, #fff 0%, #dbeafe 40%, #fff 60%, #e0f2fe 100%);
+          background-size: 300% auto;
+          animation: fac-shimmer 2.5s linear infinite;
+        }
+        .fac-pop-in { animation: fac-pop 0.5s cubic-bezier(0.175,0.885,0.32,1.275) both; }
+        .fac-twinkle-1 { animation: fac-twinkle 1.8s ease-in-out infinite; }
+        .fac-twinkle-2 { animation: fac-twinkle 2.4s ease-in-out infinite 0.6s; }
+        .fac-twinkle-3 { animation: fac-twinkle 1.5s ease-in-out infinite 1.1s; }
+        .fac-cert-card:hover { transform: translateY(-3px) scale(1.01); transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        .fac-cert-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .fac-slide-up { animation: fac-slide-up 0.6s ease both; }
+      `}</style>
+
+      {/* ── Header ── */}
       <div>
         <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#059669' }}>
           Resource
@@ -520,19 +600,17 @@ function FreeAgileCertsLesson() {
         Recommended to complement your Agile Scrum coursework.
       </p>
 
+      {/* ── Certification cards ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {certs.map((cert) => (
           <div
             key={cert.badge}
-            className="rounded-2xl p-4 border flex flex-col gap-3"
+            className="fac-cert-card rounded-2xl p-4 border flex flex-col gap-3"
             style={{ background: cert.cardBg, borderColor: cert.borderColor }}
           >
             <div className="flex items-start justify-between gap-2">
               <div>
-                <p
-                  className="text-xs font-bold uppercase tracking-wider"
-                  style={{ color: cert.tagColor }}
-                >
+                <p className="text-xs font-bold uppercase tracking-wider" style={{ color: cert.tagColor }}>
                   {cert.tag}
                 </p>
                 <p className="text-sm font-semibold mt-0.5" style={{ color: '#1e1b4b' }}>
@@ -546,11 +624,7 @@ function FreeAgileCertsLesson() {
                 {cert.badge}
               </span>
             </div>
-
-            <p className="text-xs leading-5" style={{ color: '#374151' }}>
-              {cert.description}
-            </p>
-
+            <p className="text-xs leading-5" style={{ color: '#374151' }}>{cert.description}</p>
             <a
               href={cert.href}
               target="_blank"
@@ -565,6 +639,162 @@ function FreeAgileCertsLesson() {
         ))}
       </div>
 
+      {/* ══════════════════════════════════════════════
+          LinkedIn Success Stories CTA
+      ══════════════════════════════════════════════ */}
+      <div
+        className="fac-glow-card rounded-3xl overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #004f80 0%, #0077B5 45%, #00a0dc 100%)', position: 'relative' }}
+      >
+        {/* Decorative background orbs */}
+        <div style={{
+          position: 'absolute', top: -40, right: -40, width: 180, height: 180,
+          borderRadius: '50%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: -30, left: -30, width: 140, height: 140,
+          borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none',
+        }} />
+
+        {/* Floating celebration characters */}
+        <div style={{ position: 'absolute', top: 14, right: 18, fontSize: 28, zIndex: 1, pointerEvents: 'none' }} className="fac-float-1">🎉</div>
+        <div style={{ position: 'absolute', top: 52, right: 56, fontSize: 20, zIndex: 1, pointerEvents: 'none' }} className="fac-float-2">⭐</div>
+        <div style={{ position: 'absolute', bottom: 18, right: 22, fontSize: 26, zIndex: 1, pointerEvents: 'none' }} className="fac-float-3">🏆</div>
+        <div style={{ position: 'absolute', bottom: 56, right: 70, fontSize: 18, zIndex: 1, pointerEvents: 'none' }} className="fac-float-4">✨</div>
+        <div style={{ position: 'absolute', top: 90, right: 16, fontSize: 16, zIndex: 1, pointerEvents: 'none' }} className="fac-float-5">🚀</div>
+
+        {/* Twinkling stars */}
+        <div style={{ position: 'absolute', top: 22, left: 130, fontSize: 10, pointerEvents: 'none' }} className="fac-twinkle-1">★</div>
+        <div style={{ position: 'absolute', top: 60, left: 80, fontSize: 8, color: 'rgba(255,255,255,0.6)', pointerEvents: 'none' }} className="fac-twinkle-2">★</div>
+        <div style={{ position: 'absolute', bottom: 40, left: 160, fontSize: 12, color: 'rgba(255,255,255,0.5)', pointerEvents: 'none' }} className="fac-twinkle-3">★</div>
+
+        <div className="p-6" style={{ position: 'relative', zIndex: 2 }}>
+
+          {/* ── Top bar: LinkedIn logo + title ── */}
+          <div className="flex items-center gap-3 mb-5">
+            <div style={{
+              background: 'white', borderRadius: 12, padding: '8px 8px 6px',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.18)',
+            }}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="#0077B5">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+              </svg>
+            </div>
+            <div>
+              <p className="fac-shimmer-text font-extrabold text-xl leading-tight">
+                Share Your Achievement!
+              </p>
+              <p className="text-xs mt-0.5" style={{ color: 'rgba(186,230,253,0.9)' }}>
+                Let the world know you levelled up 🌍
+              </p>
+            </div>
+          </div>
+
+          {/* ── Personal message from lecturer ── */}
+          <div
+            className="fac-pop-in rounded-2xl p-4 mb-5"
+            style={{
+              background: 'rgba(255,255,255,0.13)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              backdropFilter: 'blur(6px)',
+            }}
+          >
+            <div className="flex items-start gap-3">
+              {/* Quote mark decoration */}
+              <span style={{ fontSize: 36, lineHeight: 1, color: 'rgba(255,255,255,0.35)', fontFamily: 'Georgia, serif', flexShrink: 0 }}>"</span>
+              <div>
+                <p className="text-white text-sm leading-relaxed">
+                  I am <span className="font-bold" style={{ color: '#bfdbfe' }}>truly excited</span> to hear about your completion!
+                  Earning a free certification shows initiative, dedication, and a growth mindset —
+                  exactly the qualities that stand out in the industry.
+                  Please post your achievement on LinkedIn and <span className="font-bold text-white">tag me</span> — I personally celebrate
+                  every single one of my students who levels up! 🎓
+                </p>
+                <div className="flex items-center gap-2 mt-3">
+                  {/* Animated presence dot */}
+                  <div style={{ position: 'relative', width: 10, height: 10, flexShrink: 0 }}>
+                    <div style={{
+                      position: 'absolute', inset: 0, borderRadius: '50%',
+                      background: '#4ade80', animation: 'fac-ping-slow 1.5s ease-out infinite',
+                    }} />
+                    <div style={{ position: 'absolute', inset: '2px', borderRadius: '50%', background: '#22c55e' }} />
+                  </div>
+                  <a
+                    href="https://www.linkedin.com/in/yasassri/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-xs font-bold hover:underline"
+                    style={{ color: '#bfdbfe' }}
+                  >
+                    Yasas Sri Wickramasinghe
+                  </a>
+                  <span className="text-xs" style={{ color: 'rgba(186,230,253,0.7)' }}>· MBI804 Lecturer</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Why LinkedIn posts matter ── */}
+          <div className="mb-5">
+            <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'rgba(186,230,253,0.85)' }}>
+              Why your LinkedIn post matters
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              {whyLinkedIn.map((item, i) => (
+                <div
+                  key={item.title}
+                  className="rounded-xl p-3"
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1px solid rgba(255,255,255,0.15)',
+                    animationDelay: `${i * 0.1}s`,
+                  }}
+                >
+                  <div style={{ fontSize: 20, marginBottom: 4 }}>{item.icon}</div>
+                  <p className="text-white text-xs font-bold">{item.title}</p>
+                  <p className="text-xs leading-4 mt-0.5" style={{ color: 'rgba(186,230,253,0.8)' }}>{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── What to write tip ── */}
+          <div
+            className="rounded-xl p-3 mb-5 text-xs leading-5"
+            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+          >
+            <p className="font-bold text-white mb-1">💡 What to write in your post</p>
+            <p style={{ color: 'rgba(219,234,254,0.9)' }}>
+              Share what you learned, why you chose the certification, and how it connects to your career goals.
+              End with <span className="font-semibold text-white">"Thank you to my lecturer Yasas Sri Wickramasinghe"</span> and
+              tag <span className="font-semibold text-white">@YasasSriWickramasinghe</span> — your post becomes a story, not just a certificate image.
+            </p>
+          </div>
+
+          {/* ── CTA button ── */}
+          <a
+            href="https://www.linkedin.com/in/yasassri/"
+            target="_blank"
+            rel="noreferrer"
+            className="fac-btn-shimmer flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-2xl text-sm font-extrabold transition-transform hover:scale-105 active:scale-95"
+            style={{
+              color: '#004f80',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+              textDecoration: 'none',
+            }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#0077B5">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+            </svg>
+            Tag Yasas Sri Wickramasinghe on LinkedIn
+            <ExternalLink size={14} />
+          </a>
+
+        </div>
+      </div>
+
+      {/* ── Disclaimer ── */}
       <div
         className="rounded-xl p-3 border text-xs leading-5"
         style={{

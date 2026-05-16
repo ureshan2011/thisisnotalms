@@ -154,6 +154,15 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Employment survey — one document per student (uid is the doc ID).
+    // Students create/update their own response; staff can read all responses.
+    match /employmentSurvey/{uid} {
+      allow read:  if request.auth != null && (request.auth.uid == uid || isStaff());
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow update: if request.auth != null && request.auth.uid == uid;
+      allow delete: if false;
+    }
+
     // SQL Race Challenges — readable by all authenticated; writable by staff only
     match /sqlRaceChallenges/{challengeId} {
       allow read: if request.auth != null;

@@ -41,8 +41,23 @@ export interface StudentProfile {
   specialNeeds: string;
   photoURL?: string;
   erMcqBadge?: boolean;
+  employmentSurveyDone?: boolean;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface EmploymentSurveyResponse {
+  uid: string;
+  fullName: string;
+  email: string;
+  course: string;
+  intake: string;
+  section: string;
+  campus: string;
+  answer: 'yes' | 'no';
+  company?: string;
+  jobRole?: string;
+  submittedAt: Date;
 }
 
 export interface AttendanceCheckpoint {

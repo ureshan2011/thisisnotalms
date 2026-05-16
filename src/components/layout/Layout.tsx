@@ -8,6 +8,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext';
 import BrandMark from '../ui/BrandMark';
 import PhotoUploadModal, { avatarGradient } from '../ui/PhotoUploadModal';
+import EmploymentSurveyModal from '../survey/EmploymentSurveyModal';
 import { db } from '../../lib/firebase';
 
 interface NavItem {
@@ -122,28 +123,30 @@ function SidebarContent({
       {/* Divider */}
       <div className="divider mx-5 !mt-0 !mb-4" />
 
-      {/* Nav */}
-      <nav className="flex-1 px-4 space-y-1 relative z-10">
+      {/* Nav — scrollable on narrow/short screens, desktop unchanged */}
+      <nav className="flex-1 min-h-0 px-4 relative z-10 overflow-y-auto">
         <p className="section-label px-3 mb-2">Menu</p>
-        {links.map(({ to, icon, label, isNew }) => (
-          <NavLink
-            key={to}
-            to={to}
-            onClick={onClose}
-            className={({ isActive }) =>
-              `sidebar-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <span className="flex-shrink-0">{icon}</span>
-            <span className="flex-1">{label}</span>
-            {isNew && (
-              <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full" style={{ color: '#be185d', background: 'rgba(244,114,182,0.18)' }}>
-                New
-              </span>
-            )}
-            <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity ml-auto flex-shrink-0 text-brand-400" />
-          </NavLink>
-        ))}
+        <div className="space-y-1 pb-2">
+          {links.map(({ to, icon, label, isNew }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={onClose}
+              className={({ isActive }) =>
+                `sidebar-link ${isActive ? 'active' : ''}`
+              }
+            >
+              <span className="flex-shrink-0">{icon}</span>
+              <span className="flex-1">{label}</span>
+              {isNew && (
+                <span className="text-[9px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full" style={{ color: '#be185d', background: 'rgba(244,114,182,0.18)' }}>
+                  New
+                </span>
+              )}
+              <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity ml-auto flex-shrink-0 text-brand-400" />
+            </NavLink>
+          ))}
+        </div>
       </nav>
 
       {/* Bottom: User + Logout */}
@@ -198,6 +201,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [intakePromptOpen, setIntakePromptOpen] = useState(false);
+  const [surveyOpen, setSurveyOpen] = useState(false);
   const [photoPromptOpen, setPhotoPromptOpen] = useState(false);
   const [currentPhotoURL, setCurrentPhotoURL] = useState<string | null>(null);
   const [canViewCourseResources, setCanViewCourseResources] = useState(role !== 'student');
@@ -216,6 +220,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     setCanViewCourseResources((studentProfile.subjects || []).some(s => knownSubjects.includes(s)));
     setCanViewSQLRace((studentProfile.subjects || []).includes('MBI802'));
     if (!studentProfile.intake) { setIntakePromptOpen(true); return; }
+    // Survey must be completed before using the app
+    if (!studentProfile.employmentSurveyDone) { setSurveyOpen(true); return; }
+    setSurveyOpen(false);
     if (!studentProfile.photoURL) setPhotoPromptOpen(true);
   }, [studentProfile, role]);
 
@@ -303,8 +310,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
+      {/* Employment survey — mandatory one-time popup, shown after intake is set */}
+      {surveyOpen && !intakePromptOpen && (
+        <EmploymentSurveyModal onCompleted={() => setSurveyOpen(false)} />
+      )}
+
       {/* Photo upload prompt — shown once per login until uploaded */}
-      {photoPromptOpen && !intakePromptOpen && (
+      {photoPromptOpen && !intakePromptOpen && !surveyOpen && (
         <PhotoUploadModal
           currentPhotoURL={currentPhotoURL ?? undefined}
           onClose={() => setPhotoPromptOpen(false)}

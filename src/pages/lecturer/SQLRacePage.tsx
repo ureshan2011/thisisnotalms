@@ -14,7 +14,7 @@ import ActivateChallengeModal from '../../components/sqlrace/ActivateChallengeMo
 import ContributionPanel from '../../components/sqlrace/ContributionPanel';
 import type { SqlRaceChallenge, SqlRaceSubmission } from '../../lib/sqlRaceTypes';
 import { getChallengeSecondsLeft, formatCountdown } from '../../lib/sqlRaceTypes';
-import { PRELOADED_CHALLENGES } from '../../lib/sqlRacePreload';
+import { PRELOADED_CHALLENGES, TITLE_TO_SORT_ORDER } from '../../lib/sqlRacePreload';
 import type { StudentProfile } from '../../lib/types';
 
 type Tab = 'race' | 'challenges' | 'contributions';
@@ -60,12 +60,16 @@ export default function LecturerSQLRacePage() {
   const [loading, setLoading] = useState(true);
   const [closing, setClosing] = useState<string | null>(null);
   const [preloading, setPreloading] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<number | null>(null);
 
-  // Load challenges ordered by creation time (so preloaded ones appear in order)
+  // Load challenges; sort client-side by sortOrder (falls back to 0 for non-starter challenges)
   useEffect(() => {
     const q = query(collection(db, 'sqlRaceChallenges'), orderBy('createdAt', 'asc'));
     return onSnapshot(q, snap => {
-      setChallenges(snap.docs.map(d => ({ id: d.id, ...d.data() } as SqlRaceChallenge)));
+      const loaded = snap.docs.map(d => ({ id: d.id, ...d.data() } as SqlRaceChallenge));
+      loaded.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
+      setChallenges(loaded);
       setLoading(false);
     });
   }, []);
@@ -110,6 +114,7 @@ export default function LecturerSQLRacePage() {
           question: ch.question,
           requiredKeywords: ch.requiredKeywords,
           pointValue: ch.pointValue,
+          sortOrder: ch.sortOrder,
           status: 'closed',
           createdByUid: user.uid,
           createdAt: serverTimestamp(),
@@ -120,6 +125,39 @@ export default function LecturerSQLRacePage() {
       await batch.commit();
     } finally {
       setPreloading(false);
+    }
+  };
+
+  // Patches existing starter challenges in-place: fixes table names, descriptions,
+  // question wording and sortOrder without touching IDs, marks or submissions.
+  const handleSync = async () => {
+    if (!user) return;
+    setSyncing(true);
+    setSyncResult(null);
+    try {
+      const bySort = new Map(PRELOADED_CHALLENGES.map(ch => [ch.sortOrder, ch]));
+      const batch = writeBatch(db);
+      let count = 0;
+      for (const existing of challenges) {
+        const newSort = TITLE_TO_SORT_ORDER[existing.title];
+        if (newSort === undefined) continue; // custom challenge — skip
+        const preload = bySort.get(newSort);
+        if (!preload) continue;
+        batch.update(doc(db, 'sqlRaceChallenges', existing.id), {
+          title:            preload.title,
+          description:      preload.description,
+          schemaContext:    preload.schemaContext,
+          question:         preload.question,
+          requiredKeywords: preload.requiredKeywords,
+          sortOrder:        newSort,
+          // pointValue, status, createdAt, timeLimit, activatedAt intentionally preserved
+        });
+        count++;
+      }
+      await batch.commit();
+      setSyncResult(count);
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -226,7 +264,7 @@ export default function LecturerSQLRacePage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <h2 className="page-subtitle">Manage Challenges</h2>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {challenges.length === 0 && (
                   <button
                     onClick={handlePreload}
@@ -235,6 +273,17 @@ export default function LecturerSQLRacePage() {
                   >
                     <Download size={14} />
                     {preloading ? 'Loading…' : 'Load 10 Starter Challenges'}
+                  </button>
+                )}
+                {challenges.length > 0 && (
+                  <button
+                    onClick={handleSync}
+                    disabled={syncing}
+                    title="Update existing starter challenges: fixes table names, descriptions and sort order without changing marks or submissions."
+                    className="btn-secondary flex items-center gap-2 text-sm px-4 py-2 disabled:opacity-50"
+                  >
+                    <Download size={14} />
+                    {syncing ? 'Syncing…' : 'Sync Starter Content'}
                   </button>
                 )}
                 <button
@@ -246,6 +295,14 @@ export default function LecturerSQLRacePage() {
                 </button>
               </div>
             </div>
+            {syncResult !== null && (
+              <div
+                className="px-4 py-2.5 rounded-2xl text-xs font-semibold animate-fadeIn"
+                style={{ background: 'rgba(16,185,129,0.08)', color: '#059669', border: '1px solid rgba(16,185,129,0.18)' }}
+              >
+                ✓ {syncResult} starter challenge{syncResult !== 1 ? 's' : ''} updated — table names, descriptions and sort order are now correct.
+              </div>
+            )}
 
             {loading ? (
               <div className="card p-6 text-center text-gray-400 text-sm">Loading…</div>
@@ -281,7 +338,7 @@ export default function LecturerSQLRacePage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap mb-1">
                             <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md">
-                              #{idx + 1}
+                              #{challenge.sortOrder ?? idx + 1}
                             </span>
                             <h3 className="font-bold text-gray-800 text-sm">{challenge.title}</h3>
                             <span

@@ -8,6 +8,7 @@ export interface SqlRaceChallenge {
   question: string;
   requiredKeywords: string[];
   pointValue: number;
+  sortOrder?: number;          // explicit display order; falls back to createdAt if absent
   status: 'active' | 'closed';
   createdByUid: string;
   createdAt: Timestamp;

@@ -24,11 +24,13 @@ export default function SQLRacePage() {
   const mySection = studentProfile?.section || 'Section Default (No Section)';
   const mySectionDisplay = getSectionDisplayName(mySection);
 
-  // All challenges (sorted by creation order)
+  // All challenges sorted by sortOrder; falls back gracefully for custom challenges
   useEffect(() => {
     const q = query(collection(db, 'sqlRaceChallenges'), orderBy('createdAt', 'asc'));
     return onSnapshot(q, snap => {
-      setChallenges(snap.docs.map(d => ({ id: d.id, ...d.data() } as SqlRaceChallenge)));
+      const loaded = snap.docs.map(d => ({ id: d.id, ...d.data() } as SqlRaceChallenge));
+      loaded.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
+      setChallenges(loaded);
       setLoading(false);
     });
   }, []);

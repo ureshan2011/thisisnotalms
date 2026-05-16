@@ -5,7 +5,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, Tooltip, XAxis, YAxis,
   CartesianGrid, ResponsiveContainer,
 } from 'recharts';
-import { Users, Globe, GraduationCap, Briefcase, Heart, CalendarCheck, TrendingUp } from 'lucide-react';
+import { Users, Globe, GraduationCap, Briefcase, Heart, CalendarCheck, TrendingUp, ClipboardList, Download, Search, CheckCircle, XCircle } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { getCachedStudents, setCachedStudents } from '../../lib/studentsCache';
 import Layout, { PageHeader } from '../../components/layout/Layout';
@@ -13,7 +13,7 @@ import StatCard from '../../components/ui/StatCard';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import StudentPhotoCollage from '../../components/ui/StudentPhotoCollage';
 import { avatarGradient } from '../../components/ui/PhotoUploadModal';
-import type { StudentProfile, AttendanceSession } from '../../lib/types';
+import type { StudentProfile, AttendanceSession, EmploymentSurveyResponse } from '../../lib/types';
 import { groupBy, toCounts } from '../../lib/utils';
 import { useAuth } from '../../contexts/AuthContext';
 import { useFeatureTracking } from '../../lib/useFeatureTracking';
@@ -41,6 +41,8 @@ export default function Dashboard() {
   const isTa = role === 'teachingAssistant';
   const [students, setStudents] = useState<StudentProfile[]>([]);
   const [sessions, setSessions] = useState<AttendanceSession[]>([]);
+  const [surveyResponses, setSurveyResponses] = useState<EmploymentSurveyResponse[]>([]);
+  const [surveySearch, setSurveySearch] = useState('');
   const [courseFilter, setCourseFilter] = useState('');
   const [intakeFilter, setIntakeFilter] = useState('');
   const [subjectFilter, setSubjectFilter] = useState('');
@@ -50,9 +52,10 @@ export default function Dashboard() {
     (async () => {
       // Reuse students already fetched by StudentList (shared module cache).
       const cached = getCachedStudents();
-      const [stuResult, sesSnap] = await Promise.all([
+      const [stuResult, sesSnap, surSnap] = await Promise.all([
         cached ? Promise.resolve(null) : getDocs(collection(db, 'students')),
         getDocs(query(collection(db, 'attendanceSessions'), orderBy('createdAt', 'desc'), limit(100))),
+        getDocs(collection(db, 'employmentSurvey')),
       ]);
 
       if (cached) {
@@ -76,6 +79,24 @@ export default function Dashboard() {
           createdAt:   (data.createdAt as Timestamp)?.toDate?.() ?? new Date(),
         } as AttendanceSession;
       }));
+
+      setSurveyResponses(surSnap.docs.map(d => {
+        const data = d.data();
+        return {
+          uid:         d.id,
+          fullName:    data.fullName ?? '',
+          email:       data.email ?? '',
+          course:      data.course ?? '',
+          intake:      data.intake ?? '',
+          section:     data.section ?? '',
+          campus:      data.campus ?? '',
+          answer:      data.answer,
+          company:     data.company,
+          jobRole:     data.jobRole,
+          submittedAt: (data.submittedAt as Timestamp)?.toDate?.() ?? new Date(),
+        } as EmploymentSurveyResponse;
+      }));
+
       setLoading(false);
     })();
   }, []);
@@ -362,6 +383,15 @@ export default function Dashboard() {
         )}
       </div>
 
+      {/* Employment Survey Results */}
+      <SurveySection
+        responses={surveyResponses}
+        courseFilter={courseFilter}
+        intakeFilter={intakeFilter}
+        search={surveySearch}
+        onSearchChange={setSurveySearch}
+      />
+
       {/* Special needs summary */}
       {!isTa && withNeeds.length > 0 && (
         <div className="card p-6 mb-6 animate-fadeIn">
@@ -440,6 +470,221 @@ function EmptyChart() {
         <TrendingUp size={18} style={{ color: '#a78bfa' }} />
       </div>
       <p className="text-sm font-medium" style={{ color: '#c4b5fd' }}>No data yet</p>
+    </div>
+  );
+}
+
+// ── Employment Survey Section ─────────────────────────────────────────────────
+
+function exportSurveyCSV(data: EmploymentSurveyResponse[]) {
+  const headers = [
+    'Name', 'Email', 'Course', 'Intake', 'Section', 'Campus',
+    'Started Work After Enrolment', 'Company / Organisation', 'Job Role', 'Submitted',
+  ];
+  const rows = data.map(r => [
+    r.fullName,
+    r.email,
+    r.course,
+    r.intake,
+    r.section,
+    r.campus,
+    r.answer === 'yes' ? 'Yes' : 'No',
+    r.company ?? '',
+    r.jobRole ?? '',
+    r.submittedAt instanceof Date ? r.submittedAt.toLocaleDateString('en-NZ') : '',
+  ]);
+  const csv = [headers, ...rows]
+    .map(row => row.map(cell => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `employment-survey-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function SurveySection({
+  responses,
+  courseFilter,
+  intakeFilter,
+  search,
+  onSearchChange,
+}: {
+  responses: EmploymentSurveyResponse[];
+  courseFilter: string;
+  intakeFilter: string;
+  search: string;
+  onSearchChange: (v: string) => void;
+}) {
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return responses.filter(r =>
+      (!courseFilter || r.course === courseFilter) &&
+      (!intakeFilter || r.intake === intakeFilter) &&
+      (!q ||
+        r.fullName.toLowerCase().includes(q) ||
+        r.email.toLowerCase().includes(q) ||
+        (r.company ?? '').toLowerCase().includes(q) ||
+        (r.jobRole ?? '').toLowerCase().includes(q))
+    );
+  }, [responses, courseFilter, intakeFilter, search]);
+
+  const yesCount = filtered.filter(r => r.answer === 'yes').length;
+  const noCount  = filtered.filter(r => r.answer === 'no').length;
+
+  return (
+    <div className="card p-6 mb-6 animate-fadeIn">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+        <div className="flex items-center gap-3">
+          <div
+            className="rounded-xl p-2"
+            style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.11), rgba(139,92,246,0.07))' }}
+          >
+            <ClipboardList size={16} style={{ color: '#7c3aed' }} />
+          </div>
+          <div>
+            <h3 className="font-bold text-sm" style={{ color: '#1e1b4b' }}>
+              Post-Enrolment Employment Survey
+            </h3>
+            <p className="text-xs" style={{ color: '#9ca3af' }}>
+              {responses.length} response{responses.length !== 1 ? 's' : ''} total
+              {courseFilter || intakeFilter ? ` · ${filtered.length} shown` : ''}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={() => exportSurveyCSV(filtered)}
+          className="btn-ghost flex items-center gap-1.5 text-xs"
+          disabled={filtered.length === 0}
+        >
+          <Download size={13} />
+          Export CSV
+        </button>
+      </div>
+
+      {/* Summary pills */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <span
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+          style={{ background: 'rgba(16,185,129,0.10)', color: '#059669', border: '1px solid rgba(16,185,129,0.18)' }}
+        >
+          <CheckCircle size={12} />
+          {yesCount} started working
+        </span>
+        <span
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+          style={{ background: 'rgba(100,116,139,0.09)', color: '#475569', border: '1px solid rgba(100,116,139,0.16)' }}
+        >
+          <XCircle size={12} />
+          {noCount} not yet
+        </span>
+        {responses.length > 0 && (
+          <span
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold"
+            style={{ background: 'rgba(124,58,237,0.08)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.14)' }}
+          >
+            {Math.round((yesCount / (responses.length || 1)) * 100)}% employment rate
+          </span>
+        )}
+      </div>
+
+      {/* Search */}
+      <div className="relative mb-4">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#a78bfa' }} />
+        <input
+          className="input-field w-full pl-9"
+          placeholder="Search by name, email, company or role…"
+          value={search}
+          onChange={e => onSearchChange(e.target.value)}
+        />
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-10 gap-2">
+          <div
+            className="w-10 h-10 rounded-2xl flex items-center justify-center"
+            style={{ background: 'rgba(139,92,246,0.08)' }}
+          >
+            <ClipboardList size={18} style={{ color: '#a78bfa' }} />
+          </div>
+          <p className="text-sm font-medium" style={{ color: '#c4b5fd' }}>
+            {responses.length === 0 ? 'No survey responses yet' : 'No results match your search'}
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+          {filtered.map(r => (
+            <div
+              key={r.uid}
+              className="rounded-2xl px-4 py-3 flex flex-col gap-2"
+              style={{
+                background: r.answer === 'yes'
+                  ? 'linear-gradient(135deg, rgba(16,185,129,0.06), rgba(52,211,153,0.03))'
+                  : 'rgba(245,243,255,0.7)',
+                border: r.answer === 'yes'
+                  ? '1px solid rgba(16,185,129,0.16)'
+                  : '1px solid rgba(139,92,246,0.10)',
+              }}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>
+                    {r.fullName || 'Unknown'}
+                  </p>
+                  <p className="text-xs truncate" style={{ color: '#9ca3af' }}>{r.email}</p>
+                </div>
+                <span
+                  className="flex-shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  style={
+                    r.answer === 'yes'
+                      ? { background: 'rgba(16,185,129,0.12)', color: '#059669' }
+                      : { background: 'rgba(100,116,139,0.10)', color: '#475569' }
+                  }
+                >
+                  {r.answer === 'yes' ? 'Employed' : 'Not yet'}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap gap-1.5">
+                {r.course && (
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    style={{ background: 'rgba(124,58,237,0.09)', color: '#7c3aed' }}>
+                    {r.course}
+                  </span>
+                )}
+                {r.intake && (
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    style={{ background: 'rgba(6,182,212,0.09)', color: '#0e7490' }}>
+                    {r.intake}
+                  </span>
+                )}
+                {r.campus && (
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                    style={{ background: 'rgba(245,158,11,0.10)', color: '#92400e' }}>
+                    {r.campus}
+                  </span>
+                )}
+              </div>
+
+              {r.answer === 'yes' && r.company && (
+                <div className="text-xs space-y-0.5" style={{ color: '#374151' }}>
+                  <p><span className="font-semibold">Company:</span> {r.company}</p>
+                  <p><span className="font-semibold">Role:</span> {r.jobRole}</p>
+                </div>
+              )}
+
+              <p className="text-[10px]" style={{ color: '#c4b5fd' }}>
+                Submitted {r.submittedAt instanceof Date ? r.submittedAt.toLocaleDateString('en-NZ') : ''}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

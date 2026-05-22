@@ -19,6 +19,7 @@ import { generateCode, formatDateTime, secondsUntil } from '../../lib/utils';
 import { useFeatureTracking } from '../../lib/useFeatureTracking';
 
 const WINDOW_OPTIONS = [2, 3, 4, 5, 8, 10];
+const COURSE_OPTIONS = ['MBI800', 'MBI802', 'MBI804'];
 
 function firestoreToSession(id: string, data: Record<string, unknown>): AttendanceSession {
   return {
@@ -52,7 +53,7 @@ export default function AttendanceSessions() {
   const [sessions,  setSessions]  = useState<AttendanceSession[]>([]);
   const [loading,   setLoading]   = useState(true);
   const [modal,     setModal]     = useState(false);
-  const [form,      setForm]      = useState({ title: '', course: '', window: 4 });
+  const [form,      setForm]      = useState({ title: '', course: COURSE_OPTIONS[0], window: 4 });
   const [creating,  setCreating]  = useState(false);
   const [ticking,   setTicking]   = useState<Record<string, number>>({});
 
@@ -77,6 +78,16 @@ export default function AttendanceSessions() {
     return () => clearInterval(id);
   }, [sessions]);
 
+  const openNewSessionModal = () => {
+    const now = new Date();
+    const title = now.toLocaleString('en-GB', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: true,
+    });
+    setForm({ title, course: COURSE_OPTIONS[0], window: 4 });
+    setModal(true);
+  };
+
   const createSession = async () => {
     if (isTa) return;
     if (!user || !form.title || !form.course) return;
@@ -91,7 +102,7 @@ export default function AttendanceSessions() {
       createdAt:   serverTimestamp(),
     });
     setModal(false);
-    setForm({ title: '', course: '', window: 4 });
+    setForm({ title: '', course: COURSE_OPTIONS[0], window: 4 });
     await load();
     setCreating(false);
   };
@@ -144,7 +155,7 @@ export default function AttendanceSessions() {
         title="Attendance Sessions"
         subtitle={isTa ? 'View live and past attendance sessions' : 'Create and manage live attendance checkpoints'}
         actions={!isTa ? (
-          <button onClick={() => setModal(true)} className="btn-primary">
+          <button onClick={openNewSessionModal} className="btn-primary">
             <Plus size={16} /> New session
           </button>
         ) : undefined}
@@ -254,7 +265,7 @@ export default function AttendanceSessions() {
             </p>
           </div>
           {!isTa && (
-            <button onClick={() => setModal(true)} className="btn-primary">
+            <button onClick={openNewSessionModal} className="btn-primary">
               <Plus size={16} /> Create first session
             </button>
           )}
@@ -275,12 +286,15 @@ export default function AttendanceSessions() {
           </div>
           <div>
             <label className="label">Course <span style={{ color: '#e11d48' }}>*</span></label>
-            <input
+            <select
               className="input-field"
-              placeholder="e.g. MSc Data Science"
               value={form.course}
               onChange={e => setForm(f => ({ ...f, course: e.target.value }))}
-            />
+            >
+              {COURSE_OPTIONS.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
           </div>
           <div
             className="rounded-2xl px-4 py-3 text-xs font-medium"

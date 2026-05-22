@@ -27,6 +27,9 @@ export default defineConfig({
           // Recharts + its d3 dependencies
           if (id.includes('recharts') || id.includes('d3-') || id.includes('victory-vendor')) return 'vendor-charts';
 
+          // Three.js + React Three Fiber/Drei (only needed on 3D classroom page)
+          if (id.includes('three') || id.includes('@react-three')) return 'vendor-three';
+
           // Leaflet map libraries (only needed on pages that render a map)
           if (id.includes('leaflet') || id.includes('react-leaflet')) return 'vendor-map';
 

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import {
-  Box, X, Users, ChevronLeft, ChevronRight,
-  MousePointerClick, Maximize2,
+  X, Users, ChevronLeft,
+  MousePointerClick, Maximize2, Minimize2,
 } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { getCachedStudents, setCachedStudents } from '../../lib/studentsCache';
@@ -12,7 +12,6 @@ import { ClassroomScene, SUBJECT_CONFIGS, type SubjectKey } from '../../componen
 import Layout, { PageHeader } from '../../components/layout/Layout';
 import LoadingSpinner from '../../components/ui/LoadingSpinner';
 import BrandMark from '../../components/ui/BrandMark';
-import { useNavigate } from 'react-router-dom';
 
 const SUBJECTS = Object.keys(SUBJECT_CONFIGS) as SubjectKey[];
 
@@ -25,14 +24,18 @@ const SUBJECT_NAMES: Record<SubjectKey, string> = {
 
 export default function ClassroomView() {
   useFeatureTracking('3D Classroom');
-  const navigate = useNavigate();
 
   const [students,     setStudents]     = useState<StudentProfile[]>([]);
   const [loading,      setLoading]      = useState(true);
   const [subject,      setSubject]      = useState<SubjectKey>('MBI802');
   const [selected,     setSelected]     = useState<StudentProfile | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const [toastVisible, setToastVisible] = useState(false);
+
   const containerRef = useRef<HTMLDivElement>(null);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -49,9 +52,21 @@ export default function ClassroomView() {
     })();
   }, []);
 
-  // Fullscreen API
+  // Fullscreen API change tracking
   useEffect(() => {
-    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    const onFsChange = () => {
+      const isFs = !!document.fullscreenElement;
+      setIsFullscreen(isFs);
+      if (isFs) {
+        // entering fullscreen — show toast briefly
+        setToastVisible(true);
+        if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+        toastTimerRef.current = setTimeout(() => setToastVisible(false), 2500);
+      } else {
+        setToastVisible(false);
+        if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+      }
+    };
     document.addEventListener('fullscreenchange', onFsChange);
     return () => document.removeEventListener('fullscreenchange', onFsChange);
   }, []);
@@ -64,7 +79,44 @@ export default function ClassroomView() {
     }
   };
 
-  // Filter by subject (students who have this subject in their subjects[] array)
+  // Auto-hide controls in fullscreen (4s of inactivity)
+  useEffect(() => {
+    if (!isFullscreen) {
+      setControlsVisible(true);
+      if (hideTimerRef.current) { clearTimeout(hideTimerRef.current); hideTimerRef.current = null; }
+      return;
+    }
+
+    const arm = () => {
+      setControlsVisible(true);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = setTimeout(() => setControlsVisible(false), 4000);
+    };
+    arm();
+
+    const onActivity = () => arm();
+    const el = containerRef.current;
+    el?.addEventListener('mousemove', onActivity);
+    el?.addEventListener('mousedown', onActivity);
+    el?.addEventListener('touchstart', onActivity);
+    el?.addEventListener('keydown', onActivity);
+
+    return () => {
+      el?.removeEventListener('mousemove', onActivity);
+      el?.removeEventListener('mousedown', onActivity);
+      el?.removeEventListener('touchstart', onActivity);
+      el?.removeEventListener('keydown', onActivity);
+      if (hideTimerRef.current) { clearTimeout(hideTimerRef.current); hideTimerRef.current = null; }
+    };
+  }, [isFullscreen]);
+
+  // Cleanup timers on unmount
+  useEffect(() => () => {
+    if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+  }, []);
+
+  // Filter by subject
   const subjectStudents = useMemo(
     () => students.filter(s => Array.isArray(s.subjects) && s.subjects.includes(subject)),
     [students, subject],
@@ -77,53 +129,180 @@ export default function ClassroomView() {
     setSelected(null);
   };
 
-  // Keyboard nav for subject tabs
+  // Keyboard shortcuts: arrow nav for subjects, Esc to clear/exit, F to toggle fullscreen
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      // Don't hijack typing in inputs
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || target?.isContentEditable) return;
+
       const idx = SUBJECTS.indexOf(subject);
-      if (e.key === 'ArrowLeft'  && idx > 0)                setSubject(SUBJECTS[idx - 1]);
+      if (e.key === 'ArrowLeft'  && idx > 0)                   setSubject(SUBJECTS[idx - 1]);
       if (e.key === 'ArrowRight' && idx < SUBJECTS.length - 1) setSubject(SUBJECTS[idx + 1]);
-      if (e.key === 'Escape') setSelected(null);
+
+      if (e.key === 'Escape') {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        } else {
+          setSelected(null);
+        }
+      }
+
+      if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
   }, [subject]);
 
-  // ── Fullscreen overlay (immersive mode) ─────────────────────────────────────
-  if (isFullscreen) {
-    return (
-      <div
-        ref={containerRef}
-        style={{ position: 'fixed', inset: 0, zIndex: 9999, background: '#040410' }}
-      >
-        <FullscreenControls
-          subject={subject}
-          cfg={cfg}
-          studentCount={subjectStudents.length}
-          onSubject={handleSubject}
-          onExit={() => document.exitFullscreen().catch(() => {})}
-        />
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <ClassroomScene
-            students={subjectStudents}
-            selectedId={selected?.uid ?? null}
-            onSelect={setSelected}
+  // Persistent container styles (single DOM node — toggles between normal and fullscreen)
+  const containerStyle: React.CSSProperties = {
+    position: isFullscreen ? 'fixed' : 'relative',
+    inset: isFullscreen ? 0 : undefined,
+    zIndex: isFullscreen ? 9999 : undefined,
+    background: '#040410',
+    height: isFullscreen ? '100vh' : 'calc(100vh - 240px)',
+    minHeight: isFullscreen ? '100vh' : '520px',
+    borderRadius: isFullscreen ? 0 : 16,
+    overflow: 'hidden',
+    border: isFullscreen ? 'none' : '1px solid rgb(229,231,235)',
+    boxShadow: isFullscreen ? 'none' : '0 25px 50px -12px rgba(0,0,0,0.25)',
+    cursor: isFullscreen && !controlsVisible ? 'none' : 'default',
+  };
+
+  // The 3D canvas + overlays — rendered into a single persistent container
+  const sceneBlock = (
+    <div ref={containerRef} style={containerStyle}>
+      {/* Fullscreen top controls — only mounted when in fullscreen */}
+      {isFullscreen && (
+        <div
+          style={{
+            opacity: controlsVisible ? 1 : 0,
+            pointerEvents: controlsVisible ? 'auto' : 'none',
+            transition: 'opacity 0.3s ease',
+          }}
+        >
+          <FullscreenControls
             subject={subject}
-            subjectCfg={cfg}
+            cfg={cfg}
+            studentCount={subjectStudents.length}
+            onSubject={handleSubject}
+            onExit={() => document.exitFullscreen().catch(() => {})}
           />
         </div>
-        {selected && (
-          <StudentPanel
-            student={selected}
-            onClose={() => setSelected(null)}
-            accentColor={cfg.accent}
-          />
-        )}
-      </div>
-    );
-  }
+      )}
 
-  // ── Normal layout ─────────────────────────────────────────────────────────────
+      {/* 3D Canvas — always in the same DOM slot */}
+      <div style={{ position: 'absolute', inset: 0 }}>
+        <ClassroomScene
+          students={subjectStudents}
+          selectedId={selected?.uid ?? null}
+          onSelect={setSelected}
+          subject={subject}
+          subjectCfg={cfg}
+        />
+      </div>
+
+      {/* Selected student panel */}
+      {selected && (
+        <StudentPanel
+          student={selected}
+          onClose={() => setSelected(null)}
+          accentColor={cfg.accent}
+        />
+      )}
+
+      {/* Normal-mode bottom hint */}
+      {!isFullscreen && !selected && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
+          <div className="bg-black/45 backdrop-blur-sm text-white/65 text-xs px-4 py-2 rounded-full select-none">
+            Click any avatar to highlight a student
+          </div>
+        </div>
+      )}
+
+      {/* Normal-mode bottom accent bar */}
+      {!isFullscreen && (
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[3px] pointer-events-none"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${cfg.accent}90, ${cfg.fill}, ${cfg.accent}90, transparent)`,
+            backgroundSize: '200% 100%',
+            animation: 'shimmer 5s linear infinite',
+          }}
+        />
+      )}
+
+      {/* Fullscreen — Exit button (auto-hides) */}
+      {isFullscreen && (
+        <button
+          onClick={() => document.exitFullscreen().catch(() => {})}
+          style={{
+            position: 'absolute',
+            bottom: 20,
+            right: 20,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '10px 16px',
+            borderRadius: 10,
+            border: '1px solid rgba(255,255,255,0.12)',
+            background: 'rgba(0,0,0,0.55)',
+            backdropFilter: 'blur(8px)',
+            color: 'rgba(255,255,255,0.92)',
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: 'pointer',
+            opacity: controlsVisible ? 1 : 0,
+            pointerEvents: controlsVisible ? 'auto' : 'none',
+            transition: 'opacity 0.3s ease',
+            zIndex: 101,
+          }}
+        >
+          <Minimize2 size={14} />
+          Exit Full Screen
+        </button>
+      )}
+
+      {/* Fullscreen entry toast */}
+      {isFullscreen && toastVisible && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 84,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            padding: '10px 18px',
+            borderRadius: 999,
+            background: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            color: 'rgba(255,255,255,0.92)',
+            fontSize: 13,
+            fontWeight: 600,
+            letterSpacing: '0.02em',
+            zIndex: 102,
+            animation: 'fsToastFade 0.4s ease',
+            pointerEvents: 'none',
+          }}
+        >
+          Press F or Esc to exit
+        </div>
+      )}
+
+      {/* Inline keyframes — kept here so we don't touch other files */}
+      <style>{`
+        @keyframes fsToastFade {
+          from { opacity: 0; transform: translate(-50%, -8px); }
+          to   { opacity: 1; transform: translate(-50%, 0); }
+        }
+      `}</style>
+    </div>
+  );
+
   return (
     <Layout>
       <PageHeader
@@ -184,57 +363,17 @@ export default function ClassroomView() {
         </div>
         <div className="flex items-center gap-1.5 text-xs text-gray-400 select-none">
           <MousePointerClick size={13} />
-          <span>Click avatar · Scroll zoom · Drag orbit · ← → switch subject</span>
+          <span>Click avatar · Scroll zoom · Drag orbit · ← → switch subject · F fullscreen</span>
         </div>
       </div>
 
-      {/* 3D Canvas */}
+      {/* 3D Canvas — single persistent container (works for both normal and fullscreen) */}
       {loading ? (
         <div className="flex justify-center items-center h-96">
           <LoadingSpinner />
         </div>
       ) : (
-        <div
-          ref={containerRef}
-          className="relative rounded-2xl overflow-hidden border border-gray-200 shadow-2xl"
-          style={{ height: 'calc(100vh - 240px)', minHeight: '520px' }}
-        >
-          <ClassroomScene
-            students={subjectStudents}
-            selectedId={selected?.uid ?? null}
-            onSelect={setSelected}
-            subject={subject}
-            subjectCfg={cfg}
-          />
-
-          {/* Selected student panel */}
-          {selected && (
-            <StudentPanel
-              student={selected}
-              onClose={() => setSelected(null)}
-              accentColor={cfg.accent}
-            />
-          )}
-
-          {/* Bottom hint when nothing selected */}
-          {!selected && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
-              <div className="bg-black/45 backdrop-blur-sm text-white/65 text-xs px-4 py-2 rounded-full select-none">
-                Click any avatar to highlight a student
-              </div>
-            </div>
-          )}
-
-          {/* Subject accent bar at bottom */}
-          <div
-            className="absolute bottom-0 left-0 right-0 h-[3px] pointer-events-none"
-            style={{
-              background: `linear-gradient(90deg, transparent, ${cfg.accent}90, ${cfg.fill}, ${cfg.accent}90, transparent)`,
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 5s linear infinite',
-            }}
-          />
-        </div>
+        sceneBlock
       )}
     </Layout>
   );

@@ -443,8 +443,8 @@ function ProjectorScreen({
   });
 
   return (
-    <mesh position={[0, 2.85, -1.94]}>
-      <planeGeometry args={[12.2, 3.9]} />
+    <mesh position={[-3.5, 2.85, -1.94]}>
+      <planeGeometry args={[8.4, 3.15]} />
       <meshBasicMaterial map={texture} toneMapped={false} side={THREE.FrontSide} />
     </mesh>
   );
@@ -452,10 +452,11 @@ function ProjectorScreen({
 
 // ─── Student Avatar (realistic anatomy + costume variants) ─────────────────────
 function StudentAvatar({
-  student, position, isSelected, accent, fill, onClick,
+  student, position, yaw, isSelected, accent, fill, onClick,
 }: {
   student: StudentProfile;
   position: [number, number, number];
+  yaw: number;
   isSelected: boolean;
   accent: string;
   fill: string;
@@ -511,7 +512,7 @@ function StudentAvatar({
     <group
       ref={groupRef}
       position={position}
-      rotation={[0, Math.PI, 0]}
+      rotation={[0, yaw, 0]}
       onClick={e => { e.stopPropagation(); onClick(); }}
       onPointerOver={e => { e.stopPropagation(); setHovered(true);  document.body.style.cursor = 'pointer'; }}
       onPointerOut={()  => { setHovered(false); document.body.style.cursor = 'default'; }}
@@ -602,15 +603,41 @@ function StudentAvatar({
 
         {/* Head group — gets the idle tilt */}
         <group ref={headGroupRef} position={[0, 0.32, 0]}>
-          {/* Head */}
-          <mesh castShadow>
-            <sphereGeometry args={[0.135, 18, 18]} />
+          {/* Head — slightly elongated (1:1.1:1.05) for more human proportion */}
+          <mesh castShadow scale={[1, 1.1, 1.05]}>
+            <sphereGeometry args={[0.135, 24, 20]} />
             <meshStandardMaterial
               color={skinColor}
               emissive={isAccent ? accentEmissive : '#000'}
               emissiveIntensity={accentEmissiveI * 0.5}
-              roughness={0.55} metalness={0.1}
+              roughness={0.62} metalness={0.05}
             />
+          </mesh>
+
+          {/* Ears */}
+          <mesh castShadow position={[-0.128, 0.005, 0]} scale={[0.4, 1, 1]}>
+            <sphereGeometry args={[0.035, 10, 10]} />
+            <meshStandardMaterial color={skinColor} roughness={0.65} metalness={0.05} />
+          </mesh>
+          <mesh castShadow position={[0.128, 0.005, 0]} scale={[0.4, 1, 1]}>
+            <sphereGeometry args={[0.035, 10, 10]} />
+            <meshStandardMaterial color={skinColor} roughness={0.65} metalness={0.05} />
+          </mesh>
+
+          {/* Subtle eyebrows */}
+          <mesh position={[-0.045, 0.048, 0.115]} scale={[1, 0.18, 0.18]}>
+            <boxGeometry args={[0.048, 0.012, 0.012]} />
+            <meshStandardMaterial color={hairColor} roughness={0.8} />
+          </mesh>
+          <mesh position={[0.045, 0.048, 0.115]} scale={[1, 0.18, 0.18]}>
+            <boxGeometry args={[0.048, 0.012, 0.012]} />
+            <meshStandardMaterial color={hairColor} roughness={0.8} />
+          </mesh>
+
+          {/* Mouth — subtle line */}
+          <mesh position={[0, -0.045, 0.116]}>
+            <boxGeometry args={[0.04, 0.006, 0.005]} />
+            <meshStandardMaterial color="#5a2a2a" roughness={0.7} />
           </mesh>
 
           {/* Eyes — small flat spheres, emissive iris */}
@@ -652,13 +679,19 @@ function StudentAvatar({
             </>
           )}
 
-          {/* Hair — slightly flattened sphere on top */}
-          <mesh castShadow position={[0, 0.06, -0.005]} scale={[1.05, 0.75, 1.05]}>
-            <sphereGeometry args={[0.135, 16, 16]} />
-            <meshStandardMaterial
-              color={hairColor}
-              roughness={0.85} metalness={0.05}
-            />
+          {/* Hair — layered cap with side wisps */}
+          <mesh castShadow position={[0, 0.07, -0.01]} scale={[1.08, 0.78, 1.08]}>
+            <sphereGeometry args={[0.135, 20, 18]} />
+            <meshStandardMaterial color={hairColor} roughness={0.9} metalness={0.04} />
+          </mesh>
+          {/* Hair side wisps */}
+          <mesh castShadow position={[-0.10, 0.03, 0.02]} scale={[0.6, 0.9, 0.6]}>
+            <sphereGeometry args={[0.085, 12, 12]} />
+            <meshStandardMaterial color={hairColor} roughness={0.9} />
+          </mesh>
+          <mesh castShadow position={[0.10, 0.03, 0.02]} scale={[0.6, 0.9, 0.6]}>
+            <sphereGeometry args={[0.085, 12, 12]} />
+            <meshStandardMaterial color={hairColor} roughness={0.9} />
           </mesh>
 
           {/* Hat / cap (optional) — flattened cylinder above hair */}
@@ -719,33 +752,74 @@ function StudentAvatar({
   );
 }
 
-// ─── Seat geometry (per avatar position) ──────────────────────────────────────
-function SeatAt({ x, y, z }: { x: number; y: number; z: number }) {
-  const SEAT_COLOR = '#0e0e28';
+// ─── Desk + Chair (per avatar position) ───────────────────────────────────────
+function DeskAndChair({ x, y, z, yaw }: { x: number; y: number; z: number; yaw: number }) {
+  const CHAIR_COLOR  = '#1a1a1a';
+  const CHAIR_FABRIC = '#1e3a8a'; // royal blue seat cushion
+  const DESK_TOP     = '#e8dfd0'; // cream desk surface
+  const DESK_SIDE    = '#2a2a2a'; // dark trim
+  const LEG_METAL    = '#4a4a4a';
+
+  // Desk sits in FRONT of avatar (toward stage). We rotate the whole group by yaw
+  // so the desk follows the curve. Avatar's forward direction is +Z in local frame
+  // (sin yaw, 0, cos yaw) in world — so "in front" in local frame is +Z.
   return (
-    <group>
-      {/* Seat back */}
-      <mesh receiveShadow position={[x, y + 0.1, z + 0.28]}>
-        <boxGeometry args={[0.46, 0.6, 0.07]} />
-        <meshStandardMaterial color={SEAT_COLOR} roughness={0.9} metalness={0.06} />
+    <group position={[x, y, z]} rotation={[0, yaw, 0]}>
+      {/* ── Chair (behind avatar, in local -Z direction) ── */}
+      {/* Seat cushion */}
+      <mesh receiveShadow castShadow position={[0, -0.30, -0.04]}>
+        <boxGeometry args={[0.48, 0.06, 0.44]} />
+        <meshStandardMaterial color={CHAIR_FABRIC} roughness={0.8} metalness={0.05} />
       </mesh>
-      {/* Seat surface */}
-      <mesh receiveShadow position={[x, y - 0.3, z + 0.1]}>
-        <boxGeometry args={[0.46, 0.07, 0.44]} />
-        <meshStandardMaterial color={SEAT_COLOR} roughness={0.9} metalness={0.06} />
+      {/* Seat backrest */}
+      <mesh receiveShadow castShadow position={[0, 0.05, -0.24]} rotation={[-0.08, 0, 0]}>
+        <boxGeometry args={[0.46, 0.55, 0.05]} />
+        <meshStandardMaterial color={CHAIR_COLOR} roughness={0.7} metalness={0.1} />
       </mesh>
-      {/* Seat legs */}
-      {([-0.18, 0.18] as number[]).map(lx =>
-        ([-0.16, 0.16] as number[]).map(lz => (
-          <mesh key={`${lx}-${lz}`} receiveShadow position={[x + lx, y - 0.5, z + lz]}>
-            <cylinderGeometry args={[0.025, 0.025, 0.4, 6]} />
-            <meshStandardMaterial color="#0a0a20" roughness={0.85} metalness={0.15} />
-          </mesh>
-        ))
-      )}
+      {/* Backrest fabric panel */}
+      <mesh position={[0, 0.05, -0.215]} rotation={[-0.08, 0, 0]}>
+        <boxGeometry args={[0.40, 0.48, 0.012]} />
+        <meshStandardMaterial color={CHAIR_FABRIC} roughness={0.8} metalness={0.05} />
+      </mesh>
+      {/* Chair legs (4) — thin steel */}
+      {([
+        [-0.20, -0.20], [0.20, -0.20], [-0.20, 0.14], [0.20, 0.14],
+      ] as [number, number][]).map(([lx, lz], i) => (
+        <mesh key={i} receiveShadow position={[lx, -0.55, lz]}>
+          <cylinderGeometry args={[0.018, 0.018, 0.44, 8]} />
+          <meshStandardMaterial color={LEG_METAL} roughness={0.4} metalness={0.7} />
+        </mesh>
+      ))}
+
+      {/* ── Desk (in front of avatar, in local +Z direction) ── */}
+      {/* Desk top */}
+      <mesh receiveShadow castShadow position={[0, -0.08, 0.46]}>
+        <boxGeometry args={[1.62, 0.04, 0.50]} />
+        <meshStandardMaterial color={DESK_TOP} roughness={0.65} metalness={0.05} />
+      </mesh>
+      {/* Desk dark trim front edge */}
+      <mesh position={[0, -0.08, 0.71]}>
+        <boxGeometry args={[1.62, 0.05, 0.012]} />
+        <meshStandardMaterial color={DESK_SIDE} roughness={0.5} metalness={0.3} />
+      </mesh>
+      {/* Modesty panel (drops below desk front) */}
+      <mesh receiveShadow position={[0, -0.36, 0.64]}>
+        <boxGeometry args={[1.58, 0.50, 0.025]} />
+        <meshStandardMaterial color={DESK_SIDE} roughness={0.7} metalness={0.15} />
+      </mesh>
+      {/* Power-grommet cap (subtle dark dot on desk top) */}
+      <mesh position={[0, -0.058, 0.46]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[0.04, 16]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.4} metalness={0.5} />
+      </mesh>
     </group>
   );
 }
+
+// Focal point that rows curve around / faces aim at
+const FOCAL_X = 0;
+const FOCAL_Z = -3.5;
+const ROW_CURVE_DEPTH = 1.1; // how much the row arcs (outer seats pushed back)
 
 // ─── Avatar + seat grid ────────────────────────────────────────────────────────
 function AvatarGrid({
@@ -758,23 +832,32 @@ function AvatarGrid({
   fill: string;
 }) {
   const items = useMemo(() => students.map((student, idx) => {
-    const row  = Math.floor(idx / SEATS_PER_ROW);
-    const col  = idx % SEATS_PER_ROW;
+    const row   = Math.floor(idx / SEATS_PER_ROW);
+    const col   = idx % SEATS_PER_ROW;
     const count = Math.min(SEATS_PER_ROW, students.length - row * SEATS_PER_ROW);
-    const z = 2.2 + row * Z_STEP;
+    const colCenter = (count - 1) / 2;
+    const maxDelta  = Math.max(1, (SEATS_PER_ROW - 1) / 2);
+    const tCol = (col - colCenter) / maxDelta; // -1..1
+
+    const baseZ = 2.6 + row * Z_STEP;
+    const z = baseZ + ROW_CURVE_DEPTH * tCol * tCol; // outer pushed back
     const y = row * Y_STEP + 0.4 + BODY_H / 2;
-    const x = col * X_SPACE - ((count - 1) * X_SPACE) / 2;
-    return { student, x, y, z };
+    const x = (col - colCenter) * X_SPACE;
+
+    // Avatar yaw so face vector points at the focal point (the stage)
+    const yaw = Math.atan2(FOCAL_X - x, FOCAL_Z - z);
+    return { student, x, y, z, yaw };
   }), [students]);
 
   return (
     <>
-      {items.map(({ student, x, y, z }) => (
+      {items.map(({ student, x, y, z, yaw }) => (
         <group key={student.uid}>
-          <SeatAt x={x} y={y} z={z} />
+          <DeskAndChair x={x} y={y} z={z} yaw={yaw} />
           <StudentAvatar
             student={student}
             position={[x, y, z]}
+            yaw={yaw}
             isSelected={selectedId === student.uid}
             accent={accent}
             fill={fill}
@@ -786,155 +869,311 @@ function AvatarGrid({
   );
 }
 
-// ─── Ceiling panel lights ──────────────────────────────────────────────────────
-function CeilingPanels({ rowCount, accent }: { rowCount: number; accent: string }) {
-  const zPositions = useMemo(() => {
-    const positions: number[] = [];
-    for (let z = 2; z < rowCount * Z_STEP + 2; z += Math.max(4, Z_STEP * 1.8)) positions.push(z);
-    return positions.slice(0, 6);
+// ─── Ceiling recessed downlights ──────────────────────────────────────────────
+function CeilingDownlights({ rowCount }: { rowCount: number }) {
+  // Grid of small recessed circular lights — visual only for most; a sparser
+  // set casts actual light to keep performance reasonable.
+  const { visualPositions, litPositions, ceilingY, sceneDepth } = useMemo(() => {
+    const depth = rowCount * Z_STEP + 7;
+    const yCeil = 7.95;
+    const cols  = 5;                                    // X-axis
+    const xs: number[] = [];
+    for (let i = 0; i < cols; i++) xs.push(-8 + i * 4); // -8, -4, 0, 4, 8
+    const zStart = -1.0;
+    const zStep  = 1.8;
+    const zCount = Math.ceil((depth + 1) / zStep);
+    const zs: number[] = [];
+    for (let i = 0; i < zCount; i++) zs.push(zStart + i * zStep);
+
+    const visual: [number, number, number][] = [];
+    const lit: [number, number, number][] = [];
+    let toggle = 0;
+    for (const z of zs) {
+      for (const x of xs) {
+        visual.push([x, yCeil, z]);
+        // every 4th lamp actually casts light — enough coverage without tanking perf
+        if (toggle++ % 4 === 0) lit.push([x, yCeil - 0.15, z]);
+      }
+    }
+    return { visualPositions: visual, litPositions: lit, ceilingY: yCeil, sceneDepth: depth };
   }, [rowCount]);
+
+  // Suppress unused-var noise from destructuring
+  void ceilingY; void sceneDepth;
 
   return (
     <>
-      {zPositions.map(z => (
-        <group key={z} position={[0, 7.6, z]}>
-          {/* Housing */}
-          <mesh>
-            <boxGeometry args={[3.2, 0.1, 0.7]} />
-            <meshStandardMaterial color="#0a0a20" roughness={0.8} metalness={0.2} />
+      {/* Visual recessed light disks */}
+      {visualPositions.map(([x, y, z], i) => (
+        <group key={i} position={[x, y, z]}>
+          {/* Trim ring */}
+          <mesh rotation={[Math.PI / 2, 0, 0]}>
+            <ringGeometry args={[0.10, 0.14, 24]} />
+            <meshStandardMaterial color="#cccccc" side={THREE.DoubleSide} roughness={0.5} metalness={0.4} />
           </mesh>
-          {/* Glowing strip */}
-          <mesh position={[0, -0.056, 0]}>
-            <boxGeometry args={[3.0, 0.01, 0.55]} />
-            <meshStandardMaterial color="#e8eeff" emissive="#d0d8ff" emissiveIntensity={1.5} />
+          {/* Bulb (emissive) */}
+          <mesh position={[0, -0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[0.10, 22]} />
+            <meshBasicMaterial color="#ffffff" />
           </mesh>
-          {/* Light cast */}
-          <pointLight intensity={1.4} color="#e8eeff" distance={7} decay={2} />
-          {/* Tiny accent tint lights along edges */}
-          <pointLight intensity={0.3} color={accent} distance={5} decay={2} position={[1.4, 0, 0]} />
-          <pointLight intensity={0.3} color={accent} distance={5} decay={2} position={[-1.4, 0, 0]} />
         </group>
+      ))}
+      {/* Actual lights */}
+      {litPositions.map(([x, y, z], i) => (
+        <pointLight
+          key={`L${i}`}
+          position={[x, y, z]}
+          intensity={1.1}
+          color="#fff5e6"
+          distance={9}
+          decay={2}
+        />
       ))}
     </>
   );
 }
 
-// ─── Texture helpers (grid floor, panelled ceiling) ───────────────────────────
+// ─── Texture helpers (wood floor, cream ceiling, wood-panelled walls) ─────────
 function useFloorTexture() {
   return useMemo(() => {
+    // Light wood-plank floor — beige base with subtle plank lines and grain
     const c = document.createElement('canvas');
-    c.width = 128; c.height = 128;
+    c.width = 256; c.height = 256;
     const ctx = c.getContext('2d')!;
-    ctx.fillStyle = '#05051a';
-    ctx.fillRect(0, 0, 128, 128);
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-    ctx.lineWidth = 2;
+    // base
+    ctx.fillStyle = '#d4b896';
+    ctx.fillRect(0, 0, 256, 256);
+    // 4 plank stripes vertically with alternating tone
+    const planks = 4;
+    const pw = 256 / planks;
+    for (let i = 0; i < planks; i++) {
+      ctx.fillStyle = i % 2 === 0 ? '#c8aa84' : '#d8be9c';
+      ctx.fillRect(i * pw, 0, pw, 256);
+    }
+    // subtle grain lines
+    ctx.strokeStyle = 'rgba(80,55,30,0.10)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 40; i++) {
+      const x = Math.random() * 256;
+      const y = Math.random() * 256;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + 14 + Math.random() * 30, y + (Math.random() - 0.5) * 3);
+      ctx.stroke();
+    }
+    // plank separator lines
+    ctx.strokeStyle = 'rgba(60,40,20,0.35)';
+    ctx.lineWidth = 1.2;
+    for (let i = 1; i < planks; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * pw, 0); ctx.lineTo(i * pw, 256);
+      ctx.stroke();
+    }
+    // horizontal plank end joints (every 256 = once per tile)
     ctx.beginPath();
-    ctx.moveTo(0, 0); ctx.lineTo(128, 0);
-    ctx.moveTo(0, 0); ctx.lineTo(0, 128);
+    ctx.moveTo(0, 0); ctx.lineTo(256, 0);
     ctx.stroke();
     const tex = new THREE.CanvasTexture(c);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(20, 20);
+    tex.repeat.set(8, 10);
     tex.anisotropy = 4;
+    return tex;
+  }, []);
+}
+
+function useCarpetTexture() {
+  return useMemo(() => {
+    // Stepped-tier carpet — mid-gray with subtle noise
+    const c = document.createElement('canvas');
+    c.width = 128; c.height = 128;
+    const ctx = c.getContext('2d')!;
+    ctx.fillStyle = '#4a4a4a';
+    ctx.fillRect(0, 0, 128, 128);
+    // noisy speckle
+    const img = ctx.getImageData(0, 0, 128, 128);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const n = (Math.random() - 0.5) * 26;
+      img.data[i]   = Math.max(0, Math.min(255, img.data[i] + n));
+      img.data[i+1] = Math.max(0, Math.min(255, img.data[i+1] + n));
+      img.data[i+2] = Math.max(0, Math.min(255, img.data[i+2] + n));
+    }
+    ctx.putImageData(img, 0, 0);
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(6, 6);
+    return tex;
+  }, []);
+}
+
+function useWallTexture() {
+  return useMemo(() => {
+    // Vertical wood paneling — light beige with vertical seam lines
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 256;
+    const ctx = c.getContext('2d')!;
+    // base wood
+    ctx.fillStyle = '#d8c5a3';
+    ctx.fillRect(0, 0, 256, 256);
+    // vertical planks
+    const planks = 6;
+    const pw = 256 / planks;
+    for (let i = 0; i < planks; i++) {
+      ctx.fillStyle = i % 2 === 0 ? '#d0bb95' : '#dccba9';
+      ctx.fillRect(i * pw, 0, pw, 256);
+    }
+    // grain
+    ctx.strokeStyle = 'rgba(90,65,35,0.10)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < 60; i++) {
+      const x = Math.random() * 256;
+      const y = Math.random() * 256;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + (Math.random() - 0.5) * 4, y + 18 + Math.random() * 40);
+      ctx.stroke();
+    }
+    // seam shadows between planks
+    ctx.strokeStyle = 'rgba(50,35,15,0.45)';
+    ctx.lineWidth = 1.5;
+    for (let i = 1; i < planks; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * pw, 0); ctx.lineTo(i * pw, 256);
+      ctx.stroke();
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(2, 1);
     return tex;
   }, []);
 }
 
 function useCeilingTexture() {
   return useMemo(() => {
+    // Cream ceiling with faint panel grid (no longer accent-glowing)
     const c = document.createElement('canvas');
     c.width = 512; c.height = 512;
     const ctx = c.getContext('2d')!;
-    ctx.fillStyle = '#040410';
+    ctx.fillStyle = '#efe9dd';
     ctx.fillRect(0, 0, 512, 512);
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-    ctx.lineWidth = 1.5;
-    const cols = 4, rows = 4;
+    ctx.strokeStyle = 'rgba(0,0,0,0.07)';
+    ctx.lineWidth = 1;
+    const cols = 6, rows = 6;
     const cw = 512 / cols, chh = 512 / rows;
-    for (let r = 0; r < rows; r++) {
-      for (let cc = 0; cc < cols; cc++) {
-        ctx.strokeRect(cc * cw + 18, r * chh + 18, cw - 36, chh - 36);
-      }
+    for (let r = 0; r <= rows; r++) {
+      ctx.beginPath();
+      ctx.moveTo(0, r * chh); ctx.lineTo(512, r * chh);
+      ctx.stroke();
+    }
+    for (let cc = 0; cc <= cols; cc++) {
+      ctx.beginPath();
+      ctx.moveTo(cc * cw, 0); ctx.lineTo(cc * cw, 512);
+      ctx.stroke();
     }
     const tex = new THREE.CanvasTexture(c);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(3, 4);
+    tex.repeat.set(3, 5);
     return tex;
   }, []);
 }
 
-// ─── Lecture Hall ─────────────────────────────────────────────────────────────
-function LectureHall({ rowCount, accent }: { rowCount: number; accent: string }) {
+// ─── Lecture Hall (realistic wood-paneled auditorium) ─────────────────────────
+function LectureHall({ rowCount }: { rowCount: number; accent: string }) {
   const depth = rowCount * Z_STEP + 7;
 
   const tiers = useMemo(() => Array.from({ length: rowCount }, (_, i) => ({
-    z: 2.2 + i * Z_STEP,
-    yCenter: (i * Y_STEP) / 2,
-    height: i * Y_STEP + 0.1,
+    z: 2.6 + i * Z_STEP,
+    yTop: i * Y_STEP + 0.4,
+    front: 2.6 + i * Z_STEP - Z_STEP / 2,
   })), [rowCount]);
 
-  const floorTex = useFloorTexture();
+  const floorTex   = useFloorTexture();
+  const carpetTex  = useCarpetTexture();
+  const wallTex    = useWallTexture();
   const ceilingTex = useCeilingTexture();
 
   // Cleanup textures on unmount
-  useEffect(() => () => { floorTex.dispose(); ceilingTex.dispose(); }, [floorTex, ceilingTex]);
+  useEffect(() => () => {
+    floorTex.dispose(); carpetTex.dispose(); wallTex.dispose(); ceilingTex.dispose();
+  }, [floorTex, carpetTex, wallTex, ceilingTex]);
+
+  const WALL_COLOR  = '#d8c5a3'; // light wood
+  const FLOOR_TINT  = '#e0c8a4'; // warm beige
+  const CEIL_COLOR  = '#efe9dd'; // cream
+  const ORANGE      = '#d97706'; // accent wall
+  const TIER_RISER  = '#3a3a3a'; // dark riser face
+  const TIER_CARPET = '#5c5c5c'; // carpeted tier top
 
   return (
     <group>
-      {/* Main floor — grid-textured */}
-      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, depth / 2 - 1]}>
-        <planeGeometry args={[24, depth + 4]} />
-        <meshStandardMaterial map={floorTex} color="#0d0d24" roughness={0.95} metalness={0.05} />
+      {/* Front wood floor (stage area) */}
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, -0.5]}>
+        <planeGeometry args={[24, 5]} />
+        <meshStandardMaterial map={floorTex} color={FLOOR_TINT} roughness={0.7} metalness={0.05} />
       </mesh>
 
-      {/* Stage platform */}
-      <mesh receiveShadow position={[0, 0.12, -0.5]}>
-        <boxGeometry args={[22, 0.24, 4]} />
-        <meshStandardMaterial color="#13132e" roughness={0.75} metalness={0.18} />
+      {/* Aisle floor strip running back through the rows (carpet) */}
+      <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.015, depth / 2 + 1]}>
+        <planeGeometry args={[24, depth]} />
+        <meshStandardMaterial map={carpetTex} color="#666666" roughness={0.95} />
       </mesh>
 
-      {/* Stage edge trim — accent glow strip */}
-      <mesh position={[0, 0.255, 1.49]}>
-        <boxGeometry args={[22, 0.02, 0.06]} />
-        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.6} transparent opacity={0.8} />
+      {/* Tiered risers + tier tops (auditorium steps) */}
+      {tiers.map((t, i) => (
+        <group key={i}>
+          {/* Riser face (vertical wall of the step) */}
+          <mesh receiveShadow position={[0, t.yTop - Y_STEP / 2, t.front]}>
+            <boxGeometry args={[22, Y_STEP, 0.06]} />
+            <meshStandardMaterial color={TIER_RISER} roughness={0.85} metalness={0.1} />
+          </mesh>
+          {/* Tier top (carpeted) */}
+          <mesh receiveShadow position={[0, t.yTop - 0.005, t.z]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[22, Z_STEP]} />
+            <meshStandardMaterial map={carpetTex} color={TIER_CARPET} roughness={0.95} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Stage platform — slight elevation */}
+      <mesh receiveShadow position={[0, 0.10, -0.2]}>
+        <boxGeometry args={[22, 0.22, 4]} />
+        <meshStandardMaterial color="#a08560" roughness={0.7} metalness={0.05} />
       </mesh>
 
       {/* Podium */}
-      <mesh castShadow position={[0, 0.5, 0.9]}>
-        <boxGeometry args={[0.96, 0.76, 0.56]} />
-        <meshStandardMaterial color="#1e1e40" roughness={0.6} metalness={0.35} />
+      <mesh castShadow position={[3.2, 0.52, 0.6]}>
+        <boxGeometry args={[0.9, 0.78, 0.5]} />
+        <meshStandardMaterial color="#7a5d3e" roughness={0.7} metalness={0.1} />
       </mesh>
-      <mesh position={[0, 0.895, 0.9]}>
-        <boxGeometry args={[1.08, 0.05, 0.62]} />
-        <meshStandardMaterial color="#2a2a52" roughness={0.5} metalness={0.5} />
-      </mesh>
-      {/* Podium accent line */}
-      <mesh position={[0, 0.86, 1.19]}>
-        <boxGeometry args={[1.02, 0.02, 0.04]} />
-        <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.7} />
+      <mesh position={[3.2, 0.92, 0.6]}>
+        <boxGeometry args={[1.0, 0.04, 0.56]} />
+        <meshStandardMaterial color="#5a4128" roughness={0.5} metalness={0.2} />
       </mesh>
 
-      {/* Screen frame */}
-      <mesh position={[0, 2.85, -2.1]}>
-        <boxGeometry args={[12.7, 4.5, 0.12]} />
-        <meshStandardMaterial color="#0d0d26" roughness={0.85} metalness={0.2} />
+      {/* Whiteboard on the right side of the front wall */}
+      <mesh position={[7.2, 2.4, -2.06]}>
+        <boxGeometry args={[3.6, 1.8, 0.04]} />
+        <meshStandardMaterial color="#f7f7f5" roughness={0.45} metalness={0.05} />
       </mesh>
-      {/* Screen inner bezel */}
-      <mesh position={[0, 2.85, -2.02]}>
-        <boxGeometry args={[12.4, 4.1, 0.06]} />
-        <meshStandardMaterial color="#111128" roughness={0.9} />
+      {/* Whiteboard frame */}
+      <mesh position={[7.2, 2.4, -2.085]}>
+        <boxGeometry args={[3.8, 2.0, 0.02]} />
+        <meshStandardMaterial color="#9c9c9c" roughness={0.6} metalness={0.4} />
       </mesh>
 
-      {/* Screen surround glow — point lights at each corner of the projector */}
-      <pointLight position={[-5.9, 4.7, -1.85]} intensity={0.4} color={accent} distance={3} decay={2} />
-      <pointLight position={[ 5.9, 4.7, -1.85]} intensity={0.4} color={accent} distance={3} decay={2} />
-      <pointLight position={[-5.9, 1.0, -1.85]} intensity={0.4} color={accent} distance={3} decay={2} />
-      <pointLight position={[ 5.9, 1.0, -1.85]} intensity={0.4} color={accent} distance={3} decay={2} />
+      {/* Screen frame (projector) — on the left of front wall */}
+      <mesh position={[-3.5, 2.85, -2.1]}>
+        <boxGeometry args={[8.9, 3.65, 0.10]} />
+        <meshStandardMaterial color="#d2c4a5" roughness={0.7} metalness={0.05} />
+      </mesh>
+      {/* Inner screen bezel */}
+      <mesh position={[-3.5, 2.85, -2.02]}>
+        <boxGeometry args={[8.6, 3.35, 0.05]} />
+        <meshStandardMaterial color="#15151a" roughness={0.9} />
+      </mesh>
 
       {/* Volumetric projector beam (cosmetic) */}
-      <mesh position={[0, 4.5, -1.85]}>
-        <coneGeometry args={[1.6, 3.0, 24, 1, true]} />
+      <mesh position={[-3.5, 4.6, -1.85]}>
+        <coneGeometry args={[1.4, 3.0, 24, 1, true]} />
         <meshBasicMaterial
           color="#ffffff"
           transparent
@@ -944,61 +1183,40 @@ function LectureHall({ rowCount, accent }: { rowCount: number; accent: string })
         />
       </mesh>
 
-      {/* Tiered seating platforms */}
-      {tiers.map((t, i) => (
-        <mesh key={i} receiveShadow position={[0, t.yCenter, t.z]}>
-          <boxGeometry args={[22, t.height, Z_STEP]} />
-          <meshStandardMaterial color="#08081a" roughness={0.97} />
-        </mesh>
-      ))}
-
-      {/* Back wall */}
-      <mesh position={[0, 4, -2.2]}>
+      {/* Back wall (front of the room, behind the screen) — wood */}
+      <mesh receiveShadow position={[0, 4, -2.2]}>
         <boxGeometry args={[24, 10, 0.16]} />
-        <meshStandardMaterial color="#060614" roughness={1} />
+        <meshStandardMaterial map={wallTex} color={WALL_COLOR} roughness={0.85} metalness={0.05} />
       </mesh>
 
-      {/* Side walls */}
+      {/* Orange accent panel on the back wall (between screen and whiteboard) */}
+      <mesh position={[2.4, 2.4, -2.07]}>
+        <boxGeometry args={[1.4, 4.0, 0.04]} />
+        <meshStandardMaterial color={ORANGE} roughness={0.65} metalness={0.05} />
+      </mesh>
+
+      {/* Side walls (wood paneled) */}
       {([-11, 11] as number[]).map(x => (
-        <mesh key={x} position={[x, 4, depth / 2 - 1]}>
+        <mesh receiveShadow key={x} position={[x, 4, depth / 2 - 1]}>
           <boxGeometry args={[0.16, 10, depth + 4]} />
-          <meshStandardMaterial color="#060614" roughness={0.95} />
+          <meshStandardMaterial map={wallTex} color={WALL_COLOR} roughness={0.85} metalness={0.05} />
         </mesh>
       ))}
 
-      {/* Ceiling — panelled texture */}
-      <mesh position={[0, 8, depth / 2 - 1]} rotation={[Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[24, depth + 4]} />
-        <meshStandardMaterial map={ceilingTex} color="#0a0a18" side={THREE.BackSide} roughness={0.95} />
+      {/* Back wall of the room (rear, far end) */}
+      <mesh receiveShadow position={[0, 4, depth + 1]}>
+        <boxGeometry args={[24, 10, 0.16]} />
+        <meshStandardMaterial map={wallTex} color={WALL_COLOR} roughness={0.85} metalness={0.05} />
       </mesh>
 
-      {/* Aisle floor glow strips */}
-      {([-8.5, 8.5] as number[]).map(x => (
-        <mesh key={x} position={[x, 0.01, depth / 2 - 1]} rotation={[-Math.PI / 2, 0, 0]}>
-          <planeGeometry args={[0.16, depth + 2]} />
-          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.45} transparent opacity={0.55} />
-        </mesh>
-      ))}
+      {/* Ceiling — cream with faint panel grid */}
+      <mesh receiveShadow position={[0, 8, depth / 2 - 1]} rotation={[Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[24, depth + 4]} />
+        <meshStandardMaterial map={ceilingTex} color={CEIL_COLOR} side={THREE.BackSide} roughness={0.92} />
+      </mesh>
 
-      {/* Wall accent sconces */}
-      {[3, 8, 14].filter(z => z < depth - 1).map(z =>
-        ([-10.85, 10.85] as number[]).map(x => (
-          <group key={`${x}-${z}`} position={[x, 3.5, z]}>
-            <mesh>
-              <boxGeometry args={[0.06, 0.4, 0.12]} />
-              <meshStandardMaterial color="#0e0e28" roughness={0.7} />
-            </mesh>
-            <mesh position={[0, 0, x > 0 ? -0.1 : 0.1]}>
-              <planeGeometry args={[0.22, 0.28]} />
-              <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={0.6} transparent opacity={0.7} />
-            </mesh>
-            <pointLight intensity={0.5} color={accent} distance={4} decay={2} />
-          </group>
-        ))
-      )}
-
-      {/* Ceiling panels */}
-      <CeilingPanels rowCount={rowCount} accent={accent} />
+      {/* Recessed ceiling downlights */}
+      <CeilingDownlights rowCount={rowCount} />
     </group>
   );
 }
@@ -1015,48 +1233,49 @@ export interface ClassroomSceneProps {
 export function ClassroomScene({ students, selectedId, onSelect, subject, subjectCfg }: ClassroomSceneProps) {
   const rowCount    = Math.max(1, Math.ceil(students.length / SEATS_PER_ROW));
   const sceneDepth  = rowCount * Z_STEP + 7;
-  const orbitTarget: [number, number, number] = [0, 2.2, Math.min(sceneDepth * 0.48, 13)];
+  const orbitTarget: [number, number, number] = [0, 1.8, Math.min(sceneDepth * 0.45, 12)];
 
   return (
     <Canvas
       shadows
-      camera={{ position: [0, 7.5, -5.5], fov: 52 }}
-      style={{ background: '#040410' }}
+      camera={{ position: [0, 7.0, -5.5], fov: 52 }}
+      style={{ background: '#d8c5a3' }}
       onClick={() => onSelect(null)}
     >
-      <fog attach="fog" args={['#0a0a1e', 24, 60]} />
+      {/* Soft warm haze far in the distance only */}
+      <fog attach="fog" args={['#e8dcc4', 38, 80]} />
 
-      {/* Ambient — brighter overall */}
-      <ambientLight intensity={0.65} color={subjectCfg.ambient} />
+      {/* Ambient — bright neutral classroom */}
+      <ambientLight intensity={0.95} color="#fff5e6" />
 
-      {/* Hemisphere fill — soft sky/ground bounce */}
-      <hemisphereLight args={['#dcdcff', '#2a2a44', 0.55]} />
+      {/* Hemisphere fill — sky/ground bounce */}
+      <hemisphereLight args={['#fff4d8', '#a08560', 0.7]} />
 
-      {/* Key light – cool overhead */}
+      {/* Key directional light – warm classroom overhead */}
       <directionalLight
-        position={[-3, 16, 6]} intensity={1.45} color="#e6e8ff"
+        position={[-3, 16, 6]} intensity={1.05} color="#fff2dc"
         castShadow
         shadow-mapSize-width={1024} shadow-mapSize-height={1024}
         shadow-camera-near={0.5} shadow-camera-far={60}
         shadow-camera-left={-15} shadow-camera-right={15}
         shadow-camera-top={15} shadow-camera-bottom={-5}
       />
-      {/* Stage spotlight */}
-      <pointLight position={[0, 8, -2]} intensity={7.5} color="#fff8f0" distance={22} decay={2} />
-      {/* Subject-tinted fill on students */}
-      <pointLight position={[0, 5.5, sceneDepth * 0.45]} intensity={3.2} color={subjectCfg.fill} distance={34} decay={2} />
-      {/* Front-facing fill so avatar faces are lit */}
-      <pointLight position={[0, 4.5, -3.5]} intensity={2.4} color="#ffffff" distance={26} decay={2} />
+      {/* Stage fill */}
+      <pointLight position={[0, 6.5, -1.5]} intensity={2.2} color="#fff5e6" distance={14} decay={2} />
+      {/* Mid-room fill for student faces */}
+      <pointLight position={[0, 5.5, sceneDepth * 0.4]} intensity={1.8} color="#fff5e6" distance={26} decay={2} />
+      {/* Front-facing fill — toward the audience */}
+      <pointLight position={[0, 4.0, -3.0]} intensity={1.6} color="#ffffff" distance={20} decay={2} />
 
-      {/* Atmosphere */}
+      {/* Subtle atmosphere (very low) */}
       <Sparkles
-        count={120}
+        count={50}
         scale={[22, 5.5, sceneDepth]}
         position={[0, 3.5, sceneDepth / 2 - 1]}
-        size={0.8}
-        speed={0.12}
-        color={subjectCfg.accent}
-        opacity={0.22}
+        size={0.6}
+        speed={0.08}
+        color="#ffffff"
+        opacity={0.08}
       />
 
       <Suspense fallback={null}>

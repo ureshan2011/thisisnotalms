@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { Briefcase, Clock, Cloud, CloudFog, CloudRain, CloudSun, Globe, GraduationCap, Mail, MapPin, Sparkles, Sun, Users, BookOpen } from 'lucide-react';
+import NewsWidget from '../../components/ui/NewsWidget';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout from '../../components/layout/Layout';
@@ -379,6 +380,9 @@ const peersWithPins = useMemo(
           </div>
         </div>
       </div>
+
+      {/* ── News feed ── */}
+      <NewsWidget subjects={me?.subjects || []} />
 
       {/* ── If the student has no intake yet, stop here with a prompt ── */}
       {!me?.intake && (

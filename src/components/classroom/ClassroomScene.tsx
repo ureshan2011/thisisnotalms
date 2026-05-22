@@ -1302,7 +1302,7 @@ export function ClassroomScene({ students, selectedId, onSelect, subject, subjec
       shadows
       camera={{ position: [0, 7.0, -5.5], fov: 52 }}
       style={{ background: '#06070b' }}
-      onClick={() => onSelect(null)}
+      onPointerMissed={() => onSelect(null)}
     >
       {/* Cool dark haze in the distance */}
       <fog attach="fog" args={['#06070b', 32, 75]} />

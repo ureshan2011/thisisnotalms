@@ -18,7 +18,7 @@ const SEATS_PER_ROW = 8;
 const Z_STEP   = 2.5;
 const Y_STEP   = 0.38;
 const X_SPACE  = 1.68;
-const BODY_H   = 0.68; // capsule total height: length + 2*radius = 0.30 + 2*0.19
+const BODY_H   = 0.68;
 
 // ─── Canvas texture helpers ───────────────────────────────────────────────────
 function seededHash(uid: string, salt = 0): number {
@@ -37,6 +37,18 @@ function gradColors(uid: string): [string, string] {
   return GRAD_PAIRS[seededHash(uid) % GRAD_PAIRS.length];
 }
 
+// ─── Costume presets for avatars ─────────────────────────────────────────────
+const COSTUME_PRESETS = [
+  { name: 'casual',   shirtColor: '#1e3a5f', pantsColor: '#2d2d2d', skinTone: '#f5cba7', hairColor: '#2c1810' },
+  { name: 'hoodie',   shirtColor: '#2d4a22', pantsColor: '#1a1a2e', skinTone: '#c68642', hairColor: '#1a1a1a' },
+  { name: 'formal',   shirtColor: '#f0f0f0', pantsColor: '#1c1c3a', skinTone: '#fdbcb4', hairColor: '#4a3728' },
+  { name: 'sporty',   shirtColor: '#7c1d1d', pantsColor: '#0f172a', skinTone: '#8d5524', hairColor: '#1c1c1c' },
+  { name: 'creative', shirtColor: '#4a0e8f', pantsColor: '#1e293b', skinTone: '#f5cba7', hairColor: '#8b4513' },
+  { name: 'academic', shirtColor: '#0c4a6e', pantsColor: '#1e1e30', skinTone: '#c68642', hairColor: '#3d2b1f' },
+  { name: 'techwear', shirtColor: '#111827', pantsColor: '#111827', skinTone: '#fdbcb4', hairColor: '#2c1810' },
+  { name: 'vibrant',  shirtColor: '#9d174d', pantsColor: '#1e293b', skinTone: '#8d5524', hairColor: '#1a1a1a' },
+] as const;
+
 function rrect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
@@ -49,6 +61,30 @@ function rrect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h
   ctx.lineTo(x, y + r);
   ctx.arcTo(x, y, x + r, y, r);
   ctx.closePath();
+}
+
+function drawSilhouette(ctx: CanvasRenderingContext2D, x: number, y: number, cw: number, ch: number) {
+  ctx.save();
+  ctx.globalAlpha = 0.18;
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  const cx = x + cw / 2;
+  const headR = cw * 0.18;
+  const headCy = y + ch * 0.32;
+  // head
+  ctx.beginPath();
+  ctx.arc(cx, headCy, headR, 0, Math.PI * 2);
+  ctx.fill();
+  // shoulders / torso curve down to bottom
+  const shoulderY = headCy + headR * 1.4;
+  const bottomY = y + ch + 4;
+  const halfW = cw * 0.34;
+  ctx.beginPath();
+  ctx.moveTo(cx - halfW, bottomY);
+  ctx.bezierCurveTo(cx - halfW, shoulderY + 4, cx - cw * 0.22, shoulderY - 4, cx, shoulderY - 2);
+  ctx.bezierCurveTo(cx + cw * 0.22, shoulderY - 4, cx + halfW, shoulderY + 4, cx + halfW, bottomY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
 }
 
 function drawCard(
@@ -75,8 +111,12 @@ function drawCard(
     const g = ctx.createLinearGradient(x, y, x + cw, y + ch);
     g.addColorStop(0, c1); g.addColorStop(1, c2);
     ctx.fillStyle = g; ctx.fill();
+
+    // faint person silhouette behind initials
+    drawSilhouette(ctx, x, y, cw, ch);
+
     const initials = student.fullName.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('');
-    ctx.fillStyle = 'rgba(255,255,255,0.88)';
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
     ctx.font = `900 ${Math.floor(cw * 0.3)}px sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(initials, x + cw / 2, y + ch / 2);
@@ -101,6 +141,10 @@ function drawCard(
   ctx.fillText(name.length > 8 ? name.slice(0, 7) + '…' : name, x + cw / 2, y + ch + 4);
 }
 
+const CARD_W = 92;
+const CARD_GAP = 10;
+const CARD_STEP = CARD_W + CARD_GAP;
+
 function drawScreen(
   ctx: CanvasRenderingContext2D,
   cw: number, ch: number,
@@ -111,8 +155,11 @@ function drawScreen(
   accent: string,
   selectedId: string | null,
 ) {
-  // Background
-  ctx.fillStyle = '#07071c';
+  // Background — radial gradient (slightly lighter edges, darker center)
+  const radial = ctx.createRadialGradient(cw / 2, ch / 2, 0, cw / 2, ch / 2, Math.max(cw, ch) * 0.7);
+  radial.addColorStop(0, '#05051a');
+  radial.addColorStop(1, '#0a0a26');
+  ctx.fillStyle = radial;
   ctx.fillRect(0, 0, cw, ch);
 
   if (students.length === 0) {
@@ -122,17 +169,13 @@ function drawScreen(
     return;
   }
 
-  const LEFT_W = 220;
+  const LEFT_W = 240;
   const PHOTO_X = LEFT_W + 16;
   const PHOTO_AREA_W = cw - PHOTO_X;
-  const CARD_W = 78;
   const CARD_H = Math.floor(ch * 0.72);
-  const GAP = 10;
-  const STEP = CARD_W + GAP;
   const CARD_Y = Math.floor((ch - CARD_H - 16) / 2);
 
   // ── left info panel ──
-  // subject code
   ctx.save();
   ctx.font = `900 ${Math.min(58, LEFT_W * 0.42)}px sans-serif`;
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
@@ -167,14 +210,14 @@ function drawScreen(
   ctx.save();
   ctx.beginPath(); ctx.rect(PHOTO_X, 0, PHOTO_AREA_W, ch); ctx.clip();
 
-  const totalW = students.length * STEP;
+  const totalW = students.length * CARD_STEP;
   if (totalW > 0) {
-    const startIdx = Math.floor(scrollOffset / STEP);
-    const visible   = Math.ceil(PHOTO_AREA_W / STEP) + 3;
+    const startIdx = Math.floor(scrollOffset / CARD_STEP);
+    const visible  = Math.ceil(PHOTO_AREA_W / CARD_STEP) + 3;
     for (let i = 0; i <= visible; i++) {
-      const idx = (startIdx + i) % students.length;
-      const x   = PHOTO_X + (startIdx + i) * STEP - scrollOffset;
-      if (x > cw + STEP) break;
+      const idx = ((startIdx + i) % students.length + students.length) % students.length;
+      const x   = PHOTO_X + (startIdx + i) * CARD_STEP - scrollOffset;
+      if (x > cw + CARD_STEP) break;
       const student = students[idx];
       const img     = images.get(student.uid) ?? null;
       drawCard(ctx, x, CARD_Y, CARD_W, CARD_H, student, img, student.uid === selectedId, accent);
@@ -184,12 +227,34 @@ function drawScreen(
 
   // fade masks on photo strip edges
   const lFade = ctx.createLinearGradient(PHOTO_X, 0, PHOTO_X + 30, 0);
-  lFade.addColorStop(0, '#07071c'); lFade.addColorStop(1, 'transparent');
+  lFade.addColorStop(0, '#05051a'); lFade.addColorStop(1, 'transparent');
   ctx.fillStyle = lFade; ctx.fillRect(PHOTO_X, 0, 30, ch);
 
   const rFade = ctx.createLinearGradient(cw - 28, 0, cw, 0);
-  rFade.addColorStop(0, 'transparent'); rFade.addColorStop(1, '#07071c');
+  rFade.addColorStop(0, 'transparent'); rFade.addColorStop(1, '#0a0a26');
   ctx.fillStyle = rFade; ctx.fillRect(cw - 28, 0, 28, ch);
+
+  // ── animated scan line (CRT feel) ──
+  const scanY = (scrollOffset / 3) % ch;
+  ctx.fillStyle = 'rgba(255,255,255,0.03)';
+  ctx.fillRect(0, scanY, cw, 2);
+
+  // ── student count badge (top-right) ──
+  ctx.save();
+  const badgeText = `${students.length} students`;
+  ctx.font = '700 14px sans-serif';
+  const tw = ctx.measureText(badgeText).width + 26;
+  const tbh = 28;
+  const tbx = cw - tw - 18;
+  const tby = 16;
+  rrect(ctx, tbx, tby, tw, tbh, 14);
+  ctx.fillStyle = `${accent}26`; ctx.fill();
+  rrect(ctx, tbx, tby, tw, tbh, 14);
+  ctx.strokeStyle = `${accent}88`; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.fillStyle = accent;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(badgeText, tbx + tw / 2, tby + tbh / 2 + 1);
+  ctx.restore();
 }
 
 // ─── Projector Screen with live photo texture ──────────────────────────────────
@@ -203,13 +268,13 @@ function ProjectorScreen({
 }) {
   // Canvas + texture created once
   const { canvas, texture } = useMemo(() => {
-    const canvas = document.createElement('canvas');
-    canvas.width  = 1024;
-    canvas.height = 384;
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.minFilter = THREE.LinearFilter;
-    texture.magFilter = THREE.LinearFilter;
-    return { canvas, texture };
+    const c = document.createElement('canvas');
+    c.width  = 1024;
+    c.height = 384;
+    const tex = new THREE.CanvasTexture(c);
+    tex.minFilter = THREE.LinearFilter;
+    tex.magFilter = THREE.LinearFilter;
+    return { canvas: c, texture: tex };
   }, []);
 
   useEffect(() => () => texture.dispose(), [texture]);
@@ -230,10 +295,10 @@ function ProjectorScreen({
 
   // Scroll position
   const scrollRef = useRef(0);
-  const SCROLL_SPEED = 38; // px per second
+  const SCROLL_SPEED = 42; // px per second
 
   useFrame((_, delta) => {
-    const totalW = students.length * 88;
+    const totalW = students.length * CARD_STEP;
     if (totalW > 0) scrollRef.current = (scrollRef.current + delta * SCROLL_SPEED) % totalW;
 
     const ctx = canvas.getContext('2d');
@@ -243,14 +308,14 @@ function ProjectorScreen({
   });
 
   return (
-    <mesh position={[0, 2.85, -2.0]}>
+    <mesh position={[0, 2.85, -1.94]}>
       <planeGeometry args={[12.2, 3.9]} />
-      <meshBasicMaterial map={texture} toneMapped={false} />
+      <meshBasicMaterial map={texture} toneMapped={false} side={THREE.FrontSide} />
     </mesh>
   );
 }
 
-// ─── Student Avatar ────────────────────────────────────────────────────────────
+// ─── Student Avatar (realistic anatomy + costume variants) ─────────────────────
 function StudentAvatar({
   student, position, isSelected, accent, fill, onClick,
 }: {
@@ -261,54 +326,225 @@ function StudentAvatar({
   fill: string;
   onClick: () => void;
 }) {
-  const animRef = useRef<THREE.Group>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const breatheRef = useRef<THREE.Group>(null);
+  const headGroupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
-  const phase = useMemo(() => seededHash(student.uid) * 0.001 * Math.PI * 2, [student.uid]);
+
+  const phase = useMemo(() => (seededHash(student.uid) % 1000) / 1000 * Math.PI * 2, [student.uid]);
+
+  const preset = useMemo(
+    () => COSTUME_PRESETS[seededHash(student.uid, 3) % COSTUME_PRESETS.length],
+    [student.uid],
+  );
+  const hasGlasses  = useMemo(() => seededHash(student.uid, 7)  % 10 < 3, [student.uid]);
+  const hasBackpack = useMemo(() => seededHash(student.uid, 11) % 10 < 4, [student.uid]);
+  const hasHat      = useMemo(() => seededHash(student.uid, 13) % 10 < 2, [student.uid]);
+
+  const backpackColor = useMemo(
+    () => new THREE.Color(preset.shirtColor).multiplyScalar(0.55).getStyle(),
+    [preset.shirtColor],
+  );
 
   useFrame(({ clock }) => {
-    if (!animRef.current) return;
-    // All avatars breathe gently
     const t = clock.getElapsedTime();
-    animRef.current.position.y = Math.sin(t * 1.1 + phase) * 0.022;
+    if (breatheRef.current) {
+      breatheRef.current.position.y = Math.sin(t * 1.1 + phase) * 0.022;
+    }
+    if (headGroupRef.current) {
+      headGroupRef.current.rotation.y = Math.sin(t * Math.PI * 0.8 + phase) * 0.06;
+    }
+    if (groupRef.current) {
+      const pulse = isSelected ? 1.15 + Math.sin(t * 3.5) * 0.04 : (hovered ? 1.1 : 1);
+      const next = THREE.MathUtils.lerp(groupRef.current.scale.x, pulse, 0.12);
+      groupRef.current.scale.set(next, next, next);
+    }
   });
 
-  const color    = isSelected ? '#f59e0b' : accent;
-  const emissive = isSelected ? '#b45309' : fill;
-  const emissI   = isSelected ? 0.55 : 0.18;
+  // Emissive only on selection/hover
+  const isAccent = isSelected || hovered;
+  const accentEmissive = isSelected ? '#f59e0b' : accent;
+  const accentEmissiveI = isSelected ? 0.45 : (hovered ? 0.22 : 0);
+
+  // Slightly darken hair color for top of head distinction
+  const hairColor = preset.hairColor;
+  const skinColor = preset.skinTone;
+  const shirtColor = preset.shirtColor;
+  const pantsColor = preset.pantsColor;
 
   return (
     <group
+      ref={groupRef}
       position={position}
-      scale={hovered || isSelected ? 1.1 : 1}
       onClick={e => { e.stopPropagation(); onClick(); }}
       onPointerOver={e => { e.stopPropagation(); setHovered(true);  document.body.style.cursor = 'pointer'; }}
       onPointerOut={()  => { setHovered(false); document.body.style.cursor = 'default'; }}
     >
-      <group ref={animRef}>
-        {/* Body (capsule) */}
-        <mesh castShadow>
-          <capsuleGeometry args={[0.19, 0.3, 6, 14]} />
-          <meshStandardMaterial color={color} emissive={emissive} emissiveIntensity={emissI} roughness={0.45} metalness={0.3} />
+      <group ref={breatheRef}>
+        {/* Legs — two separate capsules with a gap */}
+        <mesh castShadow position={[-0.07, -0.22, 0]}>
+          <capsuleGeometry args={[0.055, 0.20, 4, 8]} />
+          <meshStandardMaterial
+            color={pantsColor}
+            emissive={isAccent ? accentEmissive : '#000'}
+            emissiveIntensity={accentEmissiveI * 0.4}
+            roughness={0.55} metalness={0.1}
+          />
         </mesh>
-        {/* Head */}
-        <mesh castShadow position={[0, 0.52, 0]}>
-          <sphereGeometry args={[0.19, 16, 16]} />
-          <meshStandardMaterial color={color} emissive={emissive} emissiveIntensity={emissI} roughness={0.45} metalness={0.3} />
+        <mesh castShadow position={[0.07, -0.22, 0]}>
+          <capsuleGeometry args={[0.055, 0.20, 4, 8]} />
+          <meshStandardMaterial
+            color={pantsColor}
+            emissive={isAccent ? accentEmissive : '#000'}
+            emissiveIntensity={accentEmissiveI * 0.4}
+            roughness={0.55} metalness={0.1}
+          />
         </mesh>
-        {/* Left arm */}
-        <mesh castShadow position={[-0.26, 0.08, 0]} rotation={[0, 0, 0.42]}>
-          <capsuleGeometry args={[0.07, 0.28, 4, 8]} />
-          <meshStandardMaterial color={color} emissive={emissive} emissiveIntensity={emissI} roughness={0.5} metalness={0.2} />
+
+        {/* Torso — slightly flattened box */}
+        <mesh castShadow position={[0, 0.02, 0]}>
+          <boxGeometry args={[0.32, 0.30, 0.20]} />
+          <meshStandardMaterial
+            color={shirtColor}
+            emissive={isAccent ? accentEmissive : '#000'}
+            emissiveIntensity={accentEmissiveI}
+            roughness={0.55} metalness={0.1}
+          />
         </mesh>
-        {/* Right arm */}
-        <mesh castShadow position={[0.26, 0.08, 0]} rotation={[0, 0, -0.42]}>
-          <capsuleGeometry args={[0.07, 0.28, 4, 8]} />
-          <meshStandardMaterial color={color} emissive={emissive} emissiveIntensity={emissI} roughness={0.5} metalness={0.2} />
+
+        {/* Backpack — behind torso */}
+        {hasBackpack && (
+          <mesh castShadow position={[0, 0.04, -0.14]}>
+            <boxGeometry args={[0.28, 0.30, 0.10]} />
+            <meshStandardMaterial
+              color={backpackColor}
+              emissive={isAccent ? accentEmissive : '#000'}
+              emissiveIntensity={accentEmissiveI * 0.4}
+              roughness={0.7} metalness={0.05}
+            />
+          </mesh>
+        )}
+
+        {/* Neck */}
+        <mesh castShadow position={[0, 0.22, 0]}>
+          <cylinderGeometry args={[0.052, 0.058, 0.06, 12]} />
+          <meshStandardMaterial
+            color={skinColor}
+            roughness={0.6} metalness={0.05}
+          />
         </mesh>
+
+        {/* Arms — capsules with slight elbow angle */}
+        <mesh castShadow position={[-0.21, 0.04, 0.02]} rotation={[0, 0, 0.32]}>
+          <capsuleGeometry args={[0.052, 0.26, 4, 10]} />
+          <meshStandardMaterial
+            color={shirtColor}
+            emissive={isAccent ? accentEmissive : '#000'}
+            emissiveIntensity={accentEmissiveI * 0.6}
+            roughness={0.55} metalness={0.1}
+          />
+        </mesh>
+        <mesh castShadow position={[0.21, 0.04, 0.02]} rotation={[0, 0, -0.32]}>
+          <capsuleGeometry args={[0.052, 0.26, 4, 10]} />
+          <meshStandardMaterial
+            color={shirtColor}
+            emissive={isAccent ? accentEmissive : '#000'}
+            emissiveIntensity={accentEmissiveI * 0.6}
+            roughness={0.55} metalness={0.1}
+          />
+        </mesh>
+
+        {/* Hands (small skin-tone spheres at arm ends) */}
+        <mesh castShadow position={[-0.32, -0.10, 0.02]}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial color={skinColor} roughness={0.6} metalness={0.05} />
+        </mesh>
+        <mesh castShadow position={[0.32, -0.10, 0.02]}>
+          <sphereGeometry args={[0.05, 8, 8]} />
+          <meshStandardMaterial color={skinColor} roughness={0.6} metalness={0.05} />
+        </mesh>
+
+        {/* Head group — gets the idle tilt */}
+        <group ref={headGroupRef} position={[0, 0.32, 0]}>
+          {/* Head */}
+          <mesh castShadow>
+            <sphereGeometry args={[0.135, 18, 18]} />
+            <meshStandardMaterial
+              color={skinColor}
+              emissive={isAccent ? accentEmissive : '#000'}
+              emissiveIntensity={accentEmissiveI * 0.5}
+              roughness={0.55} metalness={0.1}
+            />
+          </mesh>
+
+          {/* Eyes — small flat spheres, emissive iris */}
+          <mesh position={[-0.045, 0.015, 0.118]}>
+            <sphereGeometry args={[0.018, 8, 8]} />
+            <meshStandardMaterial
+              color="#1a1a2e"
+              emissive="#0a0a18"
+              emissiveIntensity={0.8}
+              roughness={0.3} metalness={0.2}
+            />
+          </mesh>
+          <mesh position={[0.045, 0.015, 0.118]}>
+            <sphereGeometry args={[0.018, 8, 8]} />
+            <meshStandardMaterial
+              color="#1a1a2e"
+              emissive="#0a0a18"
+              emissiveIntensity={0.8}
+              roughness={0.3} metalness={0.2}
+            />
+          </mesh>
+
+          {/* Glasses (optional) */}
+          {hasGlasses && (
+            <>
+              <mesh position={[-0.045, 0.015, 0.128]} rotation={[Math.PI / 2, 0, 0]}>
+                <torusGeometry args={[0.032, 0.005, 6, 16]} />
+                <meshStandardMaterial color="#888" roughness={0.3} metalness={0.7} />
+              </mesh>
+              <mesh position={[0.045, 0.015, 0.128]} rotation={[Math.PI / 2, 0, 0]}>
+                <torusGeometry args={[0.032, 0.005, 6, 16]} />
+                <meshStandardMaterial color="#888" roughness={0.3} metalness={0.7} />
+              </mesh>
+              {/* bridge */}
+              <mesh position={[0, 0.015, 0.128]}>
+                <boxGeometry args={[0.026, 0.005, 0.005]} />
+                <meshStandardMaterial color="#888" roughness={0.3} metalness={0.7} />
+              </mesh>
+            </>
+          )}
+
+          {/* Hair — slightly flattened sphere on top */}
+          <mesh castShadow position={[0, 0.06, -0.005]} scale={[1.05, 0.75, 1.05]}>
+            <sphereGeometry args={[0.135, 16, 16]} />
+            <meshStandardMaterial
+              color={hairColor}
+              roughness={0.85} metalness={0.05}
+            />
+          </mesh>
+
+          {/* Hat / cap (optional) — flattened cylinder above hair */}
+          {hasHat && (
+            <>
+              <mesh castShadow position={[0, 0.16, 0]}>
+                <cylinderGeometry args={[0.13, 0.13, 0.05, 16]} />
+                <meshStandardMaterial color="#1c1c2e" roughness={0.7} metalness={0.1} />
+              </mesh>
+              {/* brim */}
+              <mesh position={[0, 0.135, 0.08]}>
+                <boxGeometry args={[0.22, 0.012, 0.10]} />
+                <meshStandardMaterial color="#1c1c2e" roughness={0.7} metalness={0.1} />
+              </mesh>
+            </>
+          )}
+        </group>
+
         {/* Selected / hovered: floating halo ring */}
         {(isSelected || hovered) && (
-          <mesh position={[0, 0.88, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <torusGeometry args={[0.26, 0.027, 8, 28]} />
+          <mesh position={[0, 0.62, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <torusGeometry args={[0.22, 0.022, 8, 28]} />
             <meshStandardMaterial
               color={isSelected ? '#fbbf24' : fill}
               emissive={isSelected ? '#f59e0b' : accent}
@@ -321,7 +557,7 @@ function StudentAvatar({
 
       {/* Floating label on hover / selected */}
       {(hovered || isSelected) && (
-        <Billboard position={[0, 1.18, 0]}>
+        <Billboard position={[0, BODY_H / 2 + 0.5, 0]}>
           <Text
             fontSize={0.18}
             color={isSelected ? '#fbbf24' : '#f1f5f9'}
@@ -390,7 +626,7 @@ function AvatarGrid({
     const col  = idx % SEATS_PER_ROW;
     const count = Math.min(SEATS_PER_ROW, students.length - row * SEATS_PER_ROW);
     const z = 2.2 + row * Z_STEP;
-    const y = row * Y_STEP + 0.4 + BODY_H / 2;  // sit on tier top + body centre
+    const y = row * Y_STEP + 0.4 + BODY_H / 2;
     const x = col * X_SPACE - ((count - 1) * X_SPACE) / 2;
     return { student, x, y, z };
   }), [students]);
@@ -447,6 +683,51 @@ function CeilingPanels({ rowCount, accent }: { rowCount: number; accent: string 
   );
 }
 
+// ─── Texture helpers (grid floor, panelled ceiling) ───────────────────────────
+function useFloorTexture() {
+  return useMemo(() => {
+    const c = document.createElement('canvas');
+    c.width = 128; c.height = 128;
+    const ctx = c.getContext('2d')!;
+    ctx.fillStyle = '#05051a';
+    ctx.fillRect(0, 0, 128, 128);
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 0); ctx.lineTo(128, 0);
+    ctx.moveTo(0, 0); ctx.lineTo(0, 128);
+    ctx.stroke();
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(20, 20);
+    tex.anisotropy = 4;
+    return tex;
+  }, []);
+}
+
+function useCeilingTexture() {
+  return useMemo(() => {
+    const c = document.createElement('canvas');
+    c.width = 512; c.height = 512;
+    const ctx = c.getContext('2d')!;
+    ctx.fillStyle = '#040410';
+    ctx.fillRect(0, 0, 512, 512);
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1.5;
+    const cols = 4, rows = 4;
+    const cw = 512 / cols, chh = 512 / rows;
+    for (let r = 0; r < rows; r++) {
+      for (let cc = 0; cc < cols; cc++) {
+        ctx.strokeRect(cc * cw + 18, r * chh + 18, cw - 36, chh - 36);
+      }
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(3, 4);
+    return tex;
+  }, []);
+}
+
 // ─── Lecture Hall ─────────────────────────────────────────────────────────────
 function LectureHall({ rowCount, accent }: { rowCount: number; accent: string }) {
   const depth = rowCount * Z_STEP + 7;
@@ -457,12 +738,18 @@ function LectureHall({ rowCount, accent }: { rowCount: number; accent: string })
     height: i * Y_STEP + 0.1,
   })), [rowCount]);
 
+  const floorTex = useFloorTexture();
+  const ceilingTex = useCeilingTexture();
+
+  // Cleanup textures on unmount
+  useEffect(() => () => { floorTex.dispose(); ceilingTex.dispose(); }, [floorTex, ceilingTex]);
+
   return (
     <group>
-      {/* Main floor */}
+      {/* Main floor — grid-textured */}
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, depth / 2 - 1]}>
         <planeGeometry args={[24, depth + 4]} />
-        <meshStandardMaterial color="#090918" roughness={0.95} metalness={0.05} />
+        <meshStandardMaterial map={floorTex} color="#0d0d24" roughness={0.95} metalness={0.05} />
       </mesh>
 
       {/* Stage platform */}
@@ -503,6 +790,24 @@ function LectureHall({ rowCount, accent }: { rowCount: number; accent: string })
         <meshStandardMaterial color="#111128" roughness={0.9} />
       </mesh>
 
+      {/* Screen surround glow — point lights at each corner of the projector */}
+      <pointLight position={[-5.9, 4.7, -1.85]} intensity={0.4} color={accent} distance={3} decay={2} />
+      <pointLight position={[ 5.9, 4.7, -1.85]} intensity={0.4} color={accent} distance={3} decay={2} />
+      <pointLight position={[-5.9, 1.0, -1.85]} intensity={0.4} color={accent} distance={3} decay={2} />
+      <pointLight position={[ 5.9, 1.0, -1.85]} intensity={0.4} color={accent} distance={3} decay={2} />
+
+      {/* Volumetric projector beam (cosmetic) */}
+      <mesh position={[0, 4.5, -1.85]}>
+        <coneGeometry args={[1.6, 3.0, 24, 1, true]} />
+        <meshBasicMaterial
+          color="#ffffff"
+          transparent
+          opacity={0.04}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+        />
+      </mesh>
+
       {/* Tiered seating platforms */}
       {tiers.map((t, i) => (
         <mesh key={i} receiveShadow position={[0, t.yCenter, t.z]}>
@@ -525,10 +830,10 @@ function LectureHall({ rowCount, accent }: { rowCount: number; accent: string })
         </mesh>
       ))}
 
-      {/* Ceiling */}
-      <mesh position={[0, 8, depth / 2 - 1]}>
+      {/* Ceiling — panelled texture */}
+      <mesh position={[0, 8, depth / 2 - 1]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[24, depth + 4]} />
-        <meshStandardMaterial color="#040410" side={THREE.BackSide} />
+        <meshStandardMaterial map={ceilingTex} color="#0a0a18" side={THREE.BackSide} roughness={0.95} />
       </mesh>
 
       {/* Aisle floor glow strips */}
@@ -583,7 +888,7 @@ export function ClassroomScene({ students, selectedId, onSelect, subject, subjec
       style={{ background: '#040410' }}
       onClick={() => onSelect(null)}
     >
-      <fog attach="fog" args={['#040410', 22, 55]} />
+      <fog attach="fog" args={['#040410', 18, 42]} />
 
       {/* Ambient */}
       <ambientLight intensity={0.28} color={subjectCfg.ambient} />

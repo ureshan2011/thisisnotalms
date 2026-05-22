@@ -87,63 +87,275 @@ function drawSilhouette(ctx: CanvasRenderingContext2D, x: number, y: number, cw:
   ctx.restore();
 }
 
-function drawCard(
+function drawImageCover(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  x: number, y: number, w: number, h: number,
+) {
+  const ar  = img.naturalWidth / img.naturalHeight;
+  const car = w / h;
+  let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
+  if (ar > car) { sw = img.naturalHeight * car; sx = (img.naturalWidth - sw) / 2; }
+  else          { sh = img.naturalWidth / car;  sy = (img.naturalHeight - sh) / 2; }
+  ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
+}
+
+function drawCardSmall(
   ctx: CanvasRenderingContext2D,
   x: number, y: number, cw: number, ch: number,
   student: StudentProfile,
   img: HTMLImageElement | null | undefined,
-  isSelected: boolean,
-  accent: string,
 ) {
   ctx.save();
-  rrect(ctx, x, y, cw, ch, 6);
+  rrect(ctx, x, y, cw, ch, 5);
   ctx.clip();
 
   if (img && img.complete && img.naturalWidth > 0) {
-    const ar  = img.naturalWidth / img.naturalHeight;
-    const car = cw / ch;
-    let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
-    if (ar > car) { sw = img.naturalHeight * car; sx = (img.naturalWidth - sw) / 2; }
-    else          { sh = img.naturalWidth / car;  sy = (img.naturalHeight - sh) / 2; }
-    ctx.drawImage(img, sx, sy, sw, sh, x, y, cw, ch);
+    drawImageCover(ctx, img, x, y, cw, ch);
   } else {
     const [c1, c2] = gradColors(student.uid);
     const g = ctx.createLinearGradient(x, y, x + cw, y + ch);
     g.addColorStop(0, c1); g.addColorStop(1, c2);
     ctx.fillStyle = g; ctx.fill();
-
-    // faint person silhouette behind initials
     drawSilhouette(ctx, x, y, cw, ch);
-
     const initials = student.fullName.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('');
-    ctx.fillStyle = 'rgba(255,255,255,0.92)';
-    ctx.font = `900 ${Math.floor(cw * 0.3)}px sans-serif`;
+    ctx.fillStyle = 'rgba(255,255,255,0.9)';
+    ctx.font = `900 ${Math.floor(cw * 0.34)}px sans-serif`;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(initials, x + cw / 2, y + ch / 2);
   }
 
-  // bottom gradient overlay
-  const ov = ctx.createLinearGradient(0, y + ch * 0.55, 0, y + ch);
-  ov.addColorStop(0, 'transparent'); ov.addColorStop(1, 'rgba(0,0,0,0.82)');
+  // subtle bottom darken to ground card
+  const ov = ctx.createLinearGradient(0, y + ch * 0.6, 0, y + ch);
+  ov.addColorStop(0, 'transparent'); ov.addColorStop(1, 'rgba(0,0,0,0.55)');
   ctx.fillStyle = ov; ctx.fillRect(x, y, cw, ch);
 
-  // selected border
-  if (isSelected) {
-    ctx.strokeStyle = accent; ctx.lineWidth = 3;
-    rrect(ctx, x, y, cw, ch, 6); ctx.stroke();
+  ctx.restore();
+}
+
+// Collage layout constants
+const COLLAGE_CARD_W = 70;
+const COLLAGE_CARD_H = 90;
+const COLLAGE_GAP_X = 6;
+const COLLAGE_GAP_Y = 6;
+const COLLAGE_STEP_X = COLLAGE_CARD_W + COLLAGE_GAP_X;
+const COLLAGE_ROWS = 3;
+
+function drawCollage(
+  ctx: CanvasRenderingContext2D,
+  cw: number, ch: number,
+  students: StudentProfile[],
+  images: Map<string, HTMLImageElement>,
+  scrollOffset: number,
+  subject: string,
+  accent: string,
+) {
+  const rowsArea = COLLAGE_ROWS * COLLAGE_CARD_H + (COLLAGE_ROWS - 1) * COLLAGE_GAP_Y;
+  const topPad = (ch - rowsArea) / 2;
+  const totalW = students.length * COLLAGE_STEP_X;
+
+  // Draw cards — multiple rows, different speeds/directions for collage feel
+  const rowSpeedMul = [1.0, 0.78, 1.18];
+  const rowDir      = [1, -1, 1];
+  const rowPhase    = [0, COLLAGE_STEP_X * 0.5, COLLAGE_STEP_X * 0.25];
+
+  for (let r = 0; r < COLLAGE_ROWS; r++) {
+    const rowY = topPad + r * (COLLAGE_CARD_H + COLLAGE_GAP_Y);
+    if (totalW <= 0) continue;
+
+    const rawOffset = rowDir[r] * scrollOffset * rowSpeedMul[r] + rowPhase[r];
+    const effective = ((rawOffset % totalW) + totalW) % totalW;
+    const startIdx  = Math.floor(effective / COLLAGE_STEP_X);
+    const visible   = Math.ceil(cw / COLLAGE_STEP_X) + 2;
+
+    for (let i = -1; i <= visible; i++) {
+      const idx = ((startIdx + i) % students.length + students.length) % students.length;
+      const x   = i * COLLAGE_STEP_X - (effective % COLLAGE_STEP_X);
+      const student = students[idx];
+      const img     = images.get(student.uid) ?? null;
+      drawCardSmall(ctx, x, rowY, COLLAGE_CARD_W, COLLAGE_CARD_H, student, img);
+    }
+  }
+
+  // Darken vignette behind subject code so it pops over photos
+  const vignette = ctx.createRadialGradient(cw / 2, ch / 2, 0, cw / 2, ch / 2, cw * 0.4);
+  vignette.addColorStop(0, 'rgba(4,4,18,0.55)');
+  vignette.addColorStop(1, 'rgba(4,4,18,0)');
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, cw, ch);
+
+  // Subject code — large, overlapping photos
+  ctx.save();
+  ctx.font = '900 140px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = accent;
+  ctx.shadowBlur = 38;
+  ctx.fillStyle = accent;
+  ctx.fillText(subject, cw / 2, ch / 2 - 6);
+
+  // subtitle line under code
+  ctx.shadowBlur = 0;
+  ctx.font = '700 18px sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.fillText(`LIVE · ${students.length} students`, cw / 2, ch / 2 + 78);
+  ctx.restore();
+
+  // Animated scan line
+  const scanY = (scrollOffset / 3) % ch;
+  ctx.fillStyle = 'rgba(255,255,255,0.03)';
+  ctx.fillRect(0, scanY, cw, 2);
+
+  // Top-right student count badge
+  ctx.save();
+  const badgeText = `${students.length} students`;
+  ctx.font = '700 14px sans-serif';
+  const tw = ctx.measureText(badgeText).width + 26;
+  const tbh = 28;
+  const tbx = cw - tw - 18;
+  const tby = 16;
+  rrect(ctx, tbx, tby, tw, tbh, 14);
+  ctx.fillStyle = `${accent}26`; ctx.fill();
+  rrect(ctx, tbx, tby, tw, tbh, 14);
+  ctx.strokeStyle = `${accent}aa`; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.fillStyle = accent;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(badgeText, tbx + tw / 2, tby + tbh / 2 + 1);
+  ctx.restore();
+}
+
+function drawFeaturedStudent(
+  ctx: CanvasRenderingContext2D,
+  cw: number, ch: number,
+  student: StudentProfile,
+  img: HTMLImageElement | null | undefined,
+  subject: string,
+  accent: string,
+  scrollOffset: number,
+) {
+  // Big photo on left
+  const padY   = 28;
+  const photoH = ch - padY * 2;
+  const photoW = Math.floor(photoH * 0.78);
+  const photoX = 48;
+  const photoY = padY;
+
+  // soft accent halo behind photo
+  ctx.save();
+  const halo = ctx.createRadialGradient(
+    photoX + photoW / 2, photoY + photoH / 2, photoW * 0.3,
+    photoX + photoW / 2, photoY + photoH / 2, photoW * 1.1,
+  );
+  halo.addColorStop(0, `${accent}50`);
+  halo.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = halo;
+  ctx.fillRect(0, 0, cw, ch);
+  ctx.restore();
+
+  // photo card (rounded with accent border)
+  ctx.save();
+  rrect(ctx, photoX, photoY, photoW, photoH, 16);
+  ctx.clip();
+  if (img && img.complete && img.naturalWidth > 0) {
+    drawImageCover(ctx, img, photoX, photoY, photoW, photoH);
+  } else {
+    const [c1, c2] = gradColors(student.uid);
+    const g = ctx.createLinearGradient(photoX, photoY, photoX + photoW, photoY + photoH);
+    g.addColorStop(0, c1); g.addColorStop(1, c2);
+    ctx.fillStyle = g; ctx.fill();
+    drawSilhouette(ctx, photoX, photoY, photoW, photoH);
+    const initials = student.fullName.split(' ').filter(Boolean).slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('');
+    ctx.fillStyle = 'rgba(255,255,255,0.92)';
+    ctx.font = `900 ${Math.floor(photoW * 0.32)}px sans-serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(initials, photoX + photoW / 2, photoY + photoH / 2);
   }
   ctx.restore();
 
-  // name label below card
-  const name = student.fullName.split(' ')[0] ?? '';
-  ctx.fillStyle = isSelected ? accent : 'rgba(255,255,255,0.6)';
-  ctx.font = `600 10px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  ctx.fillText(name.length > 8 ? name.slice(0, 7) + '…' : name, x + cw / 2, y + ch + 4);
-}
+  // photo border
+  ctx.save();
+  ctx.strokeStyle = accent;
+  ctx.lineWidth = 3;
+  rrect(ctx, photoX, photoY, photoW, photoH, 16);
+  ctx.stroke();
+  ctx.restore();
 
-const CARD_W = 92;
-const CARD_GAP = 10;
-const CARD_STEP = CARD_W + CARD_GAP;
+  // Right-side info column
+  const infoX = photoX + photoW + 50;
+
+  // Subject code (smaller — sits above the name)
+  ctx.fillStyle = `${accent}dd`;
+  ctx.font = '800 20px sans-serif';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(subject, infoX, photoY + 18);
+
+  // Name — large
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 56px sans-serif';
+  ctx.shadowColor = 'rgba(0,0,0,0.45)';
+  ctx.shadowBlur = 12;
+  // crude truncate so it never overflows
+  let name = student.fullName;
+  while (name.length > 0 && ctx.measureText(name).width > cw - infoX - 40) {
+    name = name.slice(0, -1);
+  }
+  if (name.length < student.fullName.length) name = name.slice(0, -1) + '…';
+  ctx.fillText(name, infoX, photoY + 60);
+  ctx.shadowBlur = 0;
+
+  // Student ID
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = '600 18px monospace';
+  ctx.fillText(student.studentId, infoX, photoY + 140);
+
+  // Section pill
+  if (student.section) {
+    ctx.font = '700 14px sans-serif';
+    const label = `Section ${student.section}`;
+    const w = ctx.measureText(label).width + 22;
+    const sx = infoX, sy = photoY + 180, sh = 28;
+    rrect(ctx, sx, sy, w, sh, 14);
+    ctx.fillStyle = `${accent}30`; ctx.fill();
+    rrect(ctx, sx, sy, w, sh, 14);
+    ctx.strokeStyle = `${accent}aa`; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = accent;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(label, sx + w / 2, sy + sh / 2 + 1);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  }
+
+  // Country / Campus row
+  const metaParts: string[] = [];
+  if (student.campus)      metaParts.push(student.campus);
+  if (student.homeCountry) metaParts.push(student.homeCountry);
+  if (metaParts.length > 0) {
+    ctx.fillStyle = 'rgba(255,255,255,0.55)';
+    ctx.font = '500 16px sans-serif';
+    ctx.fillText(metaParts.join(' · '), infoX, photoY + 222);
+  }
+
+  // SELECTED badge (top-right)
+  ctx.save();
+  ctx.font = '800 13px sans-serif';
+  const bText = 'SELECTED';
+  const bw = ctx.measureText(bText).width + 26;
+  const bh = 28;
+  const bx = cw - bw - 18;
+  const by = 16;
+  rrect(ctx, bx, by, bw, bh, 14);
+  ctx.fillStyle = `${accent}38`; ctx.fill();
+  rrect(ctx, bx, by, bw, bh, 14);
+  ctx.strokeStyle = accent; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = accent;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(bText, bx + bw / 2, by + bh / 2 + 1);
+  ctx.restore();
+
+  // Scan line keeps the CRT feel
+  const scanY = (scrollOffset / 3) % ch;
+  ctx.fillStyle = 'rgba(255,255,255,0.03)';
+  ctx.fillRect(0, scanY, cw, 2);
+}
 
 function drawScreen(
   ctx: CanvasRenderingContext2D,
@@ -155,7 +367,7 @@ function drawScreen(
   accent: string,
   selectedId: string | null,
 ) {
-  // Background — radial gradient (slightly lighter edges, darker center)
+  // Background — radial gradient
   const radial = ctx.createRadialGradient(cw / 2, ch / 2, 0, cw / 2, ch / 2, Math.max(cw, ch) * 0.7);
   radial.addColorStop(0, '#05051a');
   radial.addColorStop(1, '#0a0a26');
@@ -169,92 +381,15 @@ function drawScreen(
     return;
   }
 
-  const LEFT_W = 240;
-  const PHOTO_X = LEFT_W + 16;
-  const PHOTO_AREA_W = cw - PHOTO_X;
-  const CARD_H = Math.floor(ch * 0.72);
-  const CARD_Y = Math.floor((ch - CARD_H - 16) / 2);
-
-  // ── left info panel ──
-  ctx.save();
-  ctx.font = `900 ${Math.min(58, LEFT_W * 0.42)}px sans-serif`;
-  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = accent;
-  ctx.shadowColor = accent; ctx.shadowBlur = 18;
-  ctx.fillText(subject, 20, ch * 0.44);
-  ctx.restore();
-
-  ctx.font = '500 13px sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.38)';
-  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-  ctx.fillText(`${students.length} enrolled`, 20, ch * 0.56);
-
-  // LIVE badge
-  const bx = 20, by = ch * 0.66;
-  rrect(ctx, bx, by - 10, 52, 20, 10);
-  ctx.fillStyle = `${accent}28`; ctx.fill();
-  rrect(ctx, bx, by - 10, 52, 20, 10);
-  ctx.strokeStyle = `${accent}55`; ctx.lineWidth = 1; ctx.stroke();
-  ctx.font = '700 10px sans-serif';
-  ctx.fillStyle = accent; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText('LIVE', bx + 26, by);
-
-  // vertical divider
-  const dg = ctx.createLinearGradient(0, 0, 0, ch);
-  dg.addColorStop(0, 'transparent'); dg.addColorStop(0.25, `${accent}50`);
-  dg.addColorStop(0.75, `${accent}50`); dg.addColorStop(1, 'transparent');
-  ctx.strokeStyle = dg; ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(LEFT_W, 0); ctx.lineTo(LEFT_W, ch); ctx.stroke();
-
-  // ── scrolling photos (clipped to right panel) ──
-  ctx.save();
-  ctx.beginPath(); ctx.rect(PHOTO_X, 0, PHOTO_AREA_W, ch); ctx.clip();
-
-  const totalW = students.length * CARD_STEP;
-  if (totalW > 0) {
-    const startIdx = Math.floor(scrollOffset / CARD_STEP);
-    const visible  = Math.ceil(PHOTO_AREA_W / CARD_STEP) + 3;
-    for (let i = 0; i <= visible; i++) {
-      const idx = ((startIdx + i) % students.length + students.length) % students.length;
-      const x   = PHOTO_X + (startIdx + i) * CARD_STEP - scrollOffset;
-      if (x > cw + CARD_STEP) break;
-      const student = students[idx];
-      const img     = images.get(student.uid) ?? null;
-      drawCard(ctx, x, CARD_Y, CARD_W, CARD_H, student, img, student.uid === selectedId, accent);
-    }
+  // If a student is selected, show featured view (single student big)
+  const selected = selectedId ? students.find(s => s.uid === selectedId) : null;
+  if (selected) {
+    drawFeaturedStudent(ctx, cw, ch, selected, images.get(selected.uid), subject, accent, scrollOffset);
+    return;
   }
-  ctx.restore();
 
-  // fade masks on photo strip edges
-  const lFade = ctx.createLinearGradient(PHOTO_X, 0, PHOTO_X + 30, 0);
-  lFade.addColorStop(0, '#05051a'); lFade.addColorStop(1, 'transparent');
-  ctx.fillStyle = lFade; ctx.fillRect(PHOTO_X, 0, 30, ch);
-
-  const rFade = ctx.createLinearGradient(cw - 28, 0, cw, 0);
-  rFade.addColorStop(0, 'transparent'); rFade.addColorStop(1, '#0a0a26');
-  ctx.fillStyle = rFade; ctx.fillRect(cw - 28, 0, 28, ch);
-
-  // ── animated scan line (CRT feel) ──
-  const scanY = (scrollOffset / 3) % ch;
-  ctx.fillStyle = 'rgba(255,255,255,0.03)';
-  ctx.fillRect(0, scanY, cw, 2);
-
-  // ── student count badge (top-right) ──
-  ctx.save();
-  const badgeText = `${students.length} students`;
-  ctx.font = '700 14px sans-serif';
-  const tw = ctx.measureText(badgeText).width + 26;
-  const tbh = 28;
-  const tbx = cw - tw - 18;
-  const tby = 16;
-  rrect(ctx, tbx, tby, tw, tbh, 14);
-  ctx.fillStyle = `${accent}26`; ctx.fill();
-  rrect(ctx, tbx, tby, tw, tbh, 14);
-  ctx.strokeStyle = `${accent}88`; ctx.lineWidth = 1.2; ctx.stroke();
-  ctx.fillStyle = accent;
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(badgeText, tbx + tw / 2, tby + tbh / 2 + 1);
-  ctx.restore();
+  // Otherwise — multi-row collage with subject code overlapping
+  drawCollage(ctx, cw, ch, students, images, scrollOffset, subject, accent);
 }
 
 // ─── Projector Screen with live photo texture ──────────────────────────────────
@@ -298,7 +433,7 @@ function ProjectorScreen({
   const SCROLL_SPEED = 42; // px per second
 
   useFrame((_, delta) => {
-    const totalW = students.length * CARD_STEP;
+    const totalW = students.length * COLLAGE_STEP_X;
     if (totalW > 0) scrollRef.current = (scrollRef.current + delta * SCROLL_SPEED) % totalW;
 
     const ctx = canvas.getContext('2d');
@@ -376,6 +511,7 @@ function StudentAvatar({
     <group
       ref={groupRef}
       position={position}
+      rotation={[0, Math.PI, 0]}
       onClick={e => { e.stopPropagation(); onClick(); }}
       onPointerOver={e => { e.stopPropagation(); setHovered(true);  document.body.style.cursor = 'pointer'; }}
       onPointerOut={()  => { setHovered(false); document.body.style.cursor = 'default'; }}
@@ -888,14 +1024,17 @@ export function ClassroomScene({ students, selectedId, onSelect, subject, subjec
       style={{ background: '#040410' }}
       onClick={() => onSelect(null)}
     >
-      <fog attach="fog" args={['#040410', 18, 42]} />
+      <fog attach="fog" args={['#0a0a1e', 24, 60]} />
 
-      {/* Ambient */}
-      <ambientLight intensity={0.28} color={subjectCfg.ambient} />
+      {/* Ambient — brighter overall */}
+      <ambientLight intensity={0.65} color={subjectCfg.ambient} />
+
+      {/* Hemisphere fill — soft sky/ground bounce */}
+      <hemisphereLight args={['#dcdcff', '#2a2a44', 0.55]} />
 
       {/* Key light – cool overhead */}
       <directionalLight
-        position={[-3, 16, 6]} intensity={0.9} color="#d6d8ff"
+        position={[-3, 16, 6]} intensity={1.45} color="#e6e8ff"
         castShadow
         shadow-mapSize-width={1024} shadow-mapSize-height={1024}
         shadow-camera-near={0.5} shadow-camera-far={60}
@@ -903,9 +1042,11 @@ export function ClassroomScene({ students, selectedId, onSelect, subject, subjec
         shadow-camera-top={15} shadow-camera-bottom={-5}
       />
       {/* Stage spotlight */}
-      <pointLight position={[0, 8, -2]} intensity={6} color="#fff8f0" distance={18} decay={2} />
+      <pointLight position={[0, 8, -2]} intensity={7.5} color="#fff8f0" distance={22} decay={2} />
       {/* Subject-tinted fill on students */}
-      <pointLight position={[0, 5.5, sceneDepth * 0.45]} intensity={2.2} color={subjectCfg.fill} distance={28} decay={2} />
+      <pointLight position={[0, 5.5, sceneDepth * 0.45]} intensity={3.2} color={subjectCfg.fill} distance={34} decay={2} />
+      {/* Front-facing fill so avatar faces are lit */}
+      <pointLight position={[0, 4.5, -3.5]} intensity={2.4} color="#ffffff" distance={26} decay={2} />
 
       {/* Atmosphere */}
       <Sparkles

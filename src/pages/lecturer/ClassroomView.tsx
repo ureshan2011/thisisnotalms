@@ -163,7 +163,7 @@ export default function ClassroomView() {
     position: isFullscreen ? 'fixed' : 'relative',
     inset: isFullscreen ? 0 : undefined,
     zIndex: isFullscreen ? 9999 : undefined,
-    background: '#040410',
+    background: '#06070b',
     height: isFullscreen ? '100vh' : 'calc(100vh - 240px)',
     minHeight: isFullscreen ? '100vh' : '520px',
     borderRadius: isFullscreen ? 0 : 16,
@@ -219,7 +219,7 @@ export default function ClassroomView() {
       {!isFullscreen && !selected && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
           <div className="bg-black/45 backdrop-blur-sm text-white/65 text-xs px-4 py-2 rounded-full select-none">
-            Click any avatar to highlight a student
+            Click an avatar to feature · click again to deselect
           </div>
         </div>
       )}

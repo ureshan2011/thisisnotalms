@@ -150,78 +150,101 @@ function drawCollage(
   subject: string,
   accent: string,
 ) {
-  const rowsArea = COLLAGE_ROWS * COLLAGE_CARD_H + (COLLAGE_ROWS - 1) * COLLAGE_GAP_Y;
-  const topPad = (ch - rowsArea) / 2;
-  const totalW = students.length * COLLAGE_STEP_X;
+  // Dedicated top bar for subject code so text never overlaps photos
+  const TOP_BAR_H = 64;
+  const BOTTOM_BAR_H = 36;
+  const photoAreaTop = TOP_BAR_H + 12;
+  const photoAreaBottom = ch - BOTTOM_BAR_H - 12;
+  const photoAreaH = photoAreaBottom - photoAreaTop;
 
-  // Draw cards — multiple rows, different speeds/directions for collage feel
+  // Recompute card height to fit clean inside photo area
+  const cardH = Math.floor((photoAreaH - (COLLAGE_ROWS - 1) * COLLAGE_GAP_Y) / COLLAGE_ROWS);
+  const cardW = Math.floor(cardH * (COLLAGE_CARD_W / COLLAGE_CARD_H));
+  const stepX = cardW + COLLAGE_GAP_X;
+  const totalW = students.length * stepX;
+
+  // Row scroll config
   const rowSpeedMul = [1.0, 0.78, 1.18];
   const rowDir      = [1, -1, 1];
-  const rowPhase    = [0, COLLAGE_STEP_X * 0.5, COLLAGE_STEP_X * 0.25];
+  const rowPhase    = [0, stepX * 0.5, stepX * 0.25];
 
   for (let r = 0; r < COLLAGE_ROWS; r++) {
-    const rowY = topPad + r * (COLLAGE_CARD_H + COLLAGE_GAP_Y);
+    const rowY = photoAreaTop + r * (cardH + COLLAGE_GAP_Y);
     if (totalW <= 0) continue;
 
     const rawOffset = rowDir[r] * scrollOffset * rowSpeedMul[r] + rowPhase[r];
     const effective = ((rawOffset % totalW) + totalW) % totalW;
-    const startIdx  = Math.floor(effective / COLLAGE_STEP_X);
-    const visible   = Math.ceil(cw / COLLAGE_STEP_X) + 2;
+    const startIdx  = Math.floor(effective / stepX);
+    const visible   = Math.ceil(cw / stepX) + 2;
 
     for (let i = -1; i <= visible; i++) {
       const idx = ((startIdx + i) % students.length + students.length) % students.length;
-      const x   = i * COLLAGE_STEP_X - (effective % COLLAGE_STEP_X);
+      const x   = i * stepX - (effective % stepX);
       const student = students[idx];
       const img     = images.get(student.uid) ?? null;
-      drawCardSmall(ctx, x, rowY, COLLAGE_CARD_W, COLLAGE_CARD_H, student, img);
+      drawCardSmall(ctx, x, rowY, cardW, cardH, student, img);
     }
   }
 
-  // Darken vignette behind subject code so it pops over photos
-  const vignette = ctx.createRadialGradient(cw / 2, ch / 2, 0, cw / 2, ch / 2, cw * 0.4);
-  vignette.addColorStop(0, 'rgba(4,4,18,0.55)');
-  vignette.addColorStop(1, 'rgba(4,4,18,0)');
-  ctx.fillStyle = vignette;
-  ctx.fillRect(0, 0, cw, ch);
-
-  // Subject code — large, overlapping photos
+  // Top bar — solid background so text is crisply readable (no photo overlap)
   ctx.save();
-  ctx.font = '900 140px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.shadowColor = accent;
-  ctx.shadowBlur = 38;
+  const topGrad = ctx.createLinearGradient(0, 0, 0, TOP_BAR_H);
+  topGrad.addColorStop(0, 'rgba(8,8,18,0.96)');
+  topGrad.addColorStop(1, 'rgba(8,8,18,0.78)');
+  ctx.fillStyle = topGrad;
+  ctx.fillRect(0, 0, cw, TOP_BAR_H);
+  // Accent underline
   ctx.fillStyle = accent;
-  ctx.fillText(subject, cw / 2, ch / 2 - 6);
-
-  // subtitle line under code
-  ctx.shadowBlur = 0;
-  ctx.font = '700 18px sans-serif';
-  ctx.fillStyle = 'rgba(255,255,255,0.85)';
-  ctx.fillText(`LIVE · ${students.length} students`, cw / 2, ch / 2 + 78);
+  ctx.fillRect(0, TOP_BAR_H - 2, cw, 2);
   ctx.restore();
 
-  // Animated scan line
-  const scanY = (scrollOffset / 3) % ch;
+  // Subject code in top bar — left aligned
+  ctx.save();
+  ctx.font = '900 38px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = accent;
+  ctx.shadowColor = accent;
+  ctx.shadowBlur = 16;
+  ctx.fillText(subject, 32, TOP_BAR_H / 2);
+  ctx.shadowBlur = 0;
+
+  // Live indicator + count
+  const liveDotX = cw - 220;
+  ctx.fillStyle = '#22c55e';
+  ctx.beginPath();
+  ctx.arc(liveDotX, TOP_BAR_H / 2, 6, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.font = '700 18px sans-serif';
+  ctx.fillText('LIVE', liveDotX + 14, TOP_BAR_H / 2);
+
+  ctx.font = '600 16px sans-serif';
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.fillText(`${students.length} students`, liveDotX + 78, TOP_BAR_H / 2);
+  ctx.restore();
+
+  // Bottom bar
+  ctx.save();
+  const botGrad = ctx.createLinearGradient(0, ch - BOTTOM_BAR_H, 0, ch);
+  botGrad.addColorStop(0, 'rgba(8,8,18,0.78)');
+  botGrad.addColorStop(1, 'rgba(8,8,18,0.96)');
+  ctx.fillStyle = botGrad;
+  ctx.fillRect(0, ch - BOTTOM_BAR_H, cw, BOTTOM_BAR_H);
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.font = '500 13px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Click any avatar to feature a student', 32, ch - BOTTOM_BAR_H / 2);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = `${accent}cc`;
+  ctx.fillText('YooBees · Classroom Live', cw - 32, ch - BOTTOM_BAR_H / 2);
+  ctx.restore();
+
+  // Soft scan line
+  const scanY = ((scrollOffset / 3) % photoAreaH) + photoAreaTop;
   ctx.fillStyle = 'rgba(255,255,255,0.03)';
   ctx.fillRect(0, scanY, cw, 2);
-
-  // Top-right student count badge
-  ctx.save();
-  const badgeText = `${students.length} students`;
-  ctx.font = '700 14px sans-serif';
-  const tw = ctx.measureText(badgeText).width + 26;
-  const tbh = 28;
-  const tbx = cw - tw - 18;
-  const tby = 16;
-  rrect(ctx, tbx, tby, tw, tbh, 14);
-  ctx.fillStyle = `${accent}26`; ctx.fill();
-  rrect(ctx, tbx, tby, tw, tbh, 14);
-  ctx.strokeStyle = `${accent}aa`; ctx.lineWidth = 1.2; ctx.stroke();
-  ctx.fillStyle = accent;
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(badgeText, tbx + tw / 2, tby + tbh / 2 + 1);
-  ctx.restore();
 }
 
 function drawFeaturedStudent(
@@ -229,32 +252,42 @@ function drawFeaturedStudent(
   cw: number, ch: number,
   student: StudentProfile,
   img: HTMLImageElement | null | undefined,
-  subject: string,
+  _subject: string,
   accent: string,
   scrollOffset: number,
 ) {
-  // Big photo on left
-  const padY   = 28;
+  void _subject;
+  // Dark backdrop with subtle vignette
+  const bg = ctx.createRadialGradient(cw / 2, ch / 2, 0, cw / 2, ch / 2, Math.max(cw, ch) * 0.7);
+  bg.addColorStop(0, '#0d0d18');
+  bg.addColorStop(1, '#04040a');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, cw, ch);
+
+  // Reserved info column on the right — guarantees no overlap with photo
+  const padY = 36;
+  const photoX = 56;
+  const photoY = padY;
   const photoH = ch - padY * 2;
   const photoW = Math.floor(photoH * 0.78);
-  const photoX = 48;
-  const photoY = padY;
+  const infoX = photoX + photoW + 64;
+  const infoMaxW = cw - infoX - 48;
 
-  // soft accent halo behind photo
+  // Soft accent halo behind photo
   ctx.save();
   const halo = ctx.createRadialGradient(
-    photoX + photoW / 2, photoY + photoH / 2, photoW * 0.3,
-    photoX + photoW / 2, photoY + photoH / 2, photoW * 1.1,
+    photoX + photoW / 2, photoY + photoH / 2, photoW * 0.2,
+    photoX + photoW / 2, photoY + photoH / 2, photoW * 1.2,
   );
-  halo.addColorStop(0, `${accent}50`);
+  halo.addColorStop(0, `${accent}40`);
   halo.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = halo;
   ctx.fillRect(0, 0, cw, ch);
   ctx.restore();
 
-  // photo card (rounded with accent border)
+  // Photo card (rounded with accent border)
   ctx.save();
-  rrect(ctx, photoX, photoY, photoW, photoH, 16);
+  rrect(ctx, photoX, photoY, photoW, photoH, 18);
   ctx.clip();
   if (img && img.complete && img.naturalWidth > 0) {
     drawImageCover(ctx, img, photoX, photoY, photoW, photoH);
@@ -272,89 +305,97 @@ function drawFeaturedStudent(
   }
   ctx.restore();
 
-  // photo border
+  // Photo border
   ctx.save();
   ctx.strokeStyle = accent;
   ctx.lineWidth = 3;
-  rrect(ctx, photoX, photoY, photoW, photoH, 16);
+  rrect(ctx, photoX, photoY, photoW, photoH, 18);
   ctx.stroke();
   ctx.restore();
 
-  // Right-side info column
-  const infoX = photoX + photoW + 50;
+  // SELECTED badge — top of info column, never over photo
+  ctx.save();
+  ctx.font = '800 14px sans-serif';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  const dotR = 6;
+  ctx.fillStyle = accent;
+  ctx.beginPath();
+  ctx.arc(infoX + dotR, photoY + 18 + dotR, dotR, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = accent;
+  ctx.fillText('SELECTED STUDENT', infoX + 20, photoY + 18 + dotR);
+  ctx.restore();
 
-  // Subject code (smaller — sits above the name)
-  ctx.fillStyle = `${accent}dd`;
-  ctx.font = '800 20px sans-serif';
-  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
-  ctx.fillText(subject, infoX, photoY + 18);
-
-  // Name — large
+  // Name — large, wraps to 2 lines max
   ctx.fillStyle = '#ffffff';
-  ctx.font = '900 56px sans-serif';
-  ctx.shadowColor = 'rgba(0,0,0,0.45)';
-  ctx.shadowBlur = 12;
-  // crude truncate so it never overflows
-  let name = student.fullName;
-  while (name.length > 0 && ctx.measureText(name).width > cw - infoX - 40) {
-    name = name.slice(0, -1);
-  }
-  if (name.length < student.fullName.length) name = name.slice(0, -1) + '…';
-  ctx.fillText(name, infoX, photoY + 60);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.font = '900 64px sans-serif';
+  ctx.shadowColor = 'rgba(0,0,0,0.55)';
+  ctx.shadowBlur = 14;
+  const nameLines = wrapText(ctx, student.fullName, infoMaxW, 2);
+  let nameY = photoY + 56;
+  nameLines.forEach(line => {
+    ctx.fillText(line, infoX, nameY);
+    nameY += 70;
+  });
   ctx.shadowBlur = 0;
 
-  // Student ID
-  ctx.fillStyle = 'rgba(255,255,255,0.6)';
-  ctx.font = '600 18px monospace';
-  ctx.fillText(student.studentId, infoX, photoY + 140);
-
-  // Section pill
+  // Section — primary info (large accent pill)
   if (student.section) {
-    ctx.font = '700 14px sans-serif';
+    ctx.font = '800 22px sans-serif';
     const label = `Section ${student.section}`;
-    const w = ctx.measureText(label).width + 22;
-    const sx = infoX, sy = photoY + 180, sh = 28;
-    rrect(ctx, sx, sy, w, sh, 14);
-    ctx.fillStyle = `${accent}30`; ctx.fill();
-    rrect(ctx, sx, sy, w, sh, 14);
-    ctx.strokeStyle = `${accent}aa`; ctx.lineWidth = 1; ctx.stroke();
+    const tw = ctx.measureText(label).width + 32;
+    const sh = 44;
+    const sx = infoX;
+    const sy = nameY + 18;
+    rrect(ctx, sx, sy, tw, sh, 22);
+    ctx.fillStyle = `${accent}33`; ctx.fill();
+    rrect(ctx, sx, sy, tw, sh, 22);
+    ctx.strokeStyle = accent; ctx.lineWidth = 1.8; ctx.stroke();
     ctx.fillStyle = accent;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText(label, sx + w / 2, sy + sh / 2 + 1);
+    ctx.fillText(label, sx + tw / 2, sy + sh / 2 + 1);
     ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   }
 
-  // Country / Campus row
-  const metaParts: string[] = [];
-  if (student.campus)      metaParts.push(student.campus);
-  if (student.homeCountry) metaParts.push(student.homeCountry);
-  if (metaParts.length > 0) {
-    ctx.fillStyle = 'rgba(255,255,255,0.55)';
-    ctx.font = '500 16px sans-serif';
-    ctx.fillText(metaParts.join(' · '), infoX, photoY + 222);
+  // Soft scan line over photo only
+  const scanY = (scrollOffset / 3) % photoH + photoY;
+  ctx.fillStyle = 'rgba(255,255,255,0.025)';
+  ctx.fillRect(photoX, scanY, photoW, 2);
+}
+
+function wrapText(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  maxWidth: number,
+  maxLines: number,
+): string[] {
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let current = '';
+  for (const w of words) {
+    const test = current ? current + ' ' + w : w;
+    if (ctx.measureText(test).width <= maxWidth) {
+      current = test;
+    } else {
+      if (current) lines.push(current);
+      current = w;
+      if (lines.length === maxLines - 1) break;
+    }
   }
-
-  // SELECTED badge (top-right)
-  ctx.save();
-  ctx.font = '800 13px sans-serif';
-  const bText = 'SELECTED';
-  const bw = ctx.measureText(bText).width + 26;
-  const bh = 28;
-  const bx = cw - bw - 18;
-  const by = 16;
-  rrect(ctx, bx, by, bw, bh, 14);
-  ctx.fillStyle = `${accent}38`; ctx.fill();
-  rrect(ctx, bx, by, bw, bh, 14);
-  ctx.strokeStyle = accent; ctx.lineWidth = 1.5; ctx.stroke();
-  ctx.fillStyle = accent;
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillText(bText, bx + bw / 2, by + bh / 2 + 1);
-  ctx.restore();
-
-  // Scan line keeps the CRT feel
-  const scanY = (scrollOffset / 3) % ch;
-  ctx.fillStyle = 'rgba(255,255,255,0.03)';
-  ctx.fillRect(0, scanY, cw, 2);
+  if (current && lines.length < maxLines) lines.push(current);
+  // Truncate last line with ellipsis if needed
+  if (lines.length === maxLines) {
+    let last = lines[maxLines - 1];
+    while (last.length > 0 && ctx.measureText(last + '…').width > maxWidth) {
+      last = last.slice(0, -1);
+    }
+    // If we cut, append ellipsis
+    if (text.length > lines.join(' ').length) {
+      lines[maxLines - 1] = last + '…';
+    }
+  }
+  return lines;
 }
 
 function drawScreen(
@@ -401,11 +442,11 @@ function ProjectorScreen({
   accent: string;
   selectedId: string | null;
 }) {
-  // Canvas + texture created once
+  // Canvas + texture created once — higher resolution for big screen
   const { canvas, texture } = useMemo(() => {
     const c = document.createElement('canvas');
-    c.width  = 1024;
-    c.height = 384;
+    c.width  = 1536;
+    c.height = 576;
     const tex = new THREE.CanvasTexture(c);
     tex.minFilter = THREE.LinearFilter;
     tex.magFilter = THREE.LinearFilter;
@@ -443,8 +484,8 @@ function ProjectorScreen({
   });
 
   return (
-    <mesh position={[-3.5, 2.85, -1.94]}>
-      <planeGeometry args={[8.4, 3.15]} />
+    <mesh position={[0, 3.6, -1.94]}>
+      <planeGeometry args={[16, 6]} />
       <meshBasicMaterial map={texture} toneMapped={false} side={THREE.FrontSide} />
     </mesh>
   );
@@ -754,11 +795,11 @@ function StudentAvatar({
 
 // ─── Desk + Chair (per avatar position) ───────────────────────────────────────
 function DeskAndChair({ x, y, z, yaw }: { x: number; y: number; z: number; yaw: number }) {
-  const CHAIR_COLOR  = '#1a1a1a';
-  const CHAIR_FABRIC = '#1e3a8a'; // royal blue seat cushion
-  const DESK_TOP     = '#e8dfd0'; // cream desk surface
-  const DESK_SIDE    = '#2a2a2a'; // dark trim
-  const LEG_METAL    = '#4a4a4a';
+  const CHAIR_COLOR  = '#0d0e14';
+  const CHAIR_FABRIC = '#1e2535'; // dark navy seat cushion
+  const DESK_TOP     = '#15171f'; // dark modern desk surface
+  const DESK_SIDE    = '#0a0b10'; // black trim
+  const LEG_METAL    = '#3a3d48';
 
   // Desk sits in FRONT of avatar (toward stage). We rotate the whole group by yaw
   // so the desk follows the curve. Avatar's forward direction is +Z in local frame
@@ -827,7 +868,7 @@ function AvatarGrid({
 }: {
   students: StudentProfile[];
   selectedId: string | null;
-  onSelect: (s: StudentProfile) => void;
+  onSelect: (s: StudentProfile | null) => void;
   accent: string;
   fill: string;
 }) {
@@ -861,7 +902,7 @@ function AvatarGrid({
             isSelected={selectedId === student.uid}
             accent={accent}
             fill={fill}
-            onClick={() => onSelect(student)}
+            onClick={() => onSelect(selectedId === student.uid ? null : student)}
           />
         </group>
       ))}
@@ -903,29 +944,34 @@ function CeilingDownlights({ rowCount }: { rowCount: number }) {
 
   return (
     <>
-      {/* Visual recessed light disks */}
+      {/* Visual recessed light disks — dramatic cool-white halos in dark ceiling */}
       {visualPositions.map(([x, y, z], i) => (
         <group key={i} position={[x, y, z]}>
-          {/* Trim ring */}
+          {/* Trim ring (dark metal) */}
           <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <ringGeometry args={[0.10, 0.14, 24]} />
-            <meshStandardMaterial color="#cccccc" side={THREE.DoubleSide} roughness={0.5} metalness={0.4} />
+            <ringGeometry args={[0.10, 0.15, 24]} />
+            <meshStandardMaterial color="#2a2c34" side={THREE.DoubleSide} roughness={0.5} metalness={0.6} />
           </mesh>
-          {/* Bulb (emissive) */}
+          {/* Bulb (emissive cool white) */}
           <mesh position={[0, -0.005, 0]} rotation={[Math.PI / 2, 0, 0]}>
-            <circleGeometry args={[0.10, 22]} />
-            <meshBasicMaterial color="#ffffff" />
+            <circleGeometry args={[0.09, 22]} />
+            <meshBasicMaterial color="#dfe7ff" />
+          </mesh>
+          {/* Soft halo glow under each light */}
+          <mesh position={[0, -0.02, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <circleGeometry args={[0.22, 24]} />
+            <meshBasicMaterial color="#dfe7ff" transparent opacity={0.14} depthWrite={false} />
           </mesh>
         </group>
       ))}
-      {/* Actual lights */}
+      {/* Actual lights — fewer, more focused */}
       {litPositions.map(([x, y, z], i) => (
         <pointLight
           key={`L${i}`}
           position={[x, y, z]}
-          intensity={1.1}
-          color="#fff5e6"
-          distance={9}
+          intensity={0.95}
+          color="#e8eeff"
+          distance={8}
           decay={2}
         />
       ))}
@@ -933,49 +979,39 @@ function CeilingDownlights({ rowCount }: { rowCount: number }) {
   );
 }
 
-// ─── Texture helpers (wood floor, cream ceiling, wood-panelled walls) ─────────
+// ─── Texture helpers (modern dark theatre — polished floor, dark panels) ──────
 function useFloorTexture() {
   return useMemo(() => {
-    // Light wood-plank floor — beige base with subtle plank lines and grain
+    // Polished dark concrete with subtle grid lines
     const c = document.createElement('canvas');
     c.width = 256; c.height = 256;
     const ctx = c.getContext('2d')!;
-    // base
-    ctx.fillStyle = '#d4b896';
+    ctx.fillStyle = '#16181f';
     ctx.fillRect(0, 0, 256, 256);
-    // 4 plank stripes vertically with alternating tone
-    const planks = 4;
-    const pw = 256 / planks;
-    for (let i = 0; i < planks; i++) {
-      ctx.fillStyle = i % 2 === 0 ? '#c8aa84' : '#d8be9c';
-      ctx.fillRect(i * pw, 0, pw, 256);
+    // subtle noise
+    const img = ctx.getImageData(0, 0, 256, 256);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const n = (Math.random() - 0.5) * 14;
+      img.data[i]   = Math.max(0, Math.min(255, img.data[i] + n));
+      img.data[i+1] = Math.max(0, Math.min(255, img.data[i+1] + n));
+      img.data[i+2] = Math.max(0, Math.min(255, img.data[i+2] + n));
     }
-    // subtle grain lines
-    ctx.strokeStyle = 'rgba(80,55,30,0.10)';
+    ctx.putImageData(img, 0, 0);
+    // faint grid lines for modern look
+    ctx.strokeStyle = 'rgba(120,140,180,0.08)';
     ctx.lineWidth = 1;
-    for (let i = 0; i < 40; i++) {
-      const x = Math.random() * 256;
-      const y = Math.random() * 256;
+    for (let i = 0; i <= 4; i++) {
+      const p = (i / 4) * 256;
       ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x + 14 + Math.random() * 30, y + (Math.random() - 0.5) * 3);
+      ctx.moveTo(0, p); ctx.lineTo(256, p);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(p, 0); ctx.lineTo(p, 256);
       ctx.stroke();
     }
-    // plank separator lines
-    ctx.strokeStyle = 'rgba(60,40,20,0.35)';
-    ctx.lineWidth = 1.2;
-    for (let i = 1; i < planks; i++) {
-      ctx.beginPath();
-      ctx.moveTo(i * pw, 0); ctx.lineTo(i * pw, 256);
-      ctx.stroke();
-    }
-    // horizontal plank end joints (every 256 = once per tile)
-    ctx.beginPath();
-    ctx.moveTo(0, 0); ctx.lineTo(256, 0);
-    ctx.stroke();
     const tex = new THREE.CanvasTexture(c);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(8, 10);
+    tex.repeat.set(6, 8);
     tex.anisotropy = 4;
     return tex;
   }, []);
@@ -983,16 +1019,15 @@ function useFloorTexture() {
 
 function useCarpetTexture() {
   return useMemo(() => {
-    // Stepped-tier carpet — mid-gray with subtle noise
+    // Charcoal tier carpet — deep gray with very subtle noise
     const c = document.createElement('canvas');
     c.width = 128; c.height = 128;
     const ctx = c.getContext('2d')!;
-    ctx.fillStyle = '#4a4a4a';
+    ctx.fillStyle = '#1c1f28';
     ctx.fillRect(0, 0, 128, 128);
-    // noisy speckle
     const img = ctx.getImageData(0, 0, 128, 128);
     for (let i = 0; i < img.data.length; i += 4) {
-      const n = (Math.random() - 0.5) * 26;
+      const n = (Math.random() - 0.5) * 18;
       img.data[i]   = Math.max(0, Math.min(255, img.data[i] + n));
       img.data[i+1] = Math.max(0, Math.min(255, img.data[i+1] + n));
       img.data[i+2] = Math.max(0, Math.min(255, img.data[i+2] + n));
@@ -1007,34 +1042,28 @@ function useCarpetTexture() {
 
 function useWallTexture() {
   return useMemo(() => {
-    // Vertical wood paneling — light beige with vertical seam lines
+    // Vertical dark acoustic panels with thin metallic seams
     const c = document.createElement('canvas');
     c.width = 256; c.height = 256;
     const ctx = c.getContext('2d')!;
-    // base wood
-    ctx.fillStyle = '#d8c5a3';
+    ctx.fillStyle = '#1a1c24';
     ctx.fillRect(0, 0, 256, 256);
-    // vertical planks
     const planks = 6;
     const pw = 256 / planks;
     for (let i = 0; i < planks; i++) {
-      ctx.fillStyle = i % 2 === 0 ? '#d0bb95' : '#dccba9';
+      ctx.fillStyle = i % 2 === 0 ? '#181a22' : '#1d1f28';
       ctx.fillRect(i * pw, 0, pw, 256);
     }
-    // grain
-    ctx.strokeStyle = 'rgba(90,65,35,0.10)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 60; i++) {
-      const x = Math.random() * 256;
-      const y = Math.random() * 256;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(x + (Math.random() - 0.5) * 4, y + 18 + Math.random() * 40);
-      ctx.stroke();
+    // micro perforations (acoustic panel pattern)
+    ctx.fillStyle = 'rgba(255,255,255,0.025)';
+    for (let yy = 8; yy < 256; yy += 12) {
+      for (let xx = 6; xx < 256; xx += 12) {
+        ctx.fillRect(xx, yy, 1.2, 1.2);
+      }
     }
-    // seam shadows between planks
-    ctx.strokeStyle = 'rgba(50,35,15,0.45)';
-    ctx.lineWidth = 1.5;
+    // panel seams (thin bright lines for modern feel)
+    ctx.strokeStyle = 'rgba(80,100,140,0.20)';
+    ctx.lineWidth = 1;
     for (let i = 1; i < planks; i++) {
       ctx.beginPath();
       ctx.moveTo(i * pw, 0); ctx.lineTo(i * pw, 256);
@@ -1042,20 +1071,20 @@ function useWallTexture() {
     }
     const tex = new THREE.CanvasTexture(c);
     tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-    tex.repeat.set(2, 1);
+    tex.repeat.set(3, 1);
     return tex;
   }, []);
 }
 
 function useCeilingTexture() {
   return useMemo(() => {
-    // Cream ceiling with faint panel grid (no longer accent-glowing)
+    // Near-black ceiling with subtle panel grid
     const c = document.createElement('canvas');
     c.width = 512; c.height = 512;
     const ctx = c.getContext('2d')!;
-    ctx.fillStyle = '#efe9dd';
+    ctx.fillStyle = '#0d0e14';
     ctx.fillRect(0, 0, 512, 512);
-    ctx.strokeStyle = 'rgba(0,0,0,0.07)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
     ctx.lineWidth = 1;
     const cols = 6, rows = 6;
     const cw = 512 / cols, chh = 512 / rows;
@@ -1077,7 +1106,7 @@ function useCeilingTexture() {
 }
 
 // ─── Lecture Hall (realistic wood-paneled auditorium) ─────────────────────────
-function LectureHall({ rowCount }: { rowCount: number; accent: string }) {
+function LectureHall({ rowCount, accent }: { rowCount: number; accent: string }) {
   const depth = rowCount * Z_STEP + 7;
 
   const tiers = useMemo(() => Array.from({ length: rowCount }, (_, i) => ({
@@ -1096,34 +1125,49 @@ function LectureHall({ rowCount }: { rowCount: number; accent: string }) {
     floorTex.dispose(); carpetTex.dispose(); wallTex.dispose(); ceilingTex.dispose();
   }, [floorTex, carpetTex, wallTex, ceilingTex]);
 
-  const WALL_COLOR  = '#d8c5a3'; // light wood
-  const FLOOR_TINT  = '#e0c8a4'; // warm beige
-  const CEIL_COLOR  = '#efe9dd'; // cream
-  const ORANGE      = '#d97706'; // accent wall
-  const TIER_RISER  = '#3a3a3a'; // dark riser face
-  const TIER_CARPET = '#5c5c5c'; // carpeted tier top
+  const WALL_COLOR  = '#1a1c24'; // dark acoustic panel
+  const FLOOR_TINT  = '#1a1c22'; // polished dark concrete
+  const CEIL_COLOR  = '#0d0e14'; // near-black ceiling
+  const TIER_RISER  = '#0c0d12'; // black riser face
+  const TIER_CARPET = '#1c1f28'; // charcoal tier top
+  const ACCENT_LED  = accent;    // accent color used for LED strips
 
   return (
     <group>
-      {/* Front wood floor (stage area) */}
+      {/* Front polished floor (stage area) */}
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, -0.5]}>
         <planeGeometry args={[24, 5]} />
-        <meshStandardMaterial map={floorTex} color={FLOOR_TINT} roughness={0.7} metalness={0.05} />
+        <meshStandardMaterial map={floorTex} color={FLOOR_TINT} roughness={0.35} metalness={0.4} />
       </mesh>
 
       {/* Aisle floor strip running back through the rows (carpet) */}
       <mesh receiveShadow rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.015, depth / 2 + 1]}>
         <planeGeometry args={[24, depth]} />
-        <meshStandardMaterial map={carpetTex} color="#666666" roughness={0.95} />
+        <meshStandardMaterial map={carpetTex} color="#1c1f28" roughness={0.95} />
+      </mesh>
+
+      {/* LED accent strip running along the aisle edge (modern touch) */}
+      <mesh position={[-11.4, 0.05, depth / 2]}>
+        <boxGeometry args={[0.04, 0.02, depth + 2]} />
+        <meshBasicMaterial color={ACCENT_LED} toneMapped={false} />
+      </mesh>
+      <mesh position={[11.4, 0.05, depth / 2]}>
+        <boxGeometry args={[0.04, 0.02, depth + 2]} />
+        <meshBasicMaterial color={ACCENT_LED} toneMapped={false} />
       </mesh>
 
       {/* Tiered risers + tier tops (auditorium steps) */}
       {tiers.map((t, i) => (
         <group key={i}>
-          {/* Riser face (vertical wall of the step) */}
+          {/* Riser face — black with thin accent LED line along top edge */}
           <mesh receiveShadow position={[0, t.yTop - Y_STEP / 2, t.front]}>
             <boxGeometry args={[22, Y_STEP, 0.06]} />
-            <meshStandardMaterial color={TIER_RISER} roughness={0.85} metalness={0.1} />
+            <meshStandardMaterial color={TIER_RISER} roughness={0.8} metalness={0.2} />
+          </mesh>
+          {/* LED strip along top of each riser */}
+          <mesh position={[0, t.yTop - 0.02, t.front + 0.03]}>
+            <boxGeometry args={[22, 0.012, 0.012]} />
+            <meshBasicMaterial color={ACCENT_LED} toneMapped={false} />
           </mesh>
           {/* Tier top (carpeted) */}
           <mesh receiveShadow position={[0, t.yTop - 0.005, t.z]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -1133,83 +1177,101 @@ function LectureHall({ rowCount }: { rowCount: number; accent: string }) {
         </group>
       ))}
 
-      {/* Stage platform — slight elevation */}
+      {/* Stage platform — slight elevation, dark polished */}
       <mesh receiveShadow position={[0, 0.10, -0.2]}>
         <boxGeometry args={[22, 0.22, 4]} />
-        <meshStandardMaterial color="#a08560" roughness={0.7} metalness={0.05} />
+        <meshStandardMaterial color="#101116" roughness={0.4} metalness={0.3} />
+      </mesh>
+      {/* Stage edge LED line */}
+      <mesh position={[0, 0.22, 1.8]}>
+        <boxGeometry args={[22, 0.014, 0.014]} />
+        <meshBasicMaterial color={ACCENT_LED} toneMapped={false} />
       </mesh>
 
-      {/* Podium */}
-      <mesh castShadow position={[3.2, 0.52, 0.6]}>
+      {/* Podium — slim modern dark */}
+      <mesh castShadow position={[6.2, 0.52, 0.6]}>
         <boxGeometry args={[0.9, 0.78, 0.5]} />
-        <meshStandardMaterial color="#7a5d3e" roughness={0.7} metalness={0.1} />
+        <meshStandardMaterial color="#15171f" roughness={0.5} metalness={0.4} />
       </mesh>
-      <mesh position={[3.2, 0.92, 0.6]}>
+      <mesh position={[6.2, 0.92, 0.6]}>
         <boxGeometry args={[1.0, 0.04, 0.56]} />
-        <meshStandardMaterial color="#5a4128" roughness={0.5} metalness={0.2} />
+        <meshStandardMaterial color="#0a0b10" roughness={0.3} metalness={0.6} />
+      </mesh>
+      {/* Podium accent LED line */}
+      <mesh position={[6.2, 0.93, 0.6]}>
+        <boxGeometry args={[1.0, 0.005, 0.56]} />
+        <meshBasicMaterial color={ACCENT_LED} toneMapped={false} />
       </mesh>
 
-      {/* Whiteboard on the right side of the front wall */}
-      <mesh position={[7.2, 2.4, -2.06]}>
-        <boxGeometry args={[3.6, 1.8, 0.04]} />
-        <meshStandardMaterial color="#f7f7f5" roughness={0.45} metalness={0.05} />
+      {/* Large central projector screen — outer frame */}
+      <mesh position={[0, 3.6, -2.1]}>
+        <boxGeometry args={[16.6, 6.5, 0.10]} />
+        <meshStandardMaterial color="#0a0b10" roughness={0.5} metalness={0.6} />
       </mesh>
-      {/* Whiteboard frame */}
-      <mesh position={[7.2, 2.4, -2.085]}>
-        <boxGeometry args={[3.8, 2.0, 0.02]} />
-        <meshStandardMaterial color="#9c9c9c" roughness={0.6} metalness={0.4} />
+      {/* Inner screen bezel — deep black */}
+      <mesh position={[0, 3.6, -2.02]}>
+        <boxGeometry args={[16.2, 6.2, 0.05]} />
+        <meshStandardMaterial color="#06070b" roughness={0.9} />
       </mesh>
-
-      {/* Screen frame (projector) — on the left of front wall */}
-      <mesh position={[-3.5, 2.85, -2.1]}>
-        <boxGeometry args={[8.9, 3.65, 0.10]} />
-        <meshStandardMaterial color="#d2c4a5" roughness={0.7} metalness={0.05} />
+      {/* Glowing accent border around the screen (4 thin LED strips) */}
+      <mesh position={[0, 6.75, -1.97]}>
+        <boxGeometry args={[16.4, 0.04, 0.02]} />
+        <meshBasicMaterial color={ACCENT_LED} toneMapped={false} />
       </mesh>
-      {/* Inner screen bezel */}
-      <mesh position={[-3.5, 2.85, -2.02]}>
-        <boxGeometry args={[8.6, 3.35, 0.05]} />
-        <meshStandardMaterial color="#15151a" roughness={0.9} />
+      <mesh position={[0, 0.45, -1.97]}>
+        <boxGeometry args={[16.4, 0.04, 0.02]} />
+        <meshBasicMaterial color={ACCENT_LED} toneMapped={false} />
+      </mesh>
+      <mesh position={[-8.2, 3.6, -1.97]}>
+        <boxGeometry args={[0.04, 6.3, 0.02]} />
+        <meshBasicMaterial color={ACCENT_LED} toneMapped={false} />
+      </mesh>
+      <mesh position={[8.2, 3.6, -1.97]}>
+        <boxGeometry args={[0.04, 6.3, 0.02]} />
+        <meshBasicMaterial color={ACCENT_LED} toneMapped={false} />
       </mesh>
 
       {/* Volumetric projector beam (cosmetic) */}
-      <mesh position={[-3.5, 4.6, -1.85]}>
-        <coneGeometry args={[1.4, 3.0, 24, 1, true]} />
+      <mesh position={[0, 5.6, -1.4]}>
+        <coneGeometry args={[2.0, 3.0, 24, 1, true]} />
         <meshBasicMaterial
           color="#ffffff"
           transparent
-          opacity={0.04}
+          opacity={0.035}
           side={THREE.DoubleSide}
           depthWrite={false}
         />
       </mesh>
 
-      {/* Back wall (front of the room, behind the screen) — wood */}
+      {/* Front wall (dark acoustic panel) */}
       <mesh receiveShadow position={[0, 4, -2.2]}>
         <boxGeometry args={[24, 10, 0.16]} />
-        <meshStandardMaterial map={wallTex} color={WALL_COLOR} roughness={0.85} metalness={0.05} />
+        <meshStandardMaterial map={wallTex} color={WALL_COLOR} roughness={0.85} metalness={0.15} />
       </mesh>
 
-      {/* Orange accent panel on the back wall (between screen and whiteboard) */}
-      <mesh position={[2.4, 2.4, -2.07]}>
-        <boxGeometry args={[1.4, 4.0, 0.04]} />
-        <meshStandardMaterial color={ORANGE} roughness={0.65} metalness={0.05} />
-      </mesh>
-
-      {/* Side walls (wood paneled) */}
+      {/* Side walls — dark acoustic panels */}
       {([-11, 11] as number[]).map(x => (
         <mesh receiveShadow key={x} position={[x, 4, depth / 2 - 1]}>
           <boxGeometry args={[0.16, 10, depth + 4]} />
-          <meshStandardMaterial map={wallTex} color={WALL_COLOR} roughness={0.85} metalness={0.05} />
+          <meshStandardMaterial map={wallTex} color={WALL_COLOR} roughness={0.85} metalness={0.15} />
+        </mesh>
+      ))}
+
+      {/* Vertical accent LED columns on side walls (modern lecture theatre feel) */}
+      {[-10.85, 10.85].map((x, i) => (
+        <mesh key={`led-col-${i}`} position={[x, 4, depth / 2 - 1]}>
+          <boxGeometry args={[0.02, 6, 0.02]} />
+          <meshBasicMaterial color={ACCENT_LED} toneMapped={false} />
         </mesh>
       ))}
 
       {/* Back wall of the room (rear, far end) */}
       <mesh receiveShadow position={[0, 4, depth + 1]}>
         <boxGeometry args={[24, 10, 0.16]} />
-        <meshStandardMaterial map={wallTex} color={WALL_COLOR} roughness={0.85} metalness={0.05} />
+        <meshStandardMaterial map={wallTex} color={WALL_COLOR} roughness={0.85} metalness={0.15} />
       </mesh>
 
-      {/* Ceiling — cream with faint panel grid */}
+      {/* Ceiling — near-black with faint panel grid */}
       <mesh receiveShadow position={[0, 8, depth / 2 - 1]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[24, depth + 4]} />
         <meshStandardMaterial map={ceilingTex} color={CEIL_COLOR} side={THREE.BackSide} roughness={0.92} />
@@ -1239,43 +1301,45 @@ export function ClassroomScene({ students, selectedId, onSelect, subject, subjec
     <Canvas
       shadows
       camera={{ position: [0, 7.0, -5.5], fov: 52 }}
-      style={{ background: '#d8c5a3' }}
+      style={{ background: '#06070b' }}
       onClick={() => onSelect(null)}
     >
-      {/* Soft warm haze far in the distance only */}
-      <fog attach="fog" args={['#e8dcc4', 38, 80]} />
+      {/* Cool dark haze in the distance */}
+      <fog attach="fog" args={['#06070b', 32, 75]} />
 
-      {/* Ambient — bright neutral classroom */}
-      <ambientLight intensity={0.95} color="#fff5e6" />
+      {/* Ambient — low, cool */}
+      <ambientLight intensity={0.32} color="#cdd6f0" />
 
-      {/* Hemisphere fill — sky/ground bounce */}
-      <hemisphereLight args={['#fff4d8', '#a08560', 0.7]} />
+      {/* Hemisphere fill — subtle cool/dark split */}
+      <hemisphereLight args={['#a8b4cc', '#0a0b12', 0.32]} />
 
-      {/* Key directional light – warm classroom overhead */}
+      {/* Key directional light – cool overhead, dramatic */}
       <directionalLight
-        position={[-3, 16, 6]} intensity={1.05} color="#fff2dc"
+        position={[-3, 16, 6]} intensity={0.55} color="#dde4f5"
         castShadow
         shadow-mapSize-width={1024} shadow-mapSize-height={1024}
         shadow-camera-near={0.5} shadow-camera-far={60}
         shadow-camera-left={-15} shadow-camera-right={15}
         shadow-camera-top={15} shadow-camera-bottom={-5}
       />
-      {/* Stage fill */}
-      <pointLight position={[0, 6.5, -1.5]} intensity={2.2} color="#fff5e6" distance={14} decay={2} />
+      {/* Stage fill — cool */}
+      <pointLight position={[0, 6.5, -1.5]} intensity={1.2} color="#e2e8ff" distance={14} decay={2} />
       {/* Mid-room fill for student faces */}
-      <pointLight position={[0, 5.5, sceneDepth * 0.4]} intensity={1.8} color="#fff5e6" distance={26} decay={2} />
+      <pointLight position={[0, 5.5, sceneDepth * 0.4]} intensity={0.9} color="#d8dff5" distance={22} decay={2} />
       {/* Front-facing fill — toward the audience */}
-      <pointLight position={[0, 4.0, -3.0]} intensity={1.6} color="#ffffff" distance={20} decay={2} />
+      <pointLight position={[0, 4.0, -3.0]} intensity={0.7} color="#ffffff" distance={18} decay={2} />
+      {/* Accent-colored rim from behind screen */}
+      <pointLight position={[0, 3.6, -3.0]} intensity={1.1} color={subjectCfg.accent} distance={12} decay={2} />
 
       {/* Subtle atmosphere (very low) */}
       <Sparkles
-        count={50}
+        count={60}
         scale={[22, 5.5, sceneDepth]}
         position={[0, 3.5, sceneDepth / 2 - 1]}
-        size={0.6}
-        speed={0.08}
-        color="#ffffff"
-        opacity={0.08}
+        size={0.5}
+        speed={0.06}
+        color={subjectCfg.accent}
+        opacity={0.12}
       />
 
       <Suspense fallback={null}>

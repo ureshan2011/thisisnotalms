@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import {
   X, Users, ChevronLeft,
   MousePointerClick, Maximize2, Minimize2,
@@ -29,6 +29,7 @@ export default function ClassroomView() {
   const [loading,      setLoading]      = useState(true);
   const [subject,      setSubject]      = useState<SubjectKey>('MBI802');
   const [selected,     setSelected]     = useState<StudentProfile | null>(null);
+  const [attendedUids, setAttendedUids] = useState<Set<string>>(new Set());
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const [toastVisible, setToastVisible] = useState(false);
@@ -51,6 +52,28 @@ export default function ClassroomView() {
       setLoading(false);
     })();
   }, []);
+
+  // Fetch today's attendance for the selected course
+  useEffect(() => {
+    (async () => {
+      const today      = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const endOfDay   = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      const snap = await getDocs(
+        query(collection(db, 'attendanceRecords'), where('sessionCourse', '==', subject)),
+      );
+      const uids = new Set<string>();
+      snap.docs.forEach(d => {
+        const data = d.data();
+        const ts = data.submittedAt;
+        const submittedAt: Date | null = ts?.toDate ? ts.toDate() : (ts instanceof Date ? ts : null);
+        if (submittedAt && submittedAt >= startOfDay && submittedAt < endOfDay && data.studentUid) {
+          uids.add(data.studentUid as string);
+        }
+      });
+      setAttendedUids(uids);
+    })();
+  }, [subject]);
 
   // Fullscreen API change tracking
   useEffect(() => {
@@ -203,15 +226,16 @@ export default function ClassroomView() {
           onSelect={setSelected}
           subject={subject}
           subjectCfg={cfg}
+          attendedUids={attendedUids}
         />
       </div>
 
-      {/* Selected student panel */}
+      {/* Presence badge — replaces student details card */}
       {selected && (
-        <StudentPanel
+        <PresenceBadge
           student={selected}
+          isPresent={attendedUids.has(selected.uid)}
           onClose={() => setSelected(null)}
-          accentColor={cfg.accent}
         />
       )}
 
@@ -464,84 +488,59 @@ function FullscreenControls({
   );
 }
 
-// ─── Selected student panel ────────────────────────────────────────────────────
-function StudentPanel({
-  student, onClose, accentColor,
-}: {
+// ─── Presence badge (shown when a student is selected) ────────────────────────
+function PresenceBadge({ student, isPresent, onClose }: {
   student: StudentProfile;
+  isPresent: boolean;
   onClose: () => void;
-  accentColor: string;
 }) {
-  const initials = student.fullName
-    .split(' ').filter(Boolean).slice(0, 2)
-    .map(n => n[0]?.toUpperCase() ?? '').join('');
+  const statusColor  = isPresent ? '#22c55e' : '#ef4444';
+  const statusLabel  = isPresent ? 'PRESENT' : 'ABSENT';
+  const statusBg     = isPresent ? 'rgba(34,197,94,0.14)' : 'rgba(239,68,68,0.14)';
+  const statusBorder = isPresent ? 'rgba(34,197,94,0.40)' : 'rgba(239,68,68,0.40)';
 
   return (
     <div
-      className="absolute top-4 right-4 w-72 rounded-2xl shadow-2xl border p-5 z-10 animate-fadeIn"
+      className="absolute top-4 right-4 z-10 animate-fadeIn"
       style={{
-        background: 'rgba(255,255,255,0.97)',
-        backdropFilter: 'blur(16px)',
-        borderColor: `${accentColor}25`,
+        background: 'rgba(10,10,20,0.82)',
+        backdropFilter: 'blur(18px)',
+        border: '1px solid rgba(255,255,255,0.10)',
+        borderRadius: 18,
+        padding: '18px 22px',
+        minWidth: 220,
+        boxShadow: '0 8px 32px rgba(0,0,0,0.55)',
       }}
       onClick={e => e.stopPropagation()}
     >
       <button
-        className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition"
+        style={{
+          position: 'absolute', top: 12, right: 12,
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: 'rgba(255,255,255,0.35)', padding: 4, lineHeight: 1,
+        }}
         onClick={onClose}
       >
-        <X size={15} />
+        <X size={14} />
       </button>
 
-      {/* Photo or gradient avatar */}
-      <div className="w-16 h-16 rounded-2xl mb-3 overflow-hidden shadow-md flex-shrink-0">
-        {student.photoURL ? (
-          <img
-            src={student.photoURL}
-            alt={student.fullName}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div
-            className="w-full h-full flex items-center justify-center text-white font-bold text-2xl"
-            style={{ background: `linear-gradient(135deg, ${accentColor}, ${accentColor}88)` }}
-          >
-            {initials}
-          </div>
-        )}
+      <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, fontWeight: 600, letterSpacing: '0.06em', marginBottom: 6 }}>
+        SELECTED STUDENT
+      </p>
+      <p style={{ color: '#fff', fontSize: 17, fontWeight: 700, lineHeight: 1.25, marginBottom: 16, paddingRight: 20 }}>
+        {student.fullName}
+      </p>
+
+      <div style={{
+        display: 'inline-flex', alignItems: 'center', gap: 8,
+        background: statusBg, border: `1px solid ${statusBorder}`,
+        borderRadius: 99, padding: '8px 18px',
+      }}>
+        <span style={{ width: 8, height: 8, borderRadius: '50%', background: statusColor, display: 'inline-block', flexShrink: 0 }} />
+        <span style={{ color: statusColor, fontWeight: 800, fontSize: 15, letterSpacing: '0.08em' }}>
+          {statusLabel}
+        </span>
       </div>
-
-      <h3 className="font-semibold text-gray-900 text-[15px] leading-tight pr-6">{student.fullName}</h3>
-      <p className="text-xs text-gray-400 mt-0.5 font-mono">{student.studentId}</p>
-
-      <div className="mt-4 space-y-2 border-t border-gray-100 pt-3">
-        <PanelRow label="Section" value={student.section  || '—'} accent={accentColor} highlight />
-        <PanelRow label="Campus"  value={student.campus   || '—'} accent={accentColor} />
-        <PanelRow label="Course"  value={student.course   || '—'} accent={accentColor} />
-        <PanelRow label="Intake"  value={student.intake   || '—'} accent={accentColor} />
-        {student.homeCountry && (
-          <PanelRow label="Country" value={student.homeCountry} accent={accentColor} />
-        )}
-      </div>
-    </div>
-  );
-}
-
-function PanelRow({ label, value, accent, highlight }: { label: string; value: string; accent: string; highlight?: boolean }) {
-  return (
-    <div className="flex items-center justify-between">
-      <span className="text-xs text-gray-400 font-medium">{label}</span>
-      <span
-        className="text-xs font-semibold"
-        style={highlight ? {
-          background: `${accent}15`,
-          color: accent,
-          padding: '2px 10px',
-          borderRadius: 99,
-        } : { color: '#374151' }}
-      >
-        {value}
-      </span>
     </div>
   );
 }

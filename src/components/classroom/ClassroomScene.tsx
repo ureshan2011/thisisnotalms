@@ -255,6 +255,7 @@ function drawFeaturedStudent(
   _subject: string,
   accent: string,
   scrollOffset: number,
+  isPresent: boolean,
 ) {
   void _subject;
   // Dark backdrop with subtle vignette
@@ -313,17 +314,24 @@ function drawFeaturedStudent(
   ctx.stroke();
   ctx.restore();
 
-  // SELECTED badge — top of info column, never over photo
+  // Attendance status badge — PRESENT / ABSENT
   ctx.save();
-  ctx.font = '800 14px sans-serif';
-  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-  const dotR = 6;
-  ctx.fillStyle = accent;
-  ctx.beginPath();
-  ctx.arc(infoX + dotR, photoY + 18 + dotR, dotR, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = accent;
-  ctx.fillText('SELECTED STUDENT', infoX + 20, photoY + 18 + dotR);
+  const statusLabel  = isPresent ? '● PRESENT' : '● ABSENT';
+  const statusColor  = isPresent ? '#22c55e'   : '#ef4444';
+  const statusBgRaw  = isPresent ? 'rgba(34,197,94,0.18)' : 'rgba(239,68,68,0.18)';
+  ctx.font = '800 20px sans-serif';
+  const statusW = ctx.measureText(statusLabel).width + 36;
+  const statusH = 44;
+  const statusX = infoX;
+  const statusY = photoY + 10;
+  rrect(ctx, statusX, statusY, statusW, statusH, 22);
+  ctx.fillStyle = statusBgRaw; ctx.fill();
+  ctx.strokeStyle = statusColor; ctx.lineWidth = 1.8;
+  rrect(ctx, statusX, statusY, statusW, statusH, 22);
+  ctx.stroke();
+  ctx.fillStyle = statusColor;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(statusLabel, statusX + statusW / 2, statusY + statusH / 2 + 1);
   ctx.restore();
 
   // Name — large, wraps to 2 lines max
@@ -407,6 +415,7 @@ function drawScreen(
   subject: string,
   accent: string,
   selectedId: string | null,
+  attendedUids: Set<string>,
 ) {
   // Background — radial gradient
   const radial = ctx.createRadialGradient(cw / 2, ch / 2, 0, cw / 2, ch / 2, Math.max(cw, ch) * 0.7);
@@ -425,7 +434,7 @@ function drawScreen(
   // If a student is selected, show featured view (single student big)
   const selected = selectedId ? students.find(s => s.uid === selectedId) : null;
   if (selected) {
-    drawFeaturedStudent(ctx, cw, ch, selected, images.get(selected.uid), subject, accent, scrollOffset);
+    drawFeaturedStudent(ctx, cw, ch, selected, images.get(selected.uid), subject, accent, scrollOffset, attendedUids.has(selected.uid));
     return;
   }
 
@@ -435,12 +444,13 @@ function drawScreen(
 
 // ─── Projector Screen with live photo texture ──────────────────────────────────
 function ProjectorScreen({
-  students, subject, accent, selectedId,
+  students, subject, accent, selectedId, attendedUids,
 }: {
   students: StudentProfile[];
   subject: string;
   accent: string;
   selectedId: string | null;
+  attendedUids: Set<string>;
 }) {
   // Canvas + texture created once — higher resolution for big screen
   const { canvas, texture } = useMemo(() => {
@@ -479,7 +489,7 @@ function ProjectorScreen({
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    drawScreen(ctx, canvas.width, canvas.height, students, imagesRef.current, scrollRef.current, subject, accent, selectedId);
+    drawScreen(ctx, canvas.width, canvas.height, students, imagesRef.current, scrollRef.current, subject, accent, selectedId, attendedUids);
     texture.needsUpdate = true;
   });
 
@@ -493,12 +503,13 @@ function ProjectorScreen({
 
 // ─── Student Avatar (realistic anatomy + costume variants) ─────────────────────
 function StudentAvatar({
-  student, position, yaw, isSelected, accent, fill, onClick,
+  student, position, yaw, isSelected, isPresent, accent, fill, onClick,
 }: {
   student: StudentProfile;
   position: [number, number, number];
   yaw: number;
   isSelected: boolean;
+  isPresent: boolean;
   accent: string;
   fill: string;
   onClick: () => void;
@@ -543,6 +554,11 @@ function StudentAvatar({
   const accentEmissive = isSelected ? '#f59e0b' : accent;
   const accentEmissiveI = isSelected ? 0.45 : (hovered ? 0.22 : 0);
 
+  // Ghost effect for absent students
+  const ghostMat = !isPresent
+    ? { transparent: true as const, opacity: 0.28, depthWrite: false as const }
+    : {};
+
   // Slightly darken hair color for top of head distinction
   const hairColor = preset.hairColor;
   const skinColor = preset.skinTone;
@@ -567,6 +583,7 @@ function StudentAvatar({
             emissive={isAccent ? accentEmissive : '#000'}
             emissiveIntensity={accentEmissiveI * 0.4}
             roughness={0.55} metalness={0.1}
+            {...ghostMat}
           />
         </mesh>
         <mesh castShadow position={[0.07, -0.22, 0]}>
@@ -576,6 +593,7 @@ function StudentAvatar({
             emissive={isAccent ? accentEmissive : '#000'}
             emissiveIntensity={accentEmissiveI * 0.4}
             roughness={0.55} metalness={0.1}
+            {...ghostMat}
           />
         </mesh>
 
@@ -587,6 +605,7 @@ function StudentAvatar({
             emissive={isAccent ? accentEmissive : '#000'}
             emissiveIntensity={accentEmissiveI}
             roughness={0.55} metalness={0.1}
+            {...ghostMat}
           />
         </mesh>
 
@@ -599,6 +618,7 @@ function StudentAvatar({
               emissive={isAccent ? accentEmissive : '#000'}
               emissiveIntensity={accentEmissiveI * 0.4}
               roughness={0.7} metalness={0.05}
+              {...ghostMat}
             />
           </mesh>
         )}
@@ -609,6 +629,7 @@ function StudentAvatar({
           <meshStandardMaterial
             color={skinColor}
             roughness={0.6} metalness={0.05}
+            {...ghostMat}
           />
         </mesh>
 
@@ -620,6 +641,7 @@ function StudentAvatar({
             emissive={isAccent ? accentEmissive : '#000'}
             emissiveIntensity={accentEmissiveI * 0.6}
             roughness={0.55} metalness={0.1}
+            {...ghostMat}
           />
         </mesh>
         <mesh castShadow position={[0.21, 0.04, 0.02]} rotation={[0, 0, -0.32]}>
@@ -629,17 +651,18 @@ function StudentAvatar({
             emissive={isAccent ? accentEmissive : '#000'}
             emissiveIntensity={accentEmissiveI * 0.6}
             roughness={0.55} metalness={0.1}
+            {...ghostMat}
           />
         </mesh>
 
         {/* Hands (small skin-tone spheres at arm ends) */}
         <mesh castShadow position={[-0.32, -0.10, 0.02]}>
           <sphereGeometry args={[0.05, 8, 8]} />
-          <meshStandardMaterial color={skinColor} roughness={0.6} metalness={0.05} />
+          <meshStandardMaterial color={skinColor} roughness={0.6} metalness={0.05} {...ghostMat} />
         </mesh>
         <mesh castShadow position={[0.32, -0.10, 0.02]}>
           <sphereGeometry args={[0.05, 8, 8]} />
-          <meshStandardMaterial color={skinColor} roughness={0.6} metalness={0.05} />
+          <meshStandardMaterial color={skinColor} roughness={0.6} metalness={0.05} {...ghostMat} />
         </mesh>
 
         {/* Head group — gets the idle tilt */}
@@ -652,33 +675,34 @@ function StudentAvatar({
               emissive={isAccent ? accentEmissive : '#000'}
               emissiveIntensity={accentEmissiveI * 0.5}
               roughness={0.62} metalness={0.05}
+              {...ghostMat}
             />
           </mesh>
 
           {/* Ears */}
           <mesh castShadow position={[-0.128, 0.005, 0]} scale={[0.4, 1, 1]}>
             <sphereGeometry args={[0.035, 10, 10]} />
-            <meshStandardMaterial color={skinColor} roughness={0.65} metalness={0.05} />
+            <meshStandardMaterial color={skinColor} roughness={0.65} metalness={0.05} {...ghostMat} />
           </mesh>
           <mesh castShadow position={[0.128, 0.005, 0]} scale={[0.4, 1, 1]}>
             <sphereGeometry args={[0.035, 10, 10]} />
-            <meshStandardMaterial color={skinColor} roughness={0.65} metalness={0.05} />
+            <meshStandardMaterial color={skinColor} roughness={0.65} metalness={0.05} {...ghostMat} />
           </mesh>
 
           {/* Subtle eyebrows */}
           <mesh position={[-0.045, 0.048, 0.115]} scale={[1, 0.18, 0.18]}>
             <boxGeometry args={[0.048, 0.012, 0.012]} />
-            <meshStandardMaterial color={hairColor} roughness={0.8} />
+            <meshStandardMaterial color={hairColor} roughness={0.8} {...ghostMat} />
           </mesh>
           <mesh position={[0.045, 0.048, 0.115]} scale={[1, 0.18, 0.18]}>
             <boxGeometry args={[0.048, 0.012, 0.012]} />
-            <meshStandardMaterial color={hairColor} roughness={0.8} />
+            <meshStandardMaterial color={hairColor} roughness={0.8} {...ghostMat} />
           </mesh>
 
           {/* Mouth — subtle line */}
           <mesh position={[0, -0.045, 0.116]}>
             <boxGeometry args={[0.04, 0.006, 0.005]} />
-            <meshStandardMaterial color="#5a2a2a" roughness={0.7} />
+            <meshStandardMaterial color="#5a2a2a" roughness={0.7} {...ghostMat} />
           </mesh>
 
           {/* Eyes — small flat spheres, emissive iris */}
@@ -689,6 +713,7 @@ function StudentAvatar({
               emissive="#0a0a18"
               emissiveIntensity={0.8}
               roughness={0.3} metalness={0.2}
+              {...ghostMat}
             />
           </mesh>
           <mesh position={[0.045, 0.015, 0.118]}>
@@ -698,6 +723,7 @@ function StudentAvatar({
               emissive="#0a0a18"
               emissiveIntensity={0.8}
               roughness={0.3} metalness={0.2}
+              {...ghostMat}
             />
           </mesh>
 
@@ -706,16 +732,16 @@ function StudentAvatar({
             <>
               <mesh position={[-0.045, 0.015, 0.128]} rotation={[Math.PI / 2, 0, 0]}>
                 <torusGeometry args={[0.032, 0.005, 6, 16]} />
-                <meshStandardMaterial color="#888" roughness={0.3} metalness={0.7} />
+                <meshStandardMaterial color="#888" roughness={0.3} metalness={0.7} {...ghostMat} />
               </mesh>
               <mesh position={[0.045, 0.015, 0.128]} rotation={[Math.PI / 2, 0, 0]}>
                 <torusGeometry args={[0.032, 0.005, 6, 16]} />
-                <meshStandardMaterial color="#888" roughness={0.3} metalness={0.7} />
+                <meshStandardMaterial color="#888" roughness={0.3} metalness={0.7} {...ghostMat} />
               </mesh>
               {/* bridge */}
               <mesh position={[0, 0.015, 0.128]}>
                 <boxGeometry args={[0.026, 0.005, 0.005]} />
-                <meshStandardMaterial color="#888" roughness={0.3} metalness={0.7} />
+                <meshStandardMaterial color="#888" roughness={0.3} metalness={0.7} {...ghostMat} />
               </mesh>
             </>
           )}
@@ -723,16 +749,16 @@ function StudentAvatar({
           {/* Hair — layered cap with side wisps */}
           <mesh castShadow position={[0, 0.07, -0.01]} scale={[1.08, 0.78, 1.08]}>
             <sphereGeometry args={[0.135, 20, 18]} />
-            <meshStandardMaterial color={hairColor} roughness={0.9} metalness={0.04} />
+            <meshStandardMaterial color={hairColor} roughness={0.9} metalness={0.04} {...ghostMat} />
           </mesh>
           {/* Hair side wisps */}
           <mesh castShadow position={[-0.10, 0.03, 0.02]} scale={[0.6, 0.9, 0.6]}>
             <sphereGeometry args={[0.085, 12, 12]} />
-            <meshStandardMaterial color={hairColor} roughness={0.9} />
+            <meshStandardMaterial color={hairColor} roughness={0.9} {...ghostMat} />
           </mesh>
           <mesh castShadow position={[0.10, 0.03, 0.02]} scale={[0.6, 0.9, 0.6]}>
             <sphereGeometry args={[0.085, 12, 12]} />
-            <meshStandardMaterial color={hairColor} roughness={0.9} />
+            <meshStandardMaterial color={hairColor} roughness={0.9} {...ghostMat} />
           </mesh>
 
           {/* Hat / cap (optional) — flattened cylinder above hair */}
@@ -740,12 +766,12 @@ function StudentAvatar({
             <>
               <mesh castShadow position={[0, 0.16, 0]}>
                 <cylinderGeometry args={[0.13, 0.13, 0.05, 16]} />
-                <meshStandardMaterial color="#1c1c2e" roughness={0.7} metalness={0.1} />
+                <meshStandardMaterial color="#1c1c2e" roughness={0.7} metalness={0.1} {...ghostMat} />
               </mesh>
               {/* brim */}
               <mesh position={[0, 0.135, 0.08]}>
                 <boxGeometry args={[0.22, 0.012, 0.10]} />
-                <meshStandardMaterial color="#1c1c2e" roughness={0.7} metalness={0.1} />
+                <meshStandardMaterial color="#1c1c2e" roughness={0.7} metalness={0.1} {...ghostMat} />
               </mesh>
             </>
           )}
@@ -864,13 +890,14 @@ const ROW_CURVE_DEPTH = 1.1; // how much the row arcs (outer seats pushed back)
 
 // ─── Avatar + seat grid ────────────────────────────────────────────────────────
 function AvatarGrid({
-  students, selectedId, onSelect, accent, fill,
+  students, selectedId, onSelect, accent, fill, attendedUids,
 }: {
   students: StudentProfile[];
   selectedId: string | null;
   onSelect: (s: StudentProfile | null) => void;
   accent: string;
   fill: string;
+  attendedUids: Set<string>;
 }) {
   const items = useMemo(() => students.map((student, idx) => {
     const row   = Math.floor(idx / SEATS_PER_ROW);
@@ -900,6 +927,7 @@ function AvatarGrid({
             position={[x, y, z]}
             yaw={yaw}
             isSelected={selectedId === student.uid}
+            isPresent={attendedUids.has(student.uid)}
             accent={accent}
             fill={fill}
             onClick={() => onSelect(selectedId === student.uid ? null : student)}
@@ -1290,9 +1318,10 @@ export interface ClassroomSceneProps {
   onSelect: (s: StudentProfile | null) => void;
   subject: string;
   subjectCfg: (typeof SUBJECT_CONFIGS)[SubjectKey];
+  attendedUids: Set<string>;
 }
 
-export function ClassroomScene({ students, selectedId, onSelect, subject, subjectCfg }: ClassroomSceneProps) {
+export function ClassroomScene({ students, selectedId, onSelect, subject, subjectCfg, attendedUids }: ClassroomSceneProps) {
   const rowCount    = Math.max(1, Math.ceil(students.length / SEATS_PER_ROW));
   const sceneDepth  = rowCount * Z_STEP + 7;
   const orbitTarget: [number, number, number] = [0, 1.8, Math.min(sceneDepth * 0.45, 12)];
@@ -1350,12 +1379,14 @@ export function ClassroomScene({ students, selectedId, onSelect, subject, subjec
           onSelect={onSelect}
           accent={subjectCfg.accent}
           fill={subjectCfg.fill}
+          attendedUids={attendedUids}
         />
         <ProjectorScreen
           students={students}
           subject={subject}
           accent={subjectCfg.accent}
           selectedId={selectedId}
+          attendedUids={attendedUids}
         />
       </Suspense>
 

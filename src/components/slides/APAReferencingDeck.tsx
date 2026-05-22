@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Maximize, Minimize, CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Maximize, Minimize, CheckCircle, XCircle, RotateCcw, Lock, Eye, EyeOff } from 'lucide-react';
+
+const SESSION_KEY = 'apa-v7-unlocked';
 
 const DECK_CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');
@@ -1036,6 +1038,29 @@ function APAQuiz() {
 // ── Main Component ──────────────────────────────────────────────────────────
 
 export default function APAReferencingDeck() {
+  // ── Password gate ──
+  const [unlocked, setUnlocked] = useState(false);
+  const [pwInput, setPwInput] = useState('');
+  const [pwError, setPwError] = useState(false);
+  const [showPw, setShowPw] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem(SESSION_KEY) === 'true') setUnlocked(true);
+  }, []);
+
+  function handleUnlock(e: React.FormEvent) {
+    e.preventDefault();
+    if (pwInput.trim().toUpperCase() === 'APAV7') {
+      sessionStorage.setItem(SESSION_KEY, 'true');
+      setUnlocked(true);
+      setPwError(false);
+    } else {
+      setPwError(true);
+      setPwInput('');
+    }
+  }
+
+  // ── Slide state ──
   const [current, setCurrent] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
@@ -1094,6 +1119,80 @@ export default function APAReferencingDeck() {
 
   const slide = SLIDES[current];
   const accentColor = '#4338ca';
+
+  if (!unlocked) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 px-6">
+        <div
+          className="w-full max-w-sm rounded-2xl overflow-hidden"
+          style={{ border: '2px solid rgba(67,56,202,0.2)', background: 'rgba(255,255,255,0.95)' }}
+        >
+          {/* Header */}
+          <div
+            className="px-6 py-5 text-center"
+            style={{ background: 'linear-gradient(135deg, #1e1b4b, #3730a3)' }}
+          >
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
+              style={{ background: 'rgba(165,180,252,0.15)', border: '2px solid rgba(165,180,252,0.3)' }}
+            >
+              <Lock size={26} style={{ color: '#a5b4fc' }} />
+            </div>
+            <h3 className="text-base font-bold text-white">Password Required</h3>
+            <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.55)' }}>
+              APA v7 Citations: The Crash Course
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleUnlock} className="p-6 flex flex-col gap-4">
+            <p className="text-xs text-center" style={{ color: '#6b7280' }}>
+              This resource is password-protected. Enter the access password provided by your lecturer.
+            </p>
+
+            <div className="relative">
+              <input
+                type={showPw ? 'text' : 'password'}
+                value={pwInput}
+                onChange={e => { setPwInput(e.target.value); setPwError(false); }}
+                placeholder="Enter password"
+                autoFocus
+                className="w-full px-4 py-3 rounded-xl text-sm font-semibold tracking-widest outline-none transition-all"
+                style={{
+                  border: `2px solid ${pwError ? 'rgba(225,29,72,0.5)' : 'rgba(67,56,202,0.2)'}`,
+                  background: pwError ? 'rgba(255,228,230,0.5)' : 'rgba(238,242,255,0.6)',
+                  color: '#1e1b4b',
+                  paddingRight: '44px',
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded transition-opacity hover:opacity-70"
+                style={{ color: '#9ca3af' }}
+              >
+                {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+
+            {pwError && (
+              <p className="text-xs text-center font-semibold" style={{ color: '#e11d48' }}>
+                Incorrect password — please try again.
+              </p>
+            )}
+
+            <button
+              type="submit"
+              className="w-full py-3 rounded-xl text-sm font-bold transition-all hover:opacity-90 active:scale-95"
+              style={{ background: 'linear-gradient(135deg, #4338ca, #6366f1)', color: '#fff' }}
+            >
+              Unlock Lesson
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3">

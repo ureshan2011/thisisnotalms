@@ -31,6 +31,8 @@ import ERDiagramsDeck from '../../components/slides/ERDiagramsDeck';
 import VideoGallery, { type VideoClip } from '../../components/slides/VideoGallery';
 import ERDiagramActivitiesDeck from '../../components/slides/ERDiagramActivitiesDeck';
 import ERAdvancedConceptsDeck from '../../components/slides/ERAdvancedConceptsDeck';
+import ERAttributeConstraintsDeck from '../../components/slides/ERAttributeConstraintsDeck';
+import ERMappingDeck from '../../components/slides/ERMappingDeck';
 import NormalizationDeck from '../../components/slides/NormalizationDeck';
 import SISPPromptLab from '../../components/lab/SISPPromptLab';
 import SQLPracticeLesson from '../../components/lab/SQLPracticeLesson';
@@ -200,6 +202,20 @@ const COURSES: Course[] = [
         subtitle: '11-slide deck · Weak entities, identifying relationships, multivalued & derived attributes · 2 exercises',
         icon: <BookOpen size={18} />,
         accentColor: '#3b82f6',
+      },
+      {
+        id: 'er-attr-constraints',
+        title: 'Composite Attributes & Participation Constraints',
+        subtitle: '20-slide deck · Composite attributes, participation constraints · 2 activities with answers',
+        icon: <GitBranch size={18} />,
+        accentColor: '#0f766e',
+      },
+      {
+        id: 'er-mapping',
+        title: 'ER to Relational Schema Mapping',
+        subtitle: '23-slide deck · 8 mapping rules · Worked example · Activity with answer',
+        icon: <BookOpen size={18} />,
+        accentColor: '#7c3aed',
       },
       {
         id: 'er-mcq',
@@ -1766,6 +1782,8 @@ export default function CourseResources() {
                       </div>
                     )}
                     {lesson.id === 'er-advanced' && <ERAdvancedConceptsDeck />}
+                    {lesson.id === 'er-attr-constraints' && <ERAttributeConstraintsDeck />}
+                    {lesson.id === 'er-mapping' && <ERMappingDeck />}
                     {lesson.id === 'er-mcq' && isStaff && <ERMcqDashboard />}
                     {lesson.id === 'er-mcq' && !isStaff && (
                       <ERMcq

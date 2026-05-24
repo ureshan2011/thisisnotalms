@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import {
-  collection, doc, onSnapshot, setDoc, serverTimestamp,
+  collection, doc, getDocs, onSnapshot, setDoc, serverTimestamp,
   query, where, orderBy, limit,
 } from 'firebase/firestore';
 import {
-  Swords, Trophy, Users, CheckCircle2, XCircle, Zap,
-  Plus, BarChart2, Clock, Shuffle, BookOpen, ChevronDown, ChevronUp,
+  Swords, Trophy, Users, CheckCircle2, XCircle,
+  Plus, BarChart2, Clock, Shuffle, BookOpen, ChevronDown, ChevronUp, History,
 } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
@@ -112,17 +112,36 @@ export default function LecturerDailyDuelPage() {
   const [responses, setResponses]             = useState<DuelResponse[]>([]);
   const [posting, setPosting]                 = useState(false);
   const [tab, setTab]                         = useState<'post' | 'bank'>('post');
+  const [usedIds, setUsedIds]                 = useState<Set<string>>(new Set());
 
   // form state for posting
   const [filterTopic, setFilterTopic]   = useState<'all' | 'er' | 'sql'>('all');
   const [filterDiff, setFilterDiff]     = useState<'all' | 'medium' | 'hard' | 'fiendish'>('all');
+  const [filterUsed, setFilterUsed]     = useState<'all' | 'unused'>('unused');
   const [selectedQId, setSelectedQId]   = useState<string>('');
+
+  // ── Load all previously used question IDs ─────────────────────────────────
+  useEffect(() => {
+    getDocs(collection(db, 'duelChallenges')).then(snap => {
+      const ids = new Set<string>();
+      snap.forEach(d => {
+        const qId = d.data().questionId as string | undefined;
+        if (qId) ids.add(qId);
+      });
+      setUsedIds(ids);
+    }).catch(() => undefined);
+  }, []);
 
   // ── subscriptions ──────────────────────────────────────────────────────────
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'duelChallenges', dateKey), snap => {
       if (snap.exists()) {
-        setTodayChallenge(snap.data().question as DuelQuestion);
+        const data = snap.data();
+        setTodayChallenge(data.question as DuelQuestion);
+        // Also mark today's question as used immediately
+        if (data.questionId) {
+          setUsedIds(prev => new Set([...prev, data.questionId as string]));
+        }
       } else {
         setTodayChallenge(null);
       }
@@ -164,8 +183,10 @@ export default function LecturerDailyDuelPage() {
   }
 
   function pickRandom() {
-    const pool = DUEL_QUESTIONS;
-    const r    = pool[Math.floor(Math.random() * pool.length)];
+    // Prefer questions that haven't been used yet
+    const unused = DUEL_QUESTIONS.filter(q => !usedIds.has(q.id));
+    const pool   = unused.length > 0 ? unused : DUEL_QUESTIONS;
+    const r      = pool[Math.floor(Math.random() * pool.length)];
     setSelectedQId(r.id);
   }
 
@@ -173,6 +194,7 @@ export default function LecturerDailyDuelPage() {
   const filteredQuestions = DUEL_QUESTIONS.filter(q => {
     if (filterTopic !== 'all' && q.topic !== filterTopic) return false;
     if (filterDiff  !== 'all' && q.difficulty !== filterDiff) return false;
+    if (filterUsed  === 'unused' && usedIds.has(q.id)) return false;
     return true;
   });
 
@@ -331,6 +353,28 @@ export default function LecturerDailyDuelPage() {
                   </div>
                 </div>
 
+                {/* Used filter toggle */}
+                <div className="flex items-center gap-2">
+                  {(['unused', 'all'] as const).map(v => (
+                    <button
+                      key={v}
+                      onClick={() => setFilterUsed(v)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all"
+                      style={{
+                        background: filterUsed === v ? 'linear-gradient(135deg,#7c3aed,#6d28d9)' : 'rgba(139,92,246,0.08)',
+                        color: filterUsed === v ? '#fff' : '#7c3aed',
+                        border: '1px solid',
+                        borderColor: filterUsed === v ? 'transparent' : 'rgba(139,92,246,0.2)',
+                      }}
+                    >
+                      {v === 'unused' ? <><CheckCircle2 size={11} /> Fresh only</> : <><History size={11} /> Show all</>}
+                    </button>
+                  ))}
+                  <span className="text-xs ml-auto" style={{ color: '#9ca3af' }}>
+                    {DUEL_QUESTIONS.length - usedIds.size} unused of {DUEL_QUESTIONS.length}
+                  </span>
+                </div>
+
                 {/* Question picker */}
                 <div>
                   <label className="text-xs font-semibold block mb-1" style={{ color: '#5b21b6' }}>
@@ -344,8 +388,8 @@ export default function LecturerDailyDuelPage() {
                     <option value="">— Pick a question —</option>
                     {filteredQuestions.map(q => (
                       <option key={q.id} value={q.id}>
-                        [{q.topic.toUpperCase()}] {q.category} · {DIFFICULTY_CONFIG[q.difficulty].label} ·{' '}
-                        {q.question.split('\n')[0].substring(0, 55)}…
+                        {usedIds.has(q.id) ? '✓ ' : ''}[{q.topic.toUpperCase()}] {q.category} · {DIFFICULTY_CONFIG[q.difficulty].label} ·{' '}
+                        {q.question.split('\n')[0].substring(0, 50)}…
                       </option>
                     ))}
                   </select>
@@ -357,7 +401,7 @@ export default function LecturerDailyDuelPage() {
                   className="btn-secondary w-full text-sm flex items-center justify-center gap-1.5"
                 >
                   <Shuffle size={14} />
-                  Pick Random Question
+                  Pick Random (prefers fresh)
                 </button>
 
                 {/* Post button */}
@@ -430,19 +474,44 @@ export default function LecturerDailyDuelPage() {
                   style={{ background: 'rgba(124,58,237,0.1)', color: '#7c3aed' }}>
                   {DUEL_QUESTIONS.length} Total
                 </span>
+                <span className="text-xs px-2.5 py-1 rounded-full ml-auto"
+                  style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
+                  <History size={10} className="inline mr-1" />
+                  {usedIds.size} used · {DUEL_QUESTIONS.length - usedIds.size} fresh
+                </span>
               </div>
-              {DUEL_QUESTIONS.map(q => (
-                <div key={q.id} className="relative">
-                  <QuestionPreview q={q} />
-                  <button
-                    className="absolute top-3 right-9 text-xs font-semibold px-2.5 py-1 rounded-full transition-all"
-                    style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed' }}
-                    onClick={() => { setSelectedQId(q.id); setTab('post'); }}
-                  >
-                    Use This
-                  </button>
-                </div>
-              ))}
+              {DUEL_QUESTIONS.map(q => {
+                const wasUsed = usedIds.has(q.id);
+                const isTodayQ = q.id === todayChallenge?.id;
+                return (
+                  <div key={q.id} className="relative" style={{ opacity: wasUsed && !isTodayQ ? 0.72 : 1 }}>
+                    <QuestionPreview q={q} />
+                    {/* Used badge */}
+                    {wasUsed && (
+                      <span
+                        className="absolute top-3 right-[76px] text-xs font-bold px-2 py-0.5 rounded-full"
+                        style={{
+                          background: isTodayQ ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.12)',
+                          color: isTodayQ ? '#059669' : '#ef4444',
+                          border: `1px solid ${isTodayQ ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.25)'}`,
+                        }}
+                      >
+                        {isTodayQ ? '● Today' : '✓ Used'}
+                      </span>
+                    )}
+                    <button
+                      className="absolute top-3 right-9 text-xs font-semibold px-2.5 py-1 rounded-full transition-all"
+                      style={{
+                        background: wasUsed ? 'rgba(239,68,68,0.08)' : 'rgba(124,58,237,0.12)',
+                        color: wasUsed ? '#ef4444' : '#7c3aed',
+                      }}
+                      onClick={() => { setSelectedQId(q.id); setTab('post'); }}
+                    >
+                      Use This
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
 

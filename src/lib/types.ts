@@ -42,6 +42,7 @@ export interface StudentProfile {
   photoURL?: string;
   erMcqBadge?: boolean;
   employmentSurveyDone?: boolean;
+  hasSeenGameIntro?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

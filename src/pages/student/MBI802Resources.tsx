@@ -19,6 +19,7 @@ import QuizResultsDashboard from '../../components/quiz/QuizResultsDashboard';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
 import type { StudentProfile } from '../../lib/types';
+import LessonPlansSection from '../../components/lecturer/LessonPlansSection';
 
 export default function MBI802Resources() {
   const { user, role } = useAuth();
@@ -261,6 +262,9 @@ export default function MBI802Resources() {
           )}
         </div>
       </section>
+
+      {/* ── Lesson Plans (staff only) ──────────────────────────────────────── */}
+      {isStaff && <LessonPlansSection />}
     </Layout>
   );
 }

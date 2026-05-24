@@ -508,11 +508,41 @@ body {
   text-decoration: none;
 }
 
+/* ─── Print FAB ─── */
+.print-fab-wrap {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 200;
+}
+
+.print-fab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--blue-dark);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Inter', system-ui, sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(30,58,138,0.4);
+  transition: background 0.15s, transform 0.1s;
+  letter-spacing: 0.3px;
+}
+
+.print-fab:hover { background: var(--blue); transform: translateY(-1px); }
+.print-fab:active { transform: translateY(0); }
+
 /* ─── Print ─── */
 @media print {
   body { background: white; }
   .header { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .page { padding: 20px; }
+  .print-fab-wrap { display: none !important; }
 }
 
 /* ─── Responsive ─── */

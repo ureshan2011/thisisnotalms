@@ -6,8 +6,10 @@ import ProtectedRoute from './components/layout/ProtectedRoute';
 import { ToastProvider } from './components/ui/ToastProvider';
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
-const StudentSQLRace = lazy(() => import('./pages/student/SQLRacePage'));
-const LecturerSQLRace = lazy(() => import('./pages/lecturer/SQLRacePage'));
+const StudentSQLRace    = lazy(() => import('./pages/student/SQLRacePage'));
+const LecturerSQLRace   = lazy(() => import('./pages/lecturer/SQLRacePage'));
+const StudentDailyDuel  = lazy(() => import('./pages/student/DailyDuelPage'));
+const LecturerDailyDuel = lazy(() => import('./pages/lecturer/DailyDuelPage'));
 
 // Auth pages — lazy-loaded; only downloaded when the user reaches login/register
 const Login    = lazy(() => import('./pages/auth/Login'));
@@ -64,6 +66,7 @@ function AppRoutes() {
         <Route path="/student/playground"      element={<ProtectedRoute allowedRoles={['student']}><StudentPlayground /></ProtectedRoute>} />
         <Route path="/student/notices"         element={<ProtectedRoute allowedRoles={['student']}><NoticeBoard /></ProtectedRoute>} />
         <Route path="/student/sql-race"        element={<ProtectedRoute allowedRoles={['student']}><StudentSQLRace /></ProtectedRoute>} />
+        <Route path="/student/daily-duel"      element={<ProtectedRoute allowedRoles={['student']}><StudentDailyDuel /></ProtectedRoute>} />
 
         {/* Lecturer routes */}
         <Route path="/lecturer/dashboard"        element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><Dashboard /></ProtectedRoute>} />
@@ -78,6 +81,7 @@ function AppRoutes() {
         <Route path="/lecturer/analytics"        element={<ProtectedRoute allowedRoles={['lecturer']}><SiteAnalytics /></ProtectedRoute>} />
         <Route path="/lecturer/video-manager"   element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><VideoLessonManager /></ProtectedRoute>} />
         <Route path="/lecturer/sql-race"         element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><LecturerSQLRace /></ProtectedRoute>} />
+        <Route path="/lecturer/daily-duel"       element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><LecturerDailyDuel /></ProtectedRoute>} />
         <Route path="/lecturer/class-countdown"  element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><ClassCountdownPage /></ProtectedRoute>} />
         <Route path="/lecturer/classroom"         element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><ClassroomView /></ProtectedRoute>} />
 

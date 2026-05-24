@@ -54,7 +54,10 @@ function SidebarContent({
       ? [{ to: '/student/sql-race', icon: <Trophy size={18} />, label: 'SQL Grand Prix' }]
       : []),
     ...(canViewDailyDuel
-      ? [{ to: '/student/daily-duel', icon: <Swords size={18} />, label: 'Daily Duel', isNew: true }]
+      ? [
+          { to: '/student/arena',      icon: <Swords size={18} />, label: 'Arena (1v1)',  isNew: true },
+          { to: '/student/daily-duel', icon: <Star   size={18} />, label: 'Daily Duel' },
+        ]
       : []),
   ];
 

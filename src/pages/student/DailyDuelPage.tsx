@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import {
-  collection, doc, getDoc, query, where, onSnapshot,
+  collection, doc, query, where, onSnapshot,
   addDoc, setDoc, serverTimestamp, orderBy, limit,
+  runTransaction,
 } from 'firebase/firestore';
 import {
   Swords, Flame, Trophy, CheckCircle2, XCircle,
-  Clock, Zap, BookOpen, ChevronRight, Users, Star,
+  Clock, Zap, BookOpen, ChevronRight, Users, Star, Ghost,
 } from 'lucide-react';
+import type { GhostRecord } from '../../lib/eloUtils';
+import { todayStr } from '../../lib/eloUtils';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout, { PageHeader } from '../../components/layout/Layout';
@@ -16,7 +19,7 @@ import {
   type DuelQuestion, type DuelChallenge, type DuelResponse, type DuelStats,
 } from '../../lib/duelData';
 
-const today = () => new Date().toISOString().split('T')[0];
+const today = todayStr;
 
 type Phase = 'loading' | 'no_challenge' | 'question' | 'submitted';
 
@@ -155,6 +158,9 @@ export default function DailyDuelPage() {
   const [allResponses, setAllResponses] = useState<DuelResponse[]>([]);
   const [myStats, setMyStats]           = useState<DuelStats | null>(null);
 
+  const [ghost, setGhost]               = useState<GhostRecord | null>(null);
+  const [beatGhost, setBeatGhost]       = useState<boolean | null>(null);
+
   // question-taking state
   const [selected, setSelected]         = useState<0 | 1 | 2 | 3 | null>(null);
   const [submitting, setSubmitting]     = useState(false);
@@ -177,6 +183,15 @@ export default function DailyDuelPage() {
     });
     return unsub;
   }, [dateKey]);
+
+  // ── load ghost record for today's question ────────────────────────────
+  useEffect(() => {
+    if (!challenge?.question?.id) return;
+    const unsub = onSnapshot(doc(db, 'duelGhosts', challenge.question.id), snap => {
+      setGhost(snap.exists() ? snap.data() as GhostRecord : null);
+    });
+    return unsub;
+  }, [challenge?.question?.id]);
 
   // ── load my response for today ─────────────────────────────────────────────
   useEffect(() => {
@@ -255,6 +270,26 @@ export default function DailyDuelPage() {
         responseTimeMs: responseTime,
         submittedAt:    serverTimestamp(),
       });
+
+      // update ghost record if this is a correct answer and fastest
+      if (isCorrect && challenge?.question?.id) {
+        try {
+          const ghostRef = doc(db, 'duelGhosts', challenge.question.id);
+          await runTransaction(db, async tx => {
+            const gSnap = await tx.get(ghostRef);
+            if (!gSnap.exists() || (gSnap.data()?.timeMs ?? Infinity) > responseTime) {
+              tx.set(ghostRef, {
+                questionId: challenge.question.id, uid: user?.uid ?? '',
+                name: studentProfile?.fullName || user?.email || 'Student',
+                timeMs: responseTime, date: dateKey,
+              });
+              setBeatGhost(true);
+            } else {
+              setBeatGhost(false);
+            }
+          });
+        } catch { setBeatGhost(false); }
+      }
 
       // update cumulative stats
       const yesterday  = new Date(Date.now() - 86400000).toISOString().split('T')[0];
@@ -496,6 +531,18 @@ export default function DailyDuelPage() {
                 );
               })}
             </div>
+
+            {/* Ghost challenge */}
+            {ghost && ghost.uid !== user?.uid && (
+              <div className="mx-5 mb-3 px-3 py-2.5 rounded-2xl flex items-center gap-2"
+                style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
+                <Ghost size={14} style={{ color: '#818cf8', flexShrink: 0 }} />
+                <p className="text-xs" style={{ color: '#a5b4fc' }}>
+                  Beat <strong>{ghost.name}</strong>'s ghost — answered correctly in{' '}
+                  <strong>{(ghost.timeMs / 1000).toFixed(1)}s</strong>. Can you go faster?
+                </p>
+              </div>
+            )}
 
             {/* Submit */}
             <div className="px-5 pb-6">
@@ -753,6 +800,22 @@ export default function DailyDuelPage() {
                   );
                 })}
               </div>
+            </div>
+          )}
+
+          {/* Ghost result */}
+          {isCorrect && beatGhost !== null && (
+            <div className="rounded-2xl px-4 py-3 flex items-center gap-3"
+              style={{
+                background: beatGhost ? 'rgba(99,102,241,0.1)' : 'rgba(255,255,255,0.04)',
+                border: beatGhost ? '1px solid rgba(99,102,241,0.3)' : '1px solid rgba(255,255,255,0.07)',
+              }}>
+              <Ghost size={16} style={{ color: beatGhost ? '#818cf8' : '#475569', flexShrink: 0 }} />
+              <p className="text-xs font-medium" style={{ color: beatGhost ? '#a5b4fc' : '#64748b' }}>
+                {beatGhost
+                  ? `👻 New ghost record! You're now the fastest correct answer for this question.`
+                  : `Ghost still holds. ${ghost ? `${ghost.name} answered in ${(ghost.timeMs / 1000).toFixed(1)}s.` : ''}`}
+              </p>
             </div>
           )}
 

@@ -46,7 +46,7 @@ export function getWeekKey(): string {
 }
 
 export function todayStr(): string {
-  return new Date().toISOString().split('T')[0];
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' });
 }
 
 export function pickDuelQuestions(count = 5): string[] {

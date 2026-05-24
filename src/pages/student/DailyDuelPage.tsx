@@ -292,7 +292,7 @@ export default function DailyDuelPage() {
       }
 
       // update cumulative stats
-      const yesterday  = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      const yesterday  = new Date(Date.now() - 86400000).toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' });
       const lastPlayed = myStats?.lastPlayedDate ?? '';
       const newStreak  =
         lastPlayed === yesterday ? (myStats?.streak ?? 0) + 1 :

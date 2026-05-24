@@ -43,6 +43,7 @@ import APAReferencingDeck from '../../components/slides/APAReferencingDeck';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
 import type { StudentProfile } from '../../lib/types';
+import LessonPlansSection from '../../components/lecturer/LessonPlansSection';
 
 // ── Course + Lesson definitions ────────────────────────────────────────────
 
@@ -1838,6 +1839,9 @@ export default function CourseResources() {
               })}
             </div>
           )}
+
+          {/* ── Lesson Plans — MBI802, staff only ─────────────────────────── */}
+          {isStaff && selectedCourse === 'MBI802' && <LessonPlansSection />}
         </div>
       </div>
     </Layout>

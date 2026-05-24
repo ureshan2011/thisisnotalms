@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBI802 — Class 7: Database Normalization</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <svg class="logo-circle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+        <circle cx="96" cy="96" r="95" fill="#0f1117" stroke="#f59e0b" stroke-width="3"/>
+        <path fill="#f3f4f6" d="M70 35c-7.73 0-14 6.27-14 14v37c0 22.09 17.91 40 40 40s40-17.91 40-40V49c0-7.73-6.27-14-14-14s-14 6.27-14 14v37c0 6.63-5.37 12-12 12s-12-5.37-12-12V49c0-7.73-6.27-14-14-14z"/>
+        <path fill="#f3f4f6" d="M70 107c-7.73 0-14 6.27-14 14v23c0 7.73 6.27 14 14 14s14-6.27 14-14v-23c0-7.73-6.27-14-14-14z"/>
+        <path fill="#f3f4f6" d="M122 107c-7.73 0-14 6.27-14 14v12c0 6.63-5.37 12-12 12s-12-5.37-12-12c0-7.73-6.27-14-14-14s-14 6.27-14 14c0 22.09 17.91 40 40 40s40-17.91 40-40v-12c0-7.73-6.27-14-14-14z"/>
+      </svg>
+      <div class="logo-text">
+        <span class="platform">YooBees</span>
+        <span class="instructor">Dr. Yasas Sri Wickramasinghe</span>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="course-badge">MBI802 · Database Management</div>
+      <div class="course-title">Database Normalization &amp;<br>Functional Dependencies</div>
+      <div class="course-subtitle">1NF, 2NF, 3NF, BCNF — Designing Anomaly-Free Relational Schemas</div>
+    </div>
+    <div class="header-meta">
+      <div class="class-chip">Class 7 of 8</div>
+      <div class="meta-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        10:40 AM – 1:00 PM
+      </div>
+      <div class="meta-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="21" y2="10"/></svg>
+        120 min teaching · 20 min break
+      </div>
+    </div>
+  </div>
+</header>
+<div class="accent-strip"></div>
+
+<main class="page">
+
+  <div class="section-label">Learning Objectives</div>
+  <div class="objectives-grid">
+    <div class="obj-card">
+      <div class="obj-num">1</div>
+      <div class="obj-text">Identify insertion, deletion, and update anomalies in poorly designed relations</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">2</div>
+      <div class="obj-text">Define and identify functional dependencies, partial dependencies, and transitive dependencies</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">3</div>
+      <div class="obj-text">Apply 1NF, 2NF, and 3NF normalization steps to decompose relations</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">4</div>
+      <div class="obj-text">Recognize BCNF violations and understand when denormalization may be appropriate</div>
+    </div>
+  </div>
+
+  <div class="section-label">Teaching Methods</div>
+  <div class="tag-row">
+    <span class="tag tag-purple">Discovery Learning</span>
+    <span class="tag tag-blue">Worked Examples</span>
+    <span class="tag tag-emerald">Problem-Based Learning</span>
+    <span class="tag tag-gold">Socratic Seminar</span>
+    <span class="tag tag-rose">Spaced Practice</span>
+    <span class="tag tag-teal">Scaffolded Activities</span>
+    <span class="tag tag-blue">Collaborative Problem Solving</span>
+  </div>
+
+  <div class="section-label">Overview</div>
+  <div class="overview-bar">
+    <div class="ov-box"><div class="ov-label">Session 1</div><div class="ov-value">10:40 – 11:40</div></div>
+    <div class="ov-box"><div class="ov-label">Break</div><div class="ov-value">11:40 – 12:00</div></div>
+    <div class="ov-box"><div class="ov-label">Session 2</div><div class="ov-value">12:00 – 1:00</div></div>
+    <div class="ov-box"><div class="ov-label">Total Teaching</div><div class="ov-value">120 min</div></div>
+  </div>
+
+  <div class="section-label">Lesson Schedule</div>
+  <div class="schedule-wrap">
+    <div class="schedule-header">
+      <span>Time</span><span>Duration</span><span>Activity</span>
+    </div>
+
+    <div class="schedule-row session-header">
+      <div class="time-cell">10:40 – 11:40</div>
+      <div class="dur-cell">60 min</div>
+      <div class="activity-cell"><div class="activity-title">SESSION 1 — Anomalies, Functional Dependencies &amp; 1NF</div></div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">10:40 – 10:55</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">ER Knowledge Check Review &amp; Badge Celebration</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Review YooBees ER Knowledge Check results — discuss common errors across the class</li>
+            <li>Celebrate badge earners (90%+ on first attempt) — acknowledge achievement publicly</li>
+            <li>For students who did not pass: identify specific ER/mapping concepts to revisit</li>
+            <li>Address 3 most frequently wrong questions with brief explanations</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">10:55 – 11:10</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Discovery Activity — The Problem with Bad Database Design</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Display un-normalised relation on screen: <em>StudentCourseGrades(StudentID, StudentName, StudentPhone, CourseID, CourseName, InstructorID, InstructorName, InstructorEmail, Grade)</em></li>
+            <li>Guided Socratic questions — students discover the problems before normalisation is named:</li>
+            <li>"What happens if we rename a course? How many rows do we update?" → Update anomaly</li>
+            <li>"What if the last student in a course drops out? What happens to course data?" → Deletion anomaly</li>
+            <li>"Can we add a new course if no student has enrolled yet?" → Insertion anomaly</li>
+            <li>Students articulate the problem in their own words → instructor introduces normalisation as the solution</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">11:10 – 11:25</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Mini-Lecture — Functional Dependencies</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Definition: X → Y (X functionally determines Y — knowing X always tells us Y)</li>
+            <li>Full functional dependency: Y depends on the ENTIRE composite key, not just part of it</li>
+            <li>Partial dependency: Y depends on only PART of a composite primary key</li>
+            <li>Transitive dependency: X → Y → Z (non-key determines another non-key)</li>
+            <li>How to identify: "Does knowing X always, necessarily tell us Y?"</li>
+            <li>YooBees: Normalization deck — slides 1–5 (Functional Dependencies)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">11:25 – 11:40</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Mini-Lecture — First Normal Form (1NF)</div>
+        <div class="activity-desc">
+          <ul>
+            <li>1NF requirements: (1) Each column contains atomic values, (2) No repeating groups, (3) Each row is unique (has a primary key)</li>
+            <li>Common violations: storing multiple phone numbers in one cell, comma-separated values, arrays</li>
+            <li>How to achieve: decompose multi-valued cells into separate rows or separate tables</li>
+            <li>Activity: Students fix a given 0NF table to 1NF in pairs</li>
+            <li>YooBees: Normalization deck — slides 6–9 (1NF with examples)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row break-row">
+      <div class="time-cell">11:40 – 12:00</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">☕ Scheduled Break</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Students consolidate 1NF activity and review their pair work</li>
+            <li>Instructor prepares 2NF and 3NF worked example tables on whiteboard for Session 2</li>
+            <li>Optional: students access YooBees Normalization deck slides 10–14 for preview</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row session-header">
+      <div class="time-cell">12:00 – 1:00</div>
+      <div class="dur-cell">60 min</div>
+      <div class="activity-cell"><div class="activity-title">SESSION 2 — 2NF, 3NF, BCNF &amp; Normalization Practice</div></div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:00 – 12:25</div>
+      <div class="dur-cell">25 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Mini-Lecture — 2NF, 3NF &amp; BCNF</div>
+        <div class="activity-desc">
+          <ul>
+            <li><strong>2NF:</strong> Must be in 1NF + no partial functional dependencies. Only applies to tables with composite PKs. Remove attributes that depend on only PART of the PK into a new table.</li>
+            <li><strong>3NF:</strong> Must be in 2NF + no transitive dependencies. All non-key attributes must depend ONLY on the primary key. Remove: CourseName → InstructorID → InstructorEmail into Instructor table.</li>
+            <li><strong>BCNF:</strong> Every determinant must be a candidate key. Stronger than 3NF — handles edge cases where 3NF tables still have anomalies due to multiple overlapping candidate keys.</li>
+            <li>SQL execution order connection: how normalisation maps to efficient query design</li>
+            <li>YooBees: Normalization deck — slides 10–18 (2NF, 3NF, BCNF with worked examples)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:25 – 12:50</div>
+      <div class="dur-cell">25 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Scaffolded Normalization Practice — YooBees Activities</div>
+        <div class="activity-desc">
+          <ul>
+            <li><strong>Activity 1 (1NF):</strong> Given an unnormalised Orders table — identify violations, decompose to 1NF (8 min)</li>
+            <li><strong>Activity 2 (2NF):</strong> Given a 1NF table with a composite PK — identify partial dependencies, decompose to 2NF (8 min)</li>
+            <li><strong>Activity 3 (3NF):</strong> Given a 2NF table — identify transitive dependencies, decompose to 3NF (9 min)</li>
+            <li>Students work individually, then verify with partner</li>
+            <li>Instructor reveals answers progressively — class corrects and discusses reasoning</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:50 – 1:00</div>
+      <div class="dur-cell">10 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Socratic Seminar &amp; Wrap-Up</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Provocative question: "Is a fully normalised database always better? When and why might you DENORMALISE?"</li>
+            <li>Open discussion: students argue for and against — performance vs. integrity trade-off</li>
+            <li>Instructor synthesises: OLTP systems benefit from normalisation; OLAP/data warehouses often denormalise for query speed</li>
+            <li>Preview Class 8: SQL Practice Lab + DBMS Knowledge Check + Certification pathways</li>
+            <li>Homework: Study all YooBees course content — DBMS Knowledge Check (38 MCQ) in Class 8</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-header blue">📚 Resources &amp; Materials</div>
+      <div class="card-body">
+        <ul>
+          <li>YooBees: Database Normalization deck (20 slides, 3 activities)</li>
+          <li>YooBees: DBMS Main Quiz preview (38 MCQ — opens after class)</li>
+          <li>Un-normalised StudentCourseGrades table handout</li>
+          <li>Normalization step-by-step worksheet (scaffolded)</li>
+          <li>Functional dependency identification practice sheet</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header emerald">✅ Assessment &amp; Formative Checks</div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Discovery activity:</strong> Students identify anomalies before instruction — activates prior knowledge</li>
+          <li><strong>1NF pair activity:</strong> Fix 0NF table — immediate feedback from instructor</li>
+          <li><strong>3 normalization activities:</strong> YooBees platform tracks individual activity completion</li>
+          <li><strong>Homework:</strong> Review all YooBees content for Class 8 DBMS Knowledge Check</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header purple">🧠 Key Concepts Covered</div>
+      <div class="card-body">
+        <ul>
+          <li>Anomaly types: insertion, deletion, update anomalies</li>
+          <li>Functional dependency: X → Y notation and identification</li>
+          <li>Partial dependency (2NF violation) and transitive dependency (3NF violation)</li>
+          <li>1NF: atomic values, no repeating groups, unique rows</li>
+          <li>2NF: remove partial dependencies</li>
+          <li>3NF: remove transitive dependencies</li>
+          <li>BCNF: every determinant is a candidate key</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header gold">🔗 Blended Learning Elements</div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Discovery learning:</strong> Students find anomalies before normalisation is named</li>
+          <li><strong>Online:</strong> YooBees Normalization deck (20 slides, 3 embedded activities)</li>
+          <li><strong>Scaffolded:</strong> Activities increase in complexity (1NF → 2NF → 3NF)</li>
+          <li><strong>Socratic:</strong> Denormalisation debate activates critical thinking</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Assessment Overview</div>
+  <div class="assessment-row">
+    <div class="assess-card">
+      <div class="assess-type">Formative — Discovery</div>
+      <div class="assess-body">Students identify 3 anomaly types in un-normalised relation before instruction. Activates prior reasoning skills.</div>
+    </div>
+    <div class="assess-card">
+      <div class="assess-type">Formative — Scaffolded</div>
+      <div class="assess-body">Three YooBees normalization activities (1NF, 2NF, 3NF) completed individually and verified with partner.</div>
+    </div>
+    <div class="assess-card">
+      <div class="assess-type">Summative — Prep</div>
+      <div class="assess-body">Students review all YooBees course content in preparation for the 38-question DBMS Knowledge Check in Class 8.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Instructor Notes</div>
+  <div class="card" style="margin-bottom: 0;">
+    <div class="card-header teal">📝 Pedagogical Notes for the Instructor</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>Discovery first:</strong> Do NOT explain anomalies before the discovery activity. Let students encounter them first — the "aha moment" creates durable learning (constructivist pedagogy).</li>
+        <li><strong>2NF only applies with composite PKs:</strong> Remind students repeatedly. A table with a single-column PK automatically satisfies 2NF if it satisfies 1NF.</li>
+        <li><strong>3NF test:</strong> Teach the simple test: "For every non-trivial FD X → Y, either X is a superkey OR Y is a prime attribute." Use this with students when they are uncertain.</li>
+        <li><strong>BCNF depth:</strong> BCNF is introduced conceptually — students are not expected to perform BCNF decomposition in assessments, only to recognise violations.</li>
+        <li><strong>Socratic seminar:</strong> Seed the discussion with a performance scenario: "An e-commerce site queries 10 million orders per second — would you normalise the orders table?" This makes denormalisation concrete.</li>
+      </ul>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <span>MBI802 — Database Management Systems &nbsp;·&nbsp; Class 7 of 8</span>
+  <span>Dr. Yasas Sri Wickramasinghe &nbsp;·&nbsp; <a href="#">YooBees Learning Platform</a></span>
+  <span>10:40 AM – 1:00 PM &nbsp;·&nbsp; 120 min teaching</span>
+</footer>
+
+</body>
+</html>

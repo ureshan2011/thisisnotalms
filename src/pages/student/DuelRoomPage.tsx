@@ -241,7 +241,7 @@ export default function DuelRoomPage() {
         const today  = todayStr();
         const updatePlayer = (pUid: string, pSnap: typeof p1Snap, newRating: number, won: boolean) => {
           const old = (pSnap.data() as EloRating) ?? {};
-          const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0];
+          const yesterday = new Date(Date.now() - 86_400_000).toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' });
           const lastDate  = old.lastDuelDate ?? '';
           const newStreak = lastDate === yesterday ? (old.duelStreak ?? 0) + 1 : 1;
           const newBest   = Math.max(newStreak, old.bestDuelStreak ?? 0);

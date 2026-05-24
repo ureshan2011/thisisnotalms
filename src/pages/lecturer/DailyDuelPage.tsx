@@ -17,7 +17,7 @@ import {
   ER_QUESTIONS, SQL_QUESTIONS,
 } from '../../lib/duelData';
 
-const today = () => new Date().toISOString().split('T')[0];
+const today = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Pacific/Auckland' });
 
 const CHOICE_LABELS = ['A', 'B', 'C', 'D'] as const;
 

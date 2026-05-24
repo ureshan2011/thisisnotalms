@@ -94,13 +94,15 @@ const PLANS: Plan[] = [
   },
 ];
 
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
 export default function LessonPlansSection() {
   const openLesson = (num: number) => {
-    window.open(`/lesson-plans/class-${num}.html`, '_blank');
+    window.open(`${base}/lesson-plans/class-${num}.html`, '_blank');
   };
 
   const downloadPDF = (num: number) => {
-    window.open(`/lesson-plans/class-${num}.html?pdf=1`, '_blank');
+    window.open(`${base}/lesson-plans/class-${num}.html?pdf=1`, '_blank');
   };
 
   return (
@@ -236,7 +238,7 @@ export default function LessonPlansSection() {
       {/* View all button */}
       <div className="mt-4 text-center">
         <button
-          onClick={() => window.open('/lesson-plans/index.html', '_blank')}
+          onClick={() => window.open(`${base}/lesson-plans/index.html`, '_blank')}
           className="inline-flex items-center gap-2 text-sm font-semibold rounded-xl px-5 py-2.5 transition-all hover:opacity-90"
           style={{
             background: 'linear-gradient(135deg, #1e1b4b, #4c1d95)',

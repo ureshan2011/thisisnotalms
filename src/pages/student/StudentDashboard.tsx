@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
 import { Briefcase, Clock, Cloud, CloudFog, CloudRain, CloudSun, Globe, GraduationCap, Mail, MapPin, Sparkles, Sun, Users, BookOpen } from 'lucide-react';
 import NewsWidget from '../../components/ui/NewsWidget';
+import GameIntroPopup from '../../components/ui/GameIntroPopup';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout from '../../components/layout/Layout';
@@ -145,6 +146,7 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [weather, setWeather] = useState<WeatherInfo | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
+  const [showGameIntro, setShowGameIntro] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -217,6 +219,24 @@ export default function StudentDashboard() {
     return () => controller.abort();
   }, [me?.campus]);
 
+  // Show the one-time game intro popup for MBI802 students who haven't seen it
+  useEffect(() => {
+    if (!user || !me) return;
+    const isMBI802 = (me.subjects || []).includes('MBI802');
+    if (!isMBI802 || me.hasSeenGameIntro) return;
+    // Small delay so the dashboard renders first
+    const t = setTimeout(() => setShowGameIntro(true), 900);
+    return () => clearTimeout(t);
+  }, [user, me]);
+
+  async function dismissGameIntro() {
+    setShowGameIntro(false);
+    if (!user) return;
+    try {
+      await updateDoc(doc(db, 'students', user.uid), { hasSeenGameIntro: true });
+    } catch { /* non-critical */ }
+  }
+
 const peersWithPins = useMemo(
     () => batchMates.filter(
       s => typeof s.hometownLat === 'number' && typeof s.hometownLng === 'number',
@@ -253,6 +273,8 @@ const peersWithPins = useMemo(
 
   return (
     <Layout>
+      {showGameIntro && <GameIntroPopup onClose={dismissGameIntro} />}
+
       {/* ── Greeting hero ── */}
       <div
         className="relative overflow-hidden rounded-3xl p-6 sm:p-8 mb-8 animate-fadeIn"

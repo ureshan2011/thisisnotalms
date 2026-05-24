@@ -317,6 +317,186 @@ export const DUEL_QUESTIONS: DuelQuestion[] = [
       "'Overlapping' means an entity CAN belong to multiple subtypes at the same time — E1 could be both an Engineer and a Manager. 'Partial' means entities DON'T have to belong to any subtype — E1 can be purely an EMPLOYEE. Contrast with 'disjoint, total': exactly one subtype, mandatory. This is one of the most commonly confused ISA constraint combinations.",
     points: 20,
   },
+  {
+    id: 'er_016',
+    topic: 'er',
+    category: '1:1 Relationships',
+    difficulty: 'medium',
+    question:
+      "EMPLOYEE and LOCKER have a 1:1 optional relationship — each employee may have at most one locker, each locker is assigned to at most one employee. Both sides have partial participation. When converting to relational schema, where should the FK go?",
+    choices: [
+      "Add Locker_ID FK to EMPLOYEE (nullable) — OR Employee_ID FK to LOCKER (nullable). Either table can hold it.",
+      "A new junction table EMPLOYEE_LOCKER(Employee_ID, Locker_ID) is required",
+      "Add FKs in both tables simultaneously — Locker_ID in EMPLOYEE and Employee_ID in LOCKER",
+      "FK columns are not used for 1:1 — use a UNIQUE constraint on the PK instead",
+    ],
+    correct: 0,
+    explanation:
+      "For 1:1 optional relationships, either side can hold the FK — it's a design choice. The FK must be nullable (partial participation = not mandatory). A junction table is needed only for M:N. Placing FKs in both tables creates circular references. Convention: put the FK in the more 'dependent' table or the one with fewer NULLs.",
+    points: 10,
+  },
+  {
+    id: 'er_017',
+    topic: 'er',
+    category: 'Relationship Attributes',
+    difficulty: 'medium',
+    question:
+      "STUDENT and CLUB have an M:N relationship JOINS. A student can join multiple clubs; a club can have many students. The date a specific student joined a specific club must be stored. Where does Join_Date belong?",
+    choices: [
+      "In STUDENT — since joining is a student action",
+      "In CLUB — since it describes club membership",
+      "In the junction table JOINS(Student_ID, Club_ID, Join_Date)",
+      "In a separate JOIN_HISTORY(JoinHistoryID, Student_ID, Club_ID, Join_Date) table",
+    ],
+    correct: 2,
+    explanation:
+      "Join_Date describes the specific (Student, Club) combination — it's a fact about the relationship itself, not the student alone or the club alone. Relationship attributes in M:N go into the junction table alongside the two FKs. A separate history table adds complexity only if you need to track multiple join events per student per club.",
+    points: 10,
+  },
+  {
+    id: 'er_018',
+    topic: 'er',
+    category: 'ISA Hierarchies',
+    difficulty: 'medium',
+    question:
+      "ANIMAL is a supertype with subtypes DOG and CAT, marked 'disjoint, partial.' An Animal record with ID=99 exists. Which is a valid state for this data?",
+    choices: [
+      "ID=99 appears in both DOG and CAT tables simultaneously",
+      "ID=99 appears only in ANIMAL — with no matching DOG or CAT row",
+      "ID=99 must appear in exactly one of DOG or CAT",
+      "The schema is invalid — partial specialization cannot coexist with disjoint",
+    ],
+    correct: 1,
+    explanation:
+      "'Partial' specialization means not every ANIMAL must be in a subtype — an animal can exist solely in ANIMAL. 'Disjoint' means it CANNOT be in both DOG and CAT simultaneously. So ID=99 being only in ANIMAL is perfectly valid. 'Total' would force every ANIMAL into at least one subtype. 'Partial' = coverage is optional; 'disjoint' = subtypes can't overlap.",
+    points: 10,
+  },
+  {
+    id: 'er_019',
+    topic: 'er',
+    category: 'Aggregation',
+    difficulty: 'hard',
+    question:
+      "ENGINEER works on PROJECT — an M:N relationship. A COMPANY monitors specific engineer-project pairings. The MONITORS relationship has its own attribute: Start_Date. The most accurate ER construct for this scenario is:",
+    choices: [
+      "Ternary relationship MONITORS connecting ENGINEER, PROJECT, and COMPANY directly",
+      "Aggregation — treat ENGINEER+WORKS_ON+PROJECT as a higher-level entity; connect COMPANY to that aggregate via MONITORS",
+      "Add a CompanyID attribute to the WORKS_ON junction table",
+      "Convert WORKS_ON into a strong entity and add a separate MONITORS table linking to COMPANY",
+    ],
+    correct: 1,
+    explanation:
+      "Aggregation is used when a relationship itself needs to participate in another relationship. Treating ENGINEER+WORKS_ON+PROJECT as an abstract unit lets COMPANY monitor that specific pairing via MONITORS with its Start_Date. A ternary (option A) mixes entity-level and relationship-level semantics. Option D (making WORKS_ON a strong entity) is functionally equivalent to aggregation and also works — but 'aggregation' is the formal ER term.",
+    points: 15,
+  },
+  {
+    id: 'er_020',
+    topic: 'er',
+    category: 'Cardinality Constraints',
+    difficulty: 'medium',
+    question:
+      "A LIBRARY has BOOKS. Each BOOK belongs to exactly one LIBRARY. Each LIBRARY can have zero or many BOOKs. BOOK has total participation in the relationship. Which option correctly describes cardinality and participation?",
+    choices: [
+      "BOOK:LIBRARY is M:N — a book can travel between libraries",
+      "BOOK:LIBRARY is 1:N — one library to many books; BOOK has total participation (must belong to a library)",
+      "BOOK:LIBRARY is 1:1 — each library has exactly one book",
+      "BOOK:LIBRARY is N:1 — many libraries share one book",
+    ],
+    correct: 1,
+    explanation:
+      "'Each BOOK belongs to exactly one LIBRARY' and 'each LIBRARY can have zero or many BOOKs' = 1:N (1 library : N books). Total participation on BOOK means every book must be associated with a library — FK in BOOK is NOT NULL. This is the textbook library/book 1:N pattern. Think: LIBRARY has many BOOKs; each BOOK belongs to one LIBRARY.",
+    points: 10,
+  },
+  {
+    id: 'er_021',
+    topic: 'er',
+    category: 'Participation Constraints',
+    difficulty: 'hard',
+    question:
+      "DEPARTMENT(1) ——<< EMPLOYEE(N). EMPLOYEE has total participation in the relationship. How is this mapped to a relational schema?",
+    choices: [
+      "Add DeptID FK to DEPARTMENT pointing to EMPLOYEE",
+      "Add DeptID FK to EMPLOYEE pointing to DEPARTMENT, with NOT NULL constraint",
+      "Add DeptID FK to EMPLOYEE pointing to DEPARTMENT, allowing NULL",
+      "Create a separate table DEPT_EMP(DeptID, EmpID) to represent the relationship",
+    ],
+    correct: 1,
+    explanation:
+      "In a 1:N relationship the FK goes on the 'many' side (EMPLOYEE). Total participation on EMPLOYEE = NOT NULL — every employee must be in a department. NULL would imply partial participation. A separate table is only needed for M:N. Option A puts the FK on the wrong side — DEPARTMENT can't reference a single EMPLOYEE since many employees share one department.",
+    points: 15,
+  },
+  {
+    id: 'er_022',
+    topic: 'er',
+    category: 'Weak Entities',
+    difficulty: 'hard',
+    question:
+      "ORDER_LINE is a weak entity with partial key LineNumber. Its owner is ORDER with PK OrderID. Orders 101, 102, 103 each have lines 1, 2, 3. What is the primary key of the ORDER_LINE relational table?",
+    choices: [
+      "LineNumber alone — unique enough within the table",
+      "(OrderID, LineNumber) — composite key combining owner's PK with the partial key",
+      "A new auto-generated OrderLineID surrogate key",
+      "OrderID alone — inherited from the parent ORDER",
+    ],
+    correct: 1,
+    explanation:
+      "A partial key (LineNumber) only identifies an order line WITHIN its parent order. Across all orders, LineNumber 1 appears in every order — it's not globally unique. The correct composite PK is (OrderID, LineNumber), where OrderID is also an FK referencing ORDER. This is the standard weak entity mapping: partial key + owner's PK = full primary key.",
+    points: 15,
+  },
+  {
+    id: 'er_023',
+    topic: 'er',
+    category: 'Generalization and Specialization',
+    difficulty: 'medium',
+    question:
+      "A designer first models CAR and TRUCK as separate entities, then notices they share EngineSize, MaxSpeed, and RegistrationID. They create a new supertype VEHICLE and move the shared attributes up. This design process is called:",
+    choices: [
+      "Specialization — breaking a general entity into more specific subtypes",
+      "Aggregation — grouping related entities into a higher-level construct",
+      "Generalization — abstracting common properties from multiple entities into a supertype",
+      "Normalization — removing redundancy by extracting repeated attributes",
+    ],
+    correct: 2,
+    explanation:
+      "Generalization is BOTTOM-UP: start with specific entities (CAR, TRUCK), identify common attributes, create a general supertype (VEHICLE). Specialization is TOP-DOWN: start with a general entity and break it into subtypes. Aggregation groups a relationship and its entities into a higher-level entity. Normalization is a relational schema process, not an ER design concept.",
+    points: 10,
+  },
+  {
+    id: 'er_024',
+    topic: 'er',
+    category: 'ISA Hierarchies',
+    difficulty: 'fiendish',
+    question:
+      "EMPLOYEE supertype has subtypes ENGINEER and MANAGER (disjoint, total). Three strategies exist for mapping ISA to relational tables. Which strategy stores ALL data in ONE table with a Type discriminator column?",
+    choices: [
+      "Strategy 1 — Multiple tables: EMPLOYEE, ENGINEER, MANAGER each get their own table; subtypes join to the supertype",
+      "Strategy 2 — Single table: one EMPLOYEE table with ALL attributes from all subtypes; subtype-only columns are NULL when not applicable",
+      "Strategy 3 — Subtype tables only: separate ENGINEER and MANAGER tables each contain ALL attributes including inherited ones from EMPLOYEE",
+      "Strategy 4 — View-based: virtual views simulating each subtype on top of a normalised base table",
+    ],
+    correct: 1,
+    explanation:
+      "Strategy 2 (table-per-hierarchy) collapses everything into one EMPLOYEE table with a Type column ('ENGINEER'/'MANAGER') and NULLs for inapplicable columns. Simple to query but wastes space and loses NOT NULL constraints on subtype-specific columns. Strategy 1 (table-per-type) requires joins. Strategy 3 (table-per-subtype) duplicates supertype attributes and has no central EMPLOYEE table. Knowing all three strategies is a common exam question.",
+    points: 20,
+  },
+  {
+    id: 'er_025',
+    topic: 'er',
+    category: 'Weak Entities',
+    difficulty: 'hard',
+    question:
+      "An ER diagram contains a double-line diamond (◇◇) connecting two entities. What specifically does the double-line diamond signify?",
+    choices: [
+      "The relationship has M:N cardinality",
+      "It is an identifying relationship — connecting a weak entity to its owner; the weak entity's identity depends on this link",
+      "Both entities have total participation in the relationship",
+      "It is a derived relationship computed from other relationships in the diagram",
+    ],
+    correct: 1,
+    explanation:
+      "The double-line diamond (◇◇) is used exclusively for IDENTIFYING relationships — those linking a weak entity to its owner (identifying entity). Without this relationship, the weak entity cannot be uniquely identified or even exist. The double diamond pairs with the double rectangle (□□) for the weak entity itself. Single diamond (◇) is used for all ordinary (non-identifying) relationships.",
+    points: 15,
+  },
 
   // ─── SQL Questions ──────────────────────────────────────────────────────────
   {
@@ -587,6 +767,186 @@ export const DUEL_QUESTIONS: DuelQuestion[] = [
     correct: 2,
     explanation:
       "COUNT(DISTINCT column) counts distinct non-NULL values. The NULL row is ignored by COUNT. DISTINCT reduces {North, South, North, East} to {North, South, East} = 3 unique values. Note: COUNT(DISTINCT *) is not valid SQL — only COUNT(DISTINCT column) works. Also, the duplicate 'North' is deduplicated by DISTINCT.",
+    points: 15,
+  },
+  {
+    id: 'sql_016',
+    topic: 'sql',
+    category: 'NULL Handling',
+    difficulty: 'medium',
+    question:
+      "EMPLOYEE has columns Name and Bonus (DECIMAL, nullable). You want to display each employee's bonus but show 0 for any employee with no bonus recorded. Which query achieves this?",
+    choices: [
+      "SELECT Name, Bonus = 0 FROM EMPLOYEE",
+      "SELECT Name, COALESCE(Bonus, 0) AS Bonus FROM EMPLOYEE",
+      "SELECT Name, ISNULL(Bonus) AS Bonus FROM EMPLOYEE",
+      "SELECT Name, Bonus FROM EMPLOYEE WHERE Bonus IS NOT NULL",
+    ],
+    correct: 1,
+    explanation:
+      "COALESCE(value, replacement) returns the first non-NULL argument. If Bonus is NULL, COALESCE(Bonus, 0) returns 0; otherwise the actual bonus value is returned. Option A sets Bonus = 0 for ALL rows unconditionally — not conditional. ISNULL() (option C) requires two arguments: ISNULL(Bonus, 0) — it's also SQL Server-specific, not standard SQL. Option D filters out NULL rows entirely instead of substituting 0.",
+    points: 10,
+  },
+  {
+    id: 'sql_017',
+    topic: 'sql',
+    category: 'Subqueries',
+    difficulty: 'hard',
+    question:
+      "Find all customers who have placed at least one order. CUSTOMER(CustID, Name) and ORDER(OrderID, CustID — nullable). Which approach is both correct and safe when ORDER.CustID contains NULLs?",
+    choices: [
+      "SELECT Name FROM CUSTOMER WHERE CustID IN (SELECT CustID FROM ORDER)",
+      "SELECT Name FROM CUSTOMER c WHERE EXISTS (SELECT 1 FROM ORDER o WHERE o.CustID = c.CustID)",
+      "SELECT Name FROM CUSTOMER WHERE CustID = ANY (SELECT CustID FROM ORDER)",
+      "SELECT DISTINCT Name FROM CUSTOMER JOIN ORDER ON CUSTOMER.CustID = ORDER.CustID",
+    ],
+    correct: 1,
+    explanation:
+      "EXISTS checks for row existence rather than value equality, so NULLs in the subquery cannot poison the result. IN (option A) and ANY (option C) are equivalent and both fail when the subquery contains NULLs — the NULL comparison causes UNKNOWN, not FALSE, making no rows match. JOIN (option D) can return duplicate customer names if a customer has multiple orders — DISTINCT helps but EXISTS is cleaner and NULL-safe.",
+    points: 15,
+  },
+  {
+    id: 'sql_018',
+    topic: 'sql',
+    category: 'Conditional Logic',
+    difficulty: 'medium',
+    question:
+      "EMPLOYEE has a Salary column. You want to label each employee: 'High' if salary > 80000, 'Mid' if salary >= 50000, otherwise 'Low'. Which SQL is correct?",
+    choices: [
+      "SELECT Name, IF(Salary > 80000, 'High', IF(Salary >= 50000, 'Mid', 'Low')) AS Grade FROM EMPLOYEE",
+      "SELECT Name, CASE WHEN Salary > 80000 THEN 'High' WHEN Salary >= 50000 THEN 'Mid' ELSE 'Low' END AS Grade FROM EMPLOYEE",
+      "SELECT Name, CASE Salary WHEN > 80000 THEN 'High' WHEN >= 50000 THEN 'Mid' ELSE 'Low' END AS Grade FROM EMPLOYEE",
+      "SELECT Name, DECODE(Salary, 80000, 'High', 50000, 'Mid', 'Low') AS Grade FROM EMPLOYEE",
+    ],
+    correct: 1,
+    explanation:
+      "The searched CASE uses WHEN <condition> THEN <result>, evaluated top-to-bottom, returning the first matching branch. If Salary > 80000, 'High' is returned without checking the next condition. Option A — IF() is MySQL-specific, not standard SQL. Option C uses simple CASE syntax (CASE column WHEN value), which compares exact values — not valid for ranges with > or >=. DECODE() (option D) is Oracle-specific and also compares exact values.",
+    points: 10,
+  },
+  {
+    id: 'sql_019',
+    topic: 'sql',
+    category: 'Data Modification',
+    difficulty: 'hard',
+    question:
+      "You need to remove ALL rows from EMPLOYEE, keep the table structure and constraints intact, and ensure the operation can be rolled back within an open transaction. Which command is correct?",
+    choices: [
+      "DROP TABLE EMPLOYEE — removes both all rows and the table definition",
+      "TRUNCATE TABLE EMPLOYEE — removes all rows instantly but cannot be rolled back in most databases",
+      "DELETE FROM EMPLOYEE — removes all rows, is fully logged DML, and is rollback-able",
+      "DELETE * FROM EMPLOYEE — standard syntax for deleting all rows with full transaction support",
+    ],
+    correct: 2,
+    explanation:
+      "DELETE FROM EMPLOYEE (no WHERE clause) removes all rows, is DML (Data Manipulation Language), is fully transaction-logged, and can be rolled back. TRUNCATE is faster but is DDL in most databases — it typically cannot be rolled back and resets identity counters. DROP removes the entire table definition, not just rows. DELETE * FROM is invalid SQL syntax — the correct form is DELETE FROM table with no asterisk.",
+    points: 15,
+  },
+  {
+    id: 'sql_020',
+    topic: 'sql',
+    category: 'Window Functions',
+    difficulty: 'hard',
+    question:
+      "EMPLOYEE(EmpID, DeptID, Salary). Find the highest-paid employee in each department. Which approach correctly returns exactly one employee per department (the top earner)?",
+    choices: [
+      "SELECT EmpID, DeptID, Salary FROM EMPLOYEE GROUP BY DeptID HAVING MAX(Salary)",
+      "SELECT EmpID, DeptID, Salary FROM EMPLOYEE WHERE Salary IN (SELECT MAX(Salary) FROM EMPLOYEE GROUP BY DeptID)",
+      "SELECT EmpID, DeptID, Salary FROM (SELECT *, ROW_NUMBER() OVER (PARTITION BY DeptID ORDER BY Salary DESC) AS rn FROM EMPLOYEE) t WHERE rn = 1",
+      "SELECT EmpID, DeptID, MAX(Salary) FROM EMPLOYEE GROUP BY DeptID, EmpID",
+    ],
+    correct: 2,
+    explanation:
+      "ROW_NUMBER() OVER (PARTITION BY DeptID ORDER BY Salary DESC) assigns rank 1 to the highest earner per department. Filtering WHERE rn = 1 returns exactly one employee per department. Option A is syntactically invalid. Option B returns all employees matching the department max — returns multiple rows on salary ties. Option D groups by both DeptID and EmpID — each employee is their own group, so MAX just returns their own salary.",
+    points: 15,
+  },
+  {
+    id: 'sql_021',
+    topic: 'sql',
+    category: 'JOINs',
+    difficulty: 'medium',
+    question:
+      "Table A has 4 rows. Table B has 6 rows. How many rows does this return?\n\n  SELECT * FROM A CROSS JOIN B;",
+    choices: [
+      "10 — CROSS JOIN adds the row counts of both tables",
+      "24 — CROSS JOIN produces the Cartesian product (4 × 6)",
+      "4 — CROSS JOIN returns only matching rows like INNER JOIN",
+      "6 — CROSS JOIN returns all rows from B padded with NULLs from A",
+    ],
+    correct: 1,
+    explanation:
+      "CROSS JOIN produces the Cartesian product — every row in A is paired with every row in B. With 4 rows × 6 rows = 24 result rows. No join condition is needed. CROSS JOIN is useful for generating all combinations (e.g., sizes × colours for a product catalogue) but dangerous on large tables — 1,000 rows × 1,000 rows = 1,000,000 rows.",
+    points: 10,
+  },
+  {
+    id: 'sql_022',
+    topic: 'sql',
+    category: 'Subqueries',
+    difficulty: 'hard',
+    question:
+      "What is WRONG with this query?\n\n  SELECT dept, avg_salary\n  FROM (SELECT dept, AVG(salary) AS avg_salary FROM emp GROUP BY dept)\n  WHERE avg_salary > 60000;",
+    choices: [
+      "AVG() cannot be used inside a subquery in the FROM clause",
+      "The subquery in FROM is missing an alias — every derived table must have a name",
+      "WHERE avg_salary > 60000 should be HAVING avg_salary > 60000",
+      "The outer SELECT cannot reference columns from a subquery",
+    ],
+    correct: 1,
+    explanation:
+      "Every derived table (subquery in FROM) must be given an alias. Fix: FROM (...) AS dept_summary. Without the alias, SQL returns an error such as 'every derived table must have its own alias.' The outer WHERE clause is valid — avg_salary is a regular column at the outer query level. HAVING is only needed inside the GROUP BY query itself, not in the outer query filtering the derived table.",
+    points: 15,
+  },
+  {
+    id: 'sql_023',
+    topic: 'sql',
+    category: 'Subqueries',
+    difficulty: 'fiendish',
+    question:
+      "EMPLOYEE(EmpID, Name, Salary, DeptID). Which query correctly finds employees earning MORE than the average salary of THEIR OWN department?",
+    choices: [
+      "SELECT Name FROM EMPLOYEE WHERE Salary > AVG(Salary)",
+      "SELECT Name FROM EMPLOYEE WHERE Salary > (SELECT AVG(Salary) FROM EMPLOYEE)",
+      "SELECT Name FROM EMPLOYEE e WHERE e.Salary > (SELECT AVG(Salary) FROM EMPLOYEE WHERE DeptID = e.DeptID)",
+      "SELECT Name FROM EMPLOYEE e JOIN (SELECT DeptID, AVG(Salary) avg FROM EMPLOYEE) d ON e.DeptID = d.DeptID WHERE e.Salary > d.avg",
+    ],
+    correct: 2,
+    explanation:
+      "Option C is a correlated subquery — the inner query references e.DeptID from the outer query, computing each employee's own department average row by row. Option A is invalid (aggregate functions can't appear in WHERE). Option B compares against the company-wide average, not per-department. Option D's derived table is missing GROUP BY DeptID — without it, the subquery returns a single row (overall average) and the DeptID column is invalid.",
+    points: 20,
+  },
+  {
+    id: 'sql_024',
+    topic: 'sql',
+    category: 'Set Operations',
+    difficulty: 'medium',
+    question:
+      "ENROLLED_SPRING and ENROLLED_FALL each contain StudentID values. Which query finds students enrolled in BOTH semesters?",
+    choices: [
+      "SELECT StudentID FROM ENROLLED_SPRING UNION SELECT StudentID FROM ENROLLED_FALL",
+      "SELECT StudentID FROM ENROLLED_SPRING INTERSECT SELECT StudentID FROM ENROLLED_FALL",
+      "SELECT StudentID FROM ENROLLED_SPRING EXCEPT SELECT StudentID FROM ENROLLED_FALL",
+      "SELECT StudentID FROM ENROLLED_SPRING UNION ALL SELECT StudentID FROM ENROLLED_FALL",
+    ],
+    correct: 1,
+    explanation:
+      "INTERSECT returns only rows that appear in BOTH result sets — students enrolled in both semesters. UNION (option A) returns all students from either semester (deduplicated). EXCEPT / MINUS (option C) returns students in spring but NOT fall. UNION ALL (option D) returns all rows including duplicates — a student in both would appear twice. INTERSECT is the correct set operation for 'in common.'",
+    points: 10,
+  },
+  {
+    id: 'sql_025',
+    topic: 'sql',
+    category: 'Transactions',
+    difficulty: 'hard',
+    question:
+      "A bank transfer debits Account A by $100 and credits Account B by $100 in a single transaction. The system crashes after the debit but before the credit. Which ACID property guarantees the entire transaction is undone, restoring both accounts?",
+    choices: [
+      "Consistency — the database always transitions from one valid state to another",
+      "Isolation — concurrent transactions cannot see each other's uncommitted changes",
+      "Atomicity — a transaction is an all-or-nothing unit; partial completion is impossible",
+      "Durability — committed transactions survive system failures permanently",
+    ],
+    correct: 2,
+    explanation:
+      "Atomicity guarantees the transaction is treated as a single indivisible unit — either ALL operations commit or NONE do. After a crash, the incomplete transaction is rolled back, restoring both accounts. Consistency (A) means the database moves between valid states — but atomicity is what triggers the rollback. Isolation (B) is about concurrency. Durability (D) is the opposite scenario: ensuring committed data survives crashes.",
     points: 15,
   },
 ];

@@ -163,6 +163,33 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // ── Daily Duel ─────────────────────────────────────────────
+    // Challenges posted by staff — one document per day (doc ID = YYYY-MM-DD).
+    // All authenticated users can read; only staff can write.
+    match /duelChallenges/{dateKey} {
+      allow read:  if request.auth != null;
+      allow write: if request.auth != null && isStaff();
+    }
+
+    // Duel responses — students create their own immutable submission.
+    // All authenticated users can read (needed for live leaderboard).
+    // Staff can update for moderation; no deletes.
+    match /duelResponses/{responseId} {
+      allow read:   if request.auth != null;
+      allow create: if request.auth != null &&
+        request.resource.data.studentUid == request.auth.uid;
+      allow update: if request.auth != null && isStaff();
+      allow delete: if false;
+    }
+
+    // Duel stats — one document per student (doc ID = uid).
+    // Students read/write their own doc; staff can read all.
+    match /duelStats/{uid} {
+      allow read:  if request.auth != null && (request.auth.uid == uid || isStaff());
+      allow write: if request.auth != null && request.auth.uid == uid;
+      allow delete: if false;
+    }
+
     // SQL Race Challenges — readable by all authenticated; writable by staff only
     match /sqlRaceChallenges/{challengeId} {
       allow read: if request.auth != null;

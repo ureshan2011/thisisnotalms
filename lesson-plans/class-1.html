@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBI802 — Class 1: Introduction to DBMS</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <svg class="logo-circle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+        <circle cx="96" cy="96" r="95" fill="#0f1117" stroke="#f59e0b" stroke-width="3"/>
+        <path fill="#f3f4f6" d="M70 35c-7.73 0-14 6.27-14 14v37c0 22.09 17.91 40 40 40s40-17.91 40-40V49c0-7.73-6.27-14-14-14s-14 6.27-14 14v37c0 6.63-5.37 12-12 12s-12-5.37-12-12V49c0-7.73-6.27-14-14-14z"/>
+        <path fill="#f3f4f6" d="M70 107c-7.73 0-14 6.27-14 14v23c0 7.73 6.27 14 14 14s14-6.27 14-14v-23c0-7.73-6.27-14-14-14z"/>
+        <path fill="#f3f4f6" d="M122 107c-7.73 0-14 6.27-14 14v12c0 6.63-5.37 12-12 12s-12-5.37-12-12c0-7.73-6.27-14-14-14s-14 6.27-14 14c0 22.09 17.91 40 40 40s40-17.91 40-40v-12c0-7.73-6.27-14-14-14z"/>
+      </svg>
+      <div class="logo-text">
+        <span class="platform">YooBees</span>
+        <span class="instructor">Dr. Yasas Sri Wickramasinghe</span>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="course-badge">MBI802 · Database Management</div>
+      <div class="course-title">Introduction to Database<br>Management Systems</div>
+      <div class="course-subtitle">Foundations of DBMS &amp; Development Environment Setup</div>
+    </div>
+    <div class="header-meta">
+      <div class="class-chip">Class 1 of 8</div>
+      <div class="meta-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        10:40 AM – 1:00 PM
+      </div>
+      <div class="meta-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        120 min teaching · 20 min break
+      </div>
+    </div>
+  </div>
+</header>
+<div class="accent-strip"></div>
+
+<main class="page">
+
+  <div class="section-label">Learning Objectives</div>
+  <div class="objectives-grid">
+    <div class="obj-card">
+      <div class="obj-num">1</div>
+      <div class="obj-text">Distinguish between data and information using real-world examples</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">2</div>
+      <div class="obj-text">Explain the advantages of DBMS over file-based systems</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">3</div>
+      <div class="obj-text">Identify key components of a relational database (tables, rows, columns, keys)</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">4</div>
+      <div class="obj-text">Successfully install and configure MySQL Community Server</div>
+    </div>
+  </div>
+
+  <div class="section-label">Teaching Methods</div>
+  <div class="tag-row">
+    <span class="tag tag-blue">Think-Pair-Share</span>
+    <span class="tag tag-purple">Flipped Classroom</span>
+    <span class="tag tag-emerald">Problem-Based Learning</span>
+    <span class="tag tag-gold">Live Demonstration</span>
+    <span class="tag tag-rose">Gamification (Kahoot)</span>
+    <span class="tag tag-teal">Hands-On Practice</span>
+    <span class="tag tag-blue">Exit Ticket</span>
+  </div>
+
+  <div class="section-label">Overview</div>
+  <div class="overview-bar">
+    <div class="ov-box"><div class="ov-label">Session 1</div><div class="ov-value">10:40 – 11:40</div></div>
+    <div class="ov-box"><div class="ov-label">Break</div><div class="ov-value">11:40 – 12:00</div></div>
+    <div class="ov-box"><div class="ov-label">Session 2</div><div class="ov-value">12:00 – 1:00</div></div>
+    <div class="ov-box"><div class="ov-label">Total Teaching</div><div class="ov-value">120 min</div></div>
+  </div>
+
+  <div class="section-label">Lesson Schedule</div>
+  <div class="schedule-wrap">
+    <div class="schedule-header">
+      <span>Time</span><span>Duration</span><span>Activity</span>
+    </div>
+
+    <div class="schedule-row session-header">
+      <div class="time-cell">10:40 – 11:40</div>
+      <div class="dur-cell">60 min</div>
+      <div class="activity-cell"><div class="activity-title">SESSION 1 — Concepts &amp; Theory</div></div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">10:40 – 10:50</div>
+      <div class="dur-cell">10 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Welcome &amp; Course Overview</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Introduce MBI802: objectives, assessment structure, grading policy</li>
+            <li>Platform walkthrough: YooBees — navigating lessons, quizzes, and resources</li>
+            <li>Ice-breaker: "In one word, what is a database?" — Mentimeter live word cloud</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">10:50 – 11:10</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Mini-Lecture — Data, Information &amp; DBMS Fundamentals</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Data vs. Information: definitions, examples, transformation process</li>
+            <li>Characteristics of quality information: accuracy, completeness, timeliness</li>
+            <li>File-based systems vs. DBMS: redundancy, inconsistency, security, concurrency</li>
+            <li>DBMS types overview: Relational, NoSQL, NewSQL</li>
+            <li>Key components: tables, schemas, records, fields, primary keys, foreign keys</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">11:10 – 11:25</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Think-Pair-Share — Real-World DBMS Problem</div>
+        <div class="activity-desc">
+          <ul>
+            <li><strong>Scenario:</strong> "A hospital stores patient records in Excel spreadsheets. What problems arise?"</li>
+            <li>Think independently (2 min) → Pair with neighbour (5 min) → Share with class (8 min)</li>
+            <li>Instructor synthesises: data redundancy, inconsistency, security risks, concurrent access issues</li>
+            <li>Connect back to DBMS as the solution</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">11:25 – 11:40</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Kahoot! Live Quiz — DBMS Foundations Check</div>
+        <div class="activity-desc">
+          <ul>
+            <li>10-question Kahoot quiz: data vs. information, DBMS components, real-world scenarios</li>
+            <li>Immediate feedback after each question — instructor explains incorrect options</li>
+            <li>Leaderboard motivates engagement; normalise mistakes as learning opportunities</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row break-row">
+      <div class="time-cell">11:40 – 12:00</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">☕ Scheduled Break</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Students rest and refresh</li>
+            <li>Download MySQL installer during break if not already done</li>
+            <li>Teaching assistants set up troubleshooting station</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row session-header">
+      <div class="time-cell">12:00 – 1:00</div>
+      <div class="dur-cell">60 min</div>
+      <div class="activity-cell"><div class="activity-title">SESSION 2 — Practical Setup</div></div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:00 – 12:20</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Live Demo — MySQL Installation</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Instructor demonstrates MySQL Community Server download and installation</li>
+            <li>Windows pathway: MySQL Installer, Visual C++ runtime, configuration wizard</li>
+            <li>macOS pathway: DMG installer, system preferences, PATH setup</li>
+            <li>YooBees video tutorials displayed on second screen for reference</li>
+            <li>Distribute troubleshooting guide handout</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:20 – 12:45</div>
+      <div class="dur-cell">25 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Hands-On — MySQL Setup &amp; First Connection</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Students install MySQL on their own machines (VMs provided for those without admin rights)</li>
+            <li>Teaching assistants circulate and assist with issues</li>
+            <li>Verify connection via MySQL Workbench or CLI: <code>SHOW DATABASES;</code></li>
+            <li>Students screenshot successful connection and post to shared Teams channel</li>
+            <li>Peer assist: students who finish early help neighbours</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:45 – 1:00</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Reflection &amp; Exit Ticket</div>
+        <div class="activity-desc">
+          <ul>
+            <li>"One thing I learned, one question I still have" — Google Form exit ticket</li>
+            <li>Preview Class 2: SQL Programming — DDL and data types</li>
+            <li>Homework: Complete YooBees DBMS Quiz (Data vs Information section, 7 questions)</li>
+            <li>Optional: Watch YooBees MySQL setup video to reinforce today's setup</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-header blue">📚 Resources &amp; Materials</div>
+      <div class="card-body">
+        <ul>
+          <li>YooBees Platform: MySQL Setup video tutorials (Windows &amp; macOS)</li>
+          <li>YooBees DBMS Quiz — Data vs Information section (7 questions)</li>
+          <li>MySQL Community Server — official download page</li>
+          <li>Troubleshooting guide handout (distributed in class)</li>
+          <li>Mentimeter / Kahoot! accounts (instructor-prepared)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header emerald">✅ Assessment &amp; Formative Checks</div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Kahoot quiz</strong> (in-class): Data, Information &amp; DBMS concepts — diagnostic only</li>
+          <li><strong>Exit ticket</strong>: one learning + one question — informs Class 2 planning</li>
+          <li><strong>Homework</strong>: YooBees DBMS Quiz, Data vs Information section</li>
+          <li><strong>Participation</strong>: Think-Pair-Share engagement observed by instructor</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header purple">🧠 Key Concepts Covered</div>
+      <div class="card-body">
+        <ul>
+          <li>Data vs. Information: definitions and transformation</li>
+          <li>Characteristics of quality information (accuracy, timeliness, completeness)</li>
+          <li>DBMS vs. file-based systems: advantages and use cases</li>
+          <li>Relational database components: tables, records, attributes, keys</li>
+          <li>MySQL environment setup and verification</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header gold">🔗 Blended Learning Elements</div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Online:</strong> YooBees platform walkthrough and pre-class video tutorials</li>
+          <li><strong>Synchronous:</strong> Live demonstration, Think-Pair-Share, Kahoot!</li>
+          <li><strong>Asynchronous:</strong> Exit ticket follow-up, homework quiz on YooBees</li>
+          <li><strong>Peer Learning:</strong> Collaborative installation troubleshooting</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Assessment Overview</div>
+  <div class="assessment-row">
+    <div class="assess-card">
+      <div class="assess-type">Formative — In Class</div>
+      <div class="assess-body">Kahoot! quiz and Think-Pair-Share participation used diagnostically to gauge prior knowledge and adjust instruction.</div>
+    </div>
+    <div class="assess-card">
+      <div class="assess-type">Formative — Exit Ticket</div>
+      <div class="assess-body">Google Form: one learning + one question. Responses reviewed before Class 2 to address gaps and common misconceptions.</div>
+    </div>
+    <div class="assess-card">
+      <div class="assess-type">Formative — Homework</div>
+      <div class="assess-body">YooBees DBMS Quiz: Data vs Information section (7 questions). Students receive instant feedback on the platform.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Instructor Notes</div>
+  <div class="card" style="margin-bottom: 0;">
+    <div class="card-header teal">📝 Pedagogical Notes for the Instructor</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>Inclusivity:</strong> Provide VMs or cloud MySQL access for students without admin rights on personal devices.</li>
+        <li><strong>Pacing:</strong> MySQL installation can run over time — prioritise connectivity over full setup; students can complete at home using YooBees video tutorials.</li>
+        <li><strong>Prior knowledge:</strong> Some students may have Excel experience — validate this and use it as a bridge to DBMS concepts.</li>
+        <li><strong>Differentiation:</strong> Fast finishers can run <code>CREATE DATABASE test_db;</code> and explore MySQL Workbench schema view as an extension activity.</li>
+        <li><strong>Next class preview:</strong> Ensure all students have working MySQL before Class 2 — SQL Programming requires the environment.</li>
+      </ul>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <span>MBI802 — Database Management Systems &nbsp;·&nbsp; Class 1 of 8</span>
+  <span>Dr. Yasas Sri Wickramasinghe &nbsp;·&nbsp; <a href="#">YooBees Learning Platform</a></span>
+  <span>10:40 AM – 1:00 PM &nbsp;·&nbsp; 120 min teaching</span>
+</footer>
+
+</body>
+</html>

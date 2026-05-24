@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBI802 — Class 4: ER Diagrams Foundations</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <svg class="logo-circle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+        <circle cx="96" cy="96" r="95" fill="#0f1117" stroke="#f59e0b" stroke-width="3"/>
+        <path fill="#f3f4f6" d="M70 35c-7.73 0-14 6.27-14 14v37c0 22.09 17.91 40 40 40s40-17.91 40-40V49c0-7.73-6.27-14-14-14s-14 6.27-14 14v37c0 6.63-5.37 12-12 12s-12-5.37-12-12V49c0-7.73-6.27-14-14-14z"/>
+        <path fill="#f3f4f6" d="M70 107c-7.73 0-14 6.27-14 14v23c0 7.73 6.27 14 14 14s14-6.27 14-14v-23c0-7.73-6.27-14-14-14z"/>
+        <path fill="#f3f4f6" d="M122 107c-7.73 0-14 6.27-14 14v12c0 6.63-5.37 12-12 12s-12-5.37-12-12c0-7.73-6.27-14-14-14s-14 6.27-14 14c0 22.09 17.91 40 40 40s40-17.91 40-40v-12c0-7.73-6.27-14-14-14z"/>
+      </svg>
+      <div class="logo-text">
+        <span class="platform">YooBees</span>
+        <span class="instructor">Dr. Yasas Sri Wickramasinghe</span>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="course-badge">MBI802 · Database Management</div>
+      <div class="course-title">Entity-Relationship Diagrams</div>
+      <div class="course-subtitle">Chen's Notation, Entities, Attributes, Relationships &amp; Cardinality</div>
+    </div>
+    <div class="header-meta">
+      <div class="class-chip">Class 4 of 8</div>
+      <div class="meta-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        10:40 AM – 1:00 PM
+      </div>
+      <div class="meta-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        120 min teaching · 20 min break
+      </div>
+    </div>
+  </div>
+</header>
+<div class="accent-strip"></div>
+
+<main class="page">
+
+  <div class="section-label">Learning Objectives</div>
+  <div class="objectives-grid">
+    <div class="obj-card">
+      <div class="obj-num">1</div>
+      <div class="obj-text">Explain the role of ER diagrams as a visual blueprint before database implementation</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">2</div>
+      <div class="obj-text">Identify and represent entities, attributes, and relationships using Chen's notation</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">3</div>
+      <div class="obj-text">Distinguish attribute types: simple, composite, multivalued, derived, and key attributes</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">4</div>
+      <div class="obj-text">Determine and apply cardinality (1:1, 1:N, M:N) for relationships in real-world scenarios</div>
+    </div>
+  </div>
+
+  <div class="section-label">Teaching Methods</div>
+  <div class="tag-row">
+    <span class="tag tag-blue">Visual Learning</span>
+    <span class="tag tag-emerald">Collaborative Diagramming</span>
+    <span class="tag tag-purple">Gallery Walk</span>
+    <span class="tag tag-rose">Socratic Method</span>
+    <span class="tag tag-gold">Think-Pair-Share</span>
+    <span class="tag tag-teal">Problem-Based Learning</span>
+    <span class="tag tag-blue">Peer Feedback</span>
+  </div>
+
+  <div class="section-label">Overview</div>
+  <div class="overview-bar">
+    <div class="ov-box"><div class="ov-label">Session 1</div><div class="ov-value">10:40 – 11:40</div></div>
+    <div class="ov-box"><div class="ov-label">Break</div><div class="ov-value">11:40 – 12:00</div></div>
+    <div class="ov-box"><div class="ov-label">Session 2</div><div class="ov-value">12:00 – 1:00</div></div>
+    <div class="ov-box"><div class="ov-label">Total Teaching</div><div class="ov-value">120 min</div></div>
+  </div>
+
+  <div class="section-label">Lesson Schedule</div>
+  <div class="schedule-wrap">
+    <div class="schedule-header">
+      <span>Time</span><span>Duration</span><span>Activity</span>
+    </div>
+
+    <div class="schedule-row session-header">
+      <div class="time-cell">10:40 – 11:40</div>
+      <div class="dur-cell">60 min</div>
+      <div class="activity-cell"><div class="activity-title">SESSION 1 — ER Concepts &amp; Notation</div></div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">10:40 – 10:50</div>
+      <div class="dur-cell">10 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Connection Activity — Blueprint Before Building</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Discussion: "Before a building is constructed, architects draw blueprints. What is the equivalent for a database?"</li>
+            <li>Collaborative mind map on whiteboard: students contribute ideas about design-before-code</li>
+            <li>Exit ticket review from Class 3 — GROUP BY/COUNT query discussed; common errors addressed</li>
+            <li>Frame today: "We are moving from SQL implementation to design thinking"</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">10:50 – 11:10</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Mini-Lecture — ER Diagram Fundamentals &amp; Chen's Notation</div>
+        <div class="activity-desc">
+          <ul>
+            <li>What is an ER Diagram? Visual model of data, relationships, and constraints</li>
+            <li>Chen's notation symbols: Rectangle (entity), Ellipse (attribute), Diamond (relationship), Lines (participation)</li>
+            <li>Attribute types: simple, composite, multivalued (double ellipse), derived (dashed ellipse), key (underlined)</li>
+            <li>Relationships: binary (between 2 entities), ternary (between 3)</li>
+            <li>Cardinality: 1:1 (one-to-one), 1:N (one-to-many), M:N (many-to-many) — real-world examples for each</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">11:10 – 11:30</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">YooBees — ER Diagrams Basics Deck (Slides 1–12)</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Work through first 12 slides of the ER Diagrams Basics slide deck together as a class</li>
+            <li>Socratic questioning throughout: "What makes this a strong entity?", "Is age a derived attribute here?"</li>
+            <li>Students annotate on printed handout or digital copy — highlight key notation decisions</li>
+            <li>Pause at slide 8: class discusses the Person–Address composite attribute decomposition</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">11:30 – 11:40</div>
+      <div class="dur-cell">10 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Quick Check — Draw a Simple ER Fragment</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Instructor states scenario: "A person can own many cars. A car is owned by exactly one person."</li>
+            <li>Students individually draw: entities, at least 2 attributes each, the relationship, and cardinality notation (3 min)</li>
+            <li>Pair comparison and discussion: where do diagrams differ? (4 min)</li>
+            <li>Class debrief — instructor draws canonical answer and explains reasoning</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row break-row">
+      <div class="time-cell">11:40 – 12:00</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">☕ Scheduled Break</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Students rest and review their ER fragment drawing</li>
+            <li>Instructor prepares group scenario cards for Session 2 design activity</li>
+            <li>Optional: students access YooBees ER Diagrams deck for self-paced preview of remaining slides</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row session-header">
+      <div class="time-cell">12:00 – 1:00</div>
+      <div class="dur-cell">60 min</div>
+      <div class="activity-cell"><div class="activity-title">SESSION 2 — Applied Design &amp; Gallery Walk</div></div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:00 – 12:20</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">ER Diagram Activities — YooBees Deck (Library &amp; University Scenarios)</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Open YooBees ER Diagram Activities deck — work through Library Management scenario (slides 1–6)</li>
+            <li>Think-Pair-Share: students design diagram before solution is revealed on screen</li>
+            <li>Step-by-step reveal: instructor builds diagram incrementally — students compare with their attempt</li>
+            <li>University scenario (slides 7–12): students design independently, then class review</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:20 – 12:45</div>
+      <div class="dur-cell">25 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Group Design Challenge — Real-World ER Diagrams</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Groups of 3–4 students — each group receives a different scenario card:</li>
+            <li>Group A: Online bookstore (customers, books, orders, reviews)</li>
+            <li>Group B: University course registration (students, courses, lecturers, rooms)</li>
+            <li>Group C: Hospital appointment system (patients, doctors, appointments, wards)</li>
+            <li>Group D: Employee payroll system (employees, departments, salaries, projects)</li>
+            <li>Draw ER diagram on A3 paper or digital whiteboard (Miro / Jamboard / draw.io)</li>
+            <li>Must include: min 4 entities, appropriate attributes, cardinality on all relationships</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:45 – 1:00</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Gallery Walk — Peer Feedback</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Groups post their ER diagrams on the wall / shared digital space</li>
+            <li>Students walk around with sticky notes: add 2 things done well + 1 suggestion per diagram</li>
+            <li>Groups reconvene: read feedback, discuss what they would change (3 min)</li>
+            <li>Class debrief: instructor highlights common strengths and 2–3 key improvements seen across all groups</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-header blue">📚 Resources &amp; Materials</div>
+      <div class="card-body">
+        <ul>
+          <li>YooBees: ER Diagrams Basics slide deck (24 slides)</li>
+          <li>YooBees: ER Diagram Activities deck (12 slides, 5 scenarios)</li>
+          <li>Printed ER diagram annotation handout</li>
+          <li>Group scenario cards (A–D) — pre-printed or distributed digitally</li>
+          <li>A3 paper / Miro / Jamboard for group diagramming</li>
+          <li>Sticky notes for gallery walk feedback</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header emerald">✅ Assessment &amp; Formative Checks</div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Quick check:</strong> Person-Car ER fragment — diagnostic of notation understanding</li>
+          <li><strong>YooBees activities:</strong> Library &amp; University scenarios — compare student diagrams to worked solutions</li>
+          <li><strong>Group design:</strong> ER diagram for complex real-world scenario — observed by instructor</li>
+          <li><strong>Gallery walk feedback:</strong> peer assessment using structured sticky note protocol</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header purple">🧠 Key Concepts Covered</div>
+      <div class="card-body">
+        <ul>
+          <li>Chen's notation: Rectangle, Ellipse, Diamond, connecting lines</li>
+          <li>Attribute types: simple, composite, multivalued, derived, key</li>
+          <li>Cardinality: 1:1, 1:N, M:N with notation on connecting lines</li>
+          <li>Binary vs. ternary relationships</li>
+          <li>ER diagram as design artefact preceding SQL implementation</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header gold">🔗 Blended Learning Elements</div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Online:</strong> YooBees ER Diagrams Basics + Activities interactive slide decks</li>
+          <li><strong>Visual:</strong> Gallery walk activates visual-spatial learning modalities</li>
+          <li><strong>Collaborative:</strong> Group design challenge with peer feedback</li>
+          <li><strong>Constructivist:</strong> Students build knowledge through designing before seeing the solution</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Assessment Overview</div>
+  <div class="assessment-row">
+    <div class="assess-card">
+      <div class="assess-type">Formative — Individual</div>
+      <div class="assess-body">Person-Car ER fragment quick check. Instructor reviews to identify notation misunderstandings before group work.</div>
+    </div>
+    <div class="assess-card">
+      <div class="assess-type">Formative — Group Design</div>
+      <div class="assess-body">Group ER diagram for assigned scenario. Observed by instructor during design; peer-reviewed in gallery walk.</div>
+    </div>
+    <div class="assess-card">
+      <div class="assess-type">Formative — Peer</div>
+      <div class="assess-body">Gallery walk sticky note feedback: 2 strengths + 1 improvement per diagram. Promotes critical evaluation skills.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Instructor Notes</div>
+  <div class="card" style="margin-bottom: 0;">
+    <div class="card-header teal">📝 Pedagogical Notes for the Instructor</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>Chen's vs. Crow's Foot:</strong> Students may encounter Crow's Foot notation online — briefly acknowledge it exists but keep focus on Chen's for this course.</li>
+        <li><strong>Cardinality confusion:</strong> The most common error is placing cardinality labels on the wrong side of the relationship line. Use the "reading the relationship" technique: read from one entity to another and state the maximum.</li>
+        <li><strong>M:N relationships:</strong> Students often add a foreign key directly — this is the mapping step (Class 6). In ER diagrams, M:N is represented with a diamond and lines only.</li>
+        <li><strong>Gallery walk tip:</strong> Give each group a different coloured sticky note so authors know which feedback came from which peer group.</li>
+        <li><strong>Tool recommendation:</strong> Encourage draw.io (free) or Lucidchart for digital ER diagrams — students will use these tools professionally.</li>
+      </ul>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <span>MBI802 — Database Management Systems &nbsp;·&nbsp; Class 4 of 8</span>
+  <span>Dr. Yasas Sri Wickramasinghe &nbsp;·&nbsp; <a href="#">YooBees Learning Platform</a></span>
+  <span>10:40 AM – 1:00 PM &nbsp;·&nbsp; 120 min teaching</span>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBI802 — Class 3: Advanced SQL Queries</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <svg class="logo-circle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+        <circle cx="96" cy="96" r="95" fill="#0f1117" stroke="#f59e0b" stroke-width="3"/>
+        <path fill="#f3f4f6" d="M70 35c-7.73 0-14 6.27-14 14v37c0 22.09 17.91 40 40 40s40-17.91 40-40V49c0-7.73-6.27-14-14-14s-14 6.27-14 14v37c0 6.63-5.37 12-12 12s-12-5.37-12-12V49c0-7.73-6.27-14-14-14z"/>
+        <path fill="#f3f4f6" d="M70 107c-7.73 0-14 6.27-14 14v23c0 7.73 6.27 14 14 14s14-6.27 14-14v-23c0-7.73-6.27-14-14-14z"/>
+        <path fill="#f3f4f6" d="M122 107c-7.73 0-14 6.27-14 14v12c0 6.63-5.37 12-12 12s-12-5.37-12-12c0-7.73-6.27-14-14-14s-14 6.27-14 14c0 22.09 17.91 40 40 40s40-17.91 40-40v-12c0-7.73-6.27-14-14-14z"/>
+      </svg>
+      <div class="logo-text">
+        <span class="platform">YooBees</span>
+        <span class="instructor">Dr. Yasas Sri Wickramasinghe</span>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="course-badge">MBI802 · Database Management</div>
+      <div class="course-title">Advanced SQL Queries &amp;<br>Data Manipulation</div>
+      <div class="course-subtitle">Filtering, Sorting, Aggregations, JOINs &amp; DML Operations</div>
+    </div>
+    <div class="header-meta">
+      <div class="class-chip">Class 3 of 8</div>
+      <div class="meta-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        10:40 AM – 1:00 PM
+      </div>
+      <div class="meta-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        120 min teaching · 20 min break
+      </div>
+    </div>
+  </div>
+</header>
+<div class="accent-strip"></div>
+
+<main class="page">
+
+  <div class="section-label">Learning Objectives</div>
+  <div class="objectives-grid">
+    <div class="obj-card">
+      <div class="obj-num">1</div>
+      <div class="obj-text">Write queries with WHERE, ORDER BY, and LIMIT using comparison and logical operators</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">2</div>
+      <div class="obj-text">Apply aggregate functions: COUNT, SUM, AVG, MAX, MIN with GROUP BY and HAVING</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">3</div>
+      <div class="obj-text">Modify existing records safely using UPDATE with WHERE conditions</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">4</div>
+      <div class="obj-text">Perform INNER JOIN queries to combine data from multiple related tables</div>
+    </div>
+  </div>
+
+  <div class="section-label">Teaching Methods</div>
+  <div class="tag-row">
+    <span class="tag tag-purple">Retrieval Practice</span>
+    <span class="tag tag-blue">Problem-Based Learning</span>
+    <span class="tag tag-emerald">Jigsaw Activity</span>
+    <span class="tag tag-gold">Query Olympics</span>
+    <span class="tag tag-rose">Socratic Questioning</span>
+    <span class="tag tag-teal">Peer Code Review</span>
+    <span class="tag tag-blue">Exit Ticket</span>
+  </div>
+
+  <div class="section-label">Overview</div>
+  <div class="overview-bar">
+    <div class="ov-box"><div class="ov-label">Session 1</div><div class="ov-value">10:40 – 11:40</div></div>
+    <div class="ov-box"><div class="ov-label">Break</div><div class="ov-value">11:40 – 12:00</div></div>
+    <div class="ov-box"><div class="ov-label">Session 2</div><div class="ov-value">12:00 – 1:00</div></div>
+    <div class="ov-box"><div class="ov-label">Total Teaching</div><div class="ov-value">120 min</div></div>
+  </div>
+
+  <div class="section-label">Lesson Schedule</div>
+  <div class="schedule-wrap">
+    <div class="schedule-header">
+      <span>Time</span><span>Duration</span><span>Activity</span>
+    </div>
+
+    <div class="schedule-row session-header">
+      <div class="time-cell">10:40 – 11:40</div>
+      <div class="dur-cell">60 min</div>
+      <div class="activity-cell"><div class="activity-title">SESSION 1 — Filtering, Sorting &amp; Group Challenges</div></div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">10:40 – 10:50</div>
+      <div class="dur-cell">10 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Retrieval Practice — No Notes Challenge</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Students write from memory: 5 SQL commands learned in Class 2 (no notes, 4 min)</li>
+            <li>Share with partner → compare → correct together (3 min)</li>
+            <li>Instructor reveals answers — celebrate accuracy; spaced repetition reinforcement</li>
+            <li>Quick clarification of any Class 2 homework questions</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">10:50 – 11:10</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Mini-Lecture — WHERE Clause, Filtering &amp; Sorting</div>
+        <div class="activity-desc">
+          <ul>
+            <li>WHERE operators: = &nbsp; != &nbsp; &lt; &nbsp; &gt; &nbsp; &lt;= &nbsp; &gt;= &nbsp; BETWEEN...AND &nbsp; IN (...) &nbsp; LIKE '%pattern%' &nbsp; IS NULL / IS NOT NULL</li>
+            <li>Logical operators: AND, OR, NOT — operator precedence and parentheses</li>
+            <li>ORDER BY column ASC / DESC — multi-column ordering</li>
+            <li>LIMIT n and LIMIT n OFFSET m — pagination use cases</li>
+            <li>Pause-and-predict: "What does LIKE 'J%' match?" — class responds</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">11:10 – 11:25</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Live Demo &amp; Graduated Challenges</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Instructor demonstrates on university.students table from Class 2</li>
+            <li>Challenge 1 (easy): "Find all students with last name starting with 'S'"</li>
+            <li>Challenge 2 (medium): "Find students enrolled between 2022-01-01 and 2023-12-31, ordered by last name"</li>
+            <li>Challenge 3 (hard): "Find the 3 most recently enrolled students whose email contains '@gmail'"</li>
+            <li>Students attempt each before instructor reveals solution — Socratic discussion of approaches</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">11:25 – 11:40</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Query Olympics — Team Competition</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Teams of 3 — each team assigned a real-world database scenario (bookstore / hospital / hotel)</li>
+            <li>Write 3 SELECT queries with WHERE and ORDER BY in 10 minutes</li>
+            <li>One member types, others suggest and review — then rotate roles next challenge</li>
+            <li>Teams screen-share or write on board — class reviews and votes on "most elegant" query</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row break-row">
+      <div class="time-cell">11:40 – 12:00</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">☕ Scheduled Break</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Students rest; instructor reviews team query outputs</li>
+            <li>Post the best student query from Query Olympics on the shared channel as inspiration</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row session-header">
+      <div class="time-cell">12:00 – 1:00</div>
+      <div class="dur-cell">60 min</div>
+      <div class="activity-cell"><div class="activity-title">SESSION 2 — Aggregations, DML &amp; Introduction to JOINs</div></div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:00 – 12:20</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Mini-Lecture — Aggregate Functions, UPDATE &amp; DELETE</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Aggregate functions: COUNT(*), COUNT(col), SUM, AVG, MAX, MIN — when to use each</li>
+            <li>GROUP BY: "How many students enrolled per year?" — conceptual model of grouping</li>
+            <li>HAVING: filtering after aggregation (vs. WHERE which filters before)</li>
+            <li>UPDATE syntax: <code>UPDATE table SET col=val WHERE condition;</code> — importance of WHERE</li>
+            <li>DELETE: <code>DELETE FROM table WHERE condition;</code> — never run without WHERE in production</li>
+            <li>Safety tip: run SELECT first to preview rows that will be affected</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:20 – 12:35</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Jigsaw Activity — Aggregate Function Experts</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Expert groups (5 min): each group masters one function — COUNT, SUM, AVG, MAX, MIN</li>
+            <li>Mixed teams (10 min): each expert teaches their function using a shared example table</li>
+            <li>Each student demonstrates they can use all 5 functions by end of activity</li>
+            <li>Reinforces collaborative learning and peer teaching (Vygotsky Zone of Proximal Development)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:35 – 12:45</div>
+      <div class="dur-cell">10 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Introduction to JOINs — Conceptual Foundation</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Why JOINs: data is normalised across multiple tables — we need to combine them</li>
+            <li>INNER JOIN: returns rows where the join condition is met in BOTH tables</li>
+            <li>LEFT JOIN overview: all rows from left table, matched rows from right</li>
+            <li>Live demo: JOIN students to enrollments table using student_id as foreign key</li>
+            <li>YooBees SQL Programming deck: slides 11–13 (JOINs section)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:45 – 12:55</div>
+      <div class="dur-cell">10 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">SQL Practice Lab — YooBees Platform (Scenarios 1–3)</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Students begin SQL Practice Lab on YooBees — choose their personalised scenario</li>
+            <li>Complete tasks 1–3: Create DB, Create Table, Insert sample data</li>
+            <li>TA verification system checks SQL correctness on platform</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:55 – 1:00</div>
+      <div class="dur-cell">5 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Exit Ticket</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Students write (on paper or Google Form): "Write a SQL query to count the number of students enrolled per year"</li>
+            <li>Preview Class 4: Entity-Relationship Diagrams — the visual language of database design</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-header blue">📚 Resources &amp; Materials</div>
+      <div class="card-body">
+        <ul>
+          <li>YooBees: SQL Programming Slides (slides 11–13, JOINs)</li>
+          <li>YooBees: SQL Practice Lab (10 real-world scenarios)</li>
+          <li>Query Olympics scenario cards (distributed in class)</li>
+          <li>SQL operators quick reference card</li>
+          <li>Jigsaw activity worksheet: aggregate function examples</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header emerald">✅ Assessment &amp; Formative Checks</div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Retrieval practice:</strong> 5-command recall — identifies retention gaps</li>
+          <li><strong>Query Olympics:</strong> peer-reviewed team output — collaborative assessment</li>
+          <li><strong>Exit ticket:</strong> GROUP BY/COUNT query — checks aggregate understanding</li>
+          <li><strong>SQL Practice Lab:</strong> platform verifies task completion</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header purple">🧠 Key SQL Commands Covered</div>
+      <div class="card-body">
+        <ul>
+          <li><code>WHERE</code> with comparison, logical, LIKE, IN, BETWEEN operators</li>
+          <li><code>ORDER BY</code> ASC/DESC &nbsp; <code>LIMIT</code> &nbsp; <code>OFFSET</code></li>
+          <li><code>COUNT, SUM, AVG, MAX, MIN</code></li>
+          <li><code>GROUP BY</code> &nbsp; <code>HAVING</code></li>
+          <li><code>UPDATE ... SET ... WHERE</code> &nbsp; <code>DELETE ... WHERE</code></li>
+          <li><code>INNER JOIN ... ON</code></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header gold">🔗 Blended Learning Elements</div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Collaborative:</strong> Query Olympics team challenge &amp; Jigsaw peer teaching</li>
+          <li><strong>Online:</strong> YooBees SQL Practice Lab with TA verification</li>
+          <li><strong>Spaced repetition:</strong> No-notes retrieval practice at class start</li>
+          <li><strong>Formative loop:</strong> Exit ticket informs next class opening activity</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Assessment Overview</div>
+  <div class="assessment-row">
+    <div class="assess-card">
+      <div class="assess-type">Formative — Retrieval</div>
+      <div class="assess-body">5-command recall from memory. Identifies retention gaps from Class 2. No grades — purely diagnostic.</div>
+    </div>
+    <div class="assess-card">
+      <div class="assess-type">Formative — Group</div>
+      <div class="assess-body">Query Olympics — team produces 3 WHERE/ORDER BY queries. Peer-reviewed for correctness and elegance.</div>
+    </div>
+    <div class="assess-card">
+      <div class="assess-type">Formative — Exit Ticket</div>
+      <div class="assess-body">Write a GROUP BY/COUNT query from memory. Reviewed before Class 4 to surface misconceptions.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Instructor Notes</div>
+  <div class="card" style="margin-bottom: 0;">
+    <div class="card-header teal">📝 Pedagogical Notes for the Instructor</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>Critical safety point:</strong> Always emphasise UPDATE and DELETE without WHERE are dangerous — demonstrate the consequence on a test table live.</li>
+        <li><strong>HAVING vs WHERE:</strong> This is a classic misconception. Draw the SQL execution order on the board: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY.</li>
+        <li><strong>Jigsaw logistics:</strong> Pre-assign expert groups before class. Use groups of 5 so each function has one expert per mixed team.</li>
+        <li><strong>JOIN depth:</strong> Keep JOINs introductory today — students will practise deeply in the SQL Practice Lab. Avoid overwhelming with LEFT/RIGHT/FULL OUTER in one session.</li>
+        <li><strong>Differentiation:</strong> Early finishers can attempt RIGHT JOIN and FULL OUTER JOIN as extension challenges.</li>
+      </ul>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <span>MBI802 — Database Management Systems &nbsp;·&nbsp; Class 3 of 8</span>
+  <span>Dr. Yasas Sri Wickramasinghe &nbsp;·&nbsp; <a href="#">YooBees Learning Platform</a></span>
+  <span>10:40 AM – 1:00 PM &nbsp;·&nbsp; 120 min teaching</span>
+</footer>
+
+</body>
+</html>

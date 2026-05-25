@@ -270,6 +270,18 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Peer Kudos — students send to each other; each student reads their own sent/received kudos.
+    match /kudos/{kudoId} {
+      allow read: if request.auth != null && (
+        resource.data.toUid == request.auth.uid ||
+        resource.data.fromUid == request.auth.uid ||
+        isStaff()
+      );
+      allow create: if request.auth != null &&
+        request.resource.data.fromUid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
     function isStaff() {
       return isLecturer() || isTeachingAssistant();
     }

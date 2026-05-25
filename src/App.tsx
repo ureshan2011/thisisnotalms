@@ -13,6 +13,9 @@ const LecturerDailyDuel = lazy(() => import('./pages/lecturer/DailyDuelPage'));
 const ArenaPage         = lazy(() => import('./pages/student/ArenaPage'));
 const DuelRoomPage      = lazy(() => import('./pages/student/DuelRoomPage'));
 const SQLExamPage       = lazy(() => import('./pages/student/SQLExamPage'));
+const SkillPassportPage = lazy(() => import('./pages/student/SkillPassportPage'));
+const KudosPage         = lazy(() => import('./pages/student/KudosPage'));
+const HallOfFame        = lazy(() => import('./pages/HallOfFame'));
 const CertificateView   = lazy(() => import('./pages/CertificateView'));
 
 // Auth pages — lazy-loaded; only downloaded when the user reaches login/register
@@ -74,7 +77,10 @@ function AppRoutes() {
         <Route path="/student/daily-duel"      element={<ProtectedRoute allowedRoles={['student']}><StudentDailyDuel /></ProtectedRoute>} />
         <Route path="/student/arena"           element={<ProtectedRoute allowedRoles={['student']}><ArenaPage /></ProtectedRoute>} />
         <Route path="/student/arena/duel/:roomId" element={<ProtectedRoute allowedRoles={['student']}><DuelRoomPage /></ProtectedRoute>} />
-        <Route path="/student/sql-exam" element={<ProtectedRoute allowedRoles={['student']}><SQLExamPage /></ProtectedRoute>} />
+        <Route path="/student/sql-exam"       element={<ProtectedRoute allowedRoles={['student']}><SQLExamPage /></ProtectedRoute>} />
+        <Route path="/student/skill-passport" element={<ProtectedRoute allowedRoles={['student']}><SkillPassportPage /></ProtectedRoute>} />
+        <Route path="/student/kudos"          element={<ProtectedRoute allowedRoles={['student']}><KudosPage /></ProtectedRoute>} />
+        <Route path="/hall-of-fame"           element={<ProtectedRoute allowedRoles={['student','lecturer','teachingAssistant']}><HallOfFame /></ProtectedRoute>} />
 
         {/* Lecturer routes */}
         <Route path="/lecturer/dashboard"        element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><Dashboard /></ProtectedRoute>} />

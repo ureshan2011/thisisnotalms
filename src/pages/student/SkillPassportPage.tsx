@@ -1,30 +1,99 @@
 import { useEffect, useState } from 'react';
 import {
-  collection, doc, getDoc, getDocs, limit, query, where,
+  collection, doc, getDoc, getDocs, limit, orderBy, query, where,
 } from 'firebase/firestore';
-import { Award, Copy, Check, Linkedin, Lock, ShieldCheck } from 'lucide-react';
+import {
+  Database, GitFork, Star, RotateCw, Zap, Award, Timer, Shield,
+  Flame, BookOpen, Lock, CheckCircle2, Linkedin, Copy, Check,
+  ExternalLink, type LucideProps,
+} from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout from '../../components/layout/Layout';
-import { ALL_BADGES } from '../../lib/badgeData';
-import type { StudentProfile } from '../../lib/types';
+import { ALL_BADGES, BADGE_SECTION_LABELS, type BadgeDefinition, type BadgeCategory } from '../../lib/badgeData';
+
+type LucideIcon = React.FC<LucideProps>;
+
+const BADGE_ICONS: Record<string, LucideIcon> = {
+  Database, GitFork, Star, RotateCw, Zap, Award, Timer, Shield, Flame, BookOpen,
+};
 
 const CERT_BASE_URL = 'https://ureshan2011.github.io/YooBees/#/certificate/';
+const PLATFORM_URL  = 'https://ureshan2011.github.io/YooBees/';
 
-function buildLinkedInPost(name: string, earnedIds: Set<string>, certId?: string | null): string {
-  const earned = ALL_BADGES.filter((b) => earnedIds.has(b.id));
-  const lines = earned.map((b) => `${b.emoji} ${b.name}`).join('\n');
-  const certLine = certId
-    ? `\nVerify my SQL Certificate: ${CERT_BASE_URL}${certId}`
-    : '';
-  return `Just checked my YooBees Skill Passport — ${earned.length} of ${ALL_BADGES.length} badges earned this semester! 🎓\n\n${lines}${certLine}\n\nAn incredible learning platform by Ureshan. Check it out: https://ureshan2011.github.io/YooBees/\n\n#YooBees #SQL #DatabaseManagement #LearningAndDevelopment #NewSkills`;
+function buildPost(earnedBadges: BadgeDefinition[], certId?: string | null): string {
+  const names = earnedBadges.map((b) => `  — ${b.name}`).join('\n');
+  const link  = certId ? `${CERT_BASE_URL}${certId}` : PLATFORM_URL;
+  return `Here's what I earned on YooBees this semester:\n\n${names}\n\n${earnedBadges.length} of ${ALL_BADGES.length} badges. The platform by Dr. Yasas Sri Wickramasinghe at Yoobee College of Creative Innovation has been a great way to build real database skills.\n\n${link}\n\nTag: @Dr. Yasas Sri Wickramasinghe (https://nz.linkedin.com/in/yasassri)\n@Yoobee College of Creative Innovation (https://nz.linkedin.com/school/yoobeecollegeofcreativeinnovation/)\n\n#YooBees #Yoobee #technology #MBI #studentfeedback #successstories #SQL #DatabaseManagement`;
 }
 
+// ── Badge card ────────────────────────────────────────────────────────────────
+function BadgeCard({ badge, earned }: { badge: BadgeDefinition; earned: boolean }) {
+  const Icon = BADGE_ICONS[badge.iconName] ?? Award;
+  const isDistinction = badge.tier === 'distinction';
+
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 12,
+      padding: '12px 14px',
+      background: '#ffffff',
+      border: `1px ${earned ? 'solid' : 'dashed'} ${earned ? (isDistinction ? badge.color + '55' : '#d1d5db') : '#d1d5db'}`,
+      borderRadius: 10,
+      transition: 'border-color 0.15s',
+    }}>
+      {/* Icon container */}
+      <div style={{
+        width: 38, height: 38, borderRadius: 8, flexShrink: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: earned ? badge.subtleColor : '#f9fafb',
+        border: `1px solid ${earned ? badge.color + '30' : '#e5e7eb'}`,
+      }}>
+        {earned
+          ? <Icon size={18} style={{ color: badge.color }} />
+          : <Lock size={15} style={{ color: '#d1d5db' }} />
+        }
+      </div>
+
+      {/* Text */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: earned ? '#111827' : '#6b7280' }}>
+            {badge.name}
+          </span>
+          {isDistinction && earned && (
+            <span style={{
+              fontSize: 9, fontWeight: 700, letterSpacing: '0.6px',
+              textTransform: 'uppercase',
+              color: badge.color,
+              background: badge.subtleColor,
+              border: `1px solid ${badge.color}35`,
+              padding: '1px 6px', borderRadius: 100,
+            }}>
+              Distinction
+            </span>
+          )}
+        </div>
+        <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 2, lineHeight: 1.4 }}>
+          {earned ? badge.description : badge.howToEarn}
+        </p>
+      </div>
+
+      {/* Status indicator */}
+      {earned
+        ? <CheckCircle2 size={15} style={{ color: '#16a34a', flexShrink: 0 }} />
+        : <div style={{ width: 15, height: 15, borderRadius: '50%', border: '1.5px solid #e5e7eb', flexShrink: 0 }} />
+      }
+    </div>
+  );
+}
+
+// ── Main page ─────────────────────────────────────────────────────────────────
 export default function SkillPassportPage() {
   const { user, studentProfile } = useAuth();
   const [earnedIds, setEarnedIds] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
+  const [loading, setLoading]     = useState(true);
   const [postCopied, setPostCopied] = useState(false);
 
   useEffect(() => {
@@ -32,12 +101,43 @@ export default function SkillPassportPage() {
     (async () => {
       const earned = new Set<string>();
 
-      // Badges from student profile flags
+      // ── SQL Exam Certificate ─────────────────────────────────
       if (studentProfile.sqlExamCertificateId) earned.add('sql-cert');
-      if (studentProfile.erMcqBadge) earned.add('er-expert');
-      if ((studentProfile as any).agileScrumMcqBadge) earned.add('agile-champion');
 
-      // SQL Racer — any correct submission
+      // ── ER MCQ (pass ≥50%, distinction from profile flag) ────
+      try {
+        const erSnap = await getDoc(doc(db, 'erMcqResults', user.uid));
+        if (erSnap.exists()) {
+          if ((erSnap.data().bestPercentage ?? 0) >= 50) earned.add('er-diagrams');
+          if (erSnap.data().badgeEarned || studentProfile.erMcqBadge) earned.add('er-distinction');
+        }
+      } catch { /* not enrolled */ }
+
+      // ── Agile MCQ (pass ≥50%, distinction from profile flag) ─
+      try {
+        const agileSnap = await getDoc(doc(db, 'agileScrumMcqResults', user.uid));
+        if (agileSnap.exists()) {
+          if ((agileSnap.data().bestPercentage ?? 0) >= 50) earned.add('agile-practitioner');
+          if (agileSnap.data().badgeEarned || (studentProfile as any).agileScrumMcqBadge) earned.add('agile-distinction');
+        }
+      } catch { /* not enrolled */ }
+
+      // ── MBI802 Quiz (best score ≥60%) ───────────────────────
+      try {
+        const mbiSnap = await getDocs(
+          query(
+            collection(db, 'mbi802QuizResults'),
+            where('studentUid', '==', user.uid),
+            orderBy('percentage', 'desc'),
+            limit(1)
+          )
+        );
+        if (!mbiSnap.empty && (mbiSnap.docs[0].data().percentage ?? 0) >= 60) {
+          earned.add('dbms-scholar');
+        }
+      } catch { /* not enrolled */ }
+
+      // ── SQL Race (any correct submission) ────────────────────
       try {
         const raceSnap = await getDocs(
           query(
@@ -50,17 +150,17 @@ export default function SkillPassportPage() {
         if (!raceSnap.empty) earned.add('sql-racer');
       } catch { /* not enrolled */ }
 
-      // Arena Warrior + Streak Master — from eloRatings
+      // ── ELO — Arena Warrior (≥1300) + Streak Master (≥5) ────
       try {
         const eloSnap = await getDoc(doc(db, 'eloRatings', user.uid));
         if (eloSnap.exists()) {
-          const data = eloSnap.data();
-          if ((data.rating ?? 0) >= 1300) earned.add('arena-warrior');
-          if ((data.bestDuelStreak ?? data.duelStreak ?? 0) >= 5) earned.add('streak-master');
+          const d = eloSnap.data();
+          if ((d.rating ?? 0) >= 1300) earned.add('arena-warrior');
+          if ((d.bestDuelStreak ?? d.duelStreak ?? 0) >= 5) earned.add('streak-master');
         }
-      } catch { /* no elo data */ }
+      } catch { /* no arena data */ }
 
-      // Dedicated Learner — 8+ attendance records
+      // ── Attendance (8+ records) ──────────────────────────────
       try {
         const attSnap = await getDocs(
           query(
@@ -77,14 +177,13 @@ export default function SkillPassportPage() {
     })();
   }, [user, studentProfile]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const postText = buildLinkedInPost(
-    studentProfile?.fullName ?? '',
-    earnedIds,
-    studentProfile?.sqlExamCertificateId
-  );
-  const certUrl = studentProfile?.sqlExamCertificateId
-    ? `${CERT_BASE_URL}${studentProfile.sqlExamCertificateId}`
-    : null;
+  const earnedBadges = ALL_BADGES.filter((b) => earnedIds.has(b.id));
+  const certId       = studentProfile?.sqlExamCertificateId ?? null;
+  const postText     = buildPost(earnedBadges, certId);
+  const certUrl      = certId ? `${CERT_BASE_URL}${certId}` : null;
+
+  const assessmentBadges = ALL_BADGES.filter((b) => b.category === 'assessment');
+  const activityBadges   = ALL_BADGES.filter((b) => b.category === 'activity');
 
   function copyPost() {
     navigator.clipboard.writeText(postText).then(() => {
@@ -92,154 +191,168 @@ export default function SkillPassportPage() {
       setTimeout(() => setPostCopied(false), 2500);
     });
   }
-
-  function copyLink() {
-    const url = certUrl ?? 'https://ureshan2011.github.io/YooBees/';
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    });
-  }
-
   function shareLinkedIn() {
-    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(certUrl ?? 'https://ureshan2011.github.io/YooBees/')}`;
+    const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(certUrl ?? PLATFORM_URL)}`;
     window.open(url, '_blank', 'noopener,noreferrer,width=600,height=600');
   }
 
-  const earnedCount = earnedIds.size;
-
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-xl font-extrabold" style={{ color: '#1e1b4b' }}>
-            My Skill Passport
+      <div style={{ maxWidth: 640, margin: '0 auto', padding: '24px 16px 48px' }}>
+
+        {/* ── Page header ──────────────────────────────────────────── */}
+        <div style={{ marginBottom: 28 }}>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#111827', letterSpacing: '-0.3px' }}>
+            Skill Passport
           </h1>
-          <p className="text-sm mt-0.5" style={{ color: '#6b7280' }}>
-            Earn all 7 badges to complete your YooBees Skill Passport.
+          <p style={{ fontSize: 13, color: '#6b7280', marginTop: 4 }}>
+            Badges earned from assessments, challenges, and attendance on YooBees.
           </p>
         </div>
 
-        {/* Progress summary */}
+        {/* ── Progress bar ─────────────────────────────────────────── */}
         {!loading && (
-          <div className="rounded-2xl p-5 border text-center"
-            style={{
-              background: 'linear-gradient(135deg,rgba(238,242,255,0.95),rgba(224,231,255,0.85))',
-              borderColor: 'rgba(99,102,241,0.25)',
-            }}>
-            <p className="text-4xl font-extrabold" style={{ color: '#4f46e5' }}>
-              {earnedCount} <span className="text-xl font-semibold" style={{ color: '#6b7280' }}>/ {ALL_BADGES.length}</span>
-            </p>
-            <p className="text-sm font-semibold mt-1" style={{ color: '#4338ca' }}>
-              Badges earned
-            </p>
-            <div className="w-full rounded-full h-3 mt-3" style={{ background: 'rgba(129,140,248,0.2)' }}>
-              <div className="h-3 rounded-full transition-all"
-                style={{
-                  width: `${Math.round((earnedCount / ALL_BADGES.length) * 100)}%`,
-                  background: 'linear-gradient(90deg,#818cf8,#4f46e5)',
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '14px 18px',
+            background: '#f9fafb',
+            border: '1px solid #e5e7eb',
+            borderRadius: 10,
+            marginBottom: 28,
+          }}>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>
+                {earnedBadges.length} of {ALL_BADGES.length} badges earned
+              </p>
+              <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>
+                {earnedBadges.length === ALL_BADGES.length
+                  ? 'Passport complete!'
+                  : `${ALL_BADGES.length - earnedBadges.length} remaining`}
+              </p>
+            </div>
+            {/* Dot indicators */}
+            <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', maxWidth: 140, justifyContent: 'flex-end' }}>
+              {ALL_BADGES.map((b) => (
+                <div key={b.id} style={{
+                  width: 8, height: 8, borderRadius: '50%',
+                  background: earnedIds.has(b.id) ? b.color : '#e5e7eb',
+                  transition: 'background 0.2s',
                 }} />
+              ))}
             </div>
           </div>
         )}
 
-        {/* Badge grid */}
         {loading ? (
-          <div className="flex justify-center py-8">
-            <div className="w-6 h-6 rounded-full border-2 animate-spin"
-              style={{ borderColor: 'rgba(99,102,241,0.2)', borderTopColor: '#6366f1' }} />
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '48px 0' }}>
+            <div className="w-5 h-5 rounded-full border-2 animate-spin"
+              style={{ borderColor: '#e5e7eb', borderTopColor: '#374151' }} />
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {ALL_BADGES.map((badge) => {
-              const earned = earnedIds.has(badge.id);
+          <>
+            {/* ── Badge sections ──────────────────────────────────────── */}
+            {(['assessment', 'activity'] as BadgeCategory[]).map((cat) => {
+              const badges = cat === 'assessment' ? assessmentBadges : activityBadges;
               return (
-                <div key={badge.id}
-                  className="rounded-2xl p-4 border flex items-start gap-3 transition-all"
-                  style={{
-                    background: earned ? badge.bgColor : 'rgba(249,250,251,0.6)',
-                    borderColor: earned ? badge.borderColor : 'rgba(209,213,219,0.6)',
-                    opacity: earned ? 1 : 0.65,
-                  }}
-                >
-                  <div className="text-2xl flex-shrink-0 mt-0.5">
-                    {earned ? badge.emoji : <Lock size={20} style={{ color: '#9ca3af' }} />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold" style={{ color: earned ? badge.color : '#6b7280' }}>
-                      {badge.name}
-                    </p>
-                    <p className="text-xs mt-0.5" style={{ color: earned ? badge.color : '#9ca3af' }}>
-                      {earned ? badge.description : badge.howToEarn}
-                    </p>
-                    {earned && (
-                      <span className="inline-flex items-center gap-1 mt-2 text-xs font-semibold px-2 py-0.5 rounded-full"
-                        style={{ background: 'rgba(255,255,255,0.6)', color: badge.color }}>
-                        <ShieldCheck size={11} /> Earned
-                      </span>
-                    )}
+                <div key={cat} style={{ marginBottom: 24 }}>
+                  <p style={{
+                    fontSize: 10, fontWeight: 700, letterSpacing: '1px',
+                    textTransform: 'uppercase', color: '#9ca3af',
+                    marginBottom: 10,
+                  }}>
+                    {BADGE_SECTION_LABELS[cat]}
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {badges.map((badge) => (
+                      <BadgeCard key={badge.id} badge={badge} earned={earnedIds.has(badge.id)} />
+                    ))}
                   </div>
                 </div>
               );
             })}
-          </div>
-        )}
 
-        {/* Share section — only when at least 1 badge */}
-        {!loading && earnedCount > 0 && (
-          <div className="rounded-2xl border p-5 space-y-3"
-            style={{ background: 'rgba(240,247,255,0.9)', borderColor: 'rgba(37,99,235,0.2)' }}>
-            <div className="flex items-center gap-2">
-              <Award size={18} style={{ color: '#1e3a5f' }} />
-              <p className="text-sm font-bold" style={{ color: '#1e3a5f' }}>
-                Share your Skill Passport on LinkedIn
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <button onClick={shareLinkedIn}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90"
-                style={{ background: '#0a66c2' }}>
-                <Linkedin size={16} /> Share on LinkedIn
-              </button>
-              <button onClick={copyLink}
-                className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-semibold border"
-                style={{ borderColor: 'rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.08)', color: '#4338ca' }}>
-                {copied ? <Check size={15} style={{ color: '#059669' }} /> : <Copy size={15} />}
-                {copied ? 'Copied!' : 'Copy Link'}
-              </button>
-            </div>
-
-            {/* Suggested post */}
-            <div>
-              <p className="text-xs font-semibold mb-1.5" style={{ color: '#374151' }}>
-                Suggested LinkedIn post — copy and paste:
-              </p>
-              <div className="relative">
-                <div className="rounded-xl p-3 pr-10 text-xs leading-5 font-mono border whitespace-pre-wrap"
-                  style={{
-                    background: '#fff',
-                    borderColor: 'rgba(37,99,235,0.2)',
-                    color: '#374151',
-                    maxHeight: 200,
-                    overflowY: 'auto',
+            {/* ── LinkedIn share — only if at least 1 badge earned ──── */}
+            {earnedBadges.length > 0 && (
+              <div style={{ marginTop: 8 }}>
+                <p style={{
+                  fontSize: 10, fontWeight: 700, letterSpacing: '1px',
+                  textTransform: 'uppercase', color: '#9ca3af',
+                  marginBottom: 10,
+                }}>
+                  Share your progress
+                </p>
+                <div style={{ border: '1px solid #e5e7eb', borderRadius: 10, overflow: 'hidden' }}>
+                  {/* LinkedIn post header */}
+                  <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '10px 14px',
+                    background: '#f9fafb',
+                    borderBottom: '1px solid #f3f4f6',
                   }}>
-                  {postText}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                      <Linkedin size={14} style={{ color: '#0a66c2' }} />
+                      <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>
+                        Post preview
+                      </span>
+                    </div>
+                    <button
+                      onClick={copyPost}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 5,
+                        fontSize: 12, fontWeight: 500, color: '#6b7280',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        padding: '4px 8px', borderRadius: 6,
+                      }}>
+                      {postCopied ? <Check size={13} style={{ color: '#16a34a' }} /> : <Copy size={13} />}
+                      {postCopied ? 'Copied' : 'Copy'}
+                    </button>
+                  </div>
+
+                  {/* Post body */}
+                  <div style={{ padding: '14px 16px', background: '#ffffff' }}>
+                    <p style={{ fontSize: 13, color: '#374151', lineHeight: 1.65, whiteSpace: 'pre-line', margin: 0 }}>
+                      {postText}
+                    </p>
+                  </div>
+
+                  {/* Actions */}
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '10px 14px',
+                    background: '#f9fafb',
+                    borderTop: '1px solid #f3f4f6',
+                  }}>
+                    <button
+                      onClick={shareLinkedIn}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                        fontSize: 13, fontWeight: 600, color: '#ffffff',
+                        background: '#0a66c2',
+                        border: 'none', cursor: 'pointer',
+                        padding: '7px 14px', borderRadius: 7,
+                      }}>
+                      <Linkedin size={14} /> Share on LinkedIn
+                    </button>
+                    {certUrl && (
+                      <a
+                        href={certUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 5,
+                          fontSize: 12, fontWeight: 500, color: '#6b7280',
+                          background: 'none', textDecoration: 'none',
+                          padding: '7px 10px', borderRadius: 7,
+                          border: '1px solid #e5e7eb',
+                        }}>
+                        <ExternalLink size={13} /> View Certificate
+                      </a>
+                    )}
+                  </div>
                 </div>
-                <button onClick={copyPost}
-                  className="absolute top-2 right-2 p-1.5 rounded-lg"
-                  style={{ background: postCopied ? 'rgba(5,150,105,0.1)' : 'rgba(99,102,241,0.1)' }}>
-                  {postCopied
-                    ? <Check size={14} style={{ color: '#059669' }} />
-                    : <Copy size={14} style={{ color: '#4338ca' }} />}
-                </button>
               </div>
-              <p className="text-xs mt-1.5" style={{ color: '#9ca3af' }}>
-                Paste this into your LinkedIn post after clicking Share.
-              </p>
-            </div>
-          </div>
+            )}
+          </>
         )}
       </div>
     </Layout>

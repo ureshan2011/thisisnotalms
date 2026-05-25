@@ -18,7 +18,7 @@ interface CertData {
 
 export default function CertificateView() {
   const { certId } = useParams<{ certId: string }>();
-  const [status, setStatus] = useState<'loading' | 'found' | 'notfound'>('loading');
+  const [status, setStatus]     = useState<'loading' | 'found' | 'notfound'>('loading');
   const [certData, setCertData] = useState<CertData | null>(null);
 
   useEffect(() => {
@@ -48,52 +48,61 @@ export default function CertificateView() {
   }, [certId]);
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg,#f0f4ff,#e8f4fd,#f5f3ff)' }}>
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
       {/* Nav */}
-      <div className="max-w-xl mx-auto px-4 pt-6">
-        <Link to="/"
-          className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline mb-4"
-          style={{ color: '#4338ca' }}>
-          <ArrowLeft size={15} /> Back to YooBees
+      <div style={{ maxWidth: 600, margin: '0 auto', padding: '20px 16px 0' }}>
+        <Link to="/" style={{
+          display: 'inline-flex', alignItems: 'center', gap: 5,
+          fontSize: 13, color: '#6b7280', textDecoration: 'none',
+          marginBottom: 16,
+        }}>
+          <ArrowLeft size={14} /> Back to YooBees
         </Link>
       </div>
 
-      <div className="max-w-xl mx-auto px-4 pb-12">
+      <div style={{ maxWidth: 600, margin: '0 auto', padding: '0 16px 48px' }}>
+
         {/* Loading */}
         {status === 'loading' && (
-          <div className="flex justify-center py-20">
-            <div className="w-8 h-8 rounded-full border-2 animate-spin"
-              style={{ borderColor: 'rgba(99,102,241,0.2)', borderTopColor: '#6366f1' }} />
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '80px 0' }}>
+            <div className="w-7 h-7 rounded-full border-2 animate-spin"
+              style={{ borderColor: '#e5e7eb', borderTopColor: '#374151' }} />
           </div>
         )}
 
         {/* Not found */}
         {status === 'notfound' && (
-          <div className="rounded-2xl p-8 text-center border"
-            style={{ background: 'rgba(254,226,226,0.8)', borderColor: 'rgba(239,68,68,0.3)' }}>
-            <ShieldX size={40} style={{ color: '#dc2626', margin: '0 auto 12px' }} />
-            <p className="text-lg font-bold" style={{ color: '#991b1b' }}>
-              Certificate Not Found
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            padding: '48px 24px', textAlign: 'center',
+            background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 10,
+          }}>
+            <ShieldX size={36} style={{ color: '#9ca3af', marginBottom: 12 }} />
+            <p style={{ fontSize: 16, fontWeight: 600, color: '#111827', margin: 0 }}>
+              Certificate not found
             </p>
-            <p className="text-sm mt-2" style={{ color: '#b91c1c' }}>
-              The certificate ID <code className="font-mono bg-red-100 px-1 rounded">{certId}</code> is invalid or does not exist.
+            <p style={{ fontSize: 13, color: '#6b7280', marginTop: 8 }}>
+              The ID <code style={{ fontFamily: 'monospace', background: '#f3f4f6', padding: '1px 6px', borderRadius: 4 }}>{certId}</code> doesn't match any issued certificate.
             </p>
           </div>
         )}
 
         {/* Found */}
         {status === 'found' && certData && (
-          <div className="space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {/* Verified badge */}
-            <div className="rounded-xl px-4 py-3 flex items-center gap-3 border"
-              style={{ background: 'rgba(209,250,229,0.8)', borderColor: 'rgba(16,185,129,0.3)' }}>
-              <ShieldCheck size={20} style={{ color: '#059669', flexShrink: 0 }} />
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '10px 14px',
+              background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8,
+            }}>
+              <ShieldCheck size={16} style={{ color: '#16a34a', flexShrink: 0 }} />
               <div>
-                <p className="text-sm font-bold" style={{ color: '#065f46' }}>
-                  Verified Certificate
+                <p style={{ fontSize: 13, fontWeight: 600, color: '#15803d', margin: 0 }}>
+                  Verified certificate
                 </p>
-                <p className="text-xs" style={{ color: '#047857' }}>
-                  This certificate was issued by YooBees and is authentic.
+                <p style={{ fontSize: 11, color: '#16a34a', margin: 0 }}>
+                  Issued by YooBees Learning Platform. This certificate is authentic.
                 </p>
               </div>
             </div>

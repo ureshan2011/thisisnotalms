@@ -27,7 +27,7 @@ const PLATFORM_URL = 'https://ureshan2011.github.io/YooBees/';
 
 function buildSharePost(fromName: string, category: KudosCategoryId): string {
   const cat = KUDOS_CATEGORIES.find((c) => c.id === category);
-  return `My classmate ${fromName} recognized me as a "${cat?.label}" on YooBees! ${cat?.emoji}\n\nLove the collaborative learning environment Ureshan has built on this platform.\n\nCheck it out: ${PLATFORM_URL}\n\n#YooBees #TeamWork #SQL #LearningAndDevelopment`;
+  return `My classmate ${fromName} gave me a kudos on YooBees — recognised as "${cat?.label}".\n\nGreat to learn alongside people like this on the platform built by Dr. Yasas Sri Wickramasinghe at Yoobee College.\n\n${PLATFORM_URL}\n\nTag: @Dr. Yasas Sri Wickramasinghe (https://nz.linkedin.com/in/yasassri)\n@Yoobee College of Creative Innovation (https://nz.linkedin.com/school/yoobeecollegeofcreativeinnovation/)\n\n#YooBees #Yoobee #technology #MBI #studentfeedback #successstories`;
 }
 
 export default function KudosPage() {

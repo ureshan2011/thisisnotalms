@@ -32,11 +32,12 @@ const TIER_LABELS: Record<string, string> = {
 
 const PLATFORM_URL = 'https://ureshan2011.github.io/YooBees/';
 
-function buildSharePost(category: 'race' | 'arena', rank: number, value: string | number, name: string): string {
+function buildSharePost(category: 'race' | 'arena', rank: number, value: string | number, _name: string): string {
+  const tail = `\n\nTag: @Dr. Yasas Sri Wickramasinghe (https://nz.linkedin.com/in/yasassri)\n@Yoobee College of Creative Innovation (https://nz.linkedin.com/school/yoobeecollegeofcreativeinnovation/)\n\n#YooBees #Yoobee #technology #MBI #studentfeedback #successstories #SQL #DatabaseManagement`;
   if (category === 'race') {
-    return `I'm ranked #${rank} on the YooBees SQL Race Hall of Fame with ${value} total marks! 🏎️\n\nLearning SQL in the most competitive way possible on this amazing platform by Ureshan.\n\nCheck it out: ${PLATFORM_URL}\n\n#SQL #YooBees #DatabaseManagement #Competitive #LearningAndDevelopment`;
+    return `Ranked #${rank} on the YooBees SQL Grand Prix Hall of Fame with ${value} total marks.\n\nBeen competing in live SQL races on the platform built by Dr. Yasas Sri Wickramasinghe at Yoobee College.\n\n${PLATFORM_URL}${tail}`;
   }
-  return `I'm ranked #${rank} on the YooBees Arena Hall of Fame with an ELO rating of ${value}! ⚔️\n\nCompeting in 1v1 SQL duels on this amazing platform by Ureshan.\n\nCheck it out: ${PLATFORM_URL}\n\n#SQL #YooBees #Arena #Competitive #LearningAndDevelopment`;
+  return `Ranked #${rank} on the YooBees Arena Hall of Fame with an ELO of ${value}.\n\n1v1 SQL duels on the platform built by Dr. Yasas Sri Wickramasinghe at Yoobee College — it makes learning databases genuinely competitive.\n\n${PLATFORM_URL}${tail}`;
 }
 
 export default function HallOfFame() {
@@ -320,7 +321,7 @@ function SpotlightBanner({
   if (raceRank > 0) lines.push(`🏎️ SQL Grand Prix: Rank #${raceRank} (${raceMarks} pts)`);
   if (arenaRank > 0) lines.push(`⚔️ Arena: Rank #${arenaRank} (${arenaRating} ELO)`);
 
-  const post = `Proud to be on the YooBees Hall of Fame! 🏆\n\n${lines.join('\n')}\n\nAmazing competitive learning platform by Ureshan.\n\nJoin at: ${PLATFORM_URL}\n\n#YooBees #SQL #DatabaseManagement #HallOfFame #Competitive`;
+  const post = `On the YooBees Hall of Fame this week:\n\n${lines.join('\n')}\n\nPlatform by Dr. Yasas Sri Wickramasinghe at Yoobee College of Creative Innovation.\n\n${PLATFORM_URL}\n\nTag: @Dr. Yasas Sri Wickramasinghe (https://nz.linkedin.com/in/yasassri)\n@Yoobee College of Creative Innovation (https://nz.linkedin.com/school/yoobeecollegeofcreativeinnovation/)\n\n#YooBees #Yoobee #technology #MBI #studentfeedback #successstories #SQL #DatabaseManagement`;
 
   function copy() {
     navigator.clipboard.writeText(post).then(() => {

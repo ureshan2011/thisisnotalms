@@ -12,6 +12,8 @@ const StudentDailyDuel  = lazy(() => import('./pages/student/DailyDuelPage'));
 const LecturerDailyDuel = lazy(() => import('./pages/lecturer/DailyDuelPage'));
 const ArenaPage         = lazy(() => import('./pages/student/ArenaPage'));
 const DuelRoomPage      = lazy(() => import('./pages/student/DuelRoomPage'));
+const SQLExamPage       = lazy(() => import('./pages/student/SQLExamPage'));
+const CertificateView   = lazy(() => import('./pages/CertificateView'));
 
 // Auth pages — lazy-loaded; only downloaded when the user reaches login/register
 const Login    = lazy(() => import('./pages/auth/Login'));
@@ -57,6 +59,7 @@ function AppRoutes() {
         <Route path="/login"        element={<Login />} />
         <Route path="/register"     element={<Register />} />
         <Route path="/attend/:code" element={<QuickAttend />} />
+        <Route path="/certificate/:certId" element={<CertificateView />} />
 
         {/* Student routes */}
         <Route path="/student/dashboard"       element={<ProtectedRoute allowedRoles={['student']}><StudentDashboard /></ProtectedRoute>} />
@@ -71,6 +74,7 @@ function AppRoutes() {
         <Route path="/student/daily-duel"      element={<ProtectedRoute allowedRoles={['student']}><StudentDailyDuel /></ProtectedRoute>} />
         <Route path="/student/arena"           element={<ProtectedRoute allowedRoles={['student']}><ArenaPage /></ProtectedRoute>} />
         <Route path="/student/arena/duel/:roomId" element={<ProtectedRoute allowedRoles={['student']}><DuelRoomPage /></ProtectedRoute>} />
+        <Route path="/student/sql-exam" element={<ProtectedRoute allowedRoles={['student']}><SQLExamPage /></ProtectedRoute>} />
 
         {/* Lecturer routes */}
         <Route path="/lecturer/dashboard"        element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><Dashboard /></ProtectedRoute>} />

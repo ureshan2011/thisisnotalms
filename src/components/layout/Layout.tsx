@@ -3,7 +3,7 @@ import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import {
   LayoutDashboard, Users, CalendarCheck, LogOut,
-  User, History, Menu, X, ChevronRight, BookOpen, Radio, Bell, Star, BarChart2, Film, Trophy, MonitorPlay, Box, Swords,
+  User, History, Menu, X, ChevronRight, BookOpen, Radio, Bell, Star, BarChart2, Film, Trophy, MonitorPlay, Box, Swords, GraduationCap,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import BrandMark from '../ui/BrandMark';
@@ -51,7 +51,10 @@ function SidebarContent({
       ? [{ to: '/student/course-resources', icon: <BookOpen size={18} />, label: 'Course Resources', isNew: showNewBadge }]
       : []),
     ...(canViewSQLRace
-      ? [{ to: '/student/sql-race', icon: <Trophy size={18} />, label: 'SQL Grand Prix' }]
+      ? [
+          { to: '/student/sql-race', icon: <Trophy size={18} />, label: 'SQL Grand Prix' },
+          { to: '/student/sql-exam', icon: <GraduationCap size={18} />, label: 'SQL Certificate', isNew: true },
+        ]
       : []),
     ...(canViewDailyDuel
       ? [

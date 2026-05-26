@@ -270,6 +270,20 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Time Capsule — one document per student (doc ID = uid). Student owns their capsule; staff can read all.
+    match /timeCapsules/{uid} {
+      allow read:  if request.auth != null && (request.auth.uid == uid || isStaff());
+      allow create, update: if request.auth != null && request.auth.uid == uid;
+      allow delete: if false;
+    }
+
+    // Alumni Wall — any auth user can read; only the owner can write their own entry.
+    match /alumni/{uid} {
+      allow read:  if request.auth != null;
+      allow create, update: if request.auth != null && request.auth.uid == uid;
+      allow delete: if false;
+    }
+
     // Peer Kudos — students send to each other; each student reads their own sent/received kudos.
     match /kudos/{kudoId} {
       allow read: if request.auth != null && (

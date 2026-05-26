@@ -17,6 +17,8 @@ const SkillPassportPage = lazy(() => import('./pages/student/SkillPassportPage')
 const KudosPage         = lazy(() => import('./pages/student/KudosPage'));
 const HallOfFame        = lazy(() => import('./pages/HallOfFame'));
 const CertificateView   = lazy(() => import('./pages/CertificateView'));
+const TimeCapsulePage   = lazy(() => import('./pages/student/TimeCapsulePage'));
+const AlumniWall        = lazy(() => import('./pages/AlumniWall'));
 
 // Auth pages — lazy-loaded; only downloaded when the user reaches login/register
 const Login    = lazy(() => import('./pages/auth/Login'));
@@ -80,7 +82,9 @@ function AppRoutes() {
         <Route path="/student/sql-exam"       element={<ProtectedRoute allowedRoles={['student']}><SQLExamPage /></ProtectedRoute>} />
         <Route path="/student/skill-passport" element={<ProtectedRoute allowedRoles={['student']}><SkillPassportPage /></ProtectedRoute>} />
         <Route path="/student/kudos"          element={<ProtectedRoute allowedRoles={['student']}><KudosPage /></ProtectedRoute>} />
+        <Route path="/student/time-capsule"   element={<ProtectedRoute allowedRoles={['student']}><TimeCapsulePage /></ProtectedRoute>} />
         <Route path="/hall-of-fame"           element={<ProtectedRoute allowedRoles={['student','lecturer','teachingAssistant']}><HallOfFame /></ProtectedRoute>} />
+        <Route path="/alumni"                 element={<ProtectedRoute allowedRoles={['student','lecturer','teachingAssistant']}><AlumniWall /></ProtectedRoute>} />
 
         {/* Lecturer routes */}
         <Route path="/lecturer/dashboard"        element={<ProtectedRoute allowedRoles={['lecturer', 'teachingAssistant']}><Dashboard /></ProtectedRoute>} />

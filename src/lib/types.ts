@@ -41,6 +41,8 @@ export interface StudentProfile {
   specialNeeds: string;
   photoURL?: string;
   erMcqBadge?: boolean;
+  agileScrumMcqBadge?: boolean;
+  sqlExamCertificateId?: string;
   employmentSurveyDone?: boolean;
   hasSeenGameIntro?: boolean;
   createdAt: Date;

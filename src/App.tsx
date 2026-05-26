@@ -4,6 +4,8 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { FullPageSpinner } from './components/ui/LoadingSpinner';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import { ToastProvider } from './components/ui/ToastProvider';
+import { PLATFORM_ACTIVE } from './config/platform';
+import ShutdownPage from './pages/ShutdownPage';
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const StudentSQLRace    = lazy(() => import('./pages/student/SQLRacePage'));
@@ -96,12 +98,20 @@ function AppRoutes() {
   );
 }
 
+function ShutdownRoutes() {
+  return (
+    <Routes>
+      <Route path="*" element={<ShutdownPage />} />
+    </Routes>
+  );
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <ToastProvider>
         <HashRouter>
-          <AppRoutes />
+          {PLATFORM_ACTIVE ? <AppRoutes /> : <ShutdownRoutes />}
         </HashRouter>
       </ToastProvider>
     </AuthProvider>

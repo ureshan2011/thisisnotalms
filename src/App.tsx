@@ -127,11 +127,18 @@ function ShutdownRoutes() {
 }
 
 export default function App() {
+  if (!PLATFORM_ACTIVE) {
+    return (
+      <HashRouter>
+        <ShutdownRoutes />
+      </HashRouter>
+    );
+  }
   return (
     <AuthProvider>
       <ToastProvider>
         <HashRouter>
-          {PLATFORM_ACTIVE ? <AppRoutes /> : <ShutdownRoutes />}
+          <AppRoutes />
         </HashRouter>
       </ToastProvider>
     </AuthProvider>

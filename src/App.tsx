@@ -6,6 +6,7 @@ import ProtectedRoute from './components/layout/ProtectedRoute';
 import { ToastProvider } from './components/ui/ToastProvider';
 import { PLATFORM_ACTIVE } from './config/platform';
 import ShutdownPage from './pages/ShutdownPage';
+import XRExplorerPage from './pages/XRExplorerPage';
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const StudentSQLRace    = lazy(() => import('./pages/student/SQLRacePage'));
@@ -53,7 +54,7 @@ const VideoLessonManager   = lazy(() => import('./pages/lecturer/VideoLessonMana
 function RootRedirect() {
   const { user, role, loading } = useAuth();
   if (loading) return <FullPageSpinner />;
-  if (!user)   return <LandingPage />;
+  if (!user)   return <XRExplorerPage />;
   if (role === 'lecturer' || role === 'teachingAssistant') return <Navigate to="/lecturer/dashboard" replace />;
   return <Navigate to="/student/dashboard" replace />;
 }
@@ -115,7 +116,9 @@ function AppRoutes() {
 function ShutdownRoutes() {
   return (
     <Routes>
-      <Route path="*" element={<ShutdownPage />} />
+      {/* XR Explorer is always public regardless of platform state */}
+      <Route path="/" element={<XRExplorerPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

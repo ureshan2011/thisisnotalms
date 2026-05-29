@@ -144,6 +144,17 @@ export default function ARDemo() {
       setStarting(false);
       return;
     }
+
+    // Request motion/orientation access in the SAME user gesture as the camera.
+    // This is what world-locks the objects: once the scene camera tracks the
+    // phone's orientation, a placed object stays pinned to its real-world
+    // direction instead of riding along with the screen. iOS only grants this
+    // from inside a tap, so it has to happen here (not from a later button).
+    // Fire-and-forget — the camera still works if motion access is denied.
+    if (gyro.permission !== 'unsupported') {
+      gyro.enable().catch(() => {});
+    }
+
     let stream: MediaStream | null = null;
     try {
       stream = await navigator.mediaDevices.getUserMedia({
@@ -179,7 +190,7 @@ export default function ARDemo() {
         playVideo();
       }
     });
-  }, [playVideo]);
+  }, [playVideo, gyro]);
 
   // Tear the camera down only when the component truly unmounts. `stopCamera`
   // is recreated on every render (it closes over the `gyro` object, whose
@@ -296,7 +307,7 @@ export default function ARDemo() {
             <div>
               <p className="text-[17px] font-semibold text-white">Live camera AR</p>
               <p className="mt-1 text-[13px] leading-relaxed text-white/60">
-                {error ?? 'Uses your real rear camera. Tap to place 3D objects; turn on motion to anchor them in the room.'}
+                {error ?? 'Uses your real rear camera. Allow camera and motion access, then tap to drop 3D objects — they stay anchored in place as you move the phone.'}
               </p>
             </div>
             <button

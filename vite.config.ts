@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/YooBees/',
+  base: '/thisisnotalms/',
 
   build: {
     // Modern browsers only — smaller output, no legacy polyfills

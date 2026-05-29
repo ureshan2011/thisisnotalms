@@ -116,9 +116,10 @@ function AppRoutes() {
 function ShutdownRoutes() {
   return (
     <Routes>
-      {/* XR Explorer is always public regardless of platform state */}
+      {/* XR Explorer is the public entry point */}
       <Route path="/" element={<XRExplorerPage />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* All other routes show the shutdown notice */}
+      <Route path="*" element={<ShutdownPage />} />
     </Routes>
   );
 }

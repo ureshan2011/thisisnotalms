@@ -1,6 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="YooBees logo">
-  <circle cx="96" cy="96" r="95" fill="#0f1117" stroke="#2a2f3a" stroke-width="2"/>
-  <path fill="#f3f4f6" d="M70 35c-7.73 0-14 6.27-14 14v37c0 22.09 17.91 40 40 40s40-17.91 40-40V49c0-7.73-6.27-14-14-14s-14 6.27-14 14v37c0 6.63-5.37 12-12 12s-12-5.37-12-12V49c0-7.73-6.27-14-14-14z"/>
-  <path fill="#f3f4f6" d="M70 107c-7.73 0-14 6.27-14 14v23c0 7.73 6.27 14 14 14s14-6.27 14-14v-23c0-7.73-6.27-14-14-14z"/>
-  <path fill="#f3f4f6" d="M122 107c-7.73 0-14 6.27-14 14v12c0 6.63-5.37 12-12 12s-12-5.37-12-12c0-7.73-6.27-14-14-14s-14 6.27-14 14c0 22.09 17.91 40 40 40s40-17.91 40-40v-12c0-7.73-6.27-14-14-14z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Not a LMS logo">
+  <defs>
+    <linearGradient id="notalms" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0071e3"/>
+      <stop offset="0.5" stop-color="#5e5ce6"/>
+      <stop offset="1" stop-color="#bf5af2"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="180" height="180" rx="44" fill="url(#notalms)"/>
+  <!-- three stacked "course list" rows — what every LMS looks like -->
+  <g fill="#ffffff">
+    <rect x="50" y="58" width="92" height="14" rx="7" opacity="0.95"/>
+    <rect x="50" y="89" width="70" height="14" rx="7" opacity="0.78"/>
+    <rect x="50" y="120" width="84" height="14" rx="7" opacity="0.62"/>
+  </g>
+  <!-- ...and a slash through them: not a LMS -->
+  <line x1="42" y1="150" x2="150" y2="42" stroke="#ffffff" stroke-width="14" stroke-linecap="round"/>
+  <line x1="42" y1="150" x2="150" y2="42" stroke="#ff375f" stroke-width="7" stroke-linecap="round"/>
 </svg>

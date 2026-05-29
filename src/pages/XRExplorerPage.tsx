@@ -1,15 +1,17 @@
 import { useState, useRef, lazy, Suspense } from 'react';
 import { motion, useScroll, useTransform, type Variants } from 'framer-motion';
+import BrandMark from '../components/ui/BrandMark';
 
 const ARDemo = lazy(() => import('../components/xr/ARDemo'));
 const GyroVRScene = lazy(() => import('../components/xr/GyroVRScene'));
 const ISUseCases = lazy(() => import('../components/xr/ISUseCases'));
 const DevicesAndTools = lazy(() => import('../components/xr/DevicesAndTools'));
+const YouTubeEmbed = lazy(() => import('../components/xr/YouTubeEmbed'));
 
-// ─── Apple-inspired Extended Reality lesson ─────────────────────────────────
-// White background, SF-style typography, generous spacing, pill buttons and
-// scroll-triggered motion — built to feel like a page on apple.com. The AR and
-// VR sections embed real, working demos (live camera AR and gyroscope VR).
+// ─── Extended Reality lesson (Not a LMS) ────────────────────────────────────
+// A single-page lesson for students: a clear, friendly walk through AR, VR and
+// Mixed Reality, with two demos they can try in the browser (live camera AR and
+// gyroscope VR) plus short videos at the points where seeing it helps most.
 
 const APPLE_FONT =
   '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", system-ui, sans-serif';
@@ -87,11 +89,11 @@ function SectionHead({
 function RealitySpectrum() {
   const [pos, setPos] = useState(35);
   const getInfo = () => {
-    if (pos < 18) return { name: 'Physical Reality', color: '#86868b', desc: 'Entirely the real world — no digital content at all.' };
-    if (pos < 40) return { name: 'Augmented Reality', color: '#0071e3', desc: 'Digital overlays sit on top of the real world. Your surroundings stay fully visible and interactive.' };
-    if (pos < 60) return { name: 'Mixed Reality', color: '#30d158', desc: 'Digital objects are spatially anchored and react to real surfaces. Hard to tell the two apart.' };
-    if (pos < 82) return { name: 'Augmented Virtuality', color: '#bf5af2', desc: 'Mostly virtual, but real-world elements are captured and blended in.' };
-    return { name: 'Virtual Reality', color: '#5e5ce6', desc: 'A fully synthetic environment. The real world is completely replaced.' };
+    if (pos < 18) return { name: 'Physical Reality', color: '#86868b', desc: 'Just the real world around you, with nothing digital added.' };
+    if (pos < 40) return { name: 'Augmented Reality', color: '#0071e3', desc: 'Digital things are drawn on top of the real world. You can still see the room around you the whole time.' };
+    if (pos < 60) return { name: 'Mixed Reality', color: '#30d158', desc: 'Digital objects are pinned to real surfaces and react to them. It can be hard to tell what is real and what is added.' };
+    if (pos < 82) return { name: 'Augmented Virtuality', color: '#bf5af2', desc: 'Mostly a digital world, but a few real things are captured and brought in.' };
+    return { name: 'Virtual Reality', color: '#5e5ce6', desc: 'Everything you see is digital. The real world is hidden completely.' };
   };
   const info = getInfo();
   return (
@@ -185,12 +187,12 @@ function ComparisonTable() {
 }
 
 const USE_CASES = [
-  { emoji: '🏥', title: 'Medicine', body: 'Surgeons overlay live scans during operations; VR trains clinicians in risk-free simulations.' },
-  { emoji: '🏗️', title: 'Architecture', body: 'Clients walk through buildings before a single brick is laid, using VR and MR overlays on blueprints.' },
-  { emoji: '🎓', title: 'Education', body: 'Students dissect virtual frogs, tour ancient Rome and explore the solar system from the classroom.' },
-  { emoji: '🛒', title: 'Retail', body: 'AR lets shoppers try on clothes or place furniture in their room before they buy.' },
-  { emoji: '🏭', title: 'Manufacturing', body: 'MR headsets guide technicians through assembly with holographic, step-by-step instructions.' },
-  { emoji: '🎮', title: 'Entertainment', body: 'Immersive VR worlds and AR mobile hits like Pokémon GO redefined interactive play.' },
+  { emoji: '🏥', title: 'Medicine', body: 'Doctors can see scans laid over a patient during surgery, and trainees practise operations in VR where mistakes are safe.' },
+  { emoji: '🏗️', title: 'Architecture', body: 'You can walk through a building in VR before it is built, which makes problems much easier to spot early.' },
+  { emoji: '🎓', title: 'Education', body: 'Students explore things that are hard to bring into a classroom — the inside of a cell, ancient Rome, or the planets.' },
+  { emoji: '🛒', title: 'Shopping', body: 'Apps let you see how a sofa would look in your living room, or try on glasses, before you buy anything.' },
+  { emoji: '🏭', title: 'Manufacturing', body: 'Workers wearing MR headsets see step-by-step instructions floating right over the machine they are building.' },
+  { emoji: '🎮', title: 'Games', body: 'From full VR games to phone games like Pokémon GO, XR has changed the way we play.' },
 ];
 
 // ─── Quiz ───────────────────────────────────────────────────────────────────
@@ -287,10 +289,10 @@ function Quiz() {
           </p>
           <p className="mx-auto mt-2 max-w-md text-[17px] text-[#6e6e73]">
             {score === 5
-              ? 'Perfect score. You’ve mastered AR, VR and MR.'
+              ? 'Perfect score — you’ve really got the difference between AR, VR and MR.'
               : score >= 3
-              ? 'Nicely done. Revisit the demos above to close any gaps.'
-              : 'Good start — try the live demos again and come back.'}
+              ? 'Nice work. Scroll back up and play with the demos to fill in the gaps.'
+              : 'Good start. Try the demos again, then come back and have another go.'}
           </p>
           <button
             onClick={reset}
@@ -330,6 +332,14 @@ export default function XRExplorerPage() {
     <div className="bg-white text-[#1d1d1f]" style={{ fontFamily: APPLE_FONT }}>
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
       <section ref={heroRef} className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
+        {/* brand lockup */}
+        <div className="absolute left-6 top-6 z-20 flex items-center gap-2.5 sm:left-10 sm:top-8">
+          <BrandMark className="h-8 w-8 rounded-[9px]" />
+          <span className="text-[17px] font-semibold tracking-tight text-[#1d1d1f]">
+            Not a <span className="text-[#0071e3]">LMS</span>
+          </span>
+        </div>
+
         {/* soft ambient wash */}
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-1/2 top-[-10%] h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-[#0071e3]/[0.07] blur-3xl" />
@@ -343,7 +353,7 @@ export default function XRExplorerPage() {
             transition={{ duration: 0.7, ease: EASE }}
             className="mb-5 text-[17px] font-medium text-[#6e6e73]"
           >
-            Interactive Learning · Dr. Yasas Sri Wickramasinghe
+            An interactive lesson · Dr. Yasas Sri Wickramasinghe
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 28 }}
@@ -351,10 +361,10 @@ export default function XRExplorerPage() {
             transition={{ duration: 0.9, ease: EASE, delay: 0.05 }}
             className="text-[44px] font-semibold leading-[1.04] tracking-[-0.02em] sm:text-[72px] lg:text-[88px]"
           >
-            Extended Reality.
+            Let’s make sense of
             <br />
             <span className="bg-gradient-to-r from-[#0071e3] via-[#5e5ce6] to-[#bf5af2] bg-clip-text text-transparent">
-              Experience it now.
+              Extended Reality.
             </span>
           </motion.h1>
           <motion.p
@@ -363,8 +373,9 @@ export default function XRExplorerPage() {
             transition={{ duration: 0.9, ease: EASE, delay: 0.15 }}
             className="mx-auto mt-6 max-w-2xl text-[19px] leading-relaxed text-[#6e6e73] sm:text-[22px]"
           >
-            A hands-on lesson in AR, VR and Mixed Reality — with a real camera AR demo and a
-            gyroscope-powered VR world that runs right in your browser. No headset required.
+            In this lesson we’ll walk through AR, VR and Mixed Reality, one step at a time. Along the way
+            you can try two demos right here — a camera AR demo and a VR world you steer by moving your
+            phone. No headset needed.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -382,7 +393,7 @@ export default function XRExplorerPage() {
               onClick={() => scrollToSection('vr')}
               className="text-[17px] font-medium text-[#0071e3] hover:underline"
             >
-              Enter the VR world ›
+              Jump to the VR demo ›
             </button>
           </motion.div>
         </motion.div>
@@ -401,9 +412,9 @@ export default function XRExplorerPage() {
       <section className="px-6 py-24 sm:py-28">
         <Reveal>
           <SectionHead
-            eyebrow="The foundation"
-            title="One spectrum, from real to virtual"
-            sub="Extended Reality (XR) is the umbrella term for every technology that blends the physical and the digital. Drag the slider to see where each one sits on Milgram’s reality–virtuality continuum."
+            eyebrow="Start here"
+            title="It’s all one spectrum, from real to virtual"
+            sub="“Extended Reality” (XR) is just an umbrella word for any technology that mixes the real world with digital content. Drag the slider to see how the different types line up — this picture is known as Milgram’s reality–virtuality continuum."
           />
         </Reveal>
         <Reveal delay={0.1}>
@@ -419,9 +430,9 @@ export default function XRExplorerPage() {
           className="mx-auto mt-16 grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3"
         >
           {[
-            { e: '📱', t: 'Augmented Reality', c: '#0071e3', d: 'Digital overlays on your real-world view. Your surroundings stay visible while virtual content is layered on top.' },
-            { e: '🥽', t: 'Virtual Reality', c: '#5e5ce6', d: 'Your whole field of view is replaced by a computer-generated world. Total immersion, disconnected from the room.' },
-            { e: '🌐', t: 'Mixed Reality', c: '#30d158', d: 'Digital content is anchored to real surfaces and reacts to real geometry. The two worlds genuinely coexist.' },
+            { e: '📱', t: 'Augmented Reality', c: '#0071e3', d: 'Digital things are drawn on top of what you can already see. The room around you stays visible — the virtual content just sits over it.' },
+            { e: '🥽', t: 'Virtual Reality', c: '#5e5ce6', d: 'Everything you see is made by a computer. You’re fully inside a digital world, with the real room shut out.' },
+            { e: '🌐', t: 'Mixed Reality', c: '#30d158', d: 'Digital objects are pinned to real surfaces and react to the space around them. The real and the virtual share the same room.' },
           ].map((p) => (
             <motion.div
               key={p.t}
@@ -439,15 +450,26 @@ export default function XRExplorerPage() {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* short explainer video */}
+        <Reveal delay={0.1} className="mt-16">
+          <Suspense fallback={<DemoFallback label="video" />}>
+            <YouTubeEmbed
+              id="O6KWWLnoFfI"
+              title="What is Extended Reality? (XR, VR, AR, MR)"
+              caption="If you’d rather watch than read, this short video covers the same idea in a few minutes."
+            />
+          </Suspense>
+        </Reveal>
       </section>
 
       {/* ── AR DEMO ─────────────────────────────────────────────────────────── */}
       <section id="ar" className="bg-[#f5f5f7] px-6 py-24 sm:py-28">
         <Reveal>
           <SectionHead
-            eyebrow="Augmented Reality · live demo"
-            title="Drop 3D objects into your room"
-            sub="This uses your phone’s real rear camera. Place objects with a tap, then move your phone — the gyroscope keeps them anchored in the world, just like real AR."
+            eyebrow="Augmented Reality · try it"
+            title="Place 3D objects in your room"
+            sub="This demo uses your phone’s back camera. Tap to drop an object, then move your phone around — it stays put where you placed it, the same way a real AR app works."
           />
         </Reveal>
         <Reveal delay={0.1}>
@@ -456,17 +478,28 @@ export default function XRExplorerPage() {
           </Suspense>
         </Reveal>
         <p className="mx-auto mt-10 max-w-xl text-center text-[14px] leading-relaxed text-[#86868b]">
-          Best on a phone. Camera and motion access stay on your device — nothing is uploaded or stored.
+          Works best on a phone. The camera and motion sensors stay on your device — nothing is uploaded or saved.
         </p>
+
+        {/* real-world AR example */}
+        <Reveal delay={0.1} className="mt-16">
+          <Suspense fallback={<DemoFallback label="video" />}>
+            <YouTubeEmbed
+              id="q6KYj2U40UI"
+              title="Pokémon GO — launch trailer"
+              caption="You’ve probably already used AR. Pokémon GO places characters into the camera view of the real world around you."
+            />
+          </Suspense>
+        </Reveal>
       </section>
 
       {/* ── VR DEMO ─────────────────────────────────────────────────────────── */}
       <section id="vr" className="px-6 py-24 sm:py-28">
         <Reveal>
           <SectionHead
-            eyebrow="Virtual Reality · gyroscope"
-            title="Look around a world that moves with you"
-            sub="A 360° solar system rendered in WebGL. On a phone, tap “Move your phone to look around” and physically turn — the gyroscope steers the camera. Switch on Cardboard mode for a stereo headset view."
+            eyebrow="Virtual Reality · try it"
+            title="Look around a virtual world"
+            sub="This is a small solar system drawn in 3D. On a laptop, drag with your mouse to look around. On a phone, tap “Move your phone to look around” and turn your body — the phone’s motion sensor moves the view for you. Turn on Cardboard mode for a split-screen headset view."
           />
         </Reveal>
         <Reveal delay={0.1}>
@@ -475,17 +508,39 @@ export default function XRExplorerPage() {
           </Suspense>
         </Reveal>
         <p className="mx-auto mt-10 max-w-xl text-center text-[14px] leading-relaxed text-[#86868b]">
-          On a laptop, just drag to look around. On a phone, Cardboard mode splits the view for a £10 headset.
+          On a laptop, just drag to look around. On a phone, Cardboard mode splits the screen so it works in a cheap cardboard headset.
         </p>
+
+        {/* what real VR/spatial headsets look like */}
+        <Reveal delay={0.1} className="mt-16">
+          <Suspense fallback={<DemoFallback label="video" />}>
+            <YouTubeEmbed
+              id="TX9qSaGXFyg"
+              title="Introducing Apple Vision Pro"
+              caption="Our demo is a tiny taste. Real headsets like Apple’s Vision Pro put you inside fully immersive worlds."
+            />
+          </Suspense>
+        </Reveal>
       </section>
 
       {/* ── COMPARISON ──────────────────────────────────────────────────────── */}
       <section className="bg-[#f5f5f7] px-6 py-24 sm:py-28">
         <Reveal>
-          <SectionHead eyebrow="At a glance" title="AR vs VR vs MR" sub="How the three technologies really differ." />
+          <SectionHead eyebrow="At a glance" title="AR vs VR vs MR" sub="A quick side-by-side, so it’s easy to keep the three straight." />
         </Reveal>
         <Reveal delay={0.1}>
           <ComparisonTable />
+        </Reveal>
+
+        {/* Mixed Reality in real hardware */}
+        <Reveal delay={0.1} className="mt-16">
+          <Suspense fallback={<DemoFallback label="video" />}>
+            <YouTubeEmbed
+              id="eqFqtAJMtYE"
+              title="Introducing Microsoft HoloLens 2"
+              caption="Mixed Reality is the trickiest of the three to picture. Microsoft’s HoloLens 2 shows holograms sitting in a real room."
+            />
+          </Suspense>
         </Reveal>
       </section>
 
@@ -494,8 +549,8 @@ export default function XRExplorerPage() {
         <Reveal>
           <SectionHead
             eyebrow="In the real world"
-            title="Where XR is changing everything"
-            sub="From operating theatres to the factory floor, Extended Reality is already at work."
+            title="Where people actually use XR"
+            sub="It isn’t just for games. Here are a few fields already using XR in everyday work."
           />
         </Reveal>
         <motion.div
@@ -541,13 +596,18 @@ export default function XRExplorerPage() {
 
       {/* ── FOOTER ──────────────────────────────────────────────────────────── */}
       <footer className="border-t border-black/[0.06] px-6 py-12 text-center">
+        <div className="mb-4 flex items-center justify-center gap-2.5">
+          <BrandMark className="h-7 w-7 rounded-[8px]" />
+          <span className="text-[15px] font-semibold tracking-tight text-[#1d1d1f]">
+            Not a <span className="text-[#0071e3]">LMS</span>
+          </span>
+        </div>
         <p className="text-[14px] text-[#6e6e73]">
-          Designed and curated by{' '}
-          <span className="font-medium text-[#1d1d1f]">Dr. Yasas Sri Wickramasinghe</span> · Extended Reality Learning
-          Module
+          An Extended Reality lesson, put together by{' '}
+          <span className="font-medium text-[#1d1d1f]">Dr. Yasas Sri Wickramasinghe</span>.
         </p>
         <p className="mt-2 text-[12px] text-[#aeaeb2]">
-          All demos run entirely in your browser. No camera, motion or personal data is collected or stored.
+          Everything here runs in your own browser. No camera, motion or personal data is collected or stored.
         </p>
       </footer>
     </div>

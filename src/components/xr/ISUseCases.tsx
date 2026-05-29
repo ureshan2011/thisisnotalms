@@ -159,7 +159,7 @@ function VisionPickingIllo() {
         {[['M30,30 v-14 h14', ''], ['M450,30 v-14 h-14', ''], ['M30,270 v14 h14', ''], ['M450,270 v14 h-14', '']].map(([d], i) => (
           <path key={i} d={d} stroke={C.blue} strokeWidth="3" fill="none" strokeLinecap="round" opacity="0.7" />
         ))}
-        <text x="240" y="292" textAnchor="middle" fontSize="12" fill={C.grey}>Hands-free, synced to the WMS</text>
+        <text x="240" y="292" textAnchor="middle" fontSize="12" fill={C.grey}>Hands-free, linked to the warehouse system</text>
       </svg>
     </div>
   );
@@ -229,7 +229,7 @@ function FieldServiceIllo() {
           <text x="343" y="80" fontSize="9" fontWeight="700" fill="#fff" transform="translate(15,16)">!</text>
           <text x="372" y="95" fontSize="12" fontWeight="600" fill={C.red}>Replace seal</text>
         </motion.g>
-        <text x="240" y="285" textAnchor="middle" fontSize="12" fill={C.grey}>Overlays pulled live from asset-management systems</text>
+        <text x="240" y="285" textAnchor="middle" fontSize="12" fill={C.grey}>Readings and steps pulled from company records</text>
       </svg>
     </div>
   );
@@ -261,7 +261,7 @@ function SpatialDashboardIllo() {
             <rect key={i} x={314 + i * 26} y={95 - (i % 2 ? 30 : 20)} width="16" height={i % 2 ? 30 : 20} rx="3" fill={C.purple} />
           ))}
         </motion.g>
-        <text x="240" y="280" textAnchor="middle" fontSize="12" fill={C.grey}>KPIs floating around the analyst as spatial panels</text>
+        <text x="240" y="280" textAnchor="middle" fontSize="12" fill={C.grey}>Dashboards floating around you in space</text>
       </svg>
     </div>
   );
@@ -279,50 +279,50 @@ const CASES: ISCase[] = [
   {
     Illo: ImmersiveAnalyticsIllo,
     tags: [{ label: 'VR', color: C.indigo }, { label: 'AR', color: C.blue }],
-    title: 'Immersive analytics & VR business intelligence',
+    title: 'Exploring data in 3D',
     body:
-      'Analysts step inside their data, exploring multi-dimensional datasets as 3D landscapes instead of flat charts. AI surfaces patterns in real time, accelerating predictive analytics and big-data decisions.',
-    stat: 'Immersive analytics market: $1.2B in 2025 → $6.2B by 2035 (18% CAGR)',
+      'Instead of staring at flat charts, analysts can step inside their data and walk around it as a 3D landscape. Seeing it in space can make patterns in large datasets easier to spot.',
+    stat: 'The immersive analytics market is expected to grow from about $1.2B in 2025 to $6.2B by 2035.',
   },
   {
     Illo: DigitalTwinIllo,
     tags: [{ label: 'MR', color: C.green }, { label: 'VR', color: C.indigo }],
-    title: 'Industrial digital twins',
+    title: 'Digital twins',
     body:
-      'A live virtual replica of a factory, product or supply chain, wired to ERP and IoT feeds. Teams simulate changes, run predictive maintenance and rehearse operations before touching the real system.',
-    stat: 'In 2025 digital twins moved from pilots to core operational infrastructure',
+      'A digital twin is a live virtual copy of a real factory, product or supply chain, kept in sync through sensors and business systems. Teams can test changes on the copy before touching the real thing.',
+    stat: 'In 2025, digital twins moved from trial projects into everyday business use.',
   },
   {
     Illo: VisionPickingIllo,
     tags: [{ label: 'AR', color: C.blue }],
-    title: 'AR vision picking in the warehouse',
+    title: 'AR in the warehouse',
     body:
-      'Smart glasses overlay pick paths and quantities straight onto the shelf, hands-free and synced to the warehouse management system. On-device computer vision even flags damage and predicts the next item to grab.',
-    stat: 'Amazon deployed Vuzix AR glasses (May 2025) · +15–25% picking productivity · −40% errors',
+      'Warehouse staff wear smart glasses that show where to go and what to pick, right there on the shelf — hands free, and linked to the warehouse system so stock stays accurate.',
+    stat: 'Amazon began rolling out Vuzix AR glasses in May 2025, reporting faster picking and fewer mistakes.',
   },
   {
     Illo: VirtualWorkspaceIllo,
     tags: [{ label: 'VR', color: C.indigo }, { label: 'MR', color: C.green }],
-    title: 'Collaborative virtual workspaces',
+    title: 'Working together in a shared space',
     body:
-      'Distributed teams meet inside a shared 3D model to co-design products and review changes together — data-infused workflows connected back to asset-management systems and knowledge bases.',
-    stat: 'The “industrial metaverse” enabling real-time remote engineering collaboration',
+      'Teams in different cities can meet around the same 3D model to design and review work together, almost as if they were standing in one room.',
+    stat: 'Often called the “industrial metaverse” — engineers in different places working on one model at the same time.',
   },
   {
     Illo: FieldServiceIllo,
     tags: [{ label: 'AR', color: C.blue }, { label: 'MR', color: C.green }],
-    title: 'AR-guided field service & maintenance',
+    title: 'Repairs guided by AR',
     body:
-      'Technicians see equipment condition, fault diagnostics and step-by-step repair instructions overlaid directly on the machine, pulled live from asset-management systems and knowledge bases.',
-    stat: 'Boeing’s Virtual Airplane lets engineers explore internal aircraft systems in 3D',
+      'A technician can look at a machine and see its current readings and the repair steps laid right over it, pulled straight from the company’s records. No flipping through a paper manual.',
+    stat: 'Boeing’s “virtual airplane” lets engineers explore the inside of an aircraft in 3D.',
   },
   {
     Illo: SpatialDashboardIllo,
     tags: [{ label: 'MR', color: C.green }, { label: 'AR', color: C.blue }],
-    title: 'Spatial computing dashboards',
+    title: 'Dashboards floating around you',
     body:
-      'With headsets like Apple Vision Pro, KPIs and BI dashboards float around the analyst as spatial panels. 5G and AI-enhanced XR keep them streaming and personalised in real time.',
-    stat: 'Global AR revenue projected to surpass $100B by 2026',
+      'With a headset like Apple Vision Pro, the dashboards and KPIs you’d normally squeeze onto one screen can float around you as panels you arrange in the space.',
+    stat: 'Global spending on AR is expected to pass $100B by 2026.',
   },
 ];
 
@@ -335,13 +335,13 @@ export default function ISUseCases() {
   return (
     <section className="px-6 py-24 sm:py-28">
       <div className="mx-auto mb-16 max-w-3xl text-center">
-        <p className="mb-3 text-[15px] font-semibold tracking-tight text-[#0071e3]">In Information Systems · 2025–2026</p>
+        <p className="mb-3 text-[15px] font-semibold tracking-tight text-[#0071e3]">For Information Systems students</p>
         <h2 className="text-[32px] font-semibold leading-[1.08] tracking-tight text-[#1d1d1f] sm:text-[44px]">
-          The newest ways AR &amp; VR power IS
+          How AR and VR show up in IS
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-[19px] leading-relaxed text-[#6e6e73]">
-          Beyond games and gadgets, Extended Reality is reshaping how organisations capture, analyse and act on
-          information. Here are the most current applications across the Information Systems discipline.
+          XR isn’t only about games. Businesses use it to collect, study and act on information. Here are some
+          current examples that connect back to what you’re studying in Information Systems.
         </p>
       </div>
 

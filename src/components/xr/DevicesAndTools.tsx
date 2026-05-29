@@ -138,9 +138,9 @@ export default function DevicesAndTools() {
       {/* ── DEVICES ─────────────────────────────────────────────────────────── */}
       <section className="bg-[#f5f5f7] px-6 py-24 sm:py-28">
         <div className="mx-auto mb-14 max-w-3xl text-center">
-          <p className="mb-3 text-[15px] font-semibold tracking-tight text-[#0071e3]">The hardware</p>
+          <p className="mb-3 text-[15px] font-semibold tracking-tight text-[#0071e3]">The gear</p>
           <h2 className="text-[32px] font-semibold leading-[1.08] tracking-tight text-[#1d1d1f] sm:text-[44px]">
-            The devices that power XR
+            Headsets and glasses you’ll hear about
           </h2>
         </div>
 
@@ -181,9 +181,9 @@ export default function DevicesAndTools() {
       {/* ── DEV TOOLS + SETUP ───────────────────────────────────────────────── */}
       <section className="px-6 py-24 sm:py-28">
         <div className="mx-auto mb-14 max-w-3xl text-center">
-          <p className="mb-3 text-[15px] font-semibold tracking-tight text-[#0071e3]">Build it yourself</p>
+          <p className="mb-3 text-[15px] font-semibold tracking-tight text-[#0071e3]">Want to build your own?</p>
           <h2 className="text-[32px] font-semibold leading-[1.08] tracking-tight text-[#1d1d1f] sm:text-[44px]">
-            Tools of the trade
+            The tools developers use
           </h2>
         </div>
 

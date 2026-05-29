@@ -5,8 +5,8 @@ interface BrandMarkProps {
 export default function BrandMark({ className = 'h-10 w-10' }: BrandMarkProps) {
   return (
     <img
-      src="/YooBees/brand-mark.svg"
-      alt="YooBees logo"
+      src={`${import.meta.env.BASE_URL}brand-mark.svg`}
+      alt="Not a LMS logo"
       className={className}
       loading="eager"
       decoding="async"

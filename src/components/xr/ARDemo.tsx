@@ -181,7 +181,15 @@ export default function ARDemo() {
     });
   }, [playVideo]);
 
-  useEffect(() => () => stopCamera(), [stopCamera]);
+  // Tear the camera down only when the component truly unmounts. `stopCamera`
+  // is recreated on every render (it closes over the `gyro` object, whose
+  // identity changes each render), so depending on it directly would re-run
+  // this effect every render — and the cleanup would stop the stream the
+  // instant it started, bouncing the user back to the "Start camera" button.
+  // Hold the latest `stopCamera` in a ref and run the teardown with empty deps.
+  const stopCameraRef = useRef(stopCamera);
+  stopCameraRef.current = stopCamera;
+  useEffect(() => () => stopCameraRef.current(), []);
 
   const handlePlace = useCallback(
     (clientX: number, clientY: number) => {

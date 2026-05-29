@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getAuth, type Auth } from 'firebase/auth';
+import { getFirestore, type Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
@@ -11,6 +11,12 @@ const firebaseConfig = {
   appId:             import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db   = getFirestore(app);
+// Initialise Firebase only when a real config is present. Public builds
+// (e.g. the XR Explorer page on GitHub Pages) ship without Firebase env
+// vars; initialising there throws auth/invalid-api-key and crashes the
+// whole bundle before React can render. Guarding keeps those pages working
+// while the full platform still initialises normally when configured.
+const app = firebaseConfig.apiKey ? initializeApp(firebaseConfig) : undefined;
+
+export const auth = (app ? getAuth(app) : undefined) as Auth;
+export const db   = (app ? getFirestore(app) : undefined) as Firestore;

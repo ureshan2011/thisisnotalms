@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBI802 — Class 5: Advanced ER Concepts</title>
+<link rel="stylesheet" href="styles.css">
+<script>if(location.search.indexOf("pdf=1")!==-1){window.addEventListener("load",function(){setTimeout(window.print,700);});}</script>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <svg class="logo-circle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+        <circle cx="96" cy="96" r="95" fill="#0f1117" stroke="#f59e0b" stroke-width="3"/>
+        <path fill="#f3f4f6" d="M70 35c-7.73 0-14 6.27-14 14v37c0 22.09 17.91 40 40 40s40-17.91 40-40V49c0-7.73-6.27-14-14-14s-14 6.27-14 14v37c0 6.63-5.37 12-12 12s-12-5.37-12-12V49c0-7.73-6.27-14-14-14z"/>
+        <path fill="#f3f4f6" d="M70 107c-7.73 0-14 6.27-14 14v23c0 7.73 6.27 14 14 14s14-6.27 14-14v-23c0-7.73-6.27-14-14-14z"/>
+        <path fill="#f3f4f6" d="M122 107c-7.73 0-14 6.27-14 14v12c0 6.63-5.37 12-12 12s-12-5.37-12-12c0-7.73-6.27-14-14-14s-14 6.27-14 14c0 22.09 17.91 40 40 40s40-17.91 40-40v-12c0-7.73-6.27-14-14-14z"/>
+      </svg>
+      <div class="logo-text">
+        <span class="platform">YooBees</span>
+        <span class="instructor">Dr. Yasas Sri Wickramasinghe</span>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="course-badge">MBI802 · Database Management</div>
+      <div class="course-title">Advanced ER Concepts &amp;<br>Participation Constraints</div>
+      <div class="course-subtitle">Weak Entities, Composite &amp; Multivalued Attributes, Total vs. Partial Participation</div>
+    </div>
+    <div class="header-meta">
+      <div class="class-chip">Class 5 of 8</div>
+      <div class="meta-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        10:40 AM – 1:00 PM
+      </div>
+      <div class="meta-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        120 min teaching · 20 min break
+      </div>
+    </div>
+  </div>
+</header>
+<div class="accent-strip"></div>
+
+<main class="page">
+
+  <div class="section-label">Learning Objectives</div>
+  <div class="objectives-grid">
+    <div class="obj-card">
+      <div class="obj-num">1</div>
+      <div class="obj-text">Identify weak entities and represent them with identifying relationships and partial keys</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">2</div>
+      <div class="obj-text">Apply composite, multivalued, and derived attributes with correct Chen's notation</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">3</div>
+      <div class="obj-text">Distinguish between total and partial participation constraints and represent them accurately</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">4</div>
+      <div class="obj-text">Design a complex, multi-entity ER diagram incorporating advanced constructs</div>
+    </div>
+  </div>
+
+  <div class="section-label">Teaching Methods</div>
+  <div class="tag-row">
+    <span class="tag tag-blue">Case-Based Learning</span>
+    <span class="tag tag-purple">Worked Examples</span>
+    <span class="tag tag-emerald">Peer Teaching</span>
+    <span class="tag tag-gold">Problem-Based Learning</span>
+    <span class="tag tag-rose">Concept Mapping</span>
+    <span class="tag tag-teal">Annotation Activity</span>
+    <span class="tag tag-blue">Exit Ticket</span>
+  </div>
+
+  <div class="section-label">Overview</div>
+  <div class="overview-bar">
+    <div class="ov-box"><div class="ov-label">Session 1</div><div class="ov-value">10:40 – 11:40</div></div>
+    <div class="ov-box"><div class="ov-label">Break</div><div class="ov-value">11:40 – 12:00</div></div>
+    <div class="ov-box"><div class="ov-label">Session 2</div><div class="ov-value">12:00 – 1:00</div></div>
+    <div class="ov-box"><div class="ov-label">Total Teaching</div><div class="ov-value">120 min</div></div>
+  </div>
+
+  <div class="section-label">Lesson Schedule</div>
+  <div class="schedule-wrap">
+    <div class="schedule-header">
+      <span>Time</span><span>Duration</span><span>Activity</span>
+    </div>
+
+    <div class="schedule-row session-header">
+      <div class="time-cell">10:40 – 11:40</div>
+      <div class="dur-cell">60 min</div>
+      <div class="activity-cell"><div class="activity-title">SESSION 1 — Weak Entities &amp; Special Attributes</div></div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">10:40 – 10:50</div>
+      <div class="dur-cell">10 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Warm-Up Review — Gallery Walk Reflection</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Display 2–3 anonymised ER diagrams from Class 4 group activity</li>
+            <li>Class identifies: what is done well, what notation needs improvement</li>
+            <li>Address top 3 misconceptions from gallery walk feedback (e.g., cardinality placement, M:N notation)</li>
+            <li>Bridge to today: "These diagrams are missing some important constructs — let's learn them"</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">10:50 – 11:10</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Mini-Lecture — Weak Entities &amp; Identifying Relationships</div>
+        <div class="activity-desc">
+          <ul>
+            <li>What makes an entity "weak"? Cannot be uniquely identified without its owner entity</li>
+            <li>Chen's notation: double rectangle for weak entity, double diamond for identifying relationship</li>
+            <li>Partial key (discriminator): dashed underline — unique only within the context of the owner</li>
+            <li>Examples: OrderItem (depends on Order), RoomBooking (depends on Room), Dependent (depends on Employee)</li>
+            <li>Rule: a weak entity always has total participation in its identifying relationship</li>
+            <li>YooBees: Advanced ER Concepts deck — slides 1–5</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">11:10 – 11:30</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Mini-Lecture — Composite, Multivalued &amp; Derived Attributes</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Composite attributes: decomposed into component sub-attributes (e.g., Address → {Street, City, State, PostCode})</li>
+            <li>When to decompose: if the system needs to query individual components separately</li>
+            <li>Multivalued attributes: double ellipse notation — an entity can have multiple values (e.g., PhoneNumbers, Skills, Languages)</li>
+            <li>Derived attributes: dashed ellipse — computed from other stored attributes (e.g., Age derived from DateOfBirth, TotalPrice derived from UnitPrice × Quantity)</li>
+            <li>YooBees: Advanced ER Concepts and ER Attribute Constraints decks — slides 6–11</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">11:30 – 11:40</div>
+      <div class="dur-cell">10 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Annotation Activity — Label the ER Diagram</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Distributed handout: a partially complete Employee-Department ER diagram</li>
+            <li>Students label: which attributes are composite, multivalued, derived, key attributes</li>
+            <li>Circle the weak entity and its identifying relationship</li>
+            <li>Compare with neighbour → quick class debrief and correction</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row break-row">
+      <div class="time-cell">11:40 – 12:00</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">☕ Scheduled Break</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Students rest and review annotation activity answers</li>
+            <li>Instructor checks annotation handouts to identify common errors for Session 2 opening</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row session-header">
+      <div class="time-cell">12:00 – 1:00</div>
+      <div class="dur-cell">60 min</div>
+      <div class="activity-cell"><div class="activity-title">SESSION 2 — Participation Constraints &amp; Complex Case Study</div></div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:00 – 12:20</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Mini-Lecture — Participation Constraints</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Total participation (double line): every entity in the set MUST participate in the relationship</li>
+            <li>Partial participation (single line): some entities MAY not participate</li>
+            <li>Example: every Employee MUST be assigned to a Department (total) — but not every Employee manages a Department (partial)</li>
+            <li>Min-Max notation: (min, max) notation as an alternative to total/partial representation</li>
+            <li>Structural constraints: combining cardinality ratio + participation constraint for full specification</li>
+            <li>YooBees: ER Attribute Constraints deck — slides 12–20</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:20 – 12:45</div>
+      <div class="dur-cell">25 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Case Study — Hospital Management System ER Diagram</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Instructor builds a complete hospital ER diagram live on the board/screen</li>
+            <li>Entities: Patient, Doctor, Nurse, Ward, Treatment, Appointment, Prescription</li>
+            <li>Students call out attributes for each entity as instructor draws (participatory building)</li>
+            <li>Pause points — class decides: Is this attribute composite? Should Prescription be a weak entity?</li>
+            <li>Apply participation constraints: every Appointment MUST involve one Patient and one Doctor (total)</li>
+            <li>Identify M:N relationships: Doctor treats many Patients; Patient is treated by many Doctors</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:45 – 12:55</div>
+      <div class="dur-cell">10 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Individual Practice — Online Shopping Platform ER</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Students individually design ER diagram for: "Online Shopping Platform"</li>
+            <li>Required entities: Customer, Product, Order, Category, Review</li>
+            <li>Must include at least one weak entity, one composite attribute, one multivalued attribute, and participation constraints</li>
+            <li>Compare with partner on completion — discuss design decisions</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:55 – 1:00</div>
+      <div class="dur-cell">5 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Exit Ticket &amp; Preview</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Exit ticket: "Explain in one sentence the difference between partial and total participation"</li>
+            <li>Preview Class 6: ER to Relational Schema Mapping — translating ER diagrams into actual SQL tables</li>
+            <li>Homework: Complete YooBees Advanced ER Concepts and ER Attribute Constraints decks exercises</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-header blue">📚 Resources &amp; Materials</div>
+      <div class="card-body">
+        <ul>
+          <li>YooBees: Advanced ER Concepts deck (11 slides, 2 exercises)</li>
+          <li>YooBees: ER Attribute Constraints deck (20 slides, 2 activities + answers)</li>
+          <li>Annotation handout: Employee-Department ER diagram (pre-printed)</li>
+          <li>Hospital scenario description card (distributed)</li>
+          <li>draw.io or Lucidchart for digital diagramming</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header emerald">✅ Assessment &amp; Formative Checks</div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Annotation activity:</strong> Label ER diagram — identifies attribute type and weak entity misconceptions</li>
+          <li><strong>Case study participation:</strong> Students contribute attributes/constraints — observed engagement</li>
+          <li><strong>Individual practice:</strong> Online Shopping Platform ER diagram — reviewed informally</li>
+          <li><strong>Exit ticket:</strong> Total vs partial participation definition — informs Class 6 opener</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header purple">🧠 Key Concepts Covered</div>
+      <div class="card-body">
+        <ul>
+          <li>Weak entity (double rectangle) + identifying relationship (double diamond)</li>
+          <li>Partial key / discriminator (dashed underline)</li>
+          <li>Composite attribute decomposition into sub-attributes</li>
+          <li>Multivalued attribute (double ellipse)</li>
+          <li>Derived attribute (dashed ellipse)</li>
+          <li>Total participation (double line) vs. partial participation (single line)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header gold">🔗 Blended Learning Elements</div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Online:</strong> YooBees Advanced ER Concepts + ER Attribute Constraints decks</li>
+          <li><strong>Case-based:</strong> Hospital Management System — real-world complexity</li>
+          <li><strong>Participatory:</strong> Students co-build the case study diagram with instructor</li>
+          <li><strong>Individual + peer:</strong> Online Shopping ER then partner comparison</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Assessment Overview</div>
+  <div class="assessment-row">
+    <div class="assess-card">
+      <div class="assess-type">Formative — Annotation</div>
+      <div class="assess-body">Label attribute types in Employee-Department ER diagram. Identifies specific notation gaps before group work.</div>
+    </div>
+    <div class="assess-card">
+      <div class="assess-type">Formative — Individual</div>
+      <div class="assess-body">Online Shopping Platform ER design: must include weak entity, composite attr, multivalued attr, and participation constraints.</div>
+    </div>
+    <div class="assess-card">
+      <div class="assess-type">Formative — Exit Ticket</div>
+      <div class="assess-body">One-sentence explanation of total vs. partial participation. Reviewed before Class 6 to address persistent confusion.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Instructor Notes</div>
+  <div class="card" style="margin-bottom: 0;">
+    <div class="card-header teal">📝 Pedagogical Notes for the Instructor</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>Weak entity test:</strong> Teach students to ask "Can this entity exist without its owner?" — if no, it's weak.</li>
+        <li><strong>Common error:</strong> Students confuse multivalued attributes with separate entities. If the values have their own attributes, it should be an entity. If they are simple values (e.g., phone numbers), use a multivalued attribute.</li>
+        <li><strong>Participation constraint nuance:</strong> Total/partial applies per-entity-per-relationship — both sides must be assessed independently.</li>
+        <li><strong>Hospital case study:</strong> Don't rush this. The participatory building approach is most effective when students feel ownership. Allow 2–3 minutes of genuine student discussion before resolving design decisions.</li>
+        <li><strong>Homework check:</strong> YooBees platform tracks completion of deck exercises — review completion rate before Class 6.</li>
+      </ul>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <span>MBI802 — Database Management Systems &nbsp;·&nbsp; Class 5 of 8</span>
+  <span>Dr. Yasas Sri Wickramasinghe &nbsp;·&nbsp; <a href="#">YooBees Learning Platform</a></span>
+  <span>10:40 AM – 1:00 PM &nbsp;·&nbsp; 120 min teaching</span>
+</footer>
+
+<div class="print-fab-wrap"><button class="print-fab" onclick="window.print()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print / Save as PDF</button></div>
+</body>
+</html>

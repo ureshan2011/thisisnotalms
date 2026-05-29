@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBI802 — Class 2: SQL Programming Fundamentals</title>
+<link rel="stylesheet" href="styles.css">
+<script>if(location.search.indexOf("pdf=1")!==-1){window.addEventListener("load",function(){setTimeout(window.print,700);});}</script>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-wrap">
+      <svg class="logo-circle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+        <circle cx="96" cy="96" r="95" fill="#0f1117" stroke="#f59e0b" stroke-width="3"/>
+        <path fill="#f3f4f6" d="M70 35c-7.73 0-14 6.27-14 14v37c0 22.09 17.91 40 40 40s40-17.91 40-40V49c0-7.73-6.27-14-14-14s-14 6.27-14 14v37c0 6.63-5.37 12-12 12s-12-5.37-12-12V49c0-7.73-6.27-14-14-14z"/>
+        <path fill="#f3f4f6" d="M70 107c-7.73 0-14 6.27-14 14v23c0 7.73 6.27 14 14 14s14-6.27 14-14v-23c0-7.73-6.27-14-14-14z"/>
+        <path fill="#f3f4f6" d="M122 107c-7.73 0-14 6.27-14 14v12c0 6.63-5.37 12-12 12s-12-5.37-12-12c0-7.73-6.27-14-14-14s-14 6.27-14 14c0 22.09 17.91 40 40 40s40-17.91 40-40v-12c0-7.73-6.27-14-14-14z"/>
+      </svg>
+      <div class="logo-text">
+        <span class="platform">YooBees</span>
+        <span class="instructor">Dr. Yasas Sri Wickramasinghe</span>
+      </div>
+    </div>
+    <div class="header-center">
+      <div class="course-badge">MBI802 · Database Management</div>
+      <div class="course-title">SQL Programming Fundamentals</div>
+      <div class="course-subtitle">DDL Commands, Data Types &amp; Basic Data Retrieval</div>
+    </div>
+    <div class="header-meta">
+      <div class="class-chip">Class 2 of 8</div>
+      <div class="meta-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        10:40 AM – 1:00 PM
+      </div>
+      <div class="meta-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        120 min teaching · 20 min break
+      </div>
+    </div>
+  </div>
+</header>
+<div class="accent-strip"></div>
+
+<main class="page">
+
+  <div class="section-label">Learning Objectives</div>
+  <div class="objectives-grid">
+    <div class="obj-card">
+      <div class="obj-num">1</div>
+      <div class="obj-text">Write SQL DDL statements: CREATE DATABASE and CREATE TABLE with constraints</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">2</div>
+      <div class="obj-text">Select appropriate data types (INT, VARCHAR, DATE, DECIMAL, BOOLEAN) for attributes</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">3</div>
+      <div class="obj-text">Insert records using INSERT INTO (single and multiple rows)</div>
+    </div>
+    <div class="obj-card">
+      <div class="obj-num">4</div>
+      <div class="obj-text">Retrieve data using SELECT queries with column selection</div>
+    </div>
+  </div>
+
+  <div class="section-label">Teaching Methods</div>
+  <div class="tag-row">
+    <span class="tag tag-gold">Live Coding</span>
+    <span class="tag tag-blue">Pair Programming</span>
+    <span class="tag tag-emerald">Scaffolded Learning</span>
+    <span class="tag tag-purple">Retrieval Practice</span>
+    <span class="tag tag-rose">Worked Examples</span>
+    <span class="tag tag-teal">Peer Review</span>
+  </div>
+
+  <div class="section-label">Overview</div>
+  <div class="overview-bar">
+    <div class="ov-box"><div class="ov-label">Session 1</div><div class="ov-value">10:40 – 11:40</div></div>
+    <div class="ov-box"><div class="ov-label">Break</div><div class="ov-value">11:40 – 12:00</div></div>
+    <div class="ov-box"><div class="ov-label">Session 2</div><div class="ov-value">12:00 – 1:00</div></div>
+    <div class="ov-box"><div class="ov-label">Total Teaching</div><div class="ov-value">120 min</div></div>
+  </div>
+
+  <div class="section-label">Lesson Schedule</div>
+  <div class="schedule-wrap">
+    <div class="schedule-header">
+      <span>Time</span><span>Duration</span><span>Activity</span>
+    </div>
+
+    <div class="schedule-row session-header">
+      <div class="time-cell">10:40 – 11:40</div>
+      <div class="dur-cell">60 min</div>
+      <div class="activity-cell"><div class="activity-title">SESSION 1 — DDL &amp; Schema Design</div></div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">10:40 – 10:50</div>
+      <div class="dur-cell">10 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Review &amp; Connection Activity</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Review exit tickets from Class 1 — address top 3 questions anonymously</li>
+            <li>"Spot the Database": display 3 app screenshots (Netflix, Spotify, Instagram) — what data do they store and how?</li>
+            <li>Transition: "Today we write the code that creates these structures"</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">10:50 – 11:10</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Mini-Lecture — SQL Overview &amp; DDL Commands</div>
+        <div class="activity-desc">
+          <ul>
+            <li>SQL categories: DDL (define), DML (manipulate), DCL (control), TCL (transaction)</li>
+            <li>CREATE DATABASE and USE syntax</li>
+            <li>CREATE TABLE structure: column name, data type, constraints</li>
+            <li>Data types: INT, BIGINT, FLOAT, DECIMAL(p,s), VARCHAR(n), TEXT, CHAR(n), DATE, DATETIME, BOOLEAN</li>
+            <li>Constraints: NOT NULL, DEFAULT, UNIQUE, PRIMARY KEY, AUTO_INCREMENT</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">11:10 – 11:25</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Live Coding Demo — Building a University Database</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Instructor types live — students follow along in their MySQL environments</li>
+            <li>Create: <code>CREATE DATABASE university;</code> → <code>USE university;</code></li>
+            <li>Create students table: id (INT PK AUTO_INCREMENT), first_name, last_name, email (UNIQUE), enrollment_date (DATE)</li>
+            <li>Pause-and-predict: "What data type should phone_number be? Why not INT?"</li>
+            <li>Common mistakes: VARCHAR vs CHAR, INT for phone numbers, missing NOT NULL</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">11:25 – 11:40</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Pair Programming — Create a Library Database</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Pairs given: field list (book_id, title, author, isbn, publication_year, genre, available_copies)</li>
+            <li>Students determine appropriate data types and constraints for each field</li>
+            <li>Write CREATE TABLE books statement together</li>
+            <li>Compare CREATE TABLE with another pair — discuss differences in data type choices</li>
+            <li>Instructor and TAs circulate providing formative feedback</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row break-row">
+      <div class="time-cell">11:40 – 12:00</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">☕ Scheduled Break</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Students rest and consolidate learning</li>
+            <li>Instructor reviews pair programming outputs on walkabout</li>
+            <li>TAs note common data type misconceptions to address in Session 2</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row session-header">
+      <div class="time-cell">12:00 – 1:00</div>
+      <div class="dur-cell">60 min</div>
+      <div class="activity-cell"><div class="activity-title">SESSION 2 — DML: Inserting &amp; Querying Data</div></div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:00 – 12:15</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Mini-Lecture — INSERT INTO &amp; Basic SELECT</div>
+        <div class="activity-desc">
+          <ul>
+            <li>INSERT INTO: single row vs. multiple rows syntax</li>
+            <li>Column-value alignment: <code>INSERT INTO students (first_name, email) VALUES ('Ana', 'ana@uni.edu');</code></li>
+            <li>SELECT *: retrieve all columns — discuss performance implications</li>
+            <li>SELECT specific columns: projection to retrieve only needed fields</li>
+            <li>Address pair programming data type misconceptions from Session 1</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:15 – 12:30</div>
+      <div class="dur-cell">15 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Live Demo — Data Population &amp; Retrieval</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Insert 5 student records into university.students table live</li>
+            <li>Demonstrate SELECT * — show all data returned</li>
+            <li>Demonstrate SELECT first_name, email FROM students — discuss relevance of projection</li>
+            <li>Introduce DESCRIBE table; and SHOW TABLES; for schema inspection</li>
+            <li>Students follow along on their own databases</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:30 – 12:50</div>
+      <div class="dur-cell">20 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">YooBees — SQL Programming Slide Deck (Guided Practice)</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Students open SQL Programming slide deck on YooBees platform (13 slides)</li>
+            <li>Work through slides 1–8: CREATE, INSERT, SELECT fundamentals</li>
+            <li>Embedded practice questions within the deck — students attempt before viewing answers</li>
+            <li>Instructor monitors progress via teacher dashboard; pauses for class discussion at key slides</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="schedule-row">
+      <div class="time-cell">12:50 – 1:00</div>
+      <div class="dur-cell">10 min</div>
+      <div class="activity-cell">
+        <div class="activity-title">Wrap-Up, Peer Share &amp; Homework</div>
+        <div class="activity-desc">
+          <ul>
+            <li>Rapid-fire review: instructor points at data types on slide — class calls out use cases</li>
+            <li>Peer share: "One surprising thing about data types you discovered today"</li>
+            <li>Homework: Complete YooBees SQL Programming slide deck remaining slides (9–13)</li>
+            <li>Optional challenge: Create a "products" table with at least 6 columns and appropriate types</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="card">
+      <div class="card-header blue">📚 Resources &amp; Materials</div>
+      <div class="card-body">
+        <ul>
+          <li>YooBees: SQL Programming Slides (13 slides)</li>
+          <li>YooBees: SQL Practice Lab scenarios (preview)</li>
+          <li>MySQL Workbench or CLI (set up in Class 1)</li>
+          <li>Data types reference handout (distributed)</li>
+          <li>SQL cheat sheet: DDL and basic DML commands</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header emerald">✅ Assessment &amp; Formative Checks</div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Pair programming output:</strong> CREATE TABLE statement reviewed by instructor</li>
+          <li><strong>Live demo participation:</strong> Students follow along — errors surfaced immediately</li>
+          <li><strong>YooBees embedded questions:</strong> Platform tracks student responses</li>
+          <li><strong>Homework:</strong> Complete SQL Programming slide deck</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header purple">🧠 Key SQL Commands Covered</div>
+      <div class="card-body">
+        <ul>
+          <li><code>CREATE DATABASE</code> and <code>USE</code></li>
+          <li><code>CREATE TABLE</code> with data types and constraints</li>
+          <li><code>INSERT INTO ... VALUES</code> (single and multi-row)</li>
+          <li><code>SELECT * FROM</code> and column projection</li>
+          <li><code>DESCRIBE</code> and <code>SHOW TABLES</code></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header gold">🔗 Blended Learning Elements</div>
+      <div class="card-body">
+        <ul>
+          <li><strong>Online:</strong> YooBees SQL Programming slide deck with embedded checks</li>
+          <li><strong>Synchronous:</strong> Live coding demo — model-practice cycle</li>
+          <li><strong>Collaborative:</strong> Pair programming with peer discussion</li>
+          <li><strong>Scaffolded:</strong> Field list provided; students determine types (guided inquiry)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Assessment Overview</div>
+  <div class="assessment-row">
+    <div class="assess-card">
+      <div class="assess-type">Formative — Pair Activity</div>
+      <div class="assess-body">CREATE TABLE library.books: instructor reviews data type choices and constraint usage. Common errors addressed class-wide.</div>
+    </div>
+    <div class="assess-card">
+      <div class="assess-type">Formative — Platform</div>
+      <div class="assess-body">YooBees SQL Programming deck embedded questions — tracked on instructor dashboard to identify students needing support.</div>
+    </div>
+    <div class="assess-card">
+      <div class="assess-type">Formative — Homework</div>
+      <div class="assess-body">Complete remaining YooBees SQL slides. Optional challenge: design a products table demonstrating data type knowledge.</div>
+    </div>
+  </div>
+
+  <div class="section-label">Instructor Notes</div>
+  <div class="card" style="margin-bottom: 0;">
+    <div class="card-header teal">📝 Pedagogical Notes for the Instructor</div>
+    <div class="card-body">
+      <ul>
+        <li><strong>Common misconception:</strong> Students often use INT for phone numbers or postal codes — address this explicitly and explain why VARCHAR is correct (leading zeros, special characters).</li>
+        <li><strong>Live coding tip:</strong> Make intentional errors (e.g., forget NOT NULL) and fix them live — models debugging behaviour and reduces student anxiety about mistakes.</li>
+        <li><strong>Accessibility:</strong> Provide SQL code snippets on the shared Teams document for students who have difficulty typing quickly.</li>
+        <li><strong>Extension task:</strong> Fast finishers can explore <code>ALTER TABLE</code> to add columns to their existing table.</li>
+        <li><strong>Platform note:</strong> Confirm all students can access YooBees SQL Programming deck before Session 2 begins.</li>
+      </ul>
+    </div>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <span>MBI802 — Database Management Systems &nbsp;·&nbsp; Class 2 of 8</span>
+  <span>Dr. Yasas Sri Wickramasinghe &nbsp;·&nbsp; <a href="#">YooBees Learning Platform</a></span>
+  <span>10:40 AM – 1:00 PM &nbsp;·&nbsp; 120 min teaching</span>
+</footer>
+
+<div class="print-fab-wrap"><button class="print-fab" onclick="window.print()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print / Save as PDF</button></div>
+</body>
+</html>

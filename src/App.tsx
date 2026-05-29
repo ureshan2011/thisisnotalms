@@ -64,6 +64,7 @@ function AppRoutes() {
     <Suspense fallback={<FullPageSpinner />}>
       <Routes>
         <Route path="/"             element={<RootRedirect />} />
+        <Route path="/xr-explorer"  element={<XRExplorerPage />} />
         <Route path="/login"        element={<Login />} />
         <Route path="/register"     element={<Register />} />
         <Route path="/attend/:code" element={<QuickAttend />} />
@@ -118,6 +119,7 @@ function ShutdownRoutes() {
     <Routes>
       {/* XR Explorer is the public entry point */}
       <Route path="/" element={<XRExplorerPage />} />
+      <Route path="/xr-explorer" element={<XRExplorerPage />} />
       {/* All other routes show the shutdown notice */}
       <Route path="*" element={<ShutdownPage />} />
     </Routes>

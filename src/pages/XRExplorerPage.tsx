@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, type Variants } from 'framer-motion';
 
 const ARDemo = lazy(() => import('../components/xr/ARDemo'));
 const GyroVRScene = lazy(() => import('../components/xr/GyroVRScene'));
+const ISUseCases = lazy(() => import('../components/xr/ISUseCases'));
 
 // ─── Apple-inspired Extended Reality lesson ─────────────────────────────────
 // White background, SF-style typography, generous spacing, pill buttons and
@@ -516,6 +517,11 @@ export default function XRExplorerPage() {
           ))}
         </motion.div>
       </section>
+
+      {/* ── AR/VR IN INFORMATION SYSTEMS (illustrated) ──────────────────────── */}
+      <Suspense fallback={<div className="py-24 text-center text-[15px] text-[#86868b]">Loading…</div>}>
+        <ISUseCases />
+      </Suspense>
 
       {/* ── QUIZ ────────────────────────────────────────────────────────────── */}
       <section className="bg-[#f5f5f7] px-6 py-24 sm:py-28">

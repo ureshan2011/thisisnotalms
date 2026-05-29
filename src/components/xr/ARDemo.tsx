@@ -4,11 +4,17 @@ import * as THREE from 'three';
 import { useDeviceOrientation, applyDeviceQuaternion } from './useDeviceOrientation';
 
 // ─── Real browser AR ────────────────────────────────────────────────────────
-// This is genuine AR, not a mock: it opens the rear camera with getUserMedia and
-// renders a live WebGL (three.js) layer on top. Tapping the view raycasts into
-// the scene and anchors a 3D object in world space. When motion access is
-// granted, the camera tracks the phone's gyroscope, so placed objects stay
-// locked to the real world as you move the device around.
+// Genuine AR, not a mock: opens the rear camera with getUserMedia and renders a
+// live WebGL (three.js) layer on top. Tapping the view raycasts into the scene
+// and anchors a 3D object. With motion access granted, the camera tracks the
+// phone's gyroscope so objects stay locked to the real world as you move.
+//
+// Stability notes:
+//  • `muted` is set imperatively (the React prop is unreliable) so mobile
+//    browsers allow autoplay and the feed never stays black.
+//  • getUserMedia falls back to a generic camera if `environment` is rejected.
+//  • play() rejection is handled with a "tap to start" recovery overlay.
+//  • The camera works on its own; the gyroscope is an optional enhancement.
 
 type ShapeType = 'sphere' | 'cube' | 'torus' | 'cone' | 'crystal';
 
@@ -49,7 +55,6 @@ function AnchoredObject({ item }: { item: Placed }) {
     if (!ref.current) return;
     ref.current.rotation.y += dt * 0.7;
     ref.current.rotation.x += dt * 0.25;
-    // gentle "pop-in" + float
     const age = (performance.now() - t0.current) / 1000;
     const grow = Math.min(1, age * 3);
     const float = Math.sin(age * 1.6) * 0.04;
@@ -57,15 +62,9 @@ function AnchoredObject({ item }: { item: Placed }) {
     ref.current.position.set(item.pos[0], item.pos[1] + float, item.pos[2]);
   });
   return (
-    <mesh ref={ref} position={item.pos} castShadow>
+    <mesh ref={ref} position={item.pos}>
       <ShapeGeometry type={item.type} />
-      <meshStandardMaterial
-        color={item.color}
-        metalness={0.35}
-        roughness={0.22}
-        emissive={item.color}
-        emissiveIntensity={0.16}
-      />
+      <meshStandardMaterial color={item.color} metalness={0.35} roughness={0.22} emissive={item.color} emissiveIntensity={0.18} />
     </mesh>
   );
 }
@@ -97,6 +96,8 @@ export default function ARDemo() {
   const raycaster = useRef(new THREE.Raycaster());
 
   const [running, setRunning] = useState(false);
+  const [starting, setStarting] = useState(false);
+  const [needsTap, setNeedsTap] = useState(false); // play() was blocked
   const [error, setError] = useState<string | null>(null);
   const [placed, setPlaced] = useState<Placed[]>([]);
   const [shapeIdx, setShapeIdx] = useState(0);
@@ -109,38 +110,76 @@ export default function ARDemo() {
     if (videoRef.current) videoRef.current.srcObject = null;
     gyro.disable();
     setRunning(false);
+    setNeedsTap(false);
   }, [gyro]);
+
+  // Robustly start the video element (imperative muted/playsinline + retry).
+  const playVideo = useCallback(async () => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = true;
+    v.defaultMuted = true;
+    v.setAttribute('muted', '');
+    v.setAttribute('playsinline', '');
+    v.setAttribute('autoplay', '');
+    try {
+      await v.play();
+      setNeedsTap(false);
+    } catch {
+      // Autoplay was blocked — surface a tap-to-start affordance.
+      setNeedsTap(true);
+    }
+  }, []);
 
   const startCamera = useCallback(async () => {
     setError(null);
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setError('This browser does not support camera access.');
+    setStarting(true);
+    if (!window.isSecureContext) {
+      setError('AR needs a secure (https) page. Open this site over https and try again.');
+      setStarting(false);
       return;
     }
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setError('This browser does not support camera access.');
+      setStarting(false);
+      return;
+    }
+    let stream: MediaStream | null = null;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' } },
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: false,
       });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-      setRunning(true);
-      // Try to engage the gyroscope so objects anchor to the world.
-      gyro.enable().catch(() => undefined);
     } catch (e) {
       const name = (e as { name?: string })?.name;
       if (name === 'NotAllowedError' || name === 'SecurityError') {
-        setError('Camera permission was denied. Allow camera access and try again.');
-      } else if (name === 'NotFoundError') {
-        setError('No camera was found on this device.');
-      } else {
-        setError('Could not start the camera. AR needs a secure (https) connection.');
+        setError('Camera permission was blocked. Allow camera access in your browser and try again.');
+        setStarting(false);
+        return;
+      }
+      // OverconstrainedError / NotFoundError → retry with any camera.
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      } catch {
+        setError('No usable camera was found on this device.');
+        setStarting(false);
+        return;
       }
     }
-  }, [gyro]);
+
+    streamRef.current = stream;
+    setRunning(true);
+    setStarting(false);
+
+    // Attach + play after the <video> has rendered.
+    requestAnimationFrame(() => {
+      const v = videoRef.current;
+      if (v && streamRef.current) {
+        v.srcObject = streamRef.current;
+        playVideo();
+      }
+    });
+  }, [playVideo]);
 
   useEffect(() => () => stopCamera(), [stopCamera]);
 
@@ -158,7 +197,7 @@ export default function ARDemo() {
       const point = raycaster.current.ray.at(2.6, new THREE.Vector3());
       const shape = SHAPES[shapeIdx];
       setPlaced((prev) => [
-        ...prev.slice(-23), // cap for performance
+        ...prev.slice(-23),
         { id: Date.now() + Math.random(), pos: [point.x, point.y, point.z], type: shape.type, color: shape.color },
       ]);
     },
@@ -170,24 +209,32 @@ export default function ARDemo() {
       {/* Phone-style viewport */}
       <div
         ref={containerRef}
-        onPointerDown={(e) => running && handlePlace(e.clientX, e.clientY)}
+        onPointerDown={(e) => {
+          if (!running || needsTap) return;
+          handlePlace(e.clientX, e.clientY);
+        }}
         className="relative mx-auto w-full max-w-[400px] aspect-[3/4] overflow-hidden rounded-[2.25rem] bg-black ring-1 ring-black/10 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.45)]"
-        style={{ cursor: running ? 'crosshair' : 'default', touchAction: 'none' }}
+        style={{ cursor: running && !needsTap ? 'crosshair' : 'default', touchAction: 'none' }}
       >
-        <video
-          ref={videoRef}
-          playsInline
-          muted
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ display: running ? 'block' : 'none' }}
-        />
+        {/* The video is always mounted while running so the ref/stream attach reliably */}
+        {running && (
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        )}
 
         {running && (
           <Canvas
             className="absolute inset-0"
-            gl={{ alpha: true, antialias: true }}
+            gl={{ alpha: true, antialias: true, premultipliedAlpha: false }}
+            dpr={[1, 2]}
             camera={{ fov: 70, near: 0.05, far: 100, position: [0, 0, 0] }}
             style={{ pointerEvents: 'none' }}
+            onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
           >
             <ambientLight intensity={0.9} />
             <directionalLight position={[2, 4, 3]} intensity={1.1} />
@@ -200,7 +247,7 @@ export default function ARDemo() {
         )}
 
         {/* Reticle + HUD when live */}
-        {running && (
+        {running && !needsTap && (
           <>
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
               <div className="relative h-12 w-12">
@@ -223,6 +270,17 @@ export default function ARDemo() {
           </>
         )}
 
+        {/* Autoplay blocked → tap to start the feed */}
+        {running && needsTap && (
+          <button
+            onClick={playVideo}
+            className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-black/55 text-white"
+          >
+            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/15 text-3xl">▶</span>
+            <span className="text-[15px] font-medium">Tap to start the camera</span>
+          </button>
+        )}
+
         {/* Idle / error state */}
         {!running && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-gradient-to-b from-neutral-900 to-neutral-800 px-8 text-center">
@@ -230,18 +288,17 @@ export default function ARDemo() {
             <div>
               <p className="text-[17px] font-semibold text-white">Live camera AR</p>
               <p className="mt-1 text-[13px] leading-relaxed text-white/60">
-                {error ?? 'Uses your real rear camera. Move your phone to anchor objects in the world.'}
+                {error ?? 'Uses your real rear camera. Tap to place 3D objects; turn on motion to anchor them in the room.'}
               </p>
             </div>
             <button
               onClick={startCamera}
-              className="rounded-full bg-white px-6 py-2.5 text-[15px] font-medium text-neutral-900 transition active:scale-95"
+              disabled={starting}
+              className="rounded-full bg-white px-6 py-2.5 text-[15px] font-medium text-neutral-900 transition active:scale-95 disabled:opacity-60"
             >
-              Start camera
+              {starting ? 'Starting…' : 'Start camera'}
             </button>
-            {error && (
-              <p className="text-[11px] text-white/40">Tip: AR requires camera permission and an https connection.</p>
-            )}
+            {error && <p className="text-[11px] text-white/40">AR needs camera permission and an https connection.</p>}
           </div>
         )}
       </div>
@@ -255,16 +312,11 @@ export default function ARDemo() {
                 key={s.type}
                 onClick={() => setShapeIdx(i)}
                 className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition ${
-                  shapeIdx === i
-                    ? 'border-transparent text-white'
-                    : 'border-black/10 bg-white text-neutral-700 hover:border-black/20'
+                  shapeIdx === i ? 'border-transparent text-white' : 'border-black/10 bg-white text-neutral-700 hover:border-black/20'
                 }`}
                 style={shapeIdx === i ? { background: s.color } : undefined}
               >
-                <span
-                  className="h-2.5 w-2.5 rounded-full"
-                  style={{ background: shapeIdx === i ? 'rgba(255,255,255,0.9)' : s.color }}
-                />
+                <span className="h-2.5 w-2.5 rounded-full" style={{ background: shapeIdx === i ? 'rgba(255,255,255,0.9)' : s.color }} />
                 {s.label}
               </button>
             ))}
@@ -281,7 +333,7 @@ export default function ARDemo() {
                 onClick={() => gyro.enable()}
                 className="rounded-full border border-black/10 bg-white px-4 py-2 text-[13px] font-medium text-neutral-700 transition hover:border-black/20"
               >
-                Enable motion
+                Anchor to room
               </button>
             )}
             <button
@@ -291,6 +343,9 @@ export default function ARDemo() {
               Stop
             </button>
           </div>
+          {gyro.permission === 'denied' && (
+            <p className="text-center text-[12px] text-[#ff375f]">Motion access blocked — objects won’t anchor, but tap-to-place still works.</p>
+          )}
         </div>
       )}
     </div>

@@ -302,6 +302,14 @@ function Quiz() {
   );
 }
 
+// Smooth-scroll to a section by id WITHOUT touching the URL hash. The app runs
+// under a HashRouter, so plain `href="#ar"` anchors would hijack the router and
+// navigate to a non-existent route (showing the shutdown notice). This scrolls
+// in place instead.
+function scrollToSection(id: string) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 const DemoFallback = ({ label }: { label: string }) => (
   <div className="mx-auto flex aspect-video w-full max-w-[820px] items-center justify-center rounded-[1.75rem] bg-[#f5f5f7] text-[15px] text-[#86868b]">
     Loading {label}…
@@ -362,15 +370,18 @@ export default function XRExplorerPage() {
             transition={{ duration: 0.9, ease: EASE, delay: 0.25 }}
             className="mt-9 flex flex-wrap items-center justify-center gap-x-7 gap-y-3"
           >
-            <a
-              href="#ar"
+            <button
+              onClick={() => scrollToSection('ar')}
               className="rounded-full bg-[#0071e3] px-7 py-3 text-[17px] font-medium text-white transition hover:bg-[#0077ed]"
             >
               Try the AR demo
-            </a>
-            <a href="#vr" className="text-[17px] font-medium text-[#0071e3] hover:underline">
+            </button>
+            <button
+              onClick={() => scrollToSection('vr')}
+              className="text-[17px] font-medium text-[#0071e3] hover:underline"
+            >
               Enter the VR world ›
-            </a>
+            </button>
           </motion.div>
         </motion.div>
 

@@ -511,13 +511,13 @@ export default function XRExplorerPage() {
           On a laptop, just drag to look around. On a phone, Cardboard mode splits the screen so it works in a cheap cardboard headset.
         </p>
 
-        {/* what real VR/spatial headsets look like */}
+        {/* what full VR headsets are really like */}
         <Reveal delay={0.1} className="mt-16">
           <Suspense fallback={<DemoFallback label="video" />}>
             <YouTubeEmbed
-              id="TX9qSaGXFyg"
-              title="Introducing Apple Vision Pro"
-              caption="Our demo is a tiny taste. Real headsets like Apple’s Vision Pro put you inside fully immersive worlds."
+              id="HBNH8tzsfVM"
+              title="What Is Virtual Reality & How Does It Work? | Mashable Explains"
+              caption="Our demo is just a small taste. This short explainer shows how full VR headsets put you inside a computer-generated world."
             />
           </Suspense>
         </Reveal>

@@ -1,1 +1,0 @@
-import{N as r}from"./vendor-react-CrJQXOon.js";function e({className:o="h-10 w-10"}){return r.jsx("img",{src:"/YooBees/brand-mark.svg",alt:"YooBees logo",className:o,loading:"eager",decoding:"async"})}export{e as B};

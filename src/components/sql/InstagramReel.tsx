@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { Play, Instagram, ExternalLink } from 'lucide-react';
+
+// ─── Lightweight Instagram-reel embed ───────────────────────────────────────
+// Mirrors the YouTubeEmbed lite-embed pattern used on the XR lesson: a poster
+// with a play button is shown first, and only when the student taps it do we
+// load Instagram's official embed iframe. The reel then plays *inline on this
+// page* — the iframe never navigates the student away to instagram.com.
 
 interface InstagramReelProps {
   /** The reel shortcode, e.g. "DUbBkrHD8Dy" from instagram.com/reel/DUbBkrHD8Dy/ */
@@ -8,66 +13,69 @@ interface InstagramReelProps {
   caption?: string;
 }
 
-/**
- * Lite Instagram reel embed: shows a fun gradient poster with a play button,
- * then loads the official Instagram embed iframe on click (saves bandwidth and
- * avoids loading Instagram's scripts until the student actually wants to watch).
- */
 export default function InstagramReel({ shortcode, title, caption }: InstagramReelProps) {
-  const [loaded, setLoaded] = useState(false);
-  const reelUrl = `https://www.instagram.com/reel/${shortcode}/`;
+  const [active, setActive] = useState(false);
 
   return (
-    <div className="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60 shadow-lg shadow-black/30 transition-transform hover:-translate-y-1">
-      <div className="relative aspect-[9/16] w-full bg-black">
-        {!loaded ? (
-          <button
-            onClick={() => setLoaded(true)}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-5 bg-gradient-to-br from-fuchsia-600/30 via-rose-500/20 to-amber-500/20"
-            aria-label={`Play reel: ${title}`}
-          >
-            {/* Instagram-style glow blobs */}
-            <div className="pointer-events-none absolute -top-10 -left-10 h-40 w-40 rounded-full bg-fuchsia-500/30 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-10 -right-10 h-40 w-40 rounded-full bg-amber-400/30 blur-3xl" />
-
-            <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 shadow-xl transition-transform group-hover:scale-110">
-              <Play className="h-9 w-9 translate-x-0.5 text-white" fill="white" />
-            </div>
-            <div className="relative z-10 px-6 text-center">
-              <div className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1 text-xs font-medium text-white/90 backdrop-blur">
-                <Instagram className="h-3.5 w-3.5" />
-                Reel
-              </div>
-              <p className="text-base font-semibold text-white drop-shadow">{title}</p>
-            </div>
-          </button>
-        ) : (
+    <figure className="mx-auto w-full max-w-[360px]">
+      <div className="relative aspect-[9/16] overflow-hidden rounded-[1.75rem] bg-black shadow-[0_18px_50px_-20px_rgba(0,0,0,0.35)] ring-1 ring-black/[0.06]">
+        {active ? (
           <iframe
-            src={`https://www.instagram.com/reel/${shortcode}/embed/`}
+            className="absolute inset-0 h-full w-full"
+            // /embed/captioned plays the reel inline within this iframe
+            src={`https://www.instagram.com/reel/${shortcode}/embed/captioned/`}
             title={title}
+            loading="lazy"
+            scrolling="no"
             allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
             allowFullScreen
-            scrolling="no"
-            className="absolute inset-0 h-full w-full"
           />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setActive(true)}
+            className="group absolute inset-0 h-full w-full"
+            aria-label={`Play reel: ${title}`}
+          >
+            {/* Instagram-style gradient poster */}
+            <span
+              className="absolute inset-0"
+              style={{
+                background:
+                  'linear-gradient(135deg, #feda75 0%, #fa7e1e 25%, #d62976 50%, #962fbf 75%, #4f5bd5 100%)',
+              }}
+            />
+            <span className="absolute inset-0 bg-black/15 transition group-hover:bg-black/5" />
+
+            {/* play glyph */}
+            <span className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 shadow-lg transition group-hover:scale-110">
+              <svg viewBox="0 0 24 24" className="ml-1 h-7 w-7 fill-[#d62976]" aria-hidden="true">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </span>
+
+            {/* reel chip */}
+            <span className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-black/30 px-3 py-1 text-[12px] font-medium text-white backdrop-blur">
+              <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-none stroke-white" strokeWidth="2" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5" />
+                <circle cx="12" cy="12" r="4" />
+                <circle cx="17.5" cy="6.5" r="1.2" fill="white" stroke="none" />
+              </svg>
+              Reel
+            </span>
+
+            {/* title overlay */}
+            <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 text-left">
+              <span className="block text-[15px] font-semibold leading-snug text-white drop-shadow">{title}</span>
+            </span>
+          </button>
         )}
       </div>
-
-      <div className="flex items-center justify-between gap-3 border-t border-white/10 px-4 py-3">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-white">{title}</p>
-          {caption && <p className="truncate text-xs text-slate-400">{caption}</p>}
-        </div>
-        <a
-          href={reelUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="shrink-0 text-slate-400 transition-colors hover:text-pink-400"
-          aria-label="Open on Instagram"
-        >
-          <ExternalLink className="h-4 w-4" />
-        </a>
-      </div>
-    </div>
+      {caption && (
+        <figcaption className="mx-auto mt-3 max-w-xs text-center text-[14px] leading-relaxed text-[#86868b]">
+          {caption}
+        </figcaption>
+      )}
+    </figure>
   );
 }

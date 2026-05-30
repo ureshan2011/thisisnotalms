@@ -58,6 +58,15 @@ const LESSONS = [
     from: '#962fbf',
     to2: '#ff375f',
   },
+  {
+    to: '/pre-class',
+    eyebrow: 'Before class',
+    title: 'The pre-class Idea Swarm',
+    body: 'A full-screen countdown for the minutes before class. Key course concepts drift like a galaxy, then swarm together to reveal the course code right as we begin. (Password protected.)',
+    emoji: '✨',
+    from: '#8b5cf6',
+    to2: '#0071e3',
+  },
 ];
 
 const stagger: Variants = {
@@ -230,7 +239,7 @@ export default function HomePage() {
             transition={{ duration: 0.7, ease: EASE }}
             className="mb-3 text-[15px] font-semibold tracking-tight text-[#0071e3]"
           >
-            Four ways in
+            Where to begin
           </motion.p>
           <motion.h2
             initial={{ opacity: 0, y: 24 }}

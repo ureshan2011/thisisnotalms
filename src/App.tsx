@@ -139,6 +139,7 @@ function ShutdownRoutes() {
       <Route path="/er-mapping" element={<Suspense fallback={<FullPageSpinner />}><ERMappingExplorerPage /></Suspense>} />
       <Route path="/er-to-relational" element={<Navigate to="/er-mapping" replace />} />
       <Route path="/sql-reels" element={<Suspense fallback={<FullPageSpinner />}><SQLReelsPage /></Suspense>} />
+      <Route path="/pre-class" element={<Suspense fallback={<FullPageSpinner />}><PreClassSwarmPage /></Suspense>} />
       {/* All other routes show the shutdown notice */}
       <Route path="*" element={<ShutdownPage />} />
     </Routes>

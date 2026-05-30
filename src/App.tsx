@@ -9,6 +9,7 @@ import ShutdownPage from './pages/ShutdownPage';
 import XRExplorerPage from './pages/XRExplorerPage';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
+const PreClassSwarmPage = lazy(() => import('./pages/PreClassSwarmPage'));
 const SQLReelsPage = lazy(() => import('./pages/SQLReelsPage'));
 const NormalizationExplorerPage = lazy(() => import('./pages/NormalizationExplorerPage'));
 const ERMappingExplorerPage = lazy(() => import('./pages/ERMappingExplorerPage'));
@@ -76,6 +77,7 @@ function AppRoutes() {
         <Route path="/er-mapping" element={<ERMappingExplorerPage />} />
         <Route path="/er-to-relational" element={<Navigate to="/er-mapping" replace />} />
         <Route path="/sql-reels"    element={<SQLReelsPage />} />
+        <Route path="/pre-class"    element={<PreClassSwarmPage />} />
         <Route path="/login"        element={<Login />} />
         <Route path="/register"     element={<Register />} />
         <Route path="/attend/:code" element={<QuickAttend />} />

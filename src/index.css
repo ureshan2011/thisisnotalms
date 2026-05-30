@@ -527,3 +527,25 @@ button, a {
   100% { transform: translateX(350%); }
 }
 .countdown-sweep { animation: countdownSweep 2.8s ease-in-out infinite; }
+
+/* ─── Pre-Class "Idea Swarm" ──────────────────────────────────── */
+@keyframes preclassShake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-9px); }
+  40%, 80% { transform: translateX(9px); }
+}
+.preclass-shake { animation: preclassShake 0.5s ease-in-out; }
+
+/* ─── Reduced motion: quiet decorative animations ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .countdown-sweep,
+  .collage-scroll-up,
+  .collage-scroll-down,
+  .auth-orb-1,
+  .auth-orb-2,
+  .auth-orb-3,
+  .pulse-ring,
+  .skeleton {
+    animation: none !important;
+  }
+}

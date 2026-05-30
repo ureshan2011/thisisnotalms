@@ -10,6 +10,7 @@ import XRExplorerPage from './pages/XRExplorerPage';
 
 const SQLReelsPage = lazy(() => import('./pages/SQLReelsPage'));
 const NormalizationExplorerPage = lazy(() => import('./pages/NormalizationExplorerPage'));
+const ERMappingExplorerPage = lazy(() => import('./pages/ERMappingExplorerPage'));
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const StudentSQLRace    = lazy(() => import('./pages/student/SQLRacePage'));
@@ -70,6 +71,8 @@ function AppRoutes() {
         <Route path="/xr-explorer"  element={<XRExplorerPage />} />
         <Route path="/normalisation" element={<NormalizationExplorerPage />} />
         <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />
+        <Route path="/er-mapping" element={<ERMappingExplorerPage />} />
+        <Route path="/er-to-relational" element={<Navigate to="/er-mapping" replace />} />
         <Route path="/sql-reels"    element={<SQLReelsPage />} />
         <Route path="/login"        element={<Login />} />
         <Route path="/register"     element={<Register />} />
@@ -128,6 +131,8 @@ function ShutdownRoutes() {
       <Route path="/xr-explorer" element={<XRExplorerPage />} />
       <Route path="/normalisation" element={<Suspense fallback={<FullPageSpinner />}><NormalizationExplorerPage /></Suspense>} />
       <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />
+      <Route path="/er-mapping" element={<Suspense fallback={<FullPageSpinner />}><ERMappingExplorerPage /></Suspense>} />
+      <Route path="/er-to-relational" element={<Navigate to="/er-mapping" replace />} />
       <Route path="/sql-reels" element={<Suspense fallback={<FullPageSpinner />}><SQLReelsPage /></Suspense>} />
       {/* All other routes show the shutdown notice */}
       <Route path="*" element={<ShutdownPage />} />

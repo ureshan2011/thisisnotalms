@@ -513,10 +513,10 @@ export default function SQLReelsPage() {
             transition={{ duration: 0.9, ease: EASE, delay: 0.05 }}
             className="text-[44px] font-semibold leading-[1.04] tracking-[-0.02em] sm:text-[72px] lg:text-[88px]"
           >
-            UPDATE &amp; DELETE,
+            Let’s make sense of
             <br />
             <span className="bg-gradient-to-r from-[#0071e3] via-[#962fbf] to-[#ff375f] bg-clip-text text-transparent">
-              without the tears.
+              UPDATE &amp; DELETE.
             </span>
           </motion.h1>
           <motion.p

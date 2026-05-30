@@ -8,6 +8,7 @@ import { PLATFORM_ACTIVE } from './config/platform';
 import ShutdownPage from './pages/ShutdownPage';
 import XRExplorerPage from './pages/XRExplorerPage';
 
+const HomePage = lazy(() => import('./pages/HomePage'));
 const SQLReelsPage = lazy(() => import('./pages/SQLReelsPage'));
 const NormalizationExplorerPage = lazy(() => import('./pages/NormalizationExplorerPage'));
 const ERMappingExplorerPage = lazy(() => import('./pages/ERMappingExplorerPage'));
@@ -58,7 +59,7 @@ const VideoLessonManager   = lazy(() => import('./pages/lecturer/VideoLessonMana
 function RootRedirect() {
   const { user, role, loading } = useAuth();
   if (loading) return <FullPageSpinner />;
-  if (!user)   return <XRExplorerPage />;
+  if (!user)   return <HomePage />;
   if (role === 'lecturer' || role === 'teachingAssistant') return <Navigate to="/lecturer/dashboard" replace />;
   return <Navigate to="/student/dashboard" replace />;
 }
@@ -68,6 +69,7 @@ function AppRoutes() {
     <Suspense fallback={<FullPageSpinner />}>
       <Routes>
         <Route path="/"             element={<RootRedirect />} />
+        <Route path="/home"         element={<HomePage />} />
         <Route path="/xr-explorer"  element={<XRExplorerPage />} />
         <Route path="/normalisation" element={<NormalizationExplorerPage />} />
         <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />
@@ -126,8 +128,9 @@ function AppRoutes() {
 function ShutdownRoutes() {
   return (
     <Routes>
-      {/* XR Explorer is the public entry point */}
-      <Route path="/" element={<XRExplorerPage />} />
+      {/* Home is the public entry point */}
+      <Route path="/" element={<Suspense fallback={<FullPageSpinner />}><HomePage /></Suspense>} />
+      <Route path="/home" element={<Suspense fallback={<FullPageSpinner />}><HomePage /></Suspense>} />
       <Route path="/xr-explorer" element={<XRExplorerPage />} />
       <Route path="/normalisation" element={<Suspense fallback={<FullPageSpinner />}><NormalizationExplorerPage /></Suspense>} />
       <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />

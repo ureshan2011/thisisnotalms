@@ -1260,9 +1260,9 @@ export default function ERMappingExplorerPage() {
             transition={{ duration: 0.9, ease: EASE, delay: 0.05 }}
             className="text-[44px] font-semibold leading-[1.04] tracking-[-0.02em] sm:text-[72px] lg:text-[88px]"
           >
-            From ER diagrams to
+            Let’s make sense of
             <br />
-            <span className="bg-gradient-to-r from-[#0071e3] via-[#5e5ce6] to-[#bf5af2] bg-clip-text text-transparent">relational tables.</span>
+            <span className="bg-gradient-to-r from-[#0071e3] via-[#5e5ce6] to-[#bf5af2] bg-clip-text text-transparent">ER → relational mapping.</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 24 }}

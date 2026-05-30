@@ -10,8 +10,8 @@ export type SwarmPhase = 'drift' | 'gather' | 'burst' | 'hold' | 'restart';
 
 interface SwarmCanvasProps {
   words: string[];
-  accent: string;        // e.g. '#8b5cf6'
-  accentLight: string;   // e.g. '#c4b5fd'
+  palette: string[];     // contrasting word colors, cycled across the words
+  accent: string;        // used for the burst flash tint
   targetText: string;    // the course code to assemble, e.g. 'MBI802'
   phase: SwarmPhase;
   gatherProgress: number; // 0..1 within the final gather window
@@ -38,6 +38,8 @@ interface Sprite {
 
 const MAX_PARTICLES = 240;
 const DRIFT_SPEED = 14; // px/s baseline drift
+const APPLE_FONT =
+  '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", system-ui, sans-serif';
 
 function shuffle<T>(arr: T[]): T[] {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -52,7 +54,7 @@ function easeInOutCubic(g: number): number {
 }
 
 export default function SwarmCanvas({
-  words, accent, accentLight, targetText, phase, gatherProgress, reducedMotion,
+  words, palette, accent, targetText, phase, gatherProgress, reducedMotion,
 }: SwarmCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -67,12 +69,12 @@ export default function SwarmCanvas({
 
   // Refs that the loop closure depends on but that change on prop updates.
   const wordsRef = useRef(words);
+  const paletteRef = useRef(palette);
   const accentRef = useRef(accent);
-  const accentLightRef = useRef(accentLight);
   const targetTextRef = useRef(targetText);
   wordsRef.current = words;
+  paletteRef.current = palette;
   accentRef.current = accent;
-  accentLightRef.current = accentLight;
   targetTextRef.current = targetText;
 
   // Mutable engine state.
@@ -83,24 +85,27 @@ export default function SwarmCanvas({
   const burstStartRef = useRef(0);
   const rafRef = useRef(0);
 
-  // Re-render sprites when the words or accent change.
+  // Re-render sprites when the words or palette change.
   useEffect(() => {
     buildSprites();
     // keep particle wordIndex within bounds after a word-list swap
     const n = wordsRef.current.length;
     particlesRef.current.forEach((p, i) => { p.wordIndex = i % Math.max(1, n); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [words, accent, accentLight]);
+  }, [words, palette]);
 
   function buildSprites() {
     const { dpr } = sizeRef.current;
     const ratio = dpr || 1;
-    const fontPx = 22; // logical font size for drifting words
-    const sprites: Sprite[] = wordsRef.current.map((word) => {
+    const fontPx = 23; // logical font size for drifting words
+    const pal = paletteRef.current.length ? paletteRef.current : ['#ffffff'];
+    const fontStack = `600 ${fontPx}px ${APPLE_FONT}`;
+    const sprites: Sprite[] = wordsRef.current.map((word, i) => {
+      const color = pal[i % pal.length];
       const measure = document.createElement('canvas').getContext('2d')!;
-      measure.font = `600 ${fontPx}px Inter, system-ui, sans-serif`;
+      measure.font = fontStack;
       const textW = measure.measureText(word).width;
-      const padX = 16, padY = 12;
+      const padX = 22, padY = 16;
       const logicalW = Math.ceil(textW + padX * 2);
       const logicalH = Math.ceil(fontPx + padY * 2);
 
@@ -109,19 +114,25 @@ export default function SwarmCanvas({
       c.height = Math.ceil(logicalH * ratio);
       const ctx = c.getContext('2d')!;
       ctx.scale(ratio, ratio);
-      ctx.font = `600 ${fontPx}px Inter, system-ui, sans-serif`;
+      ctx.font = fontStack;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      // baked glow
-      ctx.shadowColor = accentRef.current;
+      const cx = logicalW / 2, cy = logicalH / 2;
+      // 1) soft colored glow so words read against video / gradient
+      ctx.shadowColor = color;
       ctx.shadowBlur = 14;
-      ctx.fillStyle = accentLightRef.current;
-      ctx.fillText(word, logicalW / 2, logicalH / 2);
-      // crisp core pass
+      ctx.fillStyle = color;
+      ctx.fillText(word, cx, cy);
+      // 2) dark outline keeps contrast over bright background frames
+      ctx.shadowColor = 'rgba(0,0,0,0.55)';
+      ctx.shadowBlur = 4;
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(0,0,0,0.40)';
+      ctx.strokeText(word, cx, cy);
+      // 3) crisp colored fill on top
       ctx.shadowBlur = 0;
-      ctx.fillStyle = '#ffffff';
-      ctx.globalAlpha = 0.55;
-      ctx.fillText(word, logicalW / 2, logicalH / 2);
+      ctx.fillStyle = color;
+      ctx.fillText(word, cx, cy);
 
       return { canvas: c, w: logicalW, h: logicalH };
     });
@@ -164,7 +175,7 @@ export default function SwarmCanvas({
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const fit = () => {
-      ctx.font = `900 ${fontPx}px Inter, system-ui, sans-serif`;
+      ctx.font = `800 ${fontPx}px ${APPLE_FONT}`;
       return ctx.measureText(targetTextRef.current).width;
     };
     while (fit() > w * 0.82 && fontPx > 24) fontPx -= 4;

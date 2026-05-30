@@ -8,6 +8,8 @@ import { PLATFORM_ACTIVE } from './config/platform';
 import ShutdownPage from './pages/ShutdownPage';
 import XRExplorerPage from './pages/XRExplorerPage';
 
+const SQLReelsPage = lazy(() => import('./pages/SQLReelsPage'));
+
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const StudentSQLRace    = lazy(() => import('./pages/student/SQLRacePage'));
 const LecturerSQLRace   = lazy(() => import('./pages/lecturer/SQLRacePage'));
@@ -65,6 +67,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/"             element={<RootRedirect />} />
         <Route path="/xr-explorer"  element={<XRExplorerPage />} />
+        <Route path="/sql-reels"    element={<SQLReelsPage />} />
         <Route path="/login"        element={<Login />} />
         <Route path="/register"     element={<Register />} />
         <Route path="/attend/:code" element={<QuickAttend />} />
@@ -120,6 +123,7 @@ function ShutdownRoutes() {
       {/* XR Explorer is the public entry point */}
       <Route path="/" element={<XRExplorerPage />} />
       <Route path="/xr-explorer" element={<XRExplorerPage />} />
+      <Route path="/sql-reels" element={<Suspense fallback={<FullPageSpinner />}><SQLReelsPage /></Suspense>} />
       {/* All other routes show the shutdown notice */}
       <Route path="*" element={<ShutdownPage />} />
     </Routes>

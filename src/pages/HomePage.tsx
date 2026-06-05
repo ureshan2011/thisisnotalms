@@ -23,9 +23,18 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 // Each independent lesson page, in the order they appear on the launchpad.
 const LESSONS = [
   {
+    to: '/five-stories',
+    eyebrow: 'Strategic Information Systems',
+    title: 'Five Stories That Changed Everything',
+    body: 'Airbnb, Netflix, Xero, Canva, Alibaba — how each started from a single frustration and built a platform that rewired its industry. IS architecture, growth data, videos, and discussion questions included.',
+    emoji: '🌐',
+    from: '#c9a84c',
+    to2: '#FF5A5F',
+  },
+  {
     to: '/xr-explorer',
     eyebrow: 'Extended Reality',
-    title: 'Let’s make sense of Extended Reality',
+    title: "Let's make sense of Extended Reality",
     body: 'A friendly walk through AR, VR and Mixed Reality — with two demos you can try right in the browser. No headset needed.',
     emoji: '🥽',
     from: '#0071e3',
@@ -34,7 +43,7 @@ const LESSONS = [
   {
     to: '/normalisation',
     eyebrow: 'Database design',
-    title: 'Let’s make sense of Database Normalisation',
+    title: "Let's make sense of Database Normalisation",
     body: 'From messy tables to clean ones. Spot the anomalies, then split a table step by step from 1NF all the way to 3NF.',
     emoji: '🧩',
     from: '#5e5ce6',
@@ -43,7 +52,7 @@ const LESSONS = [
   {
     to: '/er-mapping',
     eyebrow: 'Data modelling',
-    title: 'Let’s make sense of ER → relational mapping',
+    title: "Let's make sense of ER → relational mapping",
     body: 'Turn entity-relationship diagrams into real relational tables — entities, relationships, keys and all the tricky cases in between.',
     emoji: '🗺️',
     from: '#30d158',
@@ -52,7 +61,7 @@ const LESSONS = [
   {
     to: '/sql-reels',
     eyebrow: 'SQL in practice',
-    title: 'Let’s make sense of UPDATE & DELETE',
+    title: "Let's make sense of UPDATE & DELETE",
     body: 'Change and remove rows with confidence. Short, scrollable reels that show how to edit data without breaking everything.',
     emoji: '⚡️',
     from: '#962fbf',

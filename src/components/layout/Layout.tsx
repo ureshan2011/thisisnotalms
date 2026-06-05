@@ -6,7 +6,7 @@ import {
   User, History, Menu, X, ChevronRight, BookOpen, Radio, Bell, Star, BarChart2, Film, Trophy, MonitorPlay, Box, Swords, GraduationCap, Award, Heart, Crown, Clock, Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
-import BrandMark from '../ui/BrandMark';
+import BrandLogo from '../ui/BrandLogo';
 import PhotoUploadModal, { avatarGradient } from '../ui/PhotoUploadModal';
 import EmploymentSurveyModal from '../survey/EmploymentSurveyModal';
 import { db } from '../../lib/firebase';
@@ -105,17 +105,8 @@ function SidebarContent({
 
       {/* Logo */}
       <div className="flex items-center justify-between px-5 pt-6 pb-4 relative z-10">
-        <Link to="/" className="flex items-center gap-3 group">
-          <div className="relative">
-            <div className="absolute inset-0 bg-brand-400/30 rounded-2xl blur-md group-hover:blur-lg transition-all duration-300" />
-            <div className="relative bg-gradient-to-br from-brand-500 to-brand-700 rounded-2xl p-2 shadow-lg">
-              <BrandMark className="h-6 w-6 text-white" />
-            </div>
-          </div>
-          <div>
-            <span className="text-gray-800 font-bold text-base tracking-tight leading-none block">YooBees</span>
-            <span className="text-brand-500 text-[10px] font-semibold uppercase tracking-widest">Hive</span>
-          </div>
+        <Link to="/" className="no-underline">
+          <BrandLogo iconSize={28} variant="on-light" />
         </Link>
         {onClose && (
           <button
@@ -420,11 +411,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           >
             <Menu size={20} />
           </button>
-          <div className="flex items-center gap-2.5 flex-1">
-            <div className="bg-gradient-to-br from-brand-500 to-brand-700 rounded-xl p-1.5 shadow">
-              <BrandMark className="h-4 w-4 text-white" />
-            </div>
-            <span className="font-bold text-gray-800 tracking-tight">YooBees</span>
+          <div className="flex items-center flex-1">
+            <BrandLogo iconSize={24} variant="on-light" />
           </div>
           {/* Mobile photo avatar */}
           {role === 'student' && (

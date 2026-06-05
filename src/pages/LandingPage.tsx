@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import BrandMark from '../components/ui/BrandMark';
+import BrandLogo from '../components/ui/BrandLogo';
 import { ContainerScroll } from '../components/ui/container-scroll-animation';
 
 // ─── Scroll-reveal hook ──────────────────────────────────────────────────────
@@ -577,7 +577,7 @@ export default function LandingPage() {
   const storySteps = [
     { label: 'Opening Code', time: '9:00', title: '9:00 — Opening code launches.', body: "The lecturer clicks one button. A six-character code appears on screen — no confusing letters like O or 0. Students have four minutes to type it in or scan the QR code. Simple, quick, and hard to share with someone at home.", screen: <AttendanceScreen key="attendance" /> },
     { label: 'Live Playground', time: '9:15', title: '9:15 — Live playground opens.', body: "The lecturer draws something on screen — and every student's device shows it instantly. A quick poll goes up, and you can watch the votes come in live. The whole class is connected in real time, no matter where you're sitting.", screen: <PlaygroundScreen key="playground" /> },
-    { label: 'Fraud Detected', time: '10:30', title: '10:30 — Suspicious activity flagged.', body: "Two codes came in 11 seconds apart from the same Wi-Fi connection. One student's location shows they're over a kilometre from campus. YooBees noticed all of this automatically — before the lecturer even opened the results.", screen: <FraudScreen key="fraud" /> },
+    { label: 'Fraud Detected', time: '10:30', title: '10:30 — Suspicious activity flagged.', body: "Two codes came in 11 seconds apart from the same Wi-Fi connection. One student's location shows they're over a kilometre from campus. The platform noticed all of this automatically — before the lecturer even opened the results.", screen: <FraudScreen key="fraud" /> },
     { label: 'Daily Match', time: '11:00', title: '11:00 — Daily Match queued.', body: "Every day, the platform finds three classmates you should probably know. It shows you why — maybe you're from the same country, or worked in the same industry. The reasons are right there on screen, alongside a compatibility score.", screen: <MatchScreen key="match" /> },
     { label: 'Dashboard', time: '11:05', title: '11:05 — Dashboard overview.', body: "The lecturer opens the dashboard and sees everything — 228 students, 3 courses, 24 countries. Who came to class, who finished the quiz, who hasn't logged in this week. One screen. No spreadsheets.", screen: <DashboardMockup key="dashboard" /> },
   ];
@@ -698,9 +698,8 @@ export default function LandingPage() {
 
       {/* ── Navigation ──────────────────────────────────────────────────── */}
       <nav className="lp-nav" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 32px', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)', background: scrolled ? 'rgba(6,4,26,.95)' : 'rgba(0,0,0,.18)', borderBottom: scrolled ? '1px solid rgba(139,92,246,.2)' : '1px solid rgba(255,255,255,.08)', transition: 'all .3s ease' }}>
-        <a href="#top" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', color: 'inherit' }}>
-          <BrandMark className="h-7 w-7" />
-          <span style={{ fontWeight: 800, fontSize: 19, letterSpacing: '-0.02em', background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>YooBees</span>
+        <a href="#top" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <BrandLogo iconSize={28} variant="on-dark" />
         </a>
         <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
           {user ? (
@@ -747,7 +746,7 @@ export default function LandingPage() {
             </h1>
             {/* Subtext */}
             <p style={{ fontSize: 16, color: 'rgba(255,255,255,.68)', lineHeight: 1.65, maxWidth: '50ch', margin: '0 0 32px' }}>
-              YooBees started as a simple idea — what if every part of your class happened in one place? Attendance, live lessons, study tools. Built specifically for <strong style={{ color: '#c4b5fd' }}>Masters of Business Informatics</strong> at Yoobee Colleges.
+              This platform started as a simple idea — what if every part of your class happened in one place? Attendance, live lessons, study tools. Built specifically for <strong style={{ color: '#c4b5fd' }}>Masters of Business Informatics</strong> at Yoobee Colleges.
             </p>
             {/* CTA buttons */}
             <div className="liquid-glass" style={{ borderRadius: 99, padding: '6px 8px', display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 36, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -844,7 +843,7 @@ export default function LandingPage() {
                 icon: '🛡',
                 problem: 'Sign-in sheets are easy to cheat.',
                 detail: "Imagine someone screenshots the attendance code and sends it to their friend who's still at home. Or signs their mate's name on the sheet. The lecturer only finds out weeks later — if at all.",
-                solution: "YooBees spots the patterns automatically. Two submissions from the same Wi-Fi? Flagged. Someone submitting from over a kilometre away? Flagged. All of it, before the class even ends.",
+                solution: "The platform spots the patterns automatically. Two submissions from the same Wi-Fi? Flagged. Someone submitting from over a kilometre away? Flagged. All of it, before the class even ends.",
                 accent: '#7c3aed',
                 accentBg: 'rgba(124,58,237,.1)',
                 accentBorder: 'rgba(124,58,237,.25)',
@@ -855,7 +854,7 @@ export default function LandingPage() {
                 icon: '⇄',
                 problem: 'Lectures feel one-directional.',
                 detail: "The back row can't read the whiteboard. Nobody answers when the lecturer asks 'any questions?' The class feels one-way — the teacher talks, the students listen, and nothing really connects.",
-                solution: "YooBees gives the lecturer a shared canvas that every student sees live on their device. Quick polls, real-time checklists. The back row sees exactly what the front row sees.",
+                solution: "The platform gives the lecturer a shared canvas that every student sees live on their device. Quick polls, real-time checklists. The back row sees exactly what the front row sees.",
                 accent: '#0891b2',
                 accentBg: 'rgba(8,145,178,.1)',
                 accentBorder: 'rgba(8,145,178,.25)',
@@ -866,7 +865,7 @@ export default function LandingPage() {
                 icon: '◎',
                 problem: "Cohorts don't know each other.",
                 detail: "Two students sit next to each other every week and never realise they're from the same city, or worked in the same industry for a decade. That's a missed connection — and it happens all the time.",
-                solution: "On day one, YooBees looks at each student's background — their industry, country, and education — and suggests three people they should meet. Like a matching app, for your classmates.",
+                solution: "On day one, the platform looks at each student's background — their industry, country, and education — and suggests three people they should meet. Like a matching app, for your classmates.",
                 accent: '#059669',
                 accentBg: 'rgba(5,150,105,.1)',
                 accentBorder: 'rgba(5,150,105,.25)',
@@ -1139,7 +1138,7 @@ export default function LandingPage() {
                 <span style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#a78bfa' }}>05 — Built right</span>
               </div>
               <h3 style={{ fontSize: 'clamp(28px,4vw,50px)', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.05, marginBottom: 18, color: D.txt1 }}>Production-grade architecture, zero servers to maintain.</h3>
-              <p style={{ color: D.txt2, fontSize: 16, lineHeight: 1.65, marginBottom: 14 }}>YooBees runs on Firebase — which means real-time updates, user logins, and file storage all work instantly, with no server to manage. Between classes the cost is nearly zero. During class it handles hundreds of students without slowing down.</p>
+              <p style={{ color: D.txt2, fontSize: 16, lineHeight: 1.65, marginBottom: 14 }}>The platform runs on Firebase — which means real-time updates, user logins, and file storage all work instantly, with no server to manage. Between classes the cost is nearly zero. During class it handles hundreds of students without slowing down.</p>
               <p style={{ color: D.txt2, fontSize: 16, lineHeight: 1.65 }}>Every page loads only when you need it, so the app stays fast. And the database has its own security rules — so even if someone tried to bypass the interface, they still could not access data they are not supposed to see.</p>
             </div>
           </div>
@@ -1180,9 +1179,8 @@ export default function LandingPage() {
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <div className="lp-footer-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 40, marginBottom: 40 }}>
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                <BrandMark className="h-8 w-8" />
-                <span style={{ fontFamily: 'serif', fontSize: 26, letterSpacing: '-0.02em', background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>YooBees</span>
+              <div style={{ marginBottom: 12 }}>
+                <BrandLogo iconSize={32} variant="on-dark" />
               </div>
               <p style={{ color: D.txt2, fontSize: 14, maxWidth: '34ch', lineHeight: 1.55 }}>A teaching platform built for postgraduate students at Yoobee Colleges, New Zealand.</p>
             </div>
@@ -1198,7 +1196,7 @@ export default function LandingPage() {
             </div>
             <div>
               <div style={{ fontFamily: 'monospace', fontSize: 10, color: D.txt3, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14 }}>Built by</div>
-              <div style={{ fontSize: 14, color: D.txt2, lineHeight: 1.7 }}>Dr Yasas Sri Wickramasinghe<br />HIT Lab NZ<br />Yoobee Colleges</div>
+              <div style={{ fontSize: 14, color: D.txt2, lineHeight: 1.7 }}>HIT Lab NZ<br />Yoobee Colleges</div>
             </div>
           </div>
           <div className="lp-footer-bottom" style={{ borderTop: `1px solid ${D.border}`, paddingTop: 22, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: 'monospace', fontSize: 10, color: D.txt3, letterSpacing: '0.1em', textTransform: 'uppercase' }}>

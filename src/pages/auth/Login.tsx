@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, LogIn, Sparkles, Mail, KeyRound, ChevronDown } from 'lucide-react';
-import BrandMark from '../../components/ui/BrandMark';
+import BrandLogo from '../../components/ui/BrandLogo';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/ui/ToastProvider';
 import { QUOTE_ITEMS, FADE_MS, HOLD_MS } from '../../lib/quotes';
@@ -129,19 +129,8 @@ function MobileQuoteBanner({ item, visible, index }: {
       <div style={{ position: 'absolute', bottom: '-30%', left: '-8%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 65%)', pointerEvents: 'none' }} />
 
       {/* Brand row */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1.25rem', position: 'relative', zIndex: 1 }}>
-        <div style={{
-          width: 32, height: 32, borderRadius: 10,
-          background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(6px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          border: '1px solid rgba(255,255,255,0.2)', flexShrink: 0,
-        }}>
-          <BrandMark className="h-4 w-4 text-white" />
-        </div>
-        <div>
-          <div style={{ fontSize: '1rem', fontWeight: 800, color: 'white', letterSpacing: '-0.01em' }}>YooBees</div>
-          <div style={{ fontSize: '0.6rem', color: 'rgba(255,255,255,0.5)', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Student Platform</div>
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1.25rem', position: 'relative', zIndex: 1 }}>
+        <BrandLogo iconSize={24} variant="on-dark" />
         <div style={{ marginLeft: 'auto' }}>
           <span style={{
             fontSize: '0.6rem', fontWeight: 800, letterSpacing: '0.08em',
@@ -183,20 +172,7 @@ function DesktopQuotePanel({ item, visible, index }: {
 
       {/* Top: Brand */}
       <div style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: 12,
-            background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: '1px solid rgba(255,255,255,0.2)',
-          }}>
-            <BrandMark className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'white', letterSpacing: '-0.01em' }}>YooBees</div>
-            <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.5)', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Student Platform</div>
-          </div>
-        </div>
+        <BrandLogo iconSize={28} variant="on-dark" />
       </div>
 
       {/* Middle: Quote — takes the remaining height */}

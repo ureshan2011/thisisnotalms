@@ -13,6 +13,7 @@ const PreClassSwarmPage = lazy(() => import('./pages/PreClassSwarmPage'));
 const SQLReelsPage = lazy(() => import('./pages/SQLReelsPage'));
 const NormalizationExplorerPage = lazy(() => import('./pages/NormalizationExplorerPage'));
 const ERMappingExplorerPage = lazy(() => import('./pages/ERMappingExplorerPage'));
+const FiveStoriesPage = lazy(() => import('./pages/FiveStoriesPage'));
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const StudentSQLRace    = lazy(() => import('./pages/student/SQLRacePage'));
@@ -78,6 +79,7 @@ function AppRoutes() {
         <Route path="/er-to-relational" element={<Navigate to="/er-mapping" replace />} />
         <Route path="/sql-reels"    element={<SQLReelsPage />} />
         <Route path="/pre-class"    element={<PreClassSwarmPage />} />
+        <Route path="/five-stories" element={<FiveStoriesPage />} />
         <Route path="/login"        element={<Login />} />
         <Route path="/register"     element={<Register />} />
         <Route path="/attend/:code" element={<QuickAttend />} />
@@ -140,6 +142,7 @@ function ShutdownRoutes() {
       <Route path="/er-to-relational" element={<Navigate to="/er-mapping" replace />} />
       <Route path="/sql-reels" element={<Suspense fallback={<FullPageSpinner />}><SQLReelsPage /></Suspense>} />
       <Route path="/pre-class" element={<Suspense fallback={<FullPageSpinner />}><PreClassSwarmPage /></Suspense>} />
+      <Route path="/five-stories" element={<Suspense fallback={<FullPageSpinner />}><FiveStoriesPage /></Suspense>} />
       {/* All other routes show the shutdown notice */}
       <Route path="*" element={<ShutdownPage />} />
     </Routes>

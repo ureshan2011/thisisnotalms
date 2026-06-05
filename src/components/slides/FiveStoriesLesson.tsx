@@ -398,8 +398,8 @@ const STORIES: Story[] = [
     color: '#FF6A00',
     colorDim: 'rgba(255,106,0,0.10)',
     gradient: 'linear-gradient(135deg, #FF8C2A 0%, #FF6A00 100%)',
-    videoId: '_C6ESSP-qQo',
-    videoTitle: 'Crocodile in the Yangtze: The Full Story of Jack Ma & Alibaba',
+    videoId: 'SWVERy9bQZs',
+    videoTitle: 'The Full Story of Jack Ma & Alibaba',
 
     hook: 'A former English teacher in a cramped Hangzhou apartment, telling seventeen friends that one day Chinese companies would sell to the entire world.',
 

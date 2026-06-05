@@ -21,7 +21,26 @@ const APPLE_FONT =
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 // Each independent lesson page, in the order they appear on the launchpad.
-const LESSONS = [
+// Use `href` for static HTML lessons (external link); use `to` for React-router pages.
+const LESSONS: {
+  to?: string;
+  href?: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  emoji: string;
+  from: string;
+  to2: string;
+}[] = [
+  {
+    href: '/lesson-plans/mbi804-cost-management.html',
+    eyebrow: 'MBI804 · Project Management',
+    title: 'Project Cost Management',
+    body: 'Plan, estimate, budget — and avoid the traps that sink 75% of IT projects. 7 interactive sections built around the SecurePay NZ scenario: PERT calculator, budget builder, live S-curve, and a final challenge.',
+    emoji: '💰',
+    from: '#1e3a5f',
+    to2: '#2a9d8f',
+  },
   {
     to: '/five-stories',
     eyebrow: 'Strategic Information Systems',
@@ -265,47 +284,57 @@ export default function HomePage() {
           viewport={{ once: true, margin: '-60px' }}
           className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-2"
         >
-          {LESSONS.map((l) => (
-            <motion.div key={l.to} variants={card}>
-              <Link to={l.to} className="group block h-full">
-                <motion.div
-                  whileHover={{ y: -6 }}
-                  transition={{ duration: 0.4, ease: EASE }}
-                  className="relative h-full overflow-hidden rounded-[28px] border border-black/[0.07] bg-[#fafafa] p-8 transition group-hover:shadow-[0_24px_60px_-24px_rgba(0,0,0,0.22)]"
+          {LESSONS.map((l) => {
+            const key = l.to ?? l.href ?? l.title;
+            const inner = (
+              <motion.div
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.4, ease: EASE }}
+                className="relative h-full overflow-hidden rounded-[28px] border border-black/[0.07] bg-[#fafafa] p-8 transition group-hover:shadow-[0_24px_60px_-24px_rgba(0,0,0,0.22)]"
+              >
+                {/* colour wash that warms up on hover */}
+                <div
+                  className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
+                  style={{ background: `radial-gradient(circle, ${l.from}33, transparent 70%)` }}
+                />
+                <div
+                  className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl text-3xl"
+                  style={{ background: `linear-gradient(135deg, ${l.from}1f, ${l.to2}1f)` }}
                 >
-                  {/* colour wash that warms up on hover */}
-                  <div
-                    className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
-                    style={{ background: `radial-gradient(circle, ${l.from}33, transparent 70%)` }}
-                  />
-                  <div
-                    className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl text-3xl"
-                    style={{
-                      background: `linear-gradient(135deg, ${l.from}1f, ${l.to2}1f)`,
-                    }}
-                  >
-                    {l.emoji}
-                  </div>
-                  <p
-                    className="mb-2 text-[13px] font-semibold uppercase tracking-[0.14em]"
-                    style={{ color: l.from }}
-                  >
-                    {l.eyebrow}
-                  </p>
-                  <h3 className="text-[24px] font-semibold leading-[1.12] tracking-tight text-[#1d1d1f] sm:text-[26px]">
-                    {l.title}
-                  </h3>
-                  <p className="mt-3 text-[16px] leading-relaxed text-[#6e6e73]">{l.body}</p>
-                  <span className="mt-6 inline-flex items-center gap-1 text-[16px] font-medium text-[#0071e3]">
-                    Start lesson
-                    <span className="transition-transform duration-300 group-hover:translate-x-1">
-                      ›
-                    </span>
+                  {l.emoji}
+                </div>
+                <p
+                  className="mb-2 text-[13px] font-semibold uppercase tracking-[0.14em]"
+                  style={{ color: l.from }}
+                >
+                  {l.eyebrow}
+                </p>
+                <h3 className="text-[24px] font-semibold leading-[1.12] tracking-tight text-[#1d1d1f] sm:text-[26px]">
+                  {l.title}
+                </h3>
+                <p className="mt-3 text-[16px] leading-relaxed text-[#6e6e73]">{l.body}</p>
+                <span className="mt-6 inline-flex items-center gap-1 text-[16px] font-medium text-[#0071e3]">
+                  Start lesson
+                  <span className="transition-transform duration-300 group-hover:translate-x-1">
+                    ›
                   </span>
-                </motion.div>
-              </Link>
-            </motion.div>
-          ))}
+                </span>
+              </motion.div>
+            );
+            return (
+              <motion.div key={key} variants={card}>
+                {l.href ? (
+                  <a href={l.href} className="group block h-full" target="_self" rel="noopener">
+                    {inner}
+                  </a>
+                ) : (
+                  <Link to={l.to!} className="group block h-full">
+                    {inner}
+                  </Link>
+                )}
+              </motion.div>
+            );
+          })}
         </motion.div>
       </section>
 

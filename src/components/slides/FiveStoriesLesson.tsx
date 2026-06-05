@@ -34,6 +34,8 @@ interface Story {
   gradient: string;
   videoId: string;
   videoTitle: string;
+  videoId2?: string;
+  videoTitle2?: string;
   hook: string;
   problemParagraphs: string[];
   struggle: StoryStruggle[];
@@ -315,6 +317,8 @@ const STORIES: Story[] = [
     gradient: 'linear-gradient(135deg, #00C4CC 0%, #7D2AE8 100%)',
     videoId: 'AF0hCZwpAtg',
     videoTitle: 'How Melanie Perkins Turned Canva From a College Project Into a $42 Billion Company',
+    videoId2: 'GUjt0iRJ3eo',
+    videoTitle2: 'Canva Founder Story — Additional Context',
 
     hook: 'A nineteen-year-old in Perth, watching classmates spend a whole semester learning design software, thinking: this should not be that hard for anyone.',
 
@@ -398,8 +402,8 @@ const STORIES: Story[] = [
     color: '#FF6A00',
     colorDim: 'rgba(255,106,0,0.10)',
     gradient: 'linear-gradient(135deg, #FF8C2A 0%, #FF6A00 100%)',
-    videoId: '_C6ESSP-qQo',
-    videoTitle: 'Crocodile in the Yangtze: The Full Story of Jack Ma & Alibaba',
+    videoId: 'SWVERy9bQZs',
+    videoTitle: 'The Full Story of Jack Ma & Alibaba',
 
     hook: 'A former English teacher in a cramped Hangzhou apartment, telling seventeen friends that one day Chinese companies would sell to the entire world.',
 
@@ -687,6 +691,11 @@ function StoryChapter({ story, index }: { story: Story; index: number }) {
                         Watch a documentary about {story.name}'s founding story for additional context.
                       </p>
                       <VideoEmbed videoId={story.videoId} title={story.videoTitle} color={story.color} />
+                      {story.videoId2 && story.videoTitle2 && (
+                        <div style={{ marginTop: 20 }}>
+                          <VideoEmbed videoId={story.videoId2} title={story.videoTitle2} color={story.color} />
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1030,6 +1039,89 @@ export default function FiveStoriesLesson() {
                 Your turn.
               </p>
             </div>
+          </div>
+        </div>
+      </Reveal>
+
+      {/* ── Crazy Ones Closing ── */}
+      <Reveal>
+        <div style={{ borderRadius: 20, background: 'linear-gradient(135deg, #08080d 0%, #14141e 100%)', padding: 'clamp(28px, 5vw, 48px)', marginTop: 12, position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: '30%', left: '50%', transform: 'translate(-50%,-50%)', width: '70%', height: '60%', borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(201,168,76,0.1), transparent 70%)', pointerEvents: 'none' }} />
+
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <p style={{ margin: '0 0 10px', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.34em', textTransform: 'uppercase', color: '#c9a84c' }}>The Closing Scene</p>
+            <h2 style={{ margin: '0 0 28px', fontSize: 'clamp(1.5rem, 4vw, 2.4rem)', fontWeight: 900, color: '#f4f1ea', lineHeight: 1.1, letterSpacing: '-0.01em', fontFamily: 'Georgia, serif', maxWidth: 620 }}>
+              "Here's to the crazy ones."
+            </h2>
+
+            {/* Context block 1 — what happened before */}
+            <div style={{ marginBottom: 24, maxWidth: 720 }}>
+              <p style={{ margin: '0 0 10px', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#c9a84c', fontWeight: 700 }}>What happened before this played</p>
+              <p style={{ margin: '0 0 12px', fontSize: '1rem', lineHeight: 1.8, color: 'rgba(244,241,234,0.75)' }}>
+                September 1997. Apple Computer was 90 days from bankruptcy. Steve Jobs had just come back — twelve years after being pushed out by the very board he assembled. He had been fired from his own company.
+              </p>
+              <p style={{ margin: '0 0 12px', fontSize: '1rem', lineHeight: 1.8, color: 'rgba(244,241,234,0.75)' }}>
+                During those twelve years, Apple drifted. Product lines multiplied without direction. The company lost focus, then lost customers, then nearly lost everything. Jobs had spent those years building NeXT and turning Pixar into the studio that made Toy Story. But Apple — his original creation — was dying.
+              </p>
+              <p style={{ margin: 0, fontSize: '1rem', lineHeight: 1.8, color: 'rgba(244,241,234,0.75)' }}>
+                When he returned as interim CEO, his first moves were brutal: he cancelled 70% of Apple's product line overnight. He negotiated a $150 million investment from Microsoft — the company Apple had spent a decade at war with. And then he did something unexpected. Before launching a single new product, he called the whole team together — and instead of announcing a product, he announced a belief.
+              </p>
+            </div>
+
+            {/* Context block 2 — what Jobs said before the ad */}
+            <div style={{ marginBottom: 24, maxWidth: 720, borderLeft: '3px solid rgba(201,168,76,0.4)', paddingLeft: 20 }}>
+              <p style={{ margin: '0 0 10px', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#c9a84c', fontWeight: 700 }}>What Jobs said before pressing play</p>
+              <p style={{ margin: '0 0 12px', fontSize: '1rem', lineHeight: 1.8, color: 'rgba(244,241,234,0.75)' }}>
+                He told his team: <em style={{ color: '#f4f1ea' }}>"Marketing is about values. This is a very complicated world — it's a very noisy world — and we're not going to get a chance to get people to remember much about us. No company is. So we have to be very clear about what we want them to know about us."</em>
+              </p>
+              <p style={{ margin: 0, fontSize: '1rem', lineHeight: 1.8, color: 'rgba(244,241,234,0.75)' }}>
+                Then he said Apple's core value wasn't about making computers. It was about the belief that <em style={{ color: '#f4f1ea' }}>people with passion can change the world for the better.</em> And the people who do that, he said, are the people Apple has always made tools for. Then he played the ad.
+              </p>
+            </div>
+
+            {/* Context block 3 — why this mattered */}
+            <div style={{ marginBottom: 32, maxWidth: 720 }}>
+              <p style={{ margin: '0 0 10px', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#c9a84c', fontWeight: 700 }}>Why this mattered — and why it was personal</p>
+              <p style={{ margin: '0 0 12px', fontSize: '1rem', lineHeight: 1.8, color: 'rgba(244,241,234,0.75)' }}>
+                The ad celebrates the misfits. The rebels. The troublemakers. The round pegs in the square holes. Einstein, Gandhi, Picasso, Amelia Earhart, Muhammad Ali — people who were told no, called dangerous, misunderstood. And then the world changed around them.
+              </p>
+              <p style={{ margin: 0, fontSize: '1rem', lineHeight: 1.8, color: 'rgba(244,241,234,0.75)' }}>
+                Jobs wasn't just describing icons from history. He was describing himself. He was a round peg. He had been fired. He had spent twelve years being told his ideas were too extreme, that he needed to compromise, that the market didn't want what he was building. The "Think Different" campaign was his answer to all of it — not loud, not angry. Just quiet, and absolutely certain.
+              </p>
+            </div>
+
+            {/* Bridge to the lesson */}
+            <div style={{ marginBottom: 36, borderRadius: 16, padding: '24px 28px', background: 'rgba(201,168,76,0.07)', border: '1.5px solid rgba(201,168,76,0.22)' }}>
+              <p style={{ margin: '0 0 16px', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.22em', textTransform: 'uppercase', color: '#c9a84c', fontWeight: 700 }}>Why this ends our lesson</p>
+              <p style={{ margin: '0 0 14px', fontSize: '1rem', lineHeight: 1.8, color: 'rgba(244,241,234,0.8)' }}>
+                We've spent this session with five founders who were, each in their own way, the crazy ones.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+                {[
+                  ['🏠', 'Airbnb', 'Two broke designers who thought strangers would pay to sleep on air mattresses in someone else\'s living room. Everyone said no.'],
+                  ['🎬', 'Netflix', 'A DVD-by-mail company that bet everything on streaming — a technology that barely worked and a market that didn\'t exist. Everyone said no.'],
+                  ['📊', 'Xero', 'A New Zealand accountant who wanted businesses to trust their financial records to a cloud server. Nobody trusted the cloud yet. Everyone said no.'],
+                  ['🎨', 'Canva', 'A nineteen-year-old in Perth who believed anyone could design anything — when the entire industry said design was a professional skill that took years to learn. Everyone said no.'],
+                  ['🌏', 'Alibaba', 'An English teacher with no technical background who thought Chinese factories could sell directly to buyers in 200 countries — when China\'s internet penetration was under 2%. Everyone said no.'],
+                ].map(([emoji, name, desc]) => (
+                  <div key={name as string} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <span style={{ fontSize: 18, flexShrink: 0, marginTop: 2 }}>{emoji}</span>
+                    <p style={{ margin: 0, fontSize: '0.95rem', lineHeight: 1.7, color: 'rgba(244,241,234,0.72)' }}>
+                      <strong style={{ color: '#f4f1ea' }}>{name}.</strong> {desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <p style={{ margin: 0, fontSize: '1rem', lineHeight: 1.8, color: '#f4f1ea', fontStyle: 'italic', fontFamily: 'Georgia, serif' }}>
+                Every one of them built it anyway. The world changed around them — because they were crazy enough to think it could.
+              </p>
+            </div>
+
+            {/* The video */}
+            <p style={{ margin: '0 0 14px', fontSize: '0.95rem', color: 'rgba(244,241,234,0.55)', lineHeight: 1.6 }}>
+              Now watch the ad Jobs played to his team in September 1997 — the moment Apple decided what it stood for again.
+            </p>
+            <VideoEmbed videoId="FvN1TuMgBBo" title="Here's to the Crazy Ones — Think Different (Apple, 1997)" color="#c9a84c" />
           </div>
         </div>
       </Reveal>

@@ -71,17 +71,17 @@ function AppRoutes() {
     <Suspense fallback={<FullPageSpinner />}>
       <Routes>
         <Route path="/"             element={<RootRedirect />} />
-        <Route path="/home"         element={<HomePage />} />
+        <Route path="/home"         element={<Suspense fallback={null}><HomePage /></Suspense>} />
         <Route path="/xr-explorer"  element={<XRExplorerPage />} />
-        <Route path="/normalisation" element={<NormalizationExplorerPage />} />
+        <Route path="/normalisation" element={<Suspense fallback={null}><NormalizationExplorerPage /></Suspense>} />
         <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />
-        <Route path="/er-mapping" element={<ERMappingExplorerPage />} />
+        <Route path="/er-mapping" element={<Suspense fallback={null}><ERMappingExplorerPage /></Suspense>} />
         <Route path="/er-to-relational" element={<Navigate to="/er-mapping" replace />} />
-        <Route path="/sql-reels"    element={<SQLReelsPage />} />
-        <Route path="/pre-class"    element={<PreClassSwarmPage />} />
-        <Route path="/five-stories" element={<FiveStoriesPage />} />
-        <Route path="/login"        element={<Login />} />
-        <Route path="/register"     element={<Register />} />
+        <Route path="/sql-reels"    element={<Suspense fallback={null}><SQLReelsPage /></Suspense>} />
+        <Route path="/pre-class"    element={<Suspense fallback={null}><PreClassSwarmPage /></Suspense>} />
+        <Route path="/five-stories" element={<Suspense fallback={null}><FiveStoriesPage /></Suspense>} />
+        <Route path="/login"        element={<Suspense fallback={null}><Login /></Suspense>} />
+        <Route path="/register"     element={<Suspense fallback={null}><Register /></Suspense>} />
         <Route path="/attend/:code" element={<QuickAttend />} />
         <Route path="/certificate/:certId" element={<CertificateView />} />
 
@@ -133,16 +133,16 @@ function ShutdownRoutes() {
   return (
     <Routes>
       {/* Home is the public entry point */}
-      <Route path="/" element={<Suspense fallback={<FullPageSpinner />}><HomePage /></Suspense>} />
-      <Route path="/home" element={<Suspense fallback={<FullPageSpinner />}><HomePage /></Suspense>} />
+      <Route path="/" element={<Suspense fallback={null}><HomePage /></Suspense>} />
+      <Route path="/home" element={<Suspense fallback={null}><HomePage /></Suspense>} />
       <Route path="/xr-explorer" element={<XRExplorerPage />} />
-      <Route path="/normalisation" element={<Suspense fallback={<FullPageSpinner />}><NormalizationExplorerPage /></Suspense>} />
+      <Route path="/normalisation" element={<Suspense fallback={null}><NormalizationExplorerPage /></Suspense>} />
       <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />
-      <Route path="/er-mapping" element={<Suspense fallback={<FullPageSpinner />}><ERMappingExplorerPage /></Suspense>} />
+      <Route path="/er-mapping" element={<Suspense fallback={null}><ERMappingExplorerPage /></Suspense>} />
       <Route path="/er-to-relational" element={<Navigate to="/er-mapping" replace />} />
-      <Route path="/sql-reels" element={<Suspense fallback={<FullPageSpinner />}><SQLReelsPage /></Suspense>} />
-      <Route path="/pre-class" element={<Suspense fallback={<FullPageSpinner />}><PreClassSwarmPage /></Suspense>} />
-      <Route path="/five-stories" element={<Suspense fallback={<FullPageSpinner />}><FiveStoriesPage /></Suspense>} />
+      <Route path="/sql-reels" element={<Suspense fallback={null}><SQLReelsPage /></Suspense>} />
+      <Route path="/pre-class" element={<Suspense fallback={null}><PreClassSwarmPage /></Suspense>} />
+      <Route path="/five-stories" element={<Suspense fallback={null}><FiveStoriesPage /></Suspense>} />
       {/* All other routes show the shutdown notice */}
       <Route path="*" element={<ShutdownPage />} />
     </Routes>

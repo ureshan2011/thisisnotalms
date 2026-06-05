@@ -575,40 +575,40 @@ export default function LandingPage() {
   const [techRef, techInView] = useInView();
 
   const storySteps = [
-    { label: 'Opening Code', time: '9:00', title: '9:00 — Opening code launches.', body: "The lecturer clicks Launch Opening. A six-character code from a deliberately ambiguity-free alphabet (no 0/O/1/I) appears, plus a scannable QR. Students have four minutes to submit — opening and mid-session checkpoints together verify real presence.", screen: <AttendanceScreen key="attendance" /> },
-    { label: 'Live Playground', time: '9:15', title: '9:15 — Live playground opens.', body: "A real-time canvas, polls, and a shared checklist materialise. Every student's presence is tracked. Drawings sync across all devices as the lecturer draws. Votes tally live as they're cast.", screen: <PlaygroundScreen key="playground" /> },
-    { label: 'Fraud Detected', time: '10:30', title: '10:30 — Suspicious activity flagged.', body: "Two students submitted within 11 seconds from the same IP. Another's GPS is 1.2 km off the cohort cluster. Three detection algorithms ran automatically. The platform raised the flags before the lecturer even checked the results.", screen: <FraudScreen key="fraud" /> },
-    { label: 'Daily Match', time: '11:00', title: '11:00 — Daily Match queued.', body: "The matching algorithm scores every pairing in the cohort. Each student opens their dashboard to three new peers ranked by shared background, industry, and hometown — with the reasons visible alongside each score.", screen: <MatchScreen key="match" /> },
-    { label: 'Dashboard', time: '11:05', title: '11:05 — Dashboard overview.', body: "228 students across 3 courses and 24 countries — visible at a glance. Attendance rates, quiz completions, session history, and cohort analytics all live in one place. No spreadsheets, no manual aggregation.", screen: <DashboardMockup key="dashboard" /> },
+    { label: 'Opening Code', time: '9:00', title: '9:00 — Opening code launches.', body: "The lecturer clicks one button. A six-character code appears on screen — no confusing letters like O or 0. Students have four minutes to type it in or scan the QR code. Simple, quick, and hard to share with someone at home.", screen: <AttendanceScreen key="attendance" /> },
+    { label: 'Live Playground', time: '9:15', title: '9:15 — Live playground opens.', body: "The lecturer draws something on screen — and every student's device shows it instantly. A quick poll goes up, and you can watch the votes come in live. The whole class is connected in real time, no matter where you're sitting.", screen: <PlaygroundScreen key="playground" /> },
+    { label: 'Fraud Detected', time: '10:30', title: '10:30 — Suspicious activity flagged.', body: "Two codes came in 11 seconds apart from the same Wi-Fi connection. One student's location shows they're over a kilometre from campus. YooBees noticed all of this automatically — before the lecturer even opened the results.", screen: <FraudScreen key="fraud" /> },
+    { label: 'Daily Match', time: '11:00', title: '11:00 — Daily Match queued.', body: "Every day, the platform finds three classmates you should probably know. It shows you why — maybe you're from the same country, or worked in the same industry. The reasons are right there on screen, alongside a compatibility score.", screen: <MatchScreen key="match" /> },
+    { label: 'Dashboard', time: '11:05', title: '11:05 — Dashboard overview.', body: "The lecturer opens the dashboard and sees everything — 228 students, 3 courses, 24 countries. Who came to class, who finished the quiz, who hasn't logged in this week. One screen. No spreadsheets.", screen: <DashboardMockup key="dashboard" /> },
   ];
 
   const studentFeatures = [
-    { icon: '①', title: 'Daily Match', desc: 'Each login, an algorithm scores every peer in your cohort for compatibility — education, industry, hometown, course. See who you should be studying with before class starts.', tag: '10-pt compatibility score', link: '/student/dashboard' },
-    { icon: '②', title: 'Live Playground', desc: 'Real-time shared canvas, live polls, and a class-wide checklist. Vote, observe lecturer diagrams, and complete tasks — all in sync as the lecture happens.', tag: 'Real-time Firestore sync', link: '/student/playground' },
-    { icon: '③', title: 'One-tap Attendance', desc: "A six-character code or a QR scan within a four-minute window. Opening and Mid-session checkpoints together confirm you didn't just walk in to sign and leave.", tag: 'QR + code dual-mode', link: '/student/attendance' },
-    { icon: '④', title: 'Resource Library', desc: 'Slide decks, video lessons, SQL practice scenarios, and an interactive prompt lab — all in-platform. No chasing PDFs across email and Moodle.', tag: '6 deck modules + video', link: '/student/course-resources' },
-    { icon: '⑤', title: 'Quiz Badges', desc: '100+ multiple-choice questions on ER diagrams, Agile/Scrum, and DBMS. Distinction-level scores (≥90%) earn a persistent badge on your profile.', tag: '3 quiz banks · badge system', link: '/student/course-resources' },
-    { icon: '⑥', title: 'Attendance Transparency', desc: 'See your own attended, absent-justified, and absent-unjustified count per course, live. No surprises at semester end. Report absences in advance.', tag: 'Live calculation', link: '/student/history' },
+    { icon: '①', title: 'Daily Match', desc: 'Every time you log in, you see three classmates you might not have met yet. The platform works out who matches your background and study goals — and tells you why. A simple way to find your study group.', tag: '10-pt compatibility score', link: '/student/dashboard' },
+    { icon: '②', title: 'Live Playground', desc: "During class, your screen stays in sync with what the lecturer is drawing. You can vote in live polls, tick off tasks on a shared checklist, and follow along — even from the back row.", tag: 'Real-time Firestore sync', link: '/student/playground' },
+    { icon: '③', title: 'One-tap Attendance', desc: "A code appears at the start of class and again halfway through. Type it in or scan the QR — two checkpoints confirm you were actually there, not just there for the first five minutes.", tag: 'QR + code dual-mode', link: '/student/attendance' },
+    { icon: '④', title: 'Resource Library', desc: 'Slides, videos, SQL practice, and study tools — all in one place. No digging through emails or Moodle folders. Everything your course needs is here, organised by topic.', tag: '6 deck modules + video', link: '/student/course-resources' },
+    { icon: '⑤', title: 'Quiz Badges', desc: 'Test yourself with over 100 questions on ER diagrams, Agile, and databases. Score 90% or above and you earn a badge that stays on your profile — visible proof you know the topic.', tag: '3 quiz banks · badge system', link: '/student/course-resources' },
+    { icon: '⑥', title: 'Attendance Transparency', desc: 'Your attendance count is always on your screen — sessions attended, sessions missed, and the reasons. No surprises at the end of semester. If you know you will be absent, you can report it in advance.', tag: 'Live calculation', link: '/student/history' },
   ];
 
   const staffFeatures = [
-    { icon: '①', title: 'Fraud Detection', desc: 'Three algorithms run on every session: shared-IP clustering, GPS outlier detection (500 m threshold), and rapid-submission analysis (30 s window). Patterns flagged before you open a spreadsheet.', tag: '3 detection types · auto-run', link: '/lecturer/attendance' },
-    { icon: '②', title: 'Live Lesson Tools', desc: 'Launch a real-time canvas, post a yes/no poll, or push a checklist — and watch students respond instantly. Every interaction logged. Leave class with engagement data, not impressions.', tag: 'Canvas · Poll · Checklist', link: '/lecturer/playground' },
-    { icon: '③', title: 'Cohort Analytics', desc: 'Quiz score distributions, login analytics, attendance per course, per campus, per intake. Surface struggling students before mid-semester reports arrive.', tag: 'Recharts dashboards', link: '/lecturer/analytics' },
-    { icon: '④', title: 'CSV Export', desc: 'Every checkpoint exports to CSV with student ID, name, campus, section, timestamp, device, and location status — ready for compliance and immigration reporting.', tag: 'One-click audit-ready export', link: '/lecturer/attendance' },
-    { icon: '⑤', title: 'Manual Overrides', desc: 'Edge cases happen: medical absences, late approvals, technical failures. Apply per-student deltas without breaking the audit trail. Every override is logged with reason and staff UID.', tag: 'Auditable delta system', link: '/lecturer/students' },
-    { icon: '⑥', title: 'Role-Based Access', desc: 'Students, lecturers, and TAs each get the right permissions, enforced both client-side and at database level via Firestore security rules. Built for institutional governance.', tag: '3 roles · 22 protected routes', link: '/lecturer/dashboard' },
+    { icon: '①', title: 'Fraud Detection', desc: 'After every session, the platform has already checked for suspicious patterns — students submitting from the same internet connection, or someone whose phone says they are not near campus. Flags appear before you open the results.', tag: '3 detection types · auto-run', link: '/lecturer/attendance' },
+    { icon: '②', title: 'Live Lesson Tools', desc: 'Launch a quick poll or draw on the shared canvas — students see it instantly on their devices. Every vote and interaction is saved, so after class you have real data, not just a feeling of how it went.', tag: 'Canvas · Poll · Checklist', link: '/lecturer/playground' },
+    { icon: '③', title: 'Cohort Analytics', desc: 'See how the whole cohort is doing — quiz scores, attendance rates, login activity, broken down by course, campus, and intake. Spot students who are falling behind before the semester is half over.', tag: 'Recharts dashboards', link: '/lecturer/analytics' },
+    { icon: '④', title: 'CSV Export', desc: 'One click exports the full attendance record as a spreadsheet — student ID, name, campus, timestamp, and location. Ready for compliance reporting or immigration checks, exactly as the institution needs it.', tag: 'One-click audit-ready export', link: '/lecturer/attendance' },
+    { icon: '⑤', title: 'Manual Overrides', desc: 'Sometimes a student has a medical note or a technical issue on the day. You can adjust their attendance record directly — and every change is logged with your name and the reason. The audit trail stays clean.', tag: 'Auditable delta system', link: '/lecturer/students' },
+    { icon: '⑥', title: 'Role-Based Access', desc: 'Students see student features. Lecturers see everything. Teaching assistants get their own level. Permissions are enforced at the database — not just in the interface. Built for an institution, not a side project.', tag: '3 roles · 22 protected routes', link: '/lecturer/dashboard' },
   ];
 
   const metrics = [
-    { n: c1, suffix: '+', label: 'Platform Sessions', desc: 'Since platform launch this semester' },
-    { n: c2, suffix: '', label: 'Enrolled Students', desc: 'Across Auckland and Christchurch campuses' },
-    { n: c3, suffix: '', label: 'Countries Represented', desc: 'International cohort across 24 nations' },
-    { n: c4, suffix: '', label: 'Attendance Sessions', desc: 'Recorded sessions this semester' },
-    { n: c5, suffix: '+', label: 'MCQ Questions', desc: 'Across ER, Agile/Scrum, and DBMS banks' },
-    { n: c6, suffix: '', label: 'Video Lessons', desc: 'Full recorded lectures and tutorials' },
-    { n: c7, suffix: '', label: 'With Work Experience', desc: 'Students with professional backgrounds' },
-    { n: c8, suffix: '', label: 'Courses', desc: 'MBI800, MBI802 and MBI804' },
+    { n: c1, suffix: '+', label: 'Platform Sessions', desc: 'Total activity since the platform launched this semester' },
+    { n: c2, suffix: '', label: 'Enrolled Students', desc: 'Active students across Auckland and Christchurch' },
+    { n: c3, suffix: '', label: 'Countries Represented', desc: 'Home countries across the cohort' },
+    { n: c4, suffix: '', label: 'Attendance Sessions', desc: 'Sessions held and recorded so far this semester' },
+    { n: c5, suffix: '+', label: 'MCQ Questions', desc: 'Practice questions across three topic areas' },
+    { n: c6, suffix: '', label: 'Video Lessons', desc: 'Recorded lessons available to watch anytime' },
+    { n: c7, suffix: '', label: 'With Work Experience', desc: 'Students who came in with professional experience' },
+    { n: c8, suffix: '', label: 'Courses', desc: 'Active postgraduate courses on the platform' },
   ];
 
   const tech = [
@@ -747,7 +747,7 @@ export default function LandingPage() {
             </h1>
             {/* Subtext */}
             <p style={{ fontSize: 16, color: 'rgba(255,255,255,.68)', lineHeight: 1.65, maxWidth: '50ch', margin: '0 0 32px' }}>
-              YooBees combines fraud-resistant attendance, a real-time lesson playground, and a full resource library — built for <strong style={{ color: '#c4b5fd' }}>Masters of Business Informatics</strong> at Yoobee Colleges.
+              YooBees started as a simple idea — what if every part of your class happened in one place? Attendance, live lessons, study tools. Built specifically for <strong style={{ color: '#c4b5fd' }}>Masters of Business Informatics</strong> at Yoobee Colleges.
             </p>
             {/* CTA buttons */}
             <div className="liquid-glass" style={{ borderRadius: 99, padding: '6px 8px', display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 36, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -797,7 +797,7 @@ export default function LandingPage() {
                 Every feature.<br /><em>One dashboard.</em>
               </h2>
               <p style={{ fontSize: 15, color: 'rgba(255,255,255,.5)', marginTop: 16, maxWidth: '42ch', margin: '14px auto 0', lineHeight: 1.6 }}>
-                Live data, real students, one unified view — from attendance to analytics.
+                Real students, live data — attendance, analytics, and everything else in one view.
               </p>
             </div>
           }
@@ -830,7 +830,7 @@ export default function LandingPage() {
                 Postgraduate classrooms need <em style={{ color: '#7c3aed', fontStyle: 'italic' }}>more</em> than a roll call.
               </h2>
               <p style={{ fontSize: 17, color: D.txt2, lineHeight: 1.6 }}>
-                Spreadsheet attendance, fragmented tools, passive lectures, and no real way to know if students are engaged — or even present. Existing LMS platforms are built for large undergraduate cohorts. Masters teaching is a different sport.
+                Most learning platforms were built for large undergraduate classes. But a postgraduate cohort is different. Students come from 24 countries, with years of work experience, and they expect more. The old tools just don't fit.
               </p>
             </div>
           </div>
@@ -843,8 +843,8 @@ export default function LandingPage() {
                 badge: 'Attendance Integrity',
                 icon: '🛡',
                 problem: 'Sign-in sheets are easy to cheat.',
-                detail: 'Students sign each other in. Roll-call codes get screenshotted and shared. Staff spend hours on manual audits that still miss half the cases.',
-                solution: 'YooBees flags the patterns automatically — shared IPs, GPS outliers, and rapid multi-submissions detected before the session ends.',
+                detail: "Imagine someone screenshots the attendance code and sends it to their friend who's still at home. Or signs their mate's name on the sheet. The lecturer only finds out weeks later — if at all.",
+                solution: "YooBees spots the patterns automatically. Two submissions from the same Wi-Fi? Flagged. Someone submitting from over a kilometre away? Flagged. All of it, before the class even ends.",
                 accent: '#7c3aed',
                 accentBg: 'rgba(124,58,237,.1)',
                 accentBorder: 'rgba(124,58,237,.25)',
@@ -854,8 +854,8 @@ export default function LandingPage() {
                 badge: 'Classroom Engagement',
                 icon: '⇄',
                 problem: 'Lectures feel one-directional.',
-                detail: "Postgraduates expect interaction — not a whiteboard the back row can't read and silence when the lecturer asks 'any questions?'",
-                solution: 'YooBees turns every lesson into a live, two-way space — shared canvas, instant polls, real-time checklists, all synced across every device.',
+                detail: "The back row can't read the whiteboard. Nobody answers when the lecturer asks 'any questions?' The class feels one-way — the teacher talks, the students listen, and nothing really connects.",
+                solution: "YooBees gives the lecturer a shared canvas that every student sees live on their device. Quick polls, real-time checklists. The back row sees exactly what the front row sees.",
                 accent: '#0891b2',
                 accentBg: 'rgba(8,145,178,.1)',
                 accentBorder: 'rgba(8,145,178,.25)',
@@ -865,8 +865,8 @@ export default function LandingPage() {
                 badge: 'Cohort Community',
                 icon: '◎',
                 problem: "Cohorts don't know each other.",
-                detail: "Students fly in from twenty-four countries and don't realise they share a degree, a hometown, or a decade of industry experience.",
-                solution: 'YooBees pairs them on day one — a compatibility score built from education, industry, nationality, and learning goals.',
+                detail: "Two students sit next to each other every week and never realise they're from the same city, or worked in the same industry for a decade. That's a missed connection — and it happens all the time.",
+                solution: "On day one, YooBees looks at each student's background — their industry, country, and education — and suggests three people they should meet. Like a matching app, for your classmates.",
                 accent: '#059669',
                 accentBg: 'rgba(5,150,105,.1)',
                 accentBorder: 'rgba(5,150,105,.25)',
@@ -947,7 +947,7 @@ export default function LandingPage() {
               </h2>
             </div>
             <p style={{ fontSize: 16, color: 'rgba(255,255,255,.48)', lineHeight: 1.7, maxWidth: '44ch', marginBottom: 4 }}>
-              Five flagship moments in a typical MBI802 session — from first login to the post-session dashboard.
+              Here's what a real class session looks like — from the moment students arrive to the lecturer wrapping up.
             </p>
           </div>
 
@@ -1031,7 +1031,7 @@ export default function LandingPage() {
                 Not textbook queries.<br /><span style={{ color: '#a78bfa' }}>Real schemas, real feedback.</span>
               </h2>
               <p style={{ fontSize: 17, color: D.txt2, lineHeight: 1.6, maxWidth: '58ch' }}>
-                The SQL Practice Lab drops students into realistic database scenarios — a library management system, a hospital records database, a school grade tracker — and asks them to solve real problems. Five automated verification steps deliver instant, actionable feedback. Staff see every student's progress live.
+                Instead of textbook exercises, students get real database scenarios — a library system, a hospital records database, a school grade tracker. They write SQL to solve actual problems. The platform checks their answer in five steps and tells them exactly where they went right or wrong. The lecturer watches everyone's progress on a live scoreboard.
               </p>
             </div>
           </div>
@@ -1040,11 +1040,11 @@ export default function LandingPage() {
           <div className={`lp-stagger ${sqlInView ? 'lp-visible' : ''}`} style={{ marginBottom: 48 }}>
             <div style={{ display: 'flex', alignItems: 'stretch', overflowX: 'auto', paddingBottom: 4, gap: 0 }}>
               {[
-                { n: '01', icon: '🗂', title: 'Pick a Scenario', desc: 'Library · Hospital · School — real tables, foreign keys, edge-case data.', color: '#a78bfa', colorLight: 'rgba(124,58,237,.12)', colorBorder: 'rgba(124,58,237,.32)', delay: 0 },
-                { n: '02', icon: '📝', title: 'Read the Schema', desc: 'Full table structure shown before writing — mirrors real-world database design.', color: '#60a5fa', colorLight: 'rgba(37,99,235,.1)', colorBorder: 'rgba(37,99,235,.28)', delay: 0.1 },
-                { n: '03', icon: '⌨', title: 'Write SQL', desc: 'In-browser editor with syntax hints. Real SQL patterns, no locked-down sandbox.', color: '#22d3ee', colorLight: 'rgba(8,145,178,.1)', colorBorder: 'rgba(8,145,178,.28)', delay: 0.2 },
-                { n: '04', icon: '🔬', title: '5-Step Verify', desc: 'Syntax → Schema → Logic → Output → Edge cases — each step pass/fail in sequence.', color: '#34d399', colorLight: 'rgba(5,150,105,.1)', colorBorder: 'rgba(5,150,105,.28)', delay: 0.3 },
-                { n: '05', icon: '📊', title: 'Staff Tracks All', desc: 'Lecturer sees per-student completion, last-active time, and scenario progress bars.', color: '#fbbf24', colorLight: 'rgba(217,119,6,.1)', colorBorder: 'rgba(217,119,6,.28)', delay: 0.4 },
+                { n: '01', icon: '🗂', title: 'Pick a Scenario', desc: 'Choose from three real-world setups — a library, a hospital, or a school. Each one has real tables and tricky edge cases.', color: '#a78bfa', colorLight: 'rgba(124,58,237,.12)', colorBorder: 'rgba(124,58,237,.32)', delay: 0 },
+                { n: '02', icon: '📝', title: 'Read the Schema', desc: 'Before writing anything, you can see the full database structure — exactly like a real-world project would look.', color: '#60a5fa', colorLight: 'rgba(37,99,235,.1)', colorBorder: 'rgba(37,99,235,.28)', delay: 0.1 },
+                { n: '03', icon: '⌨', title: 'Write SQL', desc: 'Type your query in the browser. Hints appear as you write. No restrictions — just real SQL, the way you would use it at work.', color: '#22d3ee', colorLight: 'rgba(8,145,178,.1)', colorBorder: 'rgba(8,145,178,.28)', delay: 0.2 },
+                { n: '04', icon: '🔬', title: '5-Step Verify', desc: 'Your query is checked in five steps — syntax, schema, logic, output, and edge cases. You see exactly which step passes and which one does not.', color: '#34d399', colorLight: 'rgba(5,150,105,.1)', colorBorder: 'rgba(5,150,105,.28)', delay: 0.3 },
+                { n: '05', icon: '📊', title: 'Staff Tracks All', desc: "The lecturer sees a live table — who has finished which scenario, how far everyone else has got, and when they last worked on it.", color: '#fbbf24', colorLight: 'rgba(217,119,6,.1)', colorBorder: 'rgba(217,119,6,.28)', delay: 0.4 },
               ].map((s, i) => (
                 <div key={s.n} className="lp-reveal-item" style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 172, animation: `lpReveal .5s ease ${s.delay}s both` }}>
                   {/* Step card */}
@@ -1102,7 +1102,7 @@ export default function LandingPage() {
               <h2 style={{ fontSize: 'clamp(34px,5vw,64px)', fontWeight: 800, letterSpacing: '-0.025em', lineHeight: 1.05, color: D.txt1 }}>
                 What's actually <em style={{ color: '#a78bfa' }}>built.</em>
               </h2>
-              <p style={{ fontSize: 17, color: D.txt2, lineHeight: 1.6, marginTop: 16 }}>Not a prototype. Not a pitch deck. A live system, deployed, used weekly in postgraduate teaching.</p>
+              <p style={{ fontSize: 17, color: D.txt2, lineHeight: 1.6, marginTop: 16 }}>These are not made-up numbers. This is what the platform has actually done — live sessions, real students, every week this semester.</p>
             </div>
           </div>
 
@@ -1139,8 +1139,8 @@ export default function LandingPage() {
                 <span style={{ fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#a78bfa' }}>05 — Built right</span>
               </div>
               <h3 style={{ fontSize: 'clamp(28px,4vw,50px)', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.05, marginBottom: 18, color: D.txt1 }}>Production-grade architecture, zero servers to maintain.</h3>
-              <p style={{ color: D.txt2, fontSize: 16, lineHeight: 1.65, marginBottom: 14 }}>Serverless on Firebase, deployed on GitHub Pages — runtime costs scale to zero between classes, but real-time sync, authentication, and storage all behave like a fully managed enterprise stack.</p>
-              <p style={{ color: D.txt2, fontSize: 16, lineHeight: 1.65 }}>Every route is lazy-loaded, every page is type-safe, and every database write is governed by Firestore security rules that enforce the role model at the database layer — not just in the UI.</p>
+              <p style={{ color: D.txt2, fontSize: 16, lineHeight: 1.65, marginBottom: 14 }}>YooBees runs on Firebase — which means real-time updates, user logins, and file storage all work instantly, with no server to manage. Between classes the cost is nearly zero. During class it handles hundreds of students without slowing down.</p>
+              <p style={{ color: D.txt2, fontSize: 16, lineHeight: 1.65 }}>Every page loads only when you need it, so the app stays fast. And the database has its own security rules — so even if someone tried to bypass the interface, they still could not access data they are not supposed to see.</p>
             </div>
           </div>
         </div>
@@ -1154,7 +1154,7 @@ export default function LandingPage() {
             A teaching tool,<br /><em style={{ color: '#a78bfa' }}>already shipping.</em>
           </h2>
           <p style={{ color: D.txt2, fontSize: 18, maxWidth: '50ch', margin: '0 auto 44px', lineHeight: 1.55 }}>
-            Built independently to solve real problems in real Masters classrooms. Ready for you to explore — no installation, no setup.
+            This is not a prototype or a pitch deck. It is a real platform, used in real classes every week. And you can try it right now — no download, no setup required.
           </p>
           <div style={{ display: 'inline-flex', gap: 14, flexWrap: 'wrap', justifyContent: 'center' }}>
             {user ? (
@@ -1184,7 +1184,7 @@ export default function LandingPage() {
                 <BrandMark className="h-8 w-8" />
                 <span style={{ fontFamily: 'serif', fontSize: 26, letterSpacing: '-0.02em', background: 'linear-gradient(135deg,#7c3aed,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>YooBees</span>
               </div>
-              <p style={{ color: D.txt2, fontSize: 14, maxWidth: '34ch', lineHeight: 1.55 }}>A real-time teaching and learning platform built for postgraduate education at Yoobee Colleges.</p>
+              <p style={{ color: D.txt2, fontSize: 14, maxWidth: '34ch', lineHeight: 1.55 }}>A teaching platform built for postgraduate students at Yoobee Colleges, New Zealand.</p>
             </div>
             <div>
               <div style={{ fontFamily: 'monospace', fontSize: 10, color: D.txt3, letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 14 }}>Platform</div>

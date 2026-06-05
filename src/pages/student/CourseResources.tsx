@@ -40,6 +40,7 @@ import AgileScrumDeck from '../../components/slides/AgileScrumDeck';
 import AgileScrumMcq from '../../components/quiz/AgileScrumMcq';
 import AgileScrumMcqDashboard from '../../components/quiz/AgileScrumMcqDashboard';
 import APAReferencingDeck from '../../components/slides/APAReferencingDeck';
+import FiveStoriesLesson from '../../components/slides/FiveStoriesLesson';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
 import type { StudentProfile } from '../../lib/types';
@@ -153,6 +154,13 @@ const COURSES: Course[] = [
     accentColor: '#0ea5e9',
     bgGradient: 'linear-gradient(135deg, rgba(14,165,233,0.08), rgba(56,189,248,0.04))',
     lessons: [
+      {
+        id: 'five-stories',
+        title: 'Five Stories That Changed Everything',
+        subtitle: 'Airbnb · Netflix · Xero · Canva · Alibaba — origin stories, IS architecture, growth, and strategic lessons · Embedded videos · Discussion questions',
+        icon: <BookOpen size={18} />,
+        accentColor: '#0ea5e9',
+      },
       {
         id: 'sisp-lab',
         title: 'SISP Prompt Engineering Lab',
@@ -1811,6 +1819,7 @@ export default function CourseResources() {
                     )}
                     {lesson.id === 'free-agile-certs' && <FreeAgileCertsLesson />}
                     {lesson.id === 'free-mysql-certs' && <FreeMySQLCertsLesson />}
+                    {lesson.id === 'five-stories' && <FiveStoriesLesson />}
                     {lesson.id === 'sisp-lab' && <SISPPromptLab />}
                     {lesson.id === 'sql-practice' && <SQLPracticeLesson />}
                     {lesson.id === 'apa-referencing' && <APAReferencingDeck />}

@@ -1,11 +1,7 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import BrandMark from '../components/ui/BrandMark';
+import BrandLogo from '../components/ui/BrandLogo';
 import FiveStoriesLesson from '../components/slides/FiveStoriesLesson';
-
-// ─── Five Stories standalone lesson (Not a LMS) ─────────────────────────────
-// Public page wrapping the MBI800 "Five Stories That Changed Everything" lesson.
-// Same Apple-styled design language as the other standalone lesson pages.
 
 const APPLE_FONT =
   '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", system-ui, sans-serif';
@@ -26,16 +22,13 @@ export default function FiveStoriesPage() {
 
       {/* ── Top nav ── */}
       <nav className="sticky top-0 z-50 border-b border-black/[0.07] bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <Link to="/home" className="flex items-center gap-2.5 group">
-            <BrandMark className="h-7 w-7 rounded-[8px]" />
-            <span className="text-[15px] font-semibold tracking-tight text-[#1d1d1f] group-hover:text-[#0071e3] transition-colors">
-              Not a <span className="text-[#0071e3]">LMS</span>
-            </span>
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
+          <Link to="/home" className="no-underline">
+            <BrandLogo iconSize={28} variant="on-light" />
           </Link>
           <Link
             to="/home"
-            className="flex items-center gap-1.5 rounded-full border border-black/[0.10] px-4 py-1.5 text-[13px] font-medium text-[#6e6e73] transition hover:border-[#0071e3]/40 hover:text-[#0071e3]"
+            className="flex items-center gap-1.5 rounded-full border border-black/[0.10] px-4 py-1.5 text-[13px] font-medium text-[#6e6e73] transition hover:border-[#4338CA]/40 hover:text-[#4338CA]"
           >
             <span className="text-[15px]">‹</span>
             All lessons
@@ -45,7 +38,6 @@ export default function FiveStoriesPage() {
 
       {/* ── Hero ── */}
       <section className="relative overflow-hidden px-6 pb-16 pt-20">
-        {/* Ambient gradient orbs */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute left-1/2 top-[-10%] h-[560px] w-[560px] -translate-x-1/2 rounded-full bg-[#c9a84c]/[0.08] blur-3xl" />
           <div className="absolute bottom-[-8%] right-[5%] h-[360px] w-[360px] rounded-full bg-[#FF5A5F]/[0.07] blur-3xl" />
@@ -83,12 +75,10 @@ export default function FiveStoriesPage() {
             transition={{ duration: 0.85, ease: EASE, delay: 0.14 }}
             className="mx-auto mt-7 max-w-xl text-[18px] leading-relaxed text-[#6e6e73] sm:text-[20px]"
           >
-            The greatest businesses in the digital economy weren't born from market research.
-            They were born from tiny, specific frustrations — and the information systems
-            that turned those frustrations into empires.
+            Five companies. Five moments where someone noticed something broken and decided to fix it.
+            Each one has an information system underneath it that made it work.
           </motion.p>
 
-          {/* Company pills */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -106,7 +96,6 @@ export default function FiveStoriesPage() {
             ))}
           </motion.div>
 
-          {/* Scroll cue */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -131,18 +120,11 @@ export default function FiveStoriesPage() {
 
       {/* ── Footer ── */}
       <footer className="border-t border-black/[0.06] px-6 py-12 text-center">
-        <div className="mb-4 flex items-center justify-center gap-2.5">
-          <BrandMark className="h-7 w-7 rounded-[8px]" />
-          <span className="text-[15px] font-semibold tracking-tight text-[#1d1d1f]">
-            Not a <span className="text-[#0071e3]">LMS</span>
-          </span>
+        <div className="mb-5 flex items-center justify-center">
+          <BrandLogo iconSize={28} variant="on-light" />
         </div>
-        <p className="text-[14px] text-[#6e6e73]">
-          A set of interactive lessons, put together by{' '}
-          <span className="font-medium text-[#1d1d1f]">Yasas Sri Wickramasinghe</span>.
-        </p>
         <p className="mt-3">
-          <Link to="/home" className="text-[13px] font-medium text-[#0071e3] hover:underline">
+          <Link to="/home" className="text-[13px] font-medium text-[#4338CA] hover:underline">
             ‹ Back to all lessons
           </Link>
         </p>

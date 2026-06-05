@@ -8,7 +8,7 @@ import {
   useSpring,
   type Variants,
 } from 'framer-motion';
-import BrandMark from '../components/ui/BrandMark';
+import BrandLogo from '../components/ui/BrandLogo';
 
 // ─── Home / launchpad (Not a LMS) ───────────────────────────────────────────
 // A single entry point that introduces the project and lets you jump into each
@@ -142,11 +142,8 @@ export default function HomePage() {
         className="relative flex min-h-screen items-center justify-center overflow-hidden px-6"
       >
         {/* brand lockup */}
-        <div className="absolute left-6 top-6 z-20 flex items-center gap-2.5 sm:left-10 sm:top-8">
-          <BrandMark className="h-8 w-8 rounded-[9px]" />
-          <span className="text-[17px] font-semibold tracking-tight text-[#1d1d1f]">
-            Not a <span className="text-[#0071e3]">LMS</span>
-          </span>
+        <div className="absolute left-6 top-6 z-20 sm:left-10 sm:top-8">
+          <BrandLogo iconSize={28} variant="on-light" />
         </div>
 
         {/* drifting ambient orbs */}
@@ -314,16 +311,9 @@ export default function HomePage() {
 
       {/* ── FOOTER ─────────────────────────────────────────────────────────── */}
       <footer className="border-t border-black/[0.06] px-6 py-12 text-center">
-        <div className="mb-4 flex items-center justify-center gap-2.5">
-          <BrandMark className="h-7 w-7 rounded-[8px]" />
-          <span className="text-[15px] font-semibold tracking-tight text-[#1d1d1f]">
-            Not a <span className="text-[#0071e3]">LMS</span>
-          </span>
+        <div className="mb-4 flex items-center justify-center">
+          <BrandLogo iconSize={28} variant="on-light" />
         </div>
-        <p className="text-[14px] text-[#6e6e73]">
-          A set of interactive lessons, put together by{' '}
-          <span className="font-medium text-[#1d1d1f]">Yasas Sri Wickramasinghe</span>.
-        </p>
         <p className="mt-2 text-[12px] text-[#aeaeb2]">
           Everything here runs in your own browser. No personal data is collected or stored.
         </p>

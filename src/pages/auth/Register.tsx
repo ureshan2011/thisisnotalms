@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, UserPlus, GraduationCap, BookOpen, Users } from 'lucide-react';
-import BrandMark from '../../components/ui/BrandMark';
+import BrandLogo from '../../components/ui/BrandLogo';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../components/ui/ToastProvider';
 import type { UserRole } from '../../lib/types';
@@ -78,24 +78,7 @@ export default function Register() {
       <div className="w-full max-w-sm relative z-10 animate-slideUp">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="relative mb-4">
-            <div className="absolute inset-0 bg-brand-400/25 rounded-3xl blur-xl animate-pulse" />
-            <div
-              className="relative rounded-3xl p-4 shadow-xl"
-              style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)' }}
-            >
-              <BrandMark className="h-10 w-10 text-white" />
-            </div>
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#1e1b4b' }}>YooBees</h1>
-          <div className="mt-0.5 flex items-center gap-2">
-            <p className="text-sm font-medium" style={{ color: '#a78bfa' }}>Student Support System</p>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider"
-              style={{ background: 'rgba(124,58,237,0.12)', color: '#6d28d9', border: '1px solid rgba(124,58,237,0.18)' }}
-            >
-              BETA
-            </span>
-          </div>
+          <BrandLogo iconSize={40} variant="on-light" />
         </div>
 
         {/* Card */}
@@ -112,7 +95,7 @@ export default function Register() {
         >
           <div className="mb-6">
             <h2 className="text-lg font-bold tracking-tight" style={{ color: '#1e1b4b' }}>Create account</h2>
-            <p className="text-xs font-medium mt-0.5" style={{ color: '#9ca3af' }}>Join your class on YooBees</p>
+            <p className="text-xs font-medium mt-0.5" style={{ color: '#9ca3af' }}>Join your class on the platform</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

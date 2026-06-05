@@ -95,19 +95,19 @@ const STORIES: Story[] = [
     ],
 
     breakthrough: [
-      'The real breakthrough was not a product feature. It was a plane ticket.',
-      'In early 2009, the founders noticed something strange in their data. New York had listings. New York had searches. The bookings weren\'t converting. They didn\'t know why.',
-      'So Brian Chesky flew to New York and went door-to-door to visit their hosts personally. He looked at the listings with fresh eyes — and immediately understood. The photos were terrible. Blurry phone pictures of unmade beds taken from awkward angles. Who would trust a stranger\'s home based on that?',
-      'He rented a professional camera and started photographing apartments himself — one by one, completely manually. Within weeks, New York revenue doubled.',
-      'The lesson struck like a lightning bolt: data tells you where a problem exists. Human presence tells you what the problem actually is. And sometimes the only way to build something that works at global scale is to do something completely unscalable first — to show up, sit down, and look.',
-      'But the bigger insight was about trust itself. Not beds. The entire product\'s job, they realised, was to take trust — that fragile, ancient, deeply human thing — and make it manufacturable. Photos. Reviews. Verified identities. Secure payments. Each element a piece of the trust architecture, working together.',
+      'The real breakthrough wasn\'t a product feature. It was a plane ticket.',
+      'In early 2009, the founders noticed something odd in their data. New York had listings. New York had searches. But the bookings weren\'t converting. They didn\'t know why.',
+      'So Brian Chesky flew to New York and went door to door to visit their hosts in person. He looked at the listings and immediately understood the problem. The photos were terrible — blurry phone pictures of unmade beds shot from awkward angles. Nobody was going to trust a stranger\'s home based on that.',
+      'He rented a professional camera and started photographing apartments himself, one by one. Within weeks, New York revenue doubled.',
+      'That was the lesson: data tells you where a problem exists. Showing up in person tells you what the problem actually is. And sometimes the only way to build something that works at scale is to do something completely unscalable first.',
+      'But the deeper insight was about trust. Not beds. The whole product\'s job, they realised, was to take trust — that old, essential thing that makes any transaction between strangers possible — and engineer it into the platform. Photos. Reviews. Verified identities. Secure payments. Each one a piece of the same structure.',
     ],
 
     insight: 'It was never about beds. It was about making two strangers trust each other — and the beds took care of themselves.',
 
     isHeading: 'The Architecture of Trust',
     isBody: [
-      'Airbnb is technically a two-sided marketplace — hosts on one side, guests on the other. But that description undersells the thing entirely. What makes Airbnb difficult to replicate is what sits in the middle: the trust layer.',
+      'Airbnb is technically a two-sided marketplace — hosts on one side, guests on the other. But that description misses what makes it interesting. What makes Airbnb hard to copy is what sits in the middle: the trust layer.',
       'Reviews flow in both directions. Hosts rate guests. Guests rate hosts. Both are visible before a booking is confirmed. The platform accumulates a reputation score for every participant over time.',
       'Payment is held in escrow. Funds don\'t reach the host until 24 hours after check-in. This removes the most ancient barrier to trust between strangers: "What if I pay and the place is nothing like the photos?"',
       'The result is a self-reinforcing network effect: more hosts attract more guests, which attract more hosts. The platform becomes more valuable to everyone as it grows — and that growth makes it increasingly hard for a competitor to displace them. Not because Airbnb is cheaper, but because it\'s more trusted.',
@@ -183,8 +183,8 @@ const STORIES: Story[] = [
       'The second was streaming in 2007, a decade after founding. Limited catalogue, ugly interface, nothing like the vision. But Hastings understood what most people missed: the DVD was always a compromise. The real business was getting exactly the right film to exactly the right person at exactly the right moment.',
       'But neither of those was the most important breakthrough. The most important breakthrough was a decision.',
       'In 2011, Netflix announced it would split into two separate companies — one for DVDs, one for streaming. The backlash was immediate and brutal. They lost 800,000 subscribers in a single quarter. The stock fell 75%. Analysts declared the company finished.',
-      'They reversed the structural split — but they kept the streaming-first strategy. They were willing to set fire to the most profitable thing they\'d ever built because they could see something better forming in the smoke.',
-      'That decision — to deliberately cannibalise your own success before a competitor does it for you — is one of the hardest things a business can do. And Netflix did it not once, but twice. The second time was when they stopped licensing content and started producing their own. House of Cards. Orange is the New Black. Stranger Things. They were no longer just a distributor. They were a studio. And their viewing data — millions of signals from hundreds of millions of subscribers — told them exactly which stories would land.',
+      'They reversed the structural split — but kept the streaming-first strategy. They were willing to kill the most profitable part of the business because they could see what was coming next.',
+      'Deliberately undermining your own success before a competitor does it for you is one of the hardest things any company can do. Netflix did it twice. The second time was when they stopped licensing other studios\' content and started making their own. House of Cards. Orange is the New Black. Stranger Things. They went from being a distributor to being a studio. And their viewing data — hundreds of millions of subscribers watching hundreds of millions of hours — told them exactly what to make.',
     ],
 
     insight: 'Remove every penalty. Let the data find the films no shelf could ever hold. Then disrupt yourself before someone else can.',
@@ -196,7 +196,7 @@ const STORIES: Story[] = [
       'The recommendation engine processes billions of viewing events across hundreds of millions of members. It builds a unique taste model for each subscriber. Then it builds a unique version of your homepage — your Netflix, different from everyone else\'s.',
       'The flywheel: more subscribers → more viewing data → better recommendations → better retention → more subscribers. Each revolution of the loop makes the system smarter, stickier, and harder to replicate.',
       'The data doesn\'t stop at recommendations. It drives production decisions. When Netflix greenlighted House of Cards, they didn\'t just bet on creative instinct. They looked at the numbers: British political dramas retained subscribers. David Fincher\'s films drove completion rates. Kevin Spacey\'s performances scored well with their highest-value segments. The data said: make this. And it worked.',
-      'This is the information system. Not a technology feature — a feedback loop that connects every viewer\'s behaviour to every creative and commercial decision the company makes.',
+      'That is the information system — a feedback loop that connects every viewer\'s behaviour to every creative and commercial decision the company makes.',
     ],
 
     isConcepts: ['Data Flywheel', 'Personalisation at Scale', 'Long-Tail Economics', 'Self-Disruption', 'Vertical Integration', 'Subscription Economics'],
@@ -352,9 +352,9 @@ const STORIES: Story[] = [
       'Every design tool before Canva had been built for designers. Its complexity was a feature — it kept non-designers out, which kept the output quality high, which justified the professional price tag.',
       'Canva\'s insight was the inverse: the complexity is the bug, not the feature. There are hundreds of millions of people worldwide who need to create visuals — social posts, presentations, flyers, invitations — who will never master Photoshop. They will settle for bad design, or they will pay someone, or they will simply not bother.',
       'What if you hid the professional complexity behind a simple interface? What if you gave non-designers the outcome — polished, professional-looking results — without requiring them to understand the underlying craft?',
-      'The template is the breakthrough. Not a feature in the traditional software sense. A philosophy. We encode what professional designers know into reusable starting points. You pick a template, swap the words and images, and the hard decisions — typography, colour theory, spacing — have already been made by someone who knows what they\'re doing.',
-      'Canva launched in 2013. It hit 750,000 users in its first year.',
-      'The growth engine underneath: every design exported from Canva carries "Made with Canva" in the corner. Every person who shares it shows the product to the next potential user. Every design is simultaneously a creative output and a free advertisement. This is product-led growth at its purest — the product markets itself, at zero marginal cost, to precisely the right audience.',
+      'The template was the breakthrough — not a new feature, but a different idea about what the software was actually for. The hard design decisions — typography, colour, spacing — were baked into the template. You just swapped the words and images. The expertise was already there.',
+      'Canva launched in 2013 and reached 750,000 users in its first year.',
+      'The growth engine was built in from the start. Every design exported from Canva carried "Made with Canva" in the corner. Every time someone shared their design, they were showing the product to exactly the kind of person who might want to use it. The product marketed itself.',
     ],
 
     insight: 'Hide the complexity. Open the gate. The market everyone said didn\'t exist comes flooding through the moment you remove the barrier.',
@@ -409,7 +409,7 @@ const STORIES: Story[] = [
 
     problemParagraphs: [
       'Hangzhou, 1999. Jack Ma gathers seventeen friends in a small apartment and gives a speech that lasts two hours. The vision: Chinese manufacturers — the factories and workshops that make most of the world\'s physical goods — should be able to sell directly to global buyers, without middlemen, without language barriers, without needing a physical presence abroad.',
-      'This was, by any rational measure, a completely impossible idea. China\'s internet penetration was under 2%. Most of the factories he was imagining didn\'t have computers. E-commerce in the West was barely established. In China, it didn\'t exist.',
+      'It was an audacious idea. China\'s internet penetration was under 2%. Most of the factories he was imagining didn\'t have computers. E-commerce barely existed in the West. In China, it didn\'t exist at all.',
       'Ma had failed his university entrance exams twice. He\'d been rejected by 23 of the 24 jobs he applied for at a single KFC hiring event. Harvard turned him down ten times. An earlier internet venture had collapsed completely. Every objective indicator suggested this was not the person who would build the world\'s largest e-commerce platform.',
       'But Ma had seen the internet on a trip to Seattle in 1995. He\'d searched for "beer" and found no results from China. He\'d searched for "China" and found almost nothing. An entire nation — a billion people, the factory of the world — was completely invisible to the global digital economy.',
       'He thought: I can fix that.',
@@ -718,7 +718,7 @@ function ProblemSection({ story }: { story: Story }) {
         <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#111827' }}>The Problem — {story.year}</h3>
       </div>
       {story.problemParagraphs.map((p, i) => (
-        <p key={i} style={{ margin: '0 0 14px', fontSize: 15, lineHeight: 1.75, color: i === 0 ? '#111827' : '#374151', fontWeight: i === 0 ? 600 : 400 }}>
+        <p key={i} style={{ margin: '0 0 16px', fontSize: 17, lineHeight: 1.8, color: i === 0 ? '#111827' : '#374151', fontWeight: i === 0 ? 600 : 400 }}>
           {p}
         </p>
       ))}
@@ -744,8 +744,8 @@ function StruggleSection({ story }: { story: Story }) {
             {/* Dot */}
             <div style={{ position: 'absolute', left: -21, top: 3, width: 14, height: 14, borderRadius: '50%', background: '#fff', border: `2.5px solid ${story.color}`, boxShadow: `0 0 0 3px ${story.colorDim}` }} />
             <p style={{ margin: '0 0 4px', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.2em', color: story.color, textTransform: 'uppercase', fontWeight: 600 }}>{node.date}</p>
-            <h4 style={{ margin: '0 0 6px', fontSize: 15, fontWeight: 700, color: '#111827' }}>{node.title}</h4>
-            <p style={{ margin: 0, fontSize: 14, color: '#4b5563', lineHeight: 1.7 }}>{node.body}</p>
+            <h4 style={{ margin: '0 0 6px', fontSize: 16, fontWeight: 700, color: '#111827' }}>{node.title}</h4>
+            <p style={{ margin: 0, fontSize: 16, color: '#4b5563', lineHeight: 1.8 }}>{node.body}</p>
           </div>
         ))}
       </div>
@@ -761,12 +761,12 @@ function BreakthroughSection({ story }: { story: Story }) {
         <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#111827' }}>The moment things turned</h3>
       </div>
       {story.breakthrough.map((p, i) => (
-        <p key={i} style={{ margin: '0 0 14px', fontSize: 15, lineHeight: 1.75, color: '#374151' }}>{p}</p>
+        <p key={i} style={{ margin: '0 0 16px', fontSize: 17, lineHeight: 1.8, color: '#374151' }}>{p}</p>
       ))}
       {/* Insight callout */}
       <div style={{ marginTop: 20, borderRadius: 14, padding: '18px 20px', background: story.colorDim, border: `1.5px solid ${story.color}44` }}>
         <p style={{ margin: '0 0 6px', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.2em', textTransform: 'uppercase', color: story.color, fontWeight: 700 }}>The core insight</p>
-        <p style={{ margin: 0, fontSize: 16, fontStyle: 'italic', fontWeight: 600, color: '#111827', lineHeight: 1.5 }}>"{story.insight}"</p>
+        <p style={{ margin: 0, fontSize: 18, fontStyle: 'italic', fontWeight: 600, color: '#111827', lineHeight: 1.55, fontFamily: 'Georgia, serif' }}>"{story.insight}"</p>
       </div>
     </div>
   );
@@ -780,7 +780,7 @@ function ISSection({ story }: { story: Story }) {
         <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#111827' }}>{story.isHeading}</h3>
       </div>
       {story.isBody.map((p, i) => (
-        <p key={i} style={{ margin: '0 0 14px', fontSize: 15, lineHeight: 1.75, color: '#374151' }}>{p}</p>
+        <p key={i} style={{ margin: '0 0 16px', fontSize: 17, lineHeight: 1.8, color: '#374151' }}>{p}</p>
       ))}
       {/* Concept tags */}
       <div style={{ marginTop: 20 }}>
@@ -830,7 +830,7 @@ function ImpactSection({ story }: { story: Story }) {
         ))}
       </div>
       {story.impact.map((p, i) => (
-        <p key={i} style={{ margin: '0 0 14px', fontSize: 15, lineHeight: 1.75, color: '#374151' }}>{p}</p>
+        <p key={i} style={{ margin: '0 0 16px', fontSize: 17, lineHeight: 1.8, color: '#374151' }}>{p}</p>
       ))}
     </div>
   );
@@ -853,7 +853,7 @@ function LessonSection({ story }: { story: Story }) {
       {/* Takeaway */}
       <div style={{ marginBottom: 24, borderRadius: 14, padding: '16px 18px', background: story.colorDim, border: `1.5px solid ${story.color}44` }}>
         <p style={{ margin: '0 0 6px', fontSize: 11, fontFamily: 'monospace', letterSpacing: '0.2em', textTransform: 'uppercase', color: story.color, fontWeight: 700 }}>Strategic Takeaway</p>
-        <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#111827', lineHeight: 1.55 }}>{story.takeaway}</p>
+        <p style={{ margin: 0, fontSize: 17, fontWeight: 600, color: '#111827', lineHeight: 1.65 }}>{story.takeaway}</p>
       </div>
 
       {/* Discussion questions */}
@@ -870,7 +870,7 @@ function LessonSection({ story }: { story: Story }) {
             </button>
             {openQ === i && (
               <div style={{ padding: '12px 16px 16px', background: '#fafafa', borderTop: `1px solid ${story.color}22` }}>
-                <p style={{ margin: 0, fontSize: 14, color: '#374151', lineHeight: 1.7 }}>{q.text}</p>
+                <p style={{ margin: 0, fontSize: 16, color: '#374151', lineHeight: 1.8 }}>{q.text}</p>
               </div>
             )}
           </div>
@@ -909,9 +909,8 @@ export default function FiveStoriesLesson() {
   }, []);
 
   return (
-    <div style={{ fontFamily: "'Crimson Pro', Georgia, serif", fontSize: '1rem' }}>
+    <div style={{ fontFamily: "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif", fontSize: '1rem' }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap');
         .fs5-play-btn:hover { transform: scale(1.1) !important; }
         .fs5-nav-tab { transition: background 0.2s, color 0.2s, transform 0.15s; }
         .fs5-nav-tab:hover { transform: translateY(-1px); }
@@ -936,8 +935,8 @@ export default function FiveStoriesLesson() {
             <span style={{ color: '#c9a84c', fontStyle: 'italic' }}>Changed Everything.</span>
           </h1>
           <p style={{ margin: '0 0 24px', fontSize: 'clamp(0.95rem, 2vw, 1.1rem)', color: 'rgba(244,241,234,0.7)', lineHeight: 1.7, maxWidth: 540 }}>
-            The greatest businesses in the digital economy weren't born from market research or McKinsey decks.
-            They were born from tiny, specific frustrations — and the information systems that turned those frustrations into empires.
+            The biggest companies in the digital economy didn't start with market research.
+            They started with a specific frustration — and the information system that turned it into something much bigger.
           </p>
           <p style={{ margin: '0 0 24px', fontSize: 14, color: 'rgba(244,241,234,0.55)', lineHeight: 1.6 }}>
             This lesson traces five companies — Airbnb, Netflix, Xero, Canva, and Alibaba — from their founding moments through to global scale.

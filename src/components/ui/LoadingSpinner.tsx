@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { QUOTE_ITEMS, FADE_MS, HOLD_MS } from '../../lib/quotes';
+import BrandLogo from './BrandLogo';
 
 export default function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   const dims = size === 'sm' ? 'h-4 w-4' : size === 'lg' ? 'h-10 w-10' : 'h-6 w-6';
@@ -61,16 +62,8 @@ export function FullPageSpinner() {
       <div style={{ position: 'absolute', bottom: '-8%', left: '-4%', width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(167,139,250,0.11) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
       {/* Brand */}
-      <div style={{ marginBottom: '2.5rem', textAlign: 'center' }}>
-        <div style={{
-          fontSize: '2rem', fontWeight: 800,
-          background: 'linear-gradient(135deg, #7c3aed, #a78bfa)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text', letterSpacing: '-0.02em',
-        }}>YooBees</div>
-        <p style={{ marginTop: '0.35rem', fontSize: '0.78rem', color: '#a78bfa', fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-          Smart Student Platform
-        </p>
+      <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'center' }}>
+        <BrandLogo iconSize={36} variant="on-light" />
       </div>
 
       {/* Quote / Reminder card */}

@@ -13,6 +13,7 @@ const PreClassSwarmPage = lazy(() => import('./pages/PreClassSwarmPage'));
 const SQLReelsPage = lazy(() => import('./pages/SQLReelsPage'));
 const NormalizationExplorerPage = lazy(() => import('./pages/NormalizationExplorerPage'));
 const ERMappingExplorerPage = lazy(() => import('./pages/ERMappingExplorerPage'));
+const CostManagementPage = lazy(() => import('./pages/CostManagementPage'));
 const FiveStoriesPage = lazy(() => import('./pages/FiveStoriesPage'));
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
@@ -77,6 +78,7 @@ function AppRoutes() {
         <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />
         <Route path="/er-mapping" element={<Suspense fallback={null}><ERMappingExplorerPage /></Suspense>} />
         <Route path="/er-to-relational" element={<Navigate to="/er-mapping" replace />} />
+        <Route path="/cost-management" element={<Suspense fallback={null}><CostManagementPage /></Suspense>} />
         <Route path="/sql-reels"    element={<Suspense fallback={null}><SQLReelsPage /></Suspense>} />
         <Route path="/pre-class"    element={<Suspense fallback={null}><PreClassSwarmPage /></Suspense>} />
         <Route path="/five-stories" element={<Suspense fallback={null}><FiveStoriesPage /></Suspense>} />

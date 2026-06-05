@@ -33,7 +33,7 @@ const LESSONS: {
   to2: string;
 }[] = [
   {
-    href: '/lesson-plans/mbi804-cost-management.html',
+    to: '/cost-management',
     eyebrow: 'MBI804 · Project Management',
     title: 'Project Cost Management',
     body: 'Plan, estimate, budget — and avoid the traps that sink 75% of IT projects. 7 interactive sections built around the SecurePay NZ scenario: PERT calculator, budget builder, live S-curve, and a final challenge.',

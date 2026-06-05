@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBI804 — Project Cost Management</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --navy: #1e3a5f;
+    --navy-dark: #142840;
+    --teal: #2a9d8f;
+    --teal-dark: #21897d;
+    --amber: #e9c46a;
+    --green: #57cc99;
+    --red: #e76f51;
+    --bg: #f8f9fa;
+    --card: #ffffff;
+    --text: #2b2d31;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+    --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app { max-width: 1080px; margin: 0 auto; padding: 0 16px 120px; }
+
+  /* ─── Header / Progress ─── */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--navy);
+    background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+    padding: 14px 16px 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+  .topbar-inner { max-width: 1080px; margin: 0 auto; }
+  .course-tag {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
+  }
+  .course-name {
+    color: #fff; font-weight: 800; font-size: 16px; letter-spacing: -0.2px;
+    display: flex; align-items: center; gap: 9px;
+  }
+  .course-name .badge {
+    background: var(--teal); color: #fff; font-size: 10px; font-weight: 700;
+    padding: 3px 9px; border-radius: 20px; letter-spacing: 0.5px;
+  }
+  .section-counter {
+    color: var(--amber); font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+  }
+  .progress-track {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .progress-step {
+    flex: 1; height: 36px; border: none; cursor: pointer;
+    background: rgba(255,255,255,0.10); border-radius: 8px;
+    color: rgba(255,255,255,0.55); font-size: 13px; font-weight: 700;
+    transition: all 0.25s; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .progress-step:hover { background: rgba(255,255,255,0.22); color: #fff; }
+  .progress-step.active {
+    background: var(--teal); color: #fff;
+    box-shadow: 0 2px 10px rgba(42,157,143,0.5);
+  }
+  .progress-step.done { background: rgba(87,204,153,0.30); color: #d7f5e6; }
+  .progress-step .lbl { display: none; }
+  @media (min-width: 880px) {
+    .progress-step { font-size: 12px; gap: 6px; }
+    .progress-step .lbl { display: inline; font-weight: 600; }
+  }
+
+  /* ─── Sections ─── */
+  .section { display: none; animation: fadeIn 0.45s ease; padding-top: 26px; }
+  .section.visible { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .sec-eyebrow {
+    color: var(--teal); font-weight: 800; font-size: 12px;
+    letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .sec-title {
+    font-size: 30px; font-weight: 900; color: var(--navy);
+    line-height: 1.12; letter-spacing: -0.5px; margin-bottom: 18px;
+  }
+  @media (max-width: 600px) { .sec-title { font-size: 23px; } }
+
+  /* ─── Cards ─── */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 22px; box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+  .card h3 { font-size: 18px; color: var(--navy); margin-bottom: 10px; font-weight: 800; }
+  .card p { color: var(--text); margin-bottom: 10px; }
+  .card p:last-child { margin-bottom: 0; }
+  .muted { color: var(--muted); font-size: 14px; }
+
+  .scenario-card {
+    background: linear-gradient(135deg, var(--navy), var(--navy-dark));
+    color: #fff; border: none;
+  }
+  .scenario-card h3 { color: #fff; }
+  .scenario-card p { color: rgba(255,255,255,0.85); }
+  .scenario-card .scn-icon { font-size: 30px; margin-bottom: 8px; }
+
+  /* ─── Hook counter ─── */
+  .hook {
+    text-align: center; padding: 34px 22px;
+    background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+    border-radius: 18px; color: #fff; margin-bottom: 18px;
+    border: none; box-shadow: var(--shadow-lg);
+  }
+  .hook .big-num {
+    font-size: 84px; font-weight: 900; line-height: 1; color: var(--amber);
+    letter-spacing: -2px; text-shadow: 0 4px 24px rgba(233,196,106,0.3);
+  }
+  @media (max-width: 600px){ .hook .big-num { font-size: 60px; } }
+  .hook .hook-sub { font-size: 18px; font-weight: 600; margin-top: 8px; }
+  .hook .hook-cap { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 10px; }
+
+  /* ─── Process flow ─── */
+  .flow {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 6px 0;
+  }
+  @media (max-width: 720px){ .flow { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 420px){ .flow { grid-template-columns: 1fr; } }
+  .flow-box {
+    background: var(--card); border: 2px solid var(--border); border-radius: 14px;
+    padding: 16px 12px; text-align: center; cursor: pointer; transition: all 0.22s;
+    position: relative;
+  }
+  .flow-box:hover, .flow-box.sel {
+    border-color: var(--teal); transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(42,157,143,0.18);
+  }
+  .flow-box .f-icon { font-size: 26px; margin-bottom: 6px; }
+  .flow-box .f-code {
+    font-size: 11px; font-weight: 800; color: var(--teal); letter-spacing: 1px;
+  }
+  .flow-box .f-name { font-size: 13.5px; font-weight: 800; color: var(--navy); margin: 3px 0; }
+  .flow-box .f-desc { font-size: 11.5px; color: var(--muted); }
+  .flow-tip {
+    margin-top: 14px; padding: 14px 16px; background: #eef7f5;
+    border-left: 4px solid var(--teal); border-radius: 8px;
+    font-size: 14px; color: var(--navy); display: none;
+  }
+  .flow-tip.show { display: block; animation: fadeIn 0.3s; }
+
+  /* ─── Checklist ─── */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex; align-items: flex-start; gap: 12px; padding: 11px 14px;
+    border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px;
+    cursor: pointer; transition: all 0.18s; background: #fff;
+  }
+  .checklist li:hover { border-color: var(--teal); background: #f7fcfb; }
+  .checklist li.checked { background: #effaf3; border-color: var(--green); }
+  .check-box {
+    width: 22px; height: 22px; border: 2px solid var(--muted); border-radius: 6px;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: #fff; transition: all 0.18s; margin-top: 1px;
+  }
+  .checklist li.checked .check-box { background: var(--green); border-color: var(--green); }
+  .checklist li .ck-txt { font-size: 14.5px; }
+  .checklist li.checked .ck-txt { text-decoration: line-through; color: var(--muted); }
+
+  /* ─── Quiz / MCQ ─── */
+  .quiz-q { margin-bottom: 18px; }
+  .quiz-q .q-text { font-weight: 700; color: var(--navy); margin-bottom: 10px; font-size: 15px; }
+  .quiz-q .q-text .qn {
+    display: inline-flex; width: 24px; height: 24px; background: var(--navy); color: #fff;
+    border-radius: 50%; align-items: center; justify-content: center; font-size: 12px;
+    margin-right: 8px; flex-shrink: 0;
+  }
+  .opt {
+    display: block; width: 100%; text-align: left; padding: 11px 14px; margin-bottom: 7px;
+    border: 1.5px solid var(--border); border-radius: 10px; background: #fff;
+    cursor: pointer; font-size: 14px; transition: all 0.15s; font-family: inherit; color: var(--text);
+  }
+  .opt:hover:not(:disabled) { border-color: var(--teal); background: #f7fcfb; }
+  .opt.correct { background: #effaf3; border-color: var(--green); color: #1d6b45; font-weight: 600; }
+  .opt.wrong { background: #fdf0ec; border-color: var(--red); color: #9c3b22; }
+  .opt:disabled { cursor: default; }
+  .opt .mk { float: right; font-weight: 800; }
+  .q-fb {
+    margin-top: 8px; padding: 10px 13px; border-radius: 8px; font-size: 13.5px;
+    display: none; line-height: 1.45;
+  }
+  .q-fb.show { display: block; animation: fadeIn 0.3s; }
+  .q-fb.good { background: #effaf3; color: #1d6b45; border-left: 3px solid var(--green); }
+  .q-fb.bad { background: #fdf0ec; color: #9c3b22; border-left: 3px solid var(--red); }
+  .score-pill {
+    display: none; margin-top: 14px; padding: 14px 18px; border-radius: 12px;
+    background: var(--navy); color: #fff; font-weight: 700; text-align: center; font-size: 16px;
+  }
+  .score-pill.show { display: block; animation: fadeIn 0.4s; }
+
+  /* ─── Buttons ─── */
+  .btn {
+    background: var(--teal); color: #fff; border: none; padding: 11px 22px;
+    border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer;
+    transition: all 0.18s; font-family: inherit;
+  }
+  .btn:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(42,157,143,0.3); }
+  .btn.secondary { background: var(--navy); }
+  .btn.secondary:hover { background: var(--navy-dark); box-shadow: 0 4px 14px rgba(30,58,95,0.3); }
+  .btn.ghost { background: transparent; color: var(--teal); border: 1.5px solid var(--teal); }
+  .btn.ghost:hover { background: #eef7f5; }
+
+  /* ─── Flashcards ─── */
+  .flash-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px;
+  }
+  .flash {
+    perspective: 1100px; height: 200px; cursor: pointer;
+  }
+  .flash-inner {
+    position: relative; width: 100%; height: 100%; transition: transform 0.6s;
+    transform-style: preserve-3d;
+  }
+  .flash.flipped .flash-inner { transform: rotateY(180deg); }
+  .flash-face {
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+    border-radius: 14px; padding: 18px; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; text-align: center;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+  }
+  .flash-front { background: linear-gradient(135deg, var(--navy), var(--navy-dark)); color: #fff; }
+  .flash-front .fc-icon { font-size: 38px; margin-bottom: 10px; }
+  .flash-front .fc-term { font-size: 17px; font-weight: 800; }
+  .flash-front .fc-hint { font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 12px; }
+  .flash-back {
+    background: var(--card); transform: rotateY(180deg); color: var(--text);
+    border-color: var(--teal);
+  }
+  .flash-back .fb-def { font-size: 13px; margin-bottom: 9px; font-weight: 600; color: var(--navy); }
+  .flash-back .fb-ex { font-size: 12px; color: var(--muted); font-style: italic; }
+  .flash-back .fb-tag {
+    font-size: 10px; font-weight: 800; color: var(--teal); letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+
+  /* ─── Callouts ─── */
+  .callout {
+    border-radius: 14px; padding: 18px 20px; margin-bottom: 18px;
+    border-left: 5px solid var(--amber); background: #fdf8ec;
+  }
+  .callout.warn { border-color: var(--red); background: #fdf0ec; }
+  .callout.info { border-color: var(--teal); background: #eef7f5; }
+  .callout.success { border-color: var(--green); background: #effaf3; }
+  .callout .co-title { font-weight: 800; color: var(--navy); margin-bottom: 6px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .callout p { font-size: 14px; }
+
+  /* ─── Drag & drop ─── */
+  .dd-items {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px;
+    padding: 14px; background: #f1f4f8; border-radius: 12px; min-height: 60px;
+  }
+  .dd-chip {
+    background: #fff; border: 1.5px solid var(--navy); border-radius: 10px;
+    padding: 9px 14px; font-size: 13px; font-weight: 600; color: var(--navy);
+    cursor: grab; transition: all 0.15s; user-select: none;
+  }
+  .dd-chip:active { cursor: grabbing; }
+  .dd-chip.dragging { opacity: 0.45; }
+  .dd-chip.placed { border-style: dashed; }
+  .dd-buckets { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .dd-bucket {
+    border: 2px dashed var(--border); border-radius: 12px; padding: 12px; min-height: 110px;
+    transition: all 0.18s; background: #fff;
+  }
+  .dd-bucket.over { border-color: var(--teal); background: #eef7f5; }
+  .dd-bucket .bk-title { font-size: 12px; font-weight: 800; color: var(--navy); text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .dd-bucket .bk-drop { display: flex; flex-direction: column; gap: 6px; }
+  .dd-chip.correct { border-color: var(--green); background: #effaf3; color: #1d6b45; }
+  .dd-chip.incorrect { border-color: var(--red); background: #fdf0ec; color: #9c3b22; }
+
+  /* ─── Forms ─── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 600px){ .form-grid { grid-template-columns: 1fr; } }
+  .field label { display: block; font-size: 12.5px; font-weight: 700; color: var(--navy); margin-bottom: 5px; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 9px;
+    font-size: 14px; font-family: inherit; color: var(--text); background: #fff; transition: border 0.15s;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--teal); }
+  .field textarea { resize: vertical; min-height: 60px; }
+  .radio-row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .radio-row label { font-weight: 500; font-size: 13.5px; display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text); }
+
+  .doc-preview {
+    border: 1px solid var(--border); border-radius: 12px; padding: 22px; background: #fff;
+    margin-top: 16px; display: none; box-shadow: var(--shadow);
+  }
+  .doc-preview.show { display: block; animation: fadeIn 0.4s; }
+  .doc-preview .doc-head {
+    border-bottom: 2px solid var(--navy); padding-bottom: 10px; margin-bottom: 14px;
+  }
+  .doc-preview .doc-head h4 { color: var(--navy); font-size: 17px; }
+  .doc-preview .doc-head .doc-meta { font-size: 11px; color: var(--muted); letter-spacing: 0.5px; }
+  .doc-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed var(--border); font-size: 13.5px; gap: 12px; }
+  .doc-row .dk { color: var(--muted); font-weight: 600; }
+  .doc-row .dv { color: var(--navy); font-weight: 700; text-align: right; }
+
+  /* ─── Sub-tabs ─── */
+  .subtabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+  .subtab {
+    padding: 9px 16px; border: 1.5px solid var(--border); border-radius: 24px; background: #fff;
+    font-size: 13px; font-weight: 700; cursor: pointer; color: var(--muted); transition: all 0.18s; font-family: inherit;
+  }
+  .subtab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .subtab:hover:not(.active) { border-color: var(--teal); color: var(--teal); }
+  .subpane { display: none; }
+  .subpane.active { display: block; animation: fadeIn 0.35s; }
+
+  /* ─── Slider / range ─── */
+  .range-wrap { margin: 14px 0; }
+  input[type=range] {
+    width: 100%; -webkit-appearance: none; height: 8px; border-radius: 6px;
+    background: linear-gradient(90deg, var(--teal), var(--amber)); outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--navy); cursor: pointer; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+  }
+  input[type=range]::-moz-range-thumb {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--navy);
+    cursor: pointer; border: 3px solid #fff;
+  }
+
+  /* range bar visual */
+  .range-bar { height: 26px; background: #eef1f5; border-radius: 13px; position: relative; overflow: hidden; margin: 8px 0; }
+  .range-fill { position: absolute; top: 0; bottom: 0; background: linear-gradient(90deg, var(--teal), var(--amber)); border-radius: 13px; transition: all 0.3s; }
+  .range-mid { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--navy); transition: all 0.3s; }
+
+  /* estimate slider stops */
+  .est-stops { display: flex; justify-content: space-between; margin-top: 6px; font-size: 11px; color: var(--muted); font-weight: 600; }
+
+  /* ─── Comparison cards ─── */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 680px){ .compare { grid-template-columns: 1fr; } }
+
+  /* ─── Tables ─── */
+  table.data { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.data th { background: var(--navy); color: #fff; padding: 9px 11px; text-align: left; font-size: 12px; }
+  table.data th:first-child { border-radius: 8px 0 0 0; }
+  table.data th:last-child { border-radius: 0 8px 0 0; }
+  table.data td { padding: 8px 11px; border-bottom: 1px solid var(--border); }
+  table.data tr:last-child td { border-bottom: none; }
+  table.data input { width: 100%; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-family: inherit; }
+  table.data .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--navy); }
+  .total-row td { background: #eef7f5; font-weight: 800; color: var(--navy); }
+
+  /* WBS tree */
+  .wbs { list-style: none; }
+  .wbs > li { margin-bottom: 8px; }
+  .wbs .wbs-node {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 9px 13px; background: #f1f4f8; border-radius: 9px; font-size: 13.5px;
+  }
+  .wbs .wbs-node.root { background: var(--navy); color: #fff; font-weight: 800; }
+  .wbs .wbs-node input { width: 110px; }
+  .wbs ul { list-style: none; margin-left: 18px; margin-top: 8px; padding-left: 12px; border-left: 2px solid var(--border); }
+
+  /* stacked bar visual */
+  .stack { display: flex; height: 42px; border-radius: 10px; overflow: hidden; margin: 12px 0; box-shadow: var(--shadow); }
+  .stack-seg { display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; transition: width 0.4s; overflow: hidden; white-space: nowrap; }
+  .stack-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; margin-top: 6px; }
+  .stack-legend span { display: flex; align-items: center; gap: 6px; }
+  .stack-legend .dot { width: 12px; height: 12px; border-radius: 3px; }
+
+  /* reveal cards */
+  .reveal-card {
+    border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-bottom: 12px;
+    background: #fff; opacity: 0; transform: translateY(20px); transition: all 0.5s; box-shadow: var(--shadow);
+  }
+  .reveal-card.shown { opacity: 1; transform: translateY(0); }
+  .reveal-card .rc-num {
+    display: inline-flex; width: 30px; height: 30px; background: var(--red); color: #fff;
+    border-radius: 50%; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; margin-right: 10px;
+  }
+  .reveal-card .rc-title { font-weight: 800; color: var(--navy); font-size: 15.5px; }
+  .reveal-card .rc-story { font-size: 13px; color: var(--muted); font-style: italic; margin: 8px 0; padding-left: 12px; border-left: 3px solid var(--amber); }
+  .reveal-card .rc-fix { font-size: 13.5px; color: #1d6b45; background: #effaf3; padding: 8px 12px; border-radius: 8px; }
+
+  .quote-card {
+    background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: #fff;
+    border-radius: 16px; padding: 24px; border: none;
+  }
+  .quote-card .q-mark { font-size: 44px; line-height: 0.5; opacity: 0.4; }
+  .quote-card .q-body { font-size: 18px; font-weight: 700; font-style: italic; margin: 6px 0 14px; }
+  .quote-card ul { list-style: none; }
+  .quote-card li { font-size: 14px; padding: 5px 0; padding-left: 22px; position: relative; }
+  .quote-card li::before { content: '→'; position: absolute; left: 0; font-weight: 800; }
+
+  /* metric display */
+  .metric { text-align: center; padding: 14px; background: #f1f4f8; border-radius: 12px; }
+  .metric .m-val { font-size: 26px; font-weight: 900; color: var(--navy); font-variant-numeric: tabular-nums; }
+  .metric .m-lbl { font-size: 11px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+  .metric-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+
+  .chart-box { position: relative; height: 280px; margin-top: 10px; }
+  .chart-box.tall { height: 320px; }
+
+  /* takeaways */
+  .takeaway-card { background: linear-gradient(135deg, var(--navy), var(--navy-dark)); color: #fff; border: none; }
+  .takeaway-card h3 { color: #fff; }
+  .takeaway-card ul { list-style: none; }
+  .takeaway-card li { padding: 8px 0 8px 30px; position: relative; font-size: 14.5px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .takeaway-card li:last-child { border-bottom: none; }
+  .takeaway-card li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 900; font-size: 16px; }
+
+  .teaser {
+    border: 2px dashed var(--teal); border-radius: 16px; padding: 20px; background: #eef7f5;
+  }
+  .teaser .t-eyebrow { color: var(--teal); font-size: 11px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+  .teaser h3 { color: var(--navy); margin: 4px 0 10px; }
+  .teaser-concepts { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  @media (max-width: 560px){ .teaser-concepts { grid-template-columns: 1fr; } }
+  .teaser-concepts .tc {
+    background: #fff; border-radius: 10px; padding: 12px; text-align: center; border: 1px solid var(--border);
+  }
+  .teaser-concepts .tc-big { font-size: 22px; font-weight: 900; color: var(--teal); }
+  .teaser-concepts .tc-sm { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+
+  /* ─── Nav buttons ─── */
+  .navbar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+    background: rgba(255,255,255,0.96); backdrop-filter: blur(8px);
+    border-top: 1px solid var(--border); padding: 12px 16px;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+  }
+  .navbar-inner {
+    max-width: 1080px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .nav-dots { display: flex; gap: 6px; }
+  .nav-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--border); transition: all 0.2s; }
+  .nav-dot.active { background: var(--teal); transform: scale(1.3); }
+  .nav-btn {
+    padding: 10px 20px; border-radius: 10px; border: none; font-weight: 700; font-size: 14px;
+    cursor: pointer; font-family: inherit; transition: all 0.18s; display: flex; align-items: center; gap: 6px;
+  }
+  .nav-btn.prev { background: #eef1f5; color: var(--navy); }
+  .nav-btn.prev:hover:not(:disabled) { background: #e0e5ec; }
+  .nav-btn.next { background: var(--teal); color: #fff; }
+  .nav-btn.next:hover:not(:disabled) { background: var(--teal-dark); }
+  .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  @media (max-width: 560px){ .nav-dots { display: none; } }
+
+  .pill-tag {
+    display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px;
+    border-radius: 20px; background: #eef7f5; color: var(--teal); margin-bottom: 8px;
+  }
+  .divider { height: 1px; background: var(--border); margin: 18px 0; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 680px){ .two-col { grid-template-columns: 1fr; } }
+  .center { text-align: center; }
+  .mt { margin-top: 14px; }
+  .hl { color: var(--teal); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="course-tag">
+      <div class="course-name"><span class="badge">MBI804</span> Project Cost Management</div>
+      <div class="section-counter">Section <span id="curNum">1</span> of 7</div>
+    </div>
+    <div class="progress-track" id="progressTrack"></div>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- ══════════ SECTION 1 ══════════ -->
+  <section class="section visible" id="sec-1">
+    <div class="sec-eyebrow">Section 1 · Introduction</div>
+    <h1 class="sec-title">Why Do IT Projects Blow Their Budgets?</h1>
+
+    <div class="hook">
+      <div class="big-num"><span id="hookCounter">0</span>%</div>
+      <div class="hook-sub">of IT projects exceed their original budget</div>
+      <div class="hook-cap">Cost overruns are the rule, not the exception. This lesson shows you how to be the exception.</div>
+    </div>
+
+    <div class="card scenario-card">
+      <div class="scn-icon">🏦</div>
+      <h3>Your Mission, Should You Choose to Accept It</h3>
+      <p>Imagine you're the PM at a NZ fintech startup. You've been given <strong>NZ$500,000</strong> to deliver a new mobile banking feature in <strong>6 months</strong>. How do you make sure the money doesn't run out before the feature ships?</p>
+      <p class="muted" style="color:rgba(255,255,255,0.7)">Throughout this lesson we'll follow a running project — <strong>SecurePay NZ</strong> — to make every concept concrete.</p>
+    </div>
+
+    <div class="card">
+      <h3>The 4 PMI Cost Management Processes</h3>
+      <p class="muted">Click each process to see its major output.</p>
+      <div class="flow" id="flowDiagram">
+        <div class="flow-box" data-tip="<b>Output:</b> The Cost Management Plan — a document that defines how costs will be estimated, budgeted, managed, and controlled.">
+          <div class="f-icon">📋</div><div class="f-code">CP1</div>
+          <div class="f-name">Plan Cost Management</div>
+          <div class="f-desc">Set the rules</div>
+        </div>
+        <div class="flow-box" data-tip="<b>Output:</b> Activity Cost Estimates — quantified costs for each work item, plus the basis of estimates.">
+          <div class="f-icon">🧮</div><div class="f-code">CP2</div>
+          <div class="f-name">Estimate Costs</div>
+          <div class="f-desc">Price the work</div>
+        </div>
+        <div class="flow-box" data-tip="<b>Output:</b> The Cost Performance Baseline (the S-curve) — the approved time-phased budget used to measure performance.">
+          <div class="f-icon">📊</div><div class="f-code">CP3</div>
+          <div class="f-name">Determine Budget</div>
+          <div class="f-desc">Build the baseline</div>
+        </div>
+        <div class="flow-box" data-tip="<b>Output:</b> Work Performance Information & cost forecasts (EVM). Covered in the next lecture.">
+          <div class="f-icon">🎯</div><div class="f-code">MC1</div>
+          <div class="f-name">Control Costs</div>
+          <div class="f-desc">Track & correct</div>
+        </div>
+      </div>
+      <div class="flow-tip" id="flowTip"></div>
+    </div>
+
+    <div class="card">
+      <h3>What You'll Learn</h3>
+      <p class="muted">Tick these off as you go — they're your learning outcomes.</p>
+      <ul class="checklist" id="outcomes">
+        <li><span class="check-box">✓</span><span class="ck-txt">Distinguish the main types of project costs and benefits</span></li>
+        <li><span class="check-box">✓</span><span class="ck-txt">Build a Cost Management Plan that sets the rules before spending</span></li>
+        <li><span class="check-box">✓</span><span class="ck-txt">Apply estimation techniques including parametric and PERT</span></li>
+        <li><span class="check-box">✓</span><span class="ck-txt">Recognise why estimates go wrong and how to add reserves</span></li>
+        <li><span class="check-box">✓</span><span class="ck-txt">Construct a cost baseline and time-phased budget (S-curve)</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>Warm-Up Knowledge Check</h3>
+      <p class="muted">Three quick questions to activate your thinking. No pass/fail — just instant feedback.</p>
+      <div class="quiz" id="quizWarmup"></div>
+      <div class="score-pill" id="scoreWarmup"></div>
+    </div>
+  </section>
+
+  <!-- ══════════ SECTION 2 ══════════ -->
+  <section class="section" id="sec-2">
+    <div class="sec-eyebrow">Section 2 · Foundations</div>
+    <h1 class="sec-title">Know Your Costs: The Building Blocks</h1>
+
+    <div class="card">
+      <h3>Cost Type Flashcards</h3>
+      <p class="muted">Click any card to flip it and reveal the definition + a real IT project example.</p>
+      <div class="flash-grid" id="flashGrid"></div>
+    </div>
+
+    <div class="callout warn">
+      <div class="co-title">⚠️ The Sunk Cost Fallacy</div>
+      <p>A NZ insurer spent <strong>NZ$2.3M</strong> over two years on a custom ERP that never worked. When asked to cut losses, leadership said: <em>"We've already spent so much — we can't stop now."</em> They spent another NZ$1.1M before finally abandoning it. The money already spent was <strong>sunk</strong> — irrelevant to whether the next dollar was worth spending. Good PMs ignore sunk costs in go/no-go decisions.</p>
+    </div>
+
+    <div class="card">
+      <h3>Drag-and-Drop: Categorise the Costs</h3>
+      <p class="muted">Drag each cost item from a fictional IT project into the correct bucket, then hit Submit.</p>
+      <div class="dd-items" id="ddItems" aria-label="Cost items to categorise"></div>
+      <div class="dd-buckets" id="ddBuckets"></div>
+      <div class="mt" style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn" id="ddSubmit">Submit Answers</button>
+        <button class="btn ghost" id="ddReset">Reset</button>
+      </div>
+      <div class="q-fb" id="ddFeedback"></div>
+    </div>
+
+    <div class="card">
+      <h3>Basic Principles</h3>
+      <div class="compare">
+        <div class="card" style="margin:0;box-shadow:none;background:#f9fbfc">
+          <span class="pill-tag">Learning Curve Theory</span>
+          <p style="font-size:14px">The more times a team repeats a task, the cheaper and faster each repetition becomes. Cost per unit drops as cumulative experience grows — important when estimating repetitive IT work like onboarding integrations or test cycles.</p>
+          <div class="chart-box" style="height:220px"><canvas id="learningChart"></canvas></div>
+        </div>
+        <div class="card" style="margin:0;box-shadow:none;background:#f9fbfc">
+          <span class="pill-tag">Reserves</span>
+          <p style="font-size:14px"><strong>Contingency Reserves</strong> cover <em>known unknowns</em> (risks you've identified) — controlled by the <span class="hl">PM</span>, part of the cost baseline.<br><br><strong>Management Reserves</strong> cover <em>unknown unknowns</em> — controlled by <span class="hl">senior management</span>, sit outside the baseline.</p>
+          <div class="stack" style="margin-top:14px">
+            <div class="stack-seg" style="width:70%;background:var(--navy)">Base Estimate</div>
+            <div class="stack-seg" style="width:18%;background:var(--teal)">Contingency</div>
+            <div class="stack-seg" style="width:12%;background:var(--amber);color:var(--navy)">Mgmt</div>
+          </div>
+          <div class="stack-legend">
+            <span><span class="dot" style="background:var(--navy)"></span>Base estimate</span>
+            <span><span class="dot" style="background:var(--teal)"></span>Contingency (PM)</span>
+            <span><span class="dot" style="background:var(--amber)"></span>Management (sponsor)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ SECTION 3 ══════════ -->
+  <section class="section" id="sec-3">
+    <div class="sec-eyebrow">Section 3 · CP1 — Plan Cost Management</div>
+    <h1 class="sec-title">Before You Spend a Dollar: The Cost Management Plan</h1>
+
+    <div class="card">
+      <h3>Process Overview</h3>
+      <div class="flow" style="grid-template-columns:1fr auto 1fr auto 1fr;align-items:center">
+        <div class="flow-box" style="cursor:default">
+          <div class="f-icon">📥</div><div class="f-code">INPUTS</div>
+          <div class="f-desc">Project charter, plan, EEFs & OPAs</div>
+        </div>
+        <div style="text-align:center;font-size:24px;color:var(--teal);font-weight:900">→</div>
+        <div class="flow-box" style="cursor:default">
+          <div class="f-icon">🛠️</div><div class="f-code">TOOLS</div>
+          <div class="f-desc">Expert judgment · Analytical techniques · Meetings</div>
+        </div>
+        <div style="text-align:center;font-size:24px;color:var(--teal);font-weight:900">→</div>
+        <div class="flow-box sel" style="cursor:default">
+          <div class="f-icon">📄</div><div class="f-code">OUTPUT</div>
+          <div class="f-desc"><strong>Cost Management Plan</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Cost Management Plan Template — "SecurePay NZ"</h3>
+      <p class="muted">You are PM for <strong>SecurePay NZ</strong>, a payment gateway integration project for a retail client. Fill in the plan, then preview it as a formatted document.</p>
+      <div class="form-grid mt">
+        <div class="field">
+          <label for="cmpAccuracy">Level of accuracy</label>
+          <select id="cmpAccuracy">
+            <option value="±1%">±1% (definitive)</option>
+            <option value="±5%" selected>±5% (budgetary)</option>
+            <option value="±10%">±10% (early planning)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cmpUnits">Units of measure</label>
+          <select id="cmpUnits">
+            <option value="NZD" selected>NZD — New Zealand Dollar</option>
+            <option value="AUD">AUD — Australian Dollar</option>
+            <option value="USD">USD — US Dollar</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cmpThreshold">Control threshold</label>
+          <input id="cmpThreshold" type="text" placeholder="e.g. ±10% variance triggers review" value="±10% variance triggers review">
+        </div>
+        <div class="field">
+          <label for="cmpRules">Rules of performance measurement</label>
+          <select id="cmpRules">
+            <option value="Earned Value Management (EVM)" selected>Earned Value Management (EVM)</option>
+            <option value="Simple % Complete">Simple % Complete</option>
+            <option value="Milestone-based">Milestone-based</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Reporting format</label>
+          <div class="radio-row" style="padding-top:6px">
+            <label><input type="radio" name="cmpFormat" value="Weekly status report"> Weekly status report</label>
+            <label><input type="radio" name="cmpFormat" value="Fortnightly dashboard" checked> Fortnightly dashboard</label>
+            <label><input type="radio" name="cmpFormat" value="Monthly summary"> Monthly</label>
+          </div>
+        </div>
+        <div class="field">
+          <label for="cmpCadence">Reporting cadence</label>
+          <input id="cmpCadence" type="text" placeholder="e.g. Every second Friday, 4pm" value="Every second Friday by 4pm">
+        </div>
+      </div>
+      <div class="mt"><button class="btn" id="cmpPreview">Preview Plan</button></div>
+
+      <div class="doc-preview" id="cmpDoc">
+        <div class="doc-head">
+          <h4>Cost Management Plan</h4>
+          <div class="doc-meta">PROJECT: SECUREPAY NZ · PAYMENT GATEWAY INTEGRATION · CONFIDENTIAL</div>
+        </div>
+        <div id="cmpDocBody"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>💭 Reflection</h3>
+      <p class="muted">What would happen if you skipped this planning step and went straight to estimating costs? (Not graded — just for your own thinking.)</p>
+      <div class="field mt"><textarea id="cmpReflect" placeholder="Type your thoughts here..."></textarea></div>
+      <div class="callout info mt" style="margin-bottom:0">
+        <p style="font-size:13px"><strong>One perspective:</strong> Without a plan, every estimator uses different units, accuracy levels, and thresholds — so estimates can't be compared, variances can't be judged, and there's no agreed trigger for escalation. The plan makes the numbers <em>mean</em> something.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ SECTION 4 ══════════ -->
+  <section class="section" id="sec-4">
+    <div class="sec-eyebrow">Section 4 · CP2 — Estimate Costs</div>
+    <h1 class="sec-title">Show Me the Money: How to Estimate Project Costs</h1>
+
+    <div class="subtabs" id="s4tabs">
+      <button class="subtab active" data-pane="p-cats">Estimate Categories</button>
+      <button class="subtab" data-pane="p-tech">Estimation Techniques</button>
+      <button class="subtab" data-pane="p-pert">PERT Calculator</button>
+    </div>
+
+    <!-- Sub-tab 1 -->
+    <div class="subpane active" id="p-cats">
+      <div class="card">
+        <h3>Categories of Cost Estimates</h3>
+        <p class="muted">Drag the slider along the project lifecycle. As the project matures, estimates get more accurate.</p>
+        <div class="range-wrap">
+          <input type="range" id="estSlider" min="0" max="2" step="1" value="0" aria-label="Estimate maturity slider">
+          <div class="est-stops"><span>Initiation</span><span>Planning</span><span>Pre-delivery</span></div>
+        </div>
+        <div class="card mt" style="margin-bottom:0;background:#f9fbfc;box-shadow:none">
+          <span class="pill-tag" id="estType">ROM</span>
+          <h3 id="estName">Rough Order of Magnitude</h3>
+          <p style="font-size:13px;font-weight:700;color:var(--navy)">Accuracy range</p>
+          <div class="range-bar"><div class="range-fill" id="estFill"></div><div class="range-mid" id="estMid"></div></div>
+          <div class="est-stops"><span>−50%</span><span>0</span><span>+100%</span></div>
+          <div class="two-col mt">
+            <div><strong style="font-size:13px;color:var(--teal)">When</strong><p style="font-size:13.5px" id="estWhen"></p></div>
+            <div><strong style="font-size:13px;color:var(--teal)">Why</strong><p style="font-size:13.5px" id="estWhy"></p></div>
+          </div>
+          <div class="callout info mt" style="margin-bottom:0"><p style="font-size:13px" id="estExample"></p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub-tab 2 -->
+    <div class="subpane" id="p-tech">
+      <div class="compare">
+        <div class="card">
+          <span class="pill-tag">Top-Down</span>
+          <h3>Analogous & Parametric</h3>
+          <p style="font-size:13.5px"><strong>Analogous:</strong> uses cost of a similar past project, scaled. Fast, cheap, least accurate.<br><strong>Parametric:</strong> uses a statistical relationship — e.g. cost per function point.</p>
+          <div class="divider"></div>
+          <p style="font-weight:700;color:var(--navy);font-size:13.5px">Parametric Estimator</p>
+          <div class="field mt">
+            <label>Number of function points: <span class="hl" id="fpVal">200</span></label>
+            <input type="range" id="fpSlider" min="50" max="500" step="10" value="200" aria-label="Function points">
+          </div>
+          <div class="field mt">
+            <label for="fpCost">Cost per function point (NZ$)</label>
+            <input type="number" id="fpCost" value="120" min="0">
+          </div>
+          <div class="metric mt"><div class="m-val" id="fpTotal">NZ$24,000</div><div class="m-lbl">Estimated total cost</div></div>
+          <p class="muted mt" style="font-size:12px">Used externally for client proposals; less accurate for novel IT work.</p>
+        </div>
+        <div class="card">
+          <span class="pill-tag">Bottom-Up</span>
+          <h3>WBS-Based & PERT</h3>
+          <p style="font-size:13.5px">Decompose the work into packages, estimate each leaf, then roll up. Most accurate — and most effort.</p>
+          <div class="divider"></div>
+          <p style="font-weight:700;color:var(--navy);font-size:13.5px">Mini WBS (edit the leaf costs)</p>
+          <ul class="wbs mt" id="wbsTree">
+            <li>
+              <div class="wbs-node root"><span>SecurePay NZ — Total</span><span id="wbsTotal">NZ$0</span></div>
+              <ul>
+                <li><div class="wbs-node"><span>1.1 API Integration</span><input type="number" class="wbs-leaf" value="35000"></div></li>
+                <li><div class="wbs-node"><span>1.2 Security Layer</span><input type="number" class="wbs-leaf" value="28000"></div></li>
+                <li><div class="wbs-node"><span>1.3 Testing & UAT</span><input type="number" class="wbs-leaf" value="22000"></div></li>
+              </ul>
+            </li>
+          </ul>
+          <p class="muted mt" style="font-size:12px">Bottom-up: most accurate, based on WBS decomposition.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Which technique for SecurePay NZ?</h3>
+        <p class="muted">Pick the best technique for each situation — instant feedback.</p>
+        <div id="techScenarios"></div>
+      </div>
+    </div>
+
+    <!-- Sub-tab 3 -->
+    <div class="subpane" id="p-pert">
+      <div class="card">
+        <h3>Three-Point Estimating (PERT)</h3>
+        <div class="callout info">
+          <p style="font-family:monospace;font-size:15px;color:var(--navy)"><strong>E = (O + 4M + P) / 6</strong> &nbsp;&nbsp;·&nbsp;&nbsp; <strong>SD = (P − O) / 6</strong></p>
+        </div>
+        <p class="muted">Enter Optimistic (O), Most Likely (M), Pessimistic (P) costs. Expected cost (E) and Standard Deviation (SD) calculate automatically.</p>
+        <div style="overflow-x:auto" class="mt">
+          <table class="data" id="pertTable">
+            <thead><tr><th>Activity</th><th>O (NZ$)</th><th>M (NZ$)</th><th>P (NZ$)</th><th>E (NZ$)</th><th>SD (NZ$)</th></tr></thead>
+            <tbody></tbody>
+            <tfoot><tr class="total-row"><td>Total Expected Cost</td><td colspan="3"></td><td class="num" id="pertTotal">—</td><td></td></tr></tfoot>
+          </table>
+        </div>
+        <div class="chart-box mt"><canvas id="pertChart"></canvas></div>
+        <div class="callout mt" style="margin-bottom:0">
+          <div class="co-title">💡 When to use PERT</div>
+          <p>PERT acknowledges uncertainty. Use it when activities are novel or have high variability — exactly the case for new API integrations and security work.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ SECTION 5 ══════════ -->
+  <section class="section" id="sec-5">
+    <div class="sec-eyebrow">Section 5 · Pitfalls</div>
+    <h1 class="sec-title">Why Estimates Go Wrong (and What to Do About It)</h1>
+
+    <div class="card">
+      <h3>The 4 Common Problems</h3>
+      <p class="muted">Click to reveal them one by one, each with a war story and a fix.</p>
+      <div class="mt"><button class="btn" id="revealBtn">Reveal Problems</button></div>
+      <div class="mt" id="problemList"></div>
+    </div>
+
+    <div class="card">
+      <h3>Bias Meter</h3>
+      <p class="muted">A PM estimates a task at <strong>NZ$5,000</strong>. Humans are optimistic. Slide to see how a realistic estimate grows once you adjust for optimism bias.</p>
+      <div class="range-wrap">
+        <label>Optimism bias adjustment: <span class="hl" id="biasVal">0%</span></label>
+        <input type="range" id="biasSlider" min="0" max="40" step="1" value="0" aria-label="Optimism bias">
+      </div>
+      <div class="metric-row mt">
+        <div class="metric"><div class="m-val">NZ$5,000</div><div class="m-lbl">Naive estimate</div></div>
+        <div class="metric"><div class="m-val" id="biasRealistic">NZ$5,000</div><div class="m-lbl">Realistic estimate</div></div>
+        <div class="metric"><div class="m-val" id="biasReserve">NZ$0</div><div class="m-lbl">Recommended contingency</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Contingency Reserve Explainer</h3>
+      <p class="muted">SecurePay NZ base estimate is <strong>NZ$650,000</strong>. Adjust the contingency % and watch the budget ceiling update live.</p>
+      <div class="range-wrap">
+        <label>Contingency reserve: <span class="hl" id="contVal">10%</span></label>
+        <input type="range" id="contSlider" min="5" max="25" step="1" value="10" aria-label="Contingency percent">
+      </div>
+      <div class="stack mt" id="contStack"></div>
+      <div class="stack-legend">
+        <span><span class="dot" style="background:var(--navy)"></span>Base estimate</span>
+        <span><span class="dot" style="background:var(--teal)"></span>Contingency reserve</span>
+        <span><span class="dot" style="background:var(--amber)"></span>Management reserve (fixed 5%)</span>
+      </div>
+      <div class="metric-row mt">
+        <div class="metric"><div class="m-val">NZ$650,000</div><div class="m-lbl">Base estimate</div></div>
+        <div class="metric"><div class="m-val" id="contReserve">NZ$65,000</div><div class="m-lbl">Contingency</div></div>
+        <div class="metric"><div class="m-val" id="contCeiling">NZ$747,500</div><div class="m-lbl">Total budget ceiling</div></div>
+      </div>
+    </div>
+
+    <div class="card quote-card">
+      <div class="q-mark">"</div>
+      <div class="q-body">Treat estimates as a living process, not a one-time event.</div>
+      <p style="font-size:12px;opacity:0.8;margin-bottom:14px">— PM Network insight</p>
+      <ul>
+        <li>Manage estimates through the whole lifecycle — refine as you learn</li>
+        <li>Use agile estimating (story points, relative sizing) for evolving scope</li>
+        <li>Match skill sets — let the people who'll do the work estimate it</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ══════════ SECTION 6 ══════════ -->
+  <section class="section" id="sec-6">
+    <div class="sec-eyebrow">Section 6 · CP3 — Determine Budget</div>
+    <h1 class="sec-title">Building the Cost Baseline</h1>
+
+    <div class="card">
+      <p>Cost budgeting means <strong>allocating cost estimates to individual WBS work items over time</strong>. The result is the <span class="hl">Cost Performance Baseline</span> — the famous S-curve against which all future performance is measured.</p>
+    </div>
+
+    <div class="card">
+      <h3>Budget Builder — SecurePay NZ</h3>
+      <p class="muted">Edit any work package cost. Reserves and totals recalculate live.</p>
+      <div style="overflow-x:auto" class="mt">
+        <table class="data" id="budgetTable">
+          <thead><tr><th>WBS Work Package</th><th>Cost (NZ$)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="form-grid mt">
+        <div class="field"><label for="contInput">Contingency reserve (%)</label><input type="number" id="contInput" value="10" min="0" max="50"></div>
+        <div class="field"><label for="mgmtInput">Management reserve (%)</label><input type="number" id="mgmtInput" value="5" min="0" max="50"></div>
+      </div>
+      <div class="metric-row mt">
+        <div class="metric"><div class="m-val" id="bSum">NZ$0</div><div class="m-lbl">Sum of estimates</div></div>
+        <div class="metric"><div class="m-val" id="bBaseline">NZ$0</div><div class="m-lbl">Cost baseline</div></div>
+        <div class="metric"><div class="m-val" id="bCeiling">NZ$0</div><div class="m-lbl">Total budget ceiling</div></div>
+      </div>
+      <div class="stack mt" id="budgetStack"></div>
+      <div class="stack-legend">
+        <span><span class="dot" style="background:var(--navy)"></span>Estimates</span>
+        <span><span class="dot" style="background:var(--teal)"></span>Contingency</span>
+        <span><span class="dot" style="background:var(--amber)"></span>Management reserve</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Time-Phased Budget & S-Curve</h3>
+      <p class="muted">How the spend falls across the 6-month schedule. The cumulative line is your Cost Performance Baseline.</p>
+      <div style="overflow-x:auto" class="mt">
+        <table class="data" id="phaseTable">
+          <thead><tr><th>Month</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr></thead>
+          <tbody>
+            <tr><td style="font-weight:700">Spend (NZ$000s)</td><td>40</td><td>60</td><td>140</td><td>140</td><td>120</td><td>80</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="chart-box tall mt"><canvas id="scurveChart"></canvas></div>
+    </div>
+
+    <div class="callout info">
+      <div class="co-title">🔑 Baseline vs Total Budget</div>
+      <p><strong>Cost Baseline</strong> = estimates + contingency reserve → the <span class="hl">PM controls</span> this and measures performance against it.<br><strong>Total Budget</strong> = baseline + management reserve → the <span class="hl">sponsor controls</span> the management reserve; the PM must request access to it.</p>
+    </div>
+  </section>
+
+  <!-- ══════════ SECTION 7 ══════════ -->
+  <section class="section" id="sec-7">
+    <div class="sec-eyebrow">Section 7 · Summary</div>
+    <h1 class="sec-title">Putting It All Together</h1>
+
+    <div class="card">
+      <h3>The 4 Processes — Recap</h3>
+      <div class="flow">
+        <div class="flow-box sel" style="cursor:default"><div class="f-icon">📋</div><div class="f-code">CP1</div><div class="f-name">Plan</div><div class="f-desc">Cost Mgmt Plan</div></div>
+        <div class="flow-box sel" style="cursor:default"><div class="f-icon">🧮</div><div class="f-code">CP2</div><div class="f-name">Estimate</div><div class="f-desc">Cost Estimates</div></div>
+        <div class="flow-box sel" style="cursor:default"><div class="f-icon">📊</div><div class="f-code">CP3</div><div class="f-name">Budget</div><div class="f-desc">Cost Baseline</div></div>
+        <div class="flow-box" style="cursor:default;opacity:0.7"><div class="f-icon">🎯</div><div class="f-code">MC1</div><div class="f-name">Control</div><div class="f-desc">Next lecture →</div></div>
+      </div>
+      <p class="muted mt" style="margin-bottom:0">MC1 (Controlling Costs) is covered in the next lecture — Earned Value Management.</p>
+    </div>
+
+    <div class="card">
+      <h3>🏆 SecurePay NZ — Final Challenge</h3>
+      <p class="muted">Five questions. Score shown at the end with a review path if needed.</p>
+      <div id="finalQuiz"></div>
+
+      <div class="divider"></div>
+      <p style="font-weight:700;color:var(--navy);font-size:14px">Q5 · Drag the 3 estimate types into order — least to most accurate</p>
+      <div class="dd-items" id="orderItems" style="margin-top:10px"></div>
+      <div class="dd-buckets" id="orderBuckets" style="grid-template-columns:repeat(3,1fr)"></div>
+      <div class="mt"><button class="btn" id="finalSubmit">Submit Final Challenge</button></div>
+      <div class="score-pill" id="finalScore"></div>
+      <div class="center mt" id="reviewWrap" style="display:none">
+        <button class="btn secondary" id="reviewBtn">← Review key sections</button>
+      </div>
+    </div>
+
+    <div class="card takeaway-card">
+      <h3>Key Takeaways</h3>
+      <ul>
+        <li>Plan first: the Cost Management Plan makes every later number comparable</li>
+        <li>Know your cost types — and never let sunk costs drive future decisions</li>
+        <li>Match the estimate type to the lifecycle stage (ROM → Budgetary → Definitive)</li>
+        <li>Use PERT and reserves to handle uncertainty honestly, not optimistically</li>
+        <li>The cost baseline (with contingency) is the S-curve you manage against</li>
+      </ul>
+    </div>
+
+    <div class="teaser">
+      <div class="t-eyebrow">Next Lecture Preview</div>
+      <h3>MC1: Controlling Costs — Earned Value Management</h3>
+      <p class="muted">Three concepts to look forward to:</p>
+      <div class="teaser-concepts mt">
+        <div class="tc"><div class="tc-big">EV</div><div class="tc-sm">Earned Value — what you've actually accomplished, in $</div></div>
+        <div class="tc"><div class="tc-big">CPI</div><div class="tc-sm">Cost Performance Index — are you over or under budget?</div></div>
+        <div class="tc"><div class="tc-big">SPI</div><div class="tc-sm">Schedule Performance Index — are you ahead or behind?</div></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ─── Bottom Nav ─── -->
+<div class="navbar">
+  <div class="navbar-inner">
+    <button class="nav-btn prev" id="prevBtn">← Previous</button>
+    <div class="nav-dots" id="navDots"></div>
+    <button class="nav-btn next" id="nextBtn">Next →</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var TOTAL = 7, current = 1, visited = {1:true};
+  var fmt = function(n){ return 'NZ$' + Math.round(n).toLocaleString('en-NZ'); };
+
+  /* ─── Navigation ─── */
+  var track = document.getElementById('progressTrack');
+  var labels = ['Intro','Costs','Plan','Estimate','Pitfalls','Budget','Summary'];
+  for (var i=1;i<=TOTAL;i++){
+    (function(n){
+      var b = document.createElement('button');
+      b.className = 'progress-step' + (n===1?' active':'');
+      b.innerHTML = '<span>'+n+'</span><span class="lbl">'+labels[n-1]+'</span>';
+      b.setAttribute('aria-label','Go to section '+n+': '+labels[n-1]);
+      b.onclick = function(){ goTo(n); };
+      track.appendChild(b);
+    })(i);
+  }
+  var dotsWrap = document.getElementById('navDots');
+  for (var d=1; d<=TOTAL; d++){ var dot=document.createElement('div'); dot.className='nav-dot'+(d===1?' active':''); dotsWrap.appendChild(dot); }
+
+  function goTo(n){
+    if (n<1||n>TOTAL) return;
+    document.getElementById('sec-'+current).classList.remove('visible');
+    current = n; visited[n] = true;
+    document.getElementById('sec-'+current).classList.add('visible');
+    document.getElementById('curNum').textContent = n;
+    var steps = track.children;
+    for (var i=0;i<steps.length;i++){
+      steps[i].classList.remove('active','done');
+      if (i+1===n) steps[i].classList.add('active');
+      else if (visited[i+1]) steps[i].classList.add('done');
+    }
+    var dts = dotsWrap.children;
+    for (var j=0;j<dts.length;j++) dts[j].classList.toggle('active', j+1===n);
+    document.getElementById('prevBtn').disabled = (n===1);
+    document.getElementById('nextBtn').disabled = (n===TOTAL);
+    document.getElementById('nextBtn').textContent = (n===TOTAL? 'Finish ✓' : 'Next →');
+    window.scrollTo({top:0, behavior:'smooth'});
+    if (n===4) ensurePert();
+    if (n===6) ensureScurve();
+  }
+  document.getElementById('prevBtn').onclick = function(){ goTo(current-1); };
+  document.getElementById('nextBtn').onclick = function(){ goTo(current+1); };
+
+  /* ─── S1: Hook counter ─── */
+  var target=75, hc=document.getElementById('hookCounter'), cur=0;
+  var t=setInterval(function(){ cur+=2; if(cur>=target){cur=target;clearInterval(t);} hc.textContent=cur; },28);
+
+  /* ─── S1: Flow tooltips ─── */
+  var flowTip=document.getElementById('flowTip');
+  Array.prototype.forEach.call(document.querySelectorAll('#flowDiagram .flow-box'), function(box){
+    box.onclick=function(){
+      Array.prototype.forEach.call(document.querySelectorAll('#flowDiagram .flow-box'), function(b){b.classList.remove('sel');});
+      box.classList.add('sel');
+      flowTip.innerHTML = box.getAttribute('data-tip');
+      flowTip.classList.add('show');
+    };
+  });
+
+  /* ─── S1: Outcomes checklist ─── */
+  Array.prototype.forEach.call(document.querySelectorAll('#outcomes li'), function(li){
+    li.onclick=function(){ li.classList.toggle('checked'); };
+  });
+
+  /* ─── Generic MCQ renderer ─── */
+  function renderQuiz(container, questions, onComplete){
+    var answered={}, total=questions.length;
+    questions.forEach(function(q, qi){
+      var wrap=document.createElement('div'); wrap.className='quiz-q';
+      var qt=document.createElement('div'); qt.className='q-text';
+      qt.innerHTML='<span class="qn">'+(qi+1)+'</span>'+q.q;
+      wrap.appendChild(qt);
+      var fb=document.createElement('div'); fb.className='q-fb';
+      q.opts.forEach(function(opt, oi){
+        var b=document.createElement('button'); b.className='opt'; b.textContent=opt;
+        b.onclick=function(){
+          if(answered[qi]!==undefined) return;
+          answered[qi]=oi;
+          var btns=wrap.querySelectorAll('.opt');
+          btns.forEach(function(bb,bi){ bb.disabled=true;
+            if(bi===q.a){bb.classList.add('correct'); bb.innerHTML+=' <span class="mk">✓</span>';}
+            else if(bi===oi){bb.classList.add('wrong'); bb.innerHTML+=' <span class="mk">✗</span>';}
+          });
+          fb.className='q-fb show '+(oi===q.a?'good':'bad');
+          fb.innerHTML=(oi===q.a?'<strong>Correct! </strong>':'<strong>Not quite. </strong>')+q.fb;
+          if(Object.keys(answered).length===total && onComplete){
+            var sc=0; for(var k in answered){ if(answered[k]===questions[k].a) sc++; }
+            onComplete(sc, total);
+          }
+        };
+        wrap.appendChild(b);
+      });
+      wrap.appendChild(fb);
+      container.appendChild(wrap);
+    });
+  }
+
+  /* ─── S1: Warm-up quiz ─── */
+  renderQuiz(document.getElementById('quizWarmup'), [
+    {q:'Which process produces the Cost Performance Baseline?', opts:['CP1 — Plan Cost Management','CP2 — Estimate Costs','CP3 — Determine Budget','MC1 — Control Costs'], a:2,
+     fb:'Determining the Budget (CP3) aggregates estimates and reserves into the time-phased Cost Performance Baseline.'},
+    {q:'What type of cost is office rent for a project team?', opts:['Direct cost','Indirect cost','Sunk cost','Intangible cost'], a:1,
+     fb:'Rent is shared overhead not traceable to a single deliverable — an indirect cost.'},
+    {q:'A sunk cost is...', opts:['A cost that recurs every month','Money already spent that cannot be recovered','A reserve held by senior management','A cost paid only on project success'], a:1,
+     fb:'Sunk costs are already incurred and unrecoverable — they should be ignored in go/no-go decisions.'}
+  ], function(sc,tot){
+    var p=document.getElementById('scoreWarmup');
+    p.textContent='Warm-up score: '+sc+' / '+tot+(sc===tot?'  🎉 Great start!':'  — keep going!');
+    p.classList.add('show');
+  });
+
+  /* ─── S2: Flashcards ─── */
+  var cards=[
+    {icon:'💵',term:'Tangible Costs',tag:'Measurable in money',def:'Costs that can be measured directly in monetary terms.',ex:'Software licenses purchased for NZ$12,000.'},
+    {icon:'🤝',term:'Intangible Costs',tag:'Hard to quantify',def:'Benefits or costs hard to measure in dollars.',ex:'Improved customer trust after launching a secure login system.'},
+    {icon:'🎯',term:'Direct Costs',tag:'Traceable',def:'Costs charged directly to a specific project.',ex:'Developer salaries charged directly to the project.'},
+    {icon:'🏢',term:'Indirect Costs',tag:'Shared overhead',def:'Shared costs spread across multiple projects.',ex:'Office overhead shared across 4 concurrent projects.'},
+    {icon:'🪙',term:'Sunk Cost',tag:'Already spent',def:'Money already spent and unrecoverable — irrelevant to future decisions.',ex:'NZ$80,000 already spent on a failed architecture — irrelevant to the go/no-go decision.'}
+  ];
+  var fg=document.getElementById('flashGrid');
+  cards.forEach(function(c){
+    var f=document.createElement('div'); f.className='flash'; f.tabIndex=0;
+    f.setAttribute('role','button'); f.setAttribute('aria-label',c.term+' — click to flip');
+    f.innerHTML='<div class="flash-inner">'+
+      '<div class="flash-face flash-front"><div class="fc-icon">'+c.icon+'</div><div class="fc-term">'+c.term+'</div><div class="fc-hint">click to flip ↻</div></div>'+
+      '<div class="flash-face flash-back"><div class="fb-tag">'+c.tag+'</div><div class="fb-def">'+c.def+'</div><div class="fb-ex">'+c.ex+'</div></div>'+
+      '</div>';
+    f.onclick=function(){ f.classList.toggle('flipped'); };
+    f.onkeydown=function(e){ if(e.key==='Enter'||e.key===' '){e.preventDefault();f.classList.toggle('flipped');} };
+    fg.appendChild(f);
+  });
+
+  /* ─── S2: Drag & drop categorisation ─── */
+  var ddData=[
+    {label:'Cloud hosting fees', cat:'Direct'},
+    {label:'Team morale boost', cat:'Intangible'},
+    {label:'Project manager salary', cat:'Direct'},
+    {label:'Shared HR system cost', cat:'Indirect'},
+    {label:'Previously paid consultant fee', cat:'Sunk'},
+    {label:'New laptop purchase', cat:'Tangible'}
+  ];
+  var ddCats=['Direct','Indirect','Tangible','Intangible','Sunk'];
+  var ddItems=document.getElementById('ddItems'), ddBuckets=document.getElementById('ddBuckets');
+  var dragged=null;
+  function buildDD(){
+    ddItems.innerHTML=''; ddBuckets.innerHTML='';
+    var shuffled=ddData.slice().sort(function(){return Math.random()-0.5;});
+    shuffled.forEach(function(it,idx){
+      var chip=makeChip(it.label, it.cat);
+      ddItems.appendChild(chip);
+    });
+    ddCats.forEach(function(cat){
+      var bk=document.createElement('div'); bk.className='dd-bucket'; bk.dataset.cat=cat;
+      bk.innerHTML='<div class="bk-title">'+cat+'</div><div class="bk-drop"></div>';
+      bk.addEventListener('dragover', function(e){ e.preventDefault(); bk.classList.add('over'); });
+      bk.addEventListener('dragleave', function(){ bk.classList.remove('over'); });
+      bk.addEventListener('drop', function(e){
+        e.preventDefault(); bk.classList.remove('over');
+        if(dragged){ bk.querySelector('.bk-drop').appendChild(dragged); dragged.classList.add('placed'); }
+      });
+      ddBuckets.appendChild(bk);
+    });
+    document.getElementById('ddFeedback').classList.remove('show');
+  }
+  function makeChip(label, cat){
+    var chip=document.createElement('div'); chip.className='dd-chip'; chip.textContent=label;
+    chip.draggable=true; chip.dataset.cat=cat;
+    chip.addEventListener('dragstart', function(){ dragged=chip; chip.classList.add('dragging'); });
+    chip.addEventListener('dragend', function(){ chip.classList.remove('dragging'); dragged=null; });
+    return chip;
+  }
+  // allow dropping back to the tray
+  ddItems.addEventListener('dragover', function(e){ e.preventDefault(); });
+  ddItems.addEventListener('drop', function(e){ e.preventDefault(); if(dragged){ ddItems.appendChild(dragged); dragged.classList.remove('placed'); } });
+  document.getElementById('ddSubmit').onclick=function(){
+    var correct=0, placed=0;
+    Array.prototype.forEach.call(ddBuckets.querySelectorAll('.dd-bucket'), function(bk){
+      Array.prototype.forEach.call(bk.querySelectorAll('.dd-chip'), function(chip){
+        placed++;
+        chip.classList.remove('correct','incorrect');
+        if(chip.dataset.cat===bk.dataset.cat){ chip.classList.add('correct'); correct++; }
+        else chip.classList.add('incorrect');
+      });
+    });
+    var fb=document.getElementById('ddFeedback');
+    fb.className='q-fb show '+(correct===ddData.length?'good':'bad');
+    fb.innerHTML='<strong>'+correct+' / '+ddData.length+' correct.</strong> '+
+      (correct===ddData.length? 'Perfect categorisation! ' : 'Green = right bucket, red = wrong. ')+
+      'Remember: direct = traceable to this project; indirect = shared overhead; tangible/intangible = measurable or not in $; sunk = already spent.';
+  };
+  document.getElementById('ddReset').onclick=buildDD;
+  buildDD();
+
+  /* ─── S2: Learning curve chart ─── */
+  function learningData(){ var x=[],y=[]; for(var u=1;u<=10;u++){ x.push(u); y.push(+(100*Math.pow(u,-0.32)).toFixed(1)); } return {x:x,y:y}; }
+  var charts={};
+  function makeLearning(){
+    var d=learningData();
+    charts.learning=new Chart(document.getElementById('learningChart'),{
+      type:'line',
+      data:{labels:d.x, datasets:[{label:'Hours per unit', data:d.y, borderColor:'#2a9d8f', backgroundColor:'rgba(42,157,143,0.12)', fill:true, tension:0.35, pointRadius:3}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{title:{display:true,text:'Hours per unit'},beginAtZero:true},x:{title:{display:true,text:'Cumulative units produced'}}}}
+    });
+  }
+
+  /* ─── S3: Plan preview ─── */
+  document.getElementById('cmpPreview').onclick=function(){
+    var fmtRadio=document.querySelector('input[name="cmpFormat"]:checked');
+    var rows=[
+      ['Level of accuracy', document.getElementById('cmpAccuracy').value],
+      ['Units of measure', document.getElementById('cmpUnits').value],
+      ['Control threshold', document.getElementById('cmpThreshold').value || '—'],
+      ['Performance measurement', document.getElementById('cmpRules').value],
+      ['Reporting format', fmtRadio? fmtRadio.value : '—'],
+      ['Reporting cadence', document.getElementById('cmpCadence').value || '—']
+    ];
+    var html=rows.map(function(r){ return '<div class="doc-row"><span class="dk">'+r[0]+'</span><span class="dv">'+escapeHtml(r[1])+'</span></div>'; }).join('');
+    document.getElementById('cmpDocBody').innerHTML=html;
+    document.getElementById('cmpDoc').classList.add('show');
+    document.getElementById('cmpDoc').scrollIntoView({behavior:'smooth',block:'nearest'});
+  };
+  function escapeHtml(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+  /* ─── S4 sub-tabs ─── */
+  Array.prototype.forEach.call(document.querySelectorAll('#s4tabs .subtab'), function(tab){
+    tab.onclick=function(){
+      Array.prototype.forEach.call(document.querySelectorAll('#s4tabs .subtab'), function(t){t.classList.remove('active');});
+      Array.prototype.forEach.call(document.querySelectorAll('#sec-4 .subpane'), function(p){p.classList.remove('active');});
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.pane).classList.add('active');
+      if(tab.dataset.pane==='p-pert') ensurePert();
+    };
+  });
+
+  /* ─── S4 sub-tab1: estimate slider ─── */
+  var estTypes=[
+    {type:'ROM', name:'Rough Order of Magnitude', low:-50, high:100,
+     when:'At project initiation, before detail exists.',
+     why:'To decide whether the project is worth pursuing at all.',
+     ex:'At project initiation for a new HR system, the CTO says "this will cost roughly $500K–$1M."'},
+    {type:'Budgetary', name:'Budgetary Estimate', low:-10, high:25,
+     when:'During planning, roughly a year out.',
+     why:'To allocate funds and set the working budget.',
+     ex:'One year out, the PM estimates $720K for budget allocation.'},
+    {type:'Definitive', name:'Definitive Estimate', low:-5, high:10,
+     when:'Late in planning, months before delivery.',
+     why:'To finalise the baseline with high confidence.',
+     ex:'Three months before delivery, detailed estimates put total cost at $695,000 ± 5%.'}
+  ];
+  var estSlider=document.getElementById('estSlider');
+  function updateEst(){
+    var e=estTypes[+estSlider.value];
+    document.getElementById('estType').textContent=e.type;
+    document.getElementById('estName').textContent=e.name;
+    document.getElementById('estWhen').textContent=e.when;
+    document.getElementById('estWhy').textContent=e.why;
+    document.getElementById('estExample').innerHTML='<strong>Example: </strong>'+e.ex;
+    // range -50..+100 over the bar
+    var minR=-50, maxR=100, span=maxR-minR;
+    var left=(e.low-minR)/span*100, width=(e.high-e.low)/span*100, mid=(0-minR)/span*100;
+    document.getElementById('estFill').style.left=left+'%';
+    document.getElementById('estFill').style.width=width+'%';
+    document.getElementById('estMid').style.left=mid+'%';
+  }
+  estSlider.oninput=updateEst; updateEst();
+
+  /* ─── S4 sub-tab2: parametric ─── */
+  var fpSlider=document.getElementById('fpSlider'), fpCost=document.getElementById('fpCost');
+  function updateFP(){
+    var fp=+fpSlider.value, c=+fpCost.value||0;
+    document.getElementById('fpVal').textContent=fp;
+    document.getElementById('fpTotal').textContent=fmt(fp*c);
+  }
+  fpSlider.oninput=updateFP; fpCost.oninput=updateFP; updateFP();
+
+  /* ─── S4 sub-tab2: WBS ─── */
+  function updateWBS(){
+    var sum=0;
+    Array.prototype.forEach.call(document.querySelectorAll('.wbs-leaf'), function(inp){ sum+=(+inp.value||0); });
+    document.getElementById('wbsTotal').textContent=fmt(sum);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.wbs-leaf'), function(inp){ inp.oninput=updateWBS; });
+  updateWBS();
+
+  /* ─── S4 sub-tab2: technique scenarios ─── */
+  renderQuiz(document.getElementById('techScenarios'), [
+    {q:'The sponsor wants a ballpark figure this afternoon, with no detail available yet.', opts:['Bottom-up WBS','Analogous (top-down)','PERT three-point','Definitive estimate'], a:1,
+     fb:'Analogous estimating uses a similar past project — fast and cheap, ideal for a quick ballpark.'},
+    {q:'You need the most accurate possible number for the approved baseline.', opts:['Analogous','Parametric','Bottom-up WBS','ROM'], a:2,
+     fb:'Bottom-up decomposition via the WBS gives the highest accuracy when detail is available.'},
+    {q:'The API integration is novel and the team disagrees widely on effort.', opts:['Analogous','PERT (three-point)','Single-point guess','ROM'], a:1,
+     fb:'PERT captures uncertainty using optimistic, most likely, and pessimistic values — perfect for novel, high-variability work.'}
+  ]);
+
+  /* ─── S4 sub-tab3: PERT ─── */
+  var pertActs=[
+    {name:'API Integration', o:8000, m:12000, p:20000},
+    {name:'Security Testing', o:4000, m:6000, p:11000},
+    {name:'UAT & Training', o:3000, m:4000, p:8000}
+  ];
+  var pertBuilt=false;
+  function ensurePert(){ if(!pertBuilt){ buildPert(); pertBuilt=true; } }
+  function buildPert(){
+    var tb=document.querySelector('#pertTable tbody'); tb.innerHTML='';
+    pertActs.forEach(function(a, idx){
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td style="font-weight:700">'+a.name+'</td>'+
+        '<td><input type="number" data-i="'+idx+'" data-k="o" value="'+a.o+'"></td>'+
+        '<td><input type="number" data-i="'+idx+'" data-k="m" value="'+a.m+'"></td>'+
+        '<td><input type="number" data-i="'+idx+'" data-k="p" value="'+a.p+'"></td>'+
+        '<td class="num" data-e="'+idx+'">—</td>'+
+        '<td class="num" data-sd="'+idx+'">—</td>';
+      tb.appendChild(tr);
+    });
+    Array.prototype.forEach.call(tb.querySelectorAll('input'), function(inp){
+      inp.oninput=function(){ pertActs[+inp.dataset.i][inp.dataset.k]=+inp.value||0; updatePert(); };
+    });
+    charts.pert=new Chart(document.getElementById('pertChart'),{
+      type:'bar',
+      data:{labels:pertActs.map(function(a){return a.name;}),
+        datasets:[
+          {label:'Optimistic (O)', data:pertActs.map(function(a){return a.o;}), backgroundColor:'#57cc99'},
+          {label:'Expected (E)', data:pertActs.map(function(a){return pertE(a);}), backgroundColor:'#2a9d8f'},
+          {label:'Pessimistic (P)', data:pertActs.map(function(a){return a.p;}), backgroundColor:'#e76f51'}
+        ]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{position:'bottom'}},
+        scales:{x:{title:{display:true,text:'Cost (NZ$)'},beginAtZero:true}}}
+    });
+    updatePert();
+  }
+  function pertE(a){ return (a.o+4*a.m+a.p)/6; }
+  function pertSD(a){ return (a.p-a.o)/6; }
+  function updatePert(){
+    var total=0;
+    pertActs.forEach(function(a, idx){
+      var e=pertE(a), sd=pertSD(a); total+=e;
+      document.querySelector('[data-e="'+idx+'"]').textContent=fmt(e);
+      document.querySelector('[data-sd="'+idx+'"]').textContent=fmt(sd);
+    });
+    document.getElementById('pertTotal').textContent=fmt(total);
+    if(charts.pert){
+      charts.pert.data.datasets[0].data=pertActs.map(function(a){return a.o;});
+      charts.pert.data.datasets[1].data=pertActs.map(function(a){return pertE(a);});
+      charts.pert.data.datasets[2].data=pertActs.map(function(a){return a.p;});
+      charts.pert.update();
+    }
+  }
+
+  /* ─── S5: reveal problems ─── */
+  var problems=[
+    {t:'Estimates done too quickly', s:'A PM promised a fixed price after a 20-minute scoping call. The build took triple the time.', f:'Allocate real time to estimating; treat it as a deliverable, not an afterthought.'},
+    {t:'People lack estimating experience', s:'A junior dev estimated a payment reconciliation module at 2 days. It took 3 weeks.', f:'Pair inexperienced estimators with veterans; keep a historical actuals database.'},
+    {t:'Human beings are biased toward underestimation', s:'Every task "should only take a day" — optimism bias compounds across hundreds of tasks.', f:'Apply reference-class forecasting and add evidence-based contingency reserves.'},
+    {t:'Management desires accuracy too early', s:'Leadership demanded a ±5% number at initiation, before requirements existed.', f:'Educate sponsors on estimate maturity (ROM → Budgetary → Definitive); commit ranges early, points later.'}
+  ];
+  var problemList=document.getElementById('problemList');
+  problems.forEach(function(p, idx){
+    var c=document.createElement('div'); c.className='reveal-card';
+    c.innerHTML='<div><span class="rc-num">'+(idx+1)+'</span><span class="rc-title">'+p.t+'</span></div>'+
+      '<div class="rc-story">War story: '+p.s+'</div>'+
+      '<div class="rc-fix"><strong>Fix:</strong> '+p.f+'</div>';
+    problemList.appendChild(c);
+  });
+  document.getElementById('revealBtn').onclick=function(){
+    var cardsR=problemList.querySelectorAll('.reveal-card');
+    cardsR.forEach(function(c, i){ setTimeout(function(){ c.classList.add('shown'); }, i*220); });
+    this.disabled=true; this.textContent='Revealed ✓';
+  };
+
+  /* ─── S5: bias meter ─── */
+  var biasSlider=document.getElementById('biasSlider');
+  biasSlider.oninput=function(){
+    var b=+biasSlider.value, base=5000;
+    var realistic=base*(1+b/100);
+    document.getElementById('biasVal').textContent=b+'%';
+    document.getElementById('biasRealistic').textContent=fmt(realistic);
+    document.getElementById('biasReserve').textContent=fmt(realistic-base);
+  };
+
+  /* ─── S5: contingency explainer ─── */
+  var contSlider=document.getElementById('contSlider'), base5=650000, mgmtPct=5;
+  function updateCont(){
+    var c=+contSlider.value;
+    var cont=base5*c/100, mgmt=base5*mgmtPct/100;
+    var baseline=base5+cont, ceiling=baseline+mgmt;
+    document.getElementById('contVal').textContent=c+'%';
+    document.getElementById('contReserve').textContent=fmt(cont);
+    document.getElementById('contCeiling').textContent=fmt(ceiling);
+    var stk=document.getElementById('contStack');
+    var pBase=base5/ceiling*100, pCont=cont/ceiling*100, pMgmt=mgmt/ceiling*100;
+    stk.innerHTML='<div class="stack-seg" style="width:'+pBase+'%;background:var(--navy)">Base</div>'+
+      '<div class="stack-seg" style="width:'+pCont+'%;background:var(--teal)">Cont</div>'+
+      '<div class="stack-seg" style="width:'+pMgmt+'%;background:var(--amber);color:var(--navy)">Mgmt</div>';
+  }
+  contSlider.oninput=updateCont; updateCont();
+
+  /* ─── S6: budget builder ─── */
+  var wbsPkgs=[
+    {name:'Discovery', cost:40000},
+    {name:'Design', cost:60000},
+    {name:'Development', cost:280000},
+    {name:'Testing', cost:120000},
+    {name:'Deployment', cost:80000}
+  ];
+  var btb=document.querySelector('#budgetTable tbody');
+  wbsPkgs.forEach(function(pkg, idx){
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td style="font-weight:600">'+pkg.name+'</td>'+
+      '<td><input type="number" data-bi="'+idx+'" value="'+pkg.cost+'"></td>';
+    btb.appendChild(tr);
+  });
+  function updateBudget(){
+    var sum=0;
+    Array.prototype.forEach.call(btb.querySelectorAll('input'), function(inp){ sum+=(+inp.value||0); });
+    var cp=+document.getElementById('contInput').value||0, mp=+document.getElementById('mgmtInput').value||0;
+    var cont=sum*cp/100, baseline=sum+cont, mgmt=baseline*mp/100, ceiling=baseline+mgmt;
+    document.getElementById('bSum').textContent=fmt(sum);
+    document.getElementById('bBaseline').textContent=fmt(baseline);
+    document.getElementById('bCeiling').textContent=fmt(ceiling);
+    var stk=document.getElementById('budgetStack');
+    var pS=sum/ceiling*100, pC=cont/ceiling*100, pM=mgmt/ceiling*100;
+    stk.innerHTML='<div class="stack-seg" style="width:'+pS+'%;background:var(--navy)">Estimates</div>'+
+      '<div class="stack-seg" style="width:'+pC+'%;background:var(--teal)">Cont</div>'+
+      '<div class="stack-seg" style="width:'+pM+'%;background:var(--amber);color:var(--navy)">Mgmt</div>';
+  }
+  Array.prototype.forEach.call(btb.querySelectorAll('input'), function(inp){ inp.oninput=updateBudget; });
+  document.getElementById('contInput').oninput=updateBudget;
+  document.getElementById('mgmtInput').oninput=updateBudget;
+  updateBudget();
+
+  /* ─── S6: S-curve ─── */
+  var scurveBuilt=false;
+  function ensureScurve(){ if(!scurveBuilt){ buildScurve(); scurveBuilt=true; } }
+  function buildScurve(){
+    var monthly=[40,60,140,140,120,80]; // NZ$000s
+    var cum=[], run=0; monthly.forEach(function(v){ run+=v; cum.push(run); });
+    charts.scurve=new Chart(document.getElementById('scurveChart'),{
+      data:{labels:['M1','M2','M3','M4','M5','M6'],
+        datasets:[
+          {type:'bar', label:'Monthly spend (NZ$000s)', data:monthly, backgroundColor:'rgba(42,157,143,0.55)', order:2},
+          {type:'line', label:'Cumulative (S-curve)', data:cum, borderColor:'#1e3a5f', backgroundColor:'rgba(30,58,95,0.08)', fill:true, tension:0.4, pointRadius:4, order:1}
+        ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom'}},
+        scales:{y:{title:{display:true,text:'NZ$ (000s)'},beginAtZero:true}}}
+    });
+  }
+
+  /* ─── S7: final quiz ─── */
+  var finalState={mcq:null, order:false};
+  renderQuiz(document.getElementById('finalQuiz'), [
+    {q:'The CTO asks for a cost estimate 18 months before project completion. Which estimate type is most appropriate?', opts:['ROM','Budgetary','Definitive'], a:0,
+     fb:'18 months out with little detail → a Rough Order of Magnitude (−50% to +100%).'},
+    {q:'Your team disagrees on the API task. O=$8K, M=$12K, P=$20K. What is the PERT expected cost?', opts:['NZ$12,000','NZ$12,667','NZ$13,333','NZ$14,000'], a:1,
+     fb:'E = (8,000 + 4×12,000 + 20,000) / 6 = 76,000 / 6 = NZ$12,667.'},
+    {q:'The project spent NZ$120K on a vendor who delivered nothing usable. Should this factor into the go/no-go decision?', opts:['Yes — recover it by continuing','No — it is a sunk cost','Only if over 10% of budget','Yes — add it to the baseline'], a:1,
+     fb:'It is a sunk cost — already spent and unrecoverable, so it must not influence the forward-looking decision.'},
+    {q:'Which reserve type is controlled by the project manager?', opts:['Contingency','Management','Both','Neither'], a:0,
+     fb:'Contingency reserves (known unknowns) sit in the baseline and are PM-controlled. Management reserves are sponsor-controlled.'}
+  ], function(sc){ finalState.mcq=sc; });
+
+  /* ─── S7: order drag (least → most accurate) ─── */
+  var orderData=[{label:'ROM',rank:0},{label:'Budgetary',rank:1},{label:'Definitive',rank:2}];
+  var orderItems=document.getElementById('orderItems'), orderBuckets=document.getElementById('orderBuckets');
+  var oDragged=null;
+  function buildOrder(){
+    orderItems.innerHTML=''; orderBuckets.innerHTML='';
+    orderData.slice().sort(function(){return Math.random()-0.5;}).forEach(function(it){
+      var chip=document.createElement('div'); chip.className='dd-chip'; chip.textContent=it.label; chip.draggable=true; chip.dataset.rank=it.rank;
+      chip.addEventListener('dragstart',function(){oDragged=chip;chip.classList.add('dragging');});
+      chip.addEventListener('dragend',function(){chip.classList.remove('dragging');oDragged=null;});
+      orderItems.appendChild(chip);
+    });
+    ['1 · Least accurate','2 · Middle','3 · Most accurate'].forEach(function(lbl,pos){
+      var bk=document.createElement('div'); bk.className='dd-bucket'; bk.dataset.pos=pos;
+      bk.innerHTML='<div class="bk-title">'+lbl+'</div><div class="bk-drop"></div>';
+      bk.addEventListener('dragover',function(e){e.preventDefault();bk.classList.add('over');});
+      bk.addEventListener('dragleave',function(){bk.classList.remove('over');});
+      bk.addEventListener('drop',function(e){e.preventDefault();bk.classList.remove('over');
+        if(oDragged){ var drop=bk.querySelector('.bk-drop'); if(drop.children.length===0){ drop.appendChild(oDragged);} }
+      });
+      orderBuckets.appendChild(bk);
+    });
+  }
+  orderItems.addEventListener('dragover',function(e){e.preventDefault();});
+  orderItems.addEventListener('drop',function(e){e.preventDefault();if(oDragged)orderItems.appendChild(oDragged);});
+  buildOrder();
+
+  document.getElementById('finalSubmit').onclick=function(){
+    // grade order
+    var orderCorrect=true, anyPlaced=false;
+    Array.prototype.forEach.call(orderBuckets.querySelectorAll('.dd-bucket'), function(bk){
+      var chip=bk.querySelector('.dd-chip');
+      if(chip){ anyPlaced=true;
+        chip.classList.remove('correct','incorrect');
+        if(+chip.dataset.rank===+bk.dataset.pos){ chip.classList.add('correct'); }
+        else { chip.classList.add('incorrect'); orderCorrect=false; }
+      } else orderCorrect=false;
+    });
+    var orderScore=(anyPlaced && orderCorrect)?1:0;
+    var mcqScore=finalState.mcq||0;
+    var total=mcqScore+orderScore, max=5;
+    var pill=document.getElementById('finalScore');
+    pill.classList.add('show');
+    pill.innerHTML='Final score: '+total+' / '+max+
+      (total>=3? '  ✅ Well done!' : '  — review recommended');
+    document.getElementById('reviewWrap').style.display = (total<3)? 'block':'none';
+  };
+  document.getElementById('reviewBtn').onclick=function(){ goTo(4); };
+
+  /* ─── Init charts that are visible early ─── */
+  makeLearning();
+
+})();
+</script>
+</body>
+</html>

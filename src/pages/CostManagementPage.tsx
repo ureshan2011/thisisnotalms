@@ -168,7 +168,7 @@ function MiniQuiz({ questions }: { questions: typeof WARMUP_Qs }) {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
           className="rounded-2xl bg-[#1d1d1f] p-5 text-center text-white">
           <p className="text-[20px] font-semibold">Score: {score} / {questions.length}</p>
-          <p className="mt-1 text-[14px] text-white/60">{score === questions.length ? '🎉 Perfect start!' : 'Keep going — you'll lock these in by the end.'}</p>
+          <p className="mt-1 text-[14px] text-white/60">{score === questions.length ? '🎉 Perfect start!' : "Keep going — you'll lock these in by the end."}</p>
         </motion.div>
       )}
     </div>

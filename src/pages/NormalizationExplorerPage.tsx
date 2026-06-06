@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useTransform, type Variants } from 'framer-motion';
-import BrandMark from '../components/ui/BrandMark';
+import BrandLogo from '../components/ui/BrandLogo';
 
 // ─── SQL Normalisation lesson (Not a LMS) ───────────────────────────────────
 // A single, self-contained page that walks through database normalisation —
@@ -1085,6 +1086,450 @@ const NF_SUMMARY = [
   { nf: 'BCNF', color: '#30d158', rule: 'For every dependency X → Y, X is a superkey. Stricter than 3NF.', fix: 'Decompose so every determinant is a key — may cost dependency preservation.' },
 ];
 
+// ════════════════════════════════════════════════════════════════════════════
+// SIMULATION 7 — 1NF Real-World: Music Streaming Playlists
+// A Spotify-style table where one cell holds multiple track IDs.
+// Students watch each multi-value cell "explode" into individual atomic rows.
+// ════════════════════════════════════════════════════════════════════════════
+const PLAYLIST_BEFORE = [
+  { id: 'PL01', name: 'Morning Vibes', tracks: ['T01 · Blinding Lights', 'T02 · Levitating', 'T03 · Stay'] },
+  { id: 'PL02', name: 'Workout Mix', tracks: ['T04 · POWER', 'T05 · Lose Yourself'] },
+  { id: 'PL03', name: 'Study Mode', tracks: ['T06 · Lo-fi Beat #1', 'T07 · Rain Sounds', 'T08 · Focus Flow'] },
+];
+
+function OneNFSimulator() {
+  const [step, setStep] = useState(0);
+
+  const afterRows = PLAYLIST_BEFORE.flatMap((p) =>
+    p.tracks.map((t) => {
+      const sep = t.indexOf(' · ');
+      return { pid: p.id, name: p.name, tid: t.slice(0, sep), tname: t.slice(sep + 3) };
+    })
+  );
+
+  const steps = ['Messy table', 'Spot the problem', 'Apply 1NF'];
+  const colors = ['#ff375f', '#ff9f0a', '#30d158'];
+
+  return (
+    <div className="mx-auto max-w-4xl">
+      <div className="mb-6 flex overflow-hidden rounded-2xl border border-black/[0.08]">
+        {steps.map((s, i) => (
+          <button
+            key={s}
+            onClick={() => setStep(i)}
+            className={`flex-1 px-3 py-3 text-[14px] font-semibold transition ${i > 0 ? 'border-l border-black/[0.08]' : ''}`}
+            style={
+              step === i
+                ? { background: colors[i], color: '#fff' }
+                : step > i
+                ? { background: colors[i] + '1a', color: colors[i] }
+                : { background: '#fff', color: '#86868b' }
+            }
+          >
+            {i + 1}. {s}
+            {step > i ? ' ✓' : ''}
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        {step === 0 && (
+          <motion.div key="s0" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35, ease: EASE }}>
+            <DataTable
+              headers={['playlist_id', 'playlist_name', 'tracks']}
+              rows={PLAYLIST_BEFORE.map((p) => [
+                { v: p.id, k: 'pk' as const },
+                { v: p.name },
+                { v: p.tracks.join(', '), k: 'bad' as const },
+              ])}
+              headColor="#ff375f"
+            />
+            <p className="mt-4 text-center text-[14px] text-[#86868b]">
+              A music-streaming playlist table. The <em>tracks</em> column hides a comma-separated list — already violating 1NF.
+            </p>
+          </motion.div>
+        )}
+        {step === 1 && (
+          <motion.div key="s1" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35, ease: EASE }} className="space-y-3">
+            {PLAYLIST_BEFORE.map((p) => (
+              <div key={p.id} className="rounded-2xl border border-[#ff375f]/30 bg-[#ff375f]/[0.04] p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <span className="font-mono text-[13px] font-semibold text-[#0071e3]">{p.id}</span>
+                  <span className="text-[14px] font-medium text-[#1d1d1f]">{p.name}</span>
+                  <span className="ml-auto rounded-full bg-[#ff375f]/10 px-2 py-0.5 text-[12px] font-semibold text-[#d70015]">
+                    {p.tracks.length} values in 1 cell!
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {p.tracks.map((t, ti) => (
+                    <motion.span
+                      key={t}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: ti * 0.08, duration: 0.3, ease: EASE }}
+                      className="rounded-lg bg-[#ff375f]/[0.12] px-3 py-1 font-mono text-[13px] text-[#d70015]"
+                    >
+                      {t}
+                    </motion.span>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <p className="text-center text-[14px] text-[#86868b]">
+              You can't query "which playlists contain T02?" with a simple WHERE clause — you'd need a LIKE '%T02%' hack.
+            </p>
+          </motion.div>
+        )}
+        {step === 2 && (
+          <motion.div key="s2" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35, ease: EASE }}>
+            <DataTable
+              headers={['playlist_id', 'playlist_name', 'track_id', 'track_name']}
+              rows={afterRows.map((r) => [
+                { v: r.pid, k: 'pk' as const },
+                { v: r.name },
+                { v: r.tid, k: 'pk' as const },
+                { v: r.tname, k: 'ok' as const },
+              ])}
+              headColor="#30d158"
+            />
+            <p className="mt-4 text-center text-[14px] text-[#86868b]">
+              3 rows became {afterRows.length}. Every cell is atomic.{' '}
+              <code className="rounded bg-[#f5f5f7] px-1.5 py-0.5 text-[12px]">WHERE track_id = 'T02'</code> now works perfectly.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="mt-5 flex justify-center gap-3">
+        {step > 0 && (
+          <button onClick={() => setStep((s) => s - 1)} className="rounded-full px-5 py-2.5 text-[15px] font-medium text-[#0071e3] hover:underline">
+            ‹ Back
+          </button>
+        )}
+        {step < 2 && (
+          <button
+            onClick={() => setStep((s) => s + 1)}
+            className="rounded-full px-6 py-2.5 text-[15px] font-medium text-white transition hover:opacity-90"
+            style={{ background: colors[step + 1] }}
+          >
+            {step === 0 ? 'Spot the problem ›' : 'Apply 1NF ›'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// SIMULATION 8 — 2NF Real-World: E-commerce order_items table
+// Composite PK {order_id, product_id}. Partial dependencies highlighted,
+// then decomposed into orders + products + order_items.
+// ════════════════════════════════════════════════════════════════════════════
+const ORDER_ITEMS_BASE: TCell[][] = [
+  [{ v: 'ORD-1', k: 'pk' }, { v: 'P-101', k: 'pk' }, { v: 3 }, { v: 'Alice' }, { v: 'Wireless Mouse' }, { v: '$29.99' }],
+  [{ v: 'ORD-1', k: 'pk' }, { v: 'P-102', k: 'pk' }, { v: 1 }, { v: 'Alice' }, { v: 'USB Hub' }, { v: '$19.99' }],
+  [{ v: 'ORD-2', k: 'pk' }, { v: 'P-101', k: 'pk' }, { v: 2 }, { v: 'Bob' }, { v: 'Wireless Mouse' }, { v: '$29.99' }],
+  [{ v: 'ORD-3', k: 'pk' }, { v: 'P-103', k: 'pk' }, { v: 1 }, { v: 'Carol' }, { v: 'Laptop Stand' }, { v: '$49.99' }],
+];
+const ORDER_ITEMS_HIGHLIGHT: TCell[][] = [
+  [{ v: 'ORD-1', k: 'pk' }, { v: 'P-101', k: 'pk' }, { v: 3 }, { v: 'Alice', k: 'bad' }, { v: 'Wireless Mouse', k: 'bad' }, { v: '$29.99', k: 'bad' }],
+  [{ v: 'ORD-1', k: 'pk' }, { v: 'P-102', k: 'pk' }, { v: 1 }, { v: 'Alice', k: 'bad' }, { v: 'USB Hub', k: 'bad' }, { v: '$19.99', k: 'bad' }],
+  [{ v: 'ORD-2', k: 'pk' }, { v: 'P-101', k: 'pk' }, { v: 2 }, { v: 'Bob', k: 'bad' }, { v: 'Wireless Mouse', k: 'bad' }, { v: '$29.99', k: 'bad' }],
+  [{ v: 'ORD-3', k: 'pk' }, { v: 'P-103', k: 'pk' }, { v: 1 }, { v: 'Carol', k: 'bad' }, { v: 'Laptop Stand', k: 'bad' }, { v: '$49.99', k: 'bad' }],
+];
+
+function TwoNFSimulator() {
+  const [phase, setPhase] = useState(0);
+  const phases = ['See the table', 'Find partial deps', 'Apply 2NF'];
+
+  return (
+    <div className="mx-auto max-w-5xl">
+      <div className="mb-6 flex overflow-hidden rounded-2xl border border-black/[0.08]">
+        {phases.map((s, i) => (
+          <button
+            key={s}
+            onClick={() => setPhase(i)}
+            className={`flex-1 px-3 py-3 text-[14px] font-semibold transition ${i > 0 ? 'border-l border-black/[0.08]' : ''}`}
+            style={
+              phase === i
+                ? { background: i < 2 ? '#ff9f0a' : '#30d158', color: '#fff' }
+                : phase > i
+                ? { background: (i < 2 ? '#ff9f0a' : '#30d158') + '1a', color: i < 2 ? '#ff9f0a' : '#30d158' }
+                : { background: '#fff', color: '#86868b' }
+            }
+          >
+            {i + 1}. {s}
+            {phase > i ? ' ✓' : ''}
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        {phase < 2 ? (
+          <motion.div key={`ph${phase}`} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35, ease: EASE }}>
+            <DataTable
+              headers={['order_id', 'product_id', 'qty', 'customer_name', 'product_name', 'unit_price']}
+              rows={phase === 1 ? ORDER_ITEMS_HIGHLIGHT : ORDER_ITEMS_BASE}
+              headColor={phase === 0 ? '#86868b' : '#ff9f0a'}
+            />
+            {phase === 1 && (
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.4, ease: EASE }} className="mt-4 space-y-2">
+                <div className="rounded-xl border border-[#ff9f0a]/40 bg-[#ff9f0a]/[0.06] p-4">
+                  <p className="font-mono text-[14px] text-[#9a6a00]">order_id → customer_name</p>
+                  <p className="mt-1 text-[13px] text-[#6e6e73]">
+                    customer_name depends on only <strong>order_id</strong>, not the full composite key — partial dependency. Alice appears twice because she placed two line items.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-[#ff9f0a]/40 bg-[#ff9f0a]/[0.06] p-4">
+                  <p className="font-mono text-[14px] text-[#9a6a00]">product_id → product_name, unit_price</p>
+                  <p className="mt-1 text-[13px] text-[#6e6e73]">
+                    product_name and unit_price depend on only <strong>product_id</strong> — another partial dependency. "Wireless Mouse" at $29.99 is stored in two separate rows.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </motion.div>
+        ) : (
+          <motion.div key="split" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35, ease: EASE }} className="space-y-5">
+            <div>
+              <div className="mb-1.5 flex items-center gap-2">
+                <Pill color="#0071e3">orders</Pill>
+                <span className="font-mono text-[12.5px] text-[#86868b]">PK: order_id</span>
+              </div>
+              <DataTable
+                headers={['order_id', 'customer_name']}
+                rows={[
+                  [{ v: 'ORD-1', k: 'pk' }, { v: 'Alice', k: 'ok' }],
+                  [{ v: 'ORD-2', k: 'pk' }, { v: 'Bob', k: 'ok' }],
+                  [{ v: 'ORD-3', k: 'pk' }, { v: 'Carol', k: 'ok' }],
+                ]}
+                headColor="#0071e3"
+              />
+            </div>
+            <div>
+              <div className="mb-1.5 flex items-center gap-2">
+                <Pill color="#30d158">products</Pill>
+                <span className="font-mono text-[12.5px] text-[#86868b]">PK: product_id</span>
+              </div>
+              <DataTable
+                headers={['product_id', 'product_name', 'unit_price']}
+                rows={[
+                  [{ v: 'P-101', k: 'pk' }, { v: 'Wireless Mouse', k: 'ok' }, { v: '$29.99', k: 'ok' }],
+                  [{ v: 'P-102', k: 'pk' }, { v: 'USB Hub', k: 'ok' }, { v: '$19.99', k: 'ok' }],
+                  [{ v: 'P-103', k: 'pk' }, { v: 'Laptop Stand', k: 'ok' }, { v: '$49.99', k: 'ok' }],
+                ]}
+                headColor="#30d158"
+              />
+            </div>
+            <div>
+              <div className="mb-1.5 flex items-center gap-2">
+                <Pill color="#5e5ce6">order_items</Pill>
+                <span className="font-mono text-[12.5px] text-[#86868b]">PK: {'{order_id, product_id}'}</span>
+              </div>
+              <DataTable
+                headers={['order_id', 'product_id', 'qty']}
+                rows={[
+                  [{ v: 'ORD-1', k: 'pk' }, { v: 'P-101', k: 'pk' }, { v: 3, k: 'ok' }],
+                  [{ v: 'ORD-1', k: 'pk' }, { v: 'P-102', k: 'pk' }, { v: 1, k: 'ok' }],
+                  [{ v: 'ORD-2', k: 'pk' }, { v: 'P-101', k: 'pk' }, { v: 2, k: 'ok' }],
+                  [{ v: 'ORD-3', k: 'pk' }, { v: 'P-103', k: 'pk' }, { v: 1, k: 'ok' }],
+                ]}
+                headColor="#5e5ce6"
+              />
+            </div>
+            <p className="text-center text-[14px] text-[#86868b]">
+              No redundancy. "Wireless Mouse" is stored once — changing its price means updating{' '}
+              <strong>one row</strong> in{' '}
+              <code className="rounded bg-[#f5f5f7] px-1 text-[12px]">products</code>.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="mt-5 flex justify-center gap-3">
+        {phase > 0 && (
+          <button onClick={() => setPhase((p) => p - 1)} className="rounded-full px-5 py-2.5 text-[15px] font-medium text-[#0071e3] hover:underline">
+            ‹ Back
+          </button>
+        )}
+        {phase < 2 && (
+          <button
+            onClick={() => setPhase((p) => p + 1)}
+            className="rounded-full px-6 py-2.5 text-[15px] font-medium text-white transition hover:opacity-90"
+            style={{ background: '#ff9f0a' }}
+          >
+            {phase === 0 ? 'Find partial deps ›' : 'Apply 2NF ›'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// SIMULATION 9 — 3NF Real-World: HR employee records
+// Transitive chain emp_id → dept_id → dept_name, dept_city animated,
+// then decomposed into employees + departments tables.
+// ════════════════════════════════════════════════════════════════════════════
+const CHAIN_NODES = [
+  { label: 'emp_id', sub: '(PK)', color: '#0071e3', hasArrow: false },
+  { label: 'dept_id', sub: '(non-key)', color: '#ff9f0a', hasArrow: true },
+  { label: 'dept_name\ndept_city', sub: '(non-key)', color: '#ff375f', hasArrow: true },
+];
+
+function ThreeNFSimulator() {
+  const [phase, setPhase] = useState(0);
+  const phases = ['The table', 'Trace the chain', 'Apply 3NF'];
+
+  return (
+    <div className="mx-auto max-w-5xl">
+      <div className="mb-6 flex overflow-hidden rounded-2xl border border-black/[0.08]">
+        {phases.map((s, i) => (
+          <button
+            key={s}
+            onClick={() => setPhase(i)}
+            className={`flex-1 px-3 py-3 text-[14px] font-semibold transition ${i > 0 ? 'border-l border-black/[0.08]' : ''}`}
+            style={
+              phase === i
+                ? { background: i < 2 ? '#0071e3' : '#30d158', color: '#fff' }
+                : phase > i
+                ? { background: (i < 2 ? '#0071e3' : '#30d158') + '1a', color: i < 2 ? '#0071e3' : '#30d158' }
+                : { background: '#fff', color: '#86868b' }
+            }
+          >
+            {i + 1}. {s}
+            {phase > i ? ' ✓' : ''}
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        {phase === 0 && (
+          <motion.div key="p0" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35, ease: EASE }}>
+            <DataTable
+              headers={['emp_id', 'emp_name', 'dept_id', 'dept_name', 'dept_city']}
+              rows={[
+                [{ v: 'E-01', k: 'pk' }, { v: 'Alice' }, { v: 'D-10' }, { v: 'Engineering' }, { v: 'Auckland' }],
+                [{ v: 'E-02', k: 'pk' }, { v: 'Bob' }, { v: 'D-10' }, { v: 'Engineering' }, { v: 'Auckland' }],
+                [{ v: 'E-03', k: 'pk' }, { v: 'Carol' }, { v: 'D-20' }, { v: 'Marketing' }, { v: 'Wellington' }],
+                [{ v: 'E-04', k: 'pk' }, { v: 'Dave' }, { v: 'D-10' }, { v: 'Engineering' }, { v: 'Auckland' }],
+              ]}
+              headColor="#86868b"
+            />
+            <p className="mt-4 text-center text-[14px] text-[#86868b]">
+              HR table for a NZ company. The Engineering team in Auckland appears three times — why is that a problem?
+            </p>
+          </motion.div>
+        )}
+        {phase === 1 && (
+          <motion.div key="p1" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35, ease: EASE }}>
+            <div className="mb-6 flex items-center justify-center overflow-x-auto py-4">
+              {CHAIN_NODES.map((node, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: i * 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.18, duration: 0.4, ease: EASE }}
+                  className="flex items-center"
+                >
+                  {node.hasArrow && (
+                    <span className="mx-3 text-2xl font-light text-[#aeaeb2]">→</span>
+                  )}
+                  <div
+                    className="rounded-2xl border p-4 text-center"
+                    style={{ borderColor: node.color + '40', background: node.color + '0d' }}
+                  >
+                    <p className="whitespace-pre-line font-mono text-[14px] font-semibold" style={{ color: node.color }}>
+                      {node.label}
+                    </p>
+                    <p className="mt-0.5 text-[11px]" style={{ color: node.color + 'aa' }}>
+                      {node.sub}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            <DataTable
+              headers={['emp_id', 'emp_name', 'dept_id', 'dept_name', 'dept_city']}
+              rows={[
+                [{ v: 'E-01', k: 'pk' }, { v: 'Alice' }, { v: 'D-10', k: 'fk' }, { v: 'Engineering', k: 'bad' }, { v: 'Auckland', k: 'bad' }],
+                [{ v: 'E-02', k: 'pk' }, { v: 'Bob' }, { v: 'D-10', k: 'fk' }, { v: 'Engineering', k: 'bad' }, { v: 'Auckland', k: 'bad' }],
+                [{ v: 'E-03', k: 'pk' }, { v: 'Carol' }, { v: 'D-20', k: 'fk' }, { v: 'Marketing', k: 'bad' }, { v: 'Wellington', k: 'bad' }],
+                [{ v: 'E-04', k: 'pk' }, { v: 'Dave' }, { v: 'D-10', k: 'fk' }, { v: 'Engineering', k: 'bad' }, { v: 'Auckland', k: 'bad' }],
+              ]}
+              headColor="#ff375f"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.4, ease: EASE }}
+              className="mt-4 rounded-2xl border border-[#0071e3]/25 bg-[#0071e3]/[0.05] p-4"
+            >
+              <p className="text-[14px] leading-relaxed text-[#424245]">
+                <strong className="text-[#1d1d1f]">The transitive chain:</strong> emp_id → dept_id → dept_name, dept_city. The highlighted columns only reach emp_id <em>through</em> the non-key dept_id — a transitive dependency violating 3NF.
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+        {phase === 2 && (
+          <motion.div key="p2" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.35, ease: EASE }} className="space-y-5">
+            <div>
+              <div className="mb-1.5 flex items-center gap-2">
+                <Pill color="#0071e3">employees</Pill>
+                <span className="font-mono text-[12.5px] text-[#86868b]">PK: emp_id</span>
+              </div>
+              <DataTable
+                headers={['emp_id', 'emp_name', 'dept_id']}
+                rows={[
+                  [{ v: 'E-01', k: 'pk' }, { v: 'Alice' }, { v: 'D-10', k: 'fk' }],
+                  [{ v: 'E-02', k: 'pk' }, { v: 'Bob' }, { v: 'D-10', k: 'fk' }],
+                  [{ v: 'E-03', k: 'pk' }, { v: 'Carol' }, { v: 'D-20', k: 'fk' }],
+                  [{ v: 'E-04', k: 'pk' }, { v: 'Dave' }, { v: 'D-10', k: 'fk' }],
+                ]}
+                headColor="#0071e3"
+              />
+            </div>
+            <div>
+              <div className="mb-1.5 flex items-center gap-2">
+                <Pill color="#30d158">departments</Pill>
+                <span className="font-mono text-[12.5px] text-[#86868b]">PK: dept_id</span>
+              </div>
+              <DataTable
+                headers={['dept_id', 'dept_name', 'dept_city']}
+                rows={[
+                  [{ v: 'D-10', k: 'pk' }, { v: 'Engineering', k: 'ok' }, { v: 'Auckland', k: 'ok' }],
+                  [{ v: 'D-20', k: 'pk' }, { v: 'Marketing', k: 'ok' }, { v: 'Wellington', k: 'ok' }],
+                ]}
+                headColor="#30d158"
+              />
+            </div>
+            <p className="text-center text-[14px] text-[#86868b]">
+              dept_name and dept_city now live in{' '}
+              <code className="rounded bg-[#f5f5f7] px-1 text-[12px]">departments</code> exactly once. Moving the Auckland office to Hamilton? Update <strong>one row</strong>.
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="mt-5 flex justify-center gap-3">
+        {phase > 0 && (
+          <button onClick={() => setPhase((p) => p - 1)} className="rounded-full px-5 py-2.5 text-[15px] font-medium text-[#0071e3] hover:underline">
+            ‹ Back
+          </button>
+        )}
+        {phase < 2 && (
+          <button
+            onClick={() => setPhase((p) => p + 1)}
+            className="rounded-full bg-[#0071e3] px-6 py-2.5 text-[15px] font-medium text-white transition hover:bg-[#0077ed]"
+          >
+            {phase === 0 ? 'Trace the chain ›' : 'Apply 3NF ›'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Smooth-scroll without touching the URL hash (the app runs under HashRouter).
 function scrollToSection(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1102,11 +1547,10 @@ export default function NormalizationExplorerPage() {
     <div className="bg-white text-[#1d1d1f]" style={{ fontFamily: APPLE_FONT }}>
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
       <section ref={heroRef} className="relative flex min-h-screen items-center justify-center overflow-hidden px-6">
-        <div className="absolute left-6 top-6 z-20 flex items-center gap-2.5 sm:left-10 sm:top-8">
-          <BrandMark className="h-8 w-8 rounded-[9px]" />
-          <span className="text-[17px] font-semibold tracking-tight text-[#1d1d1f]">
-            Not a <span className="text-[#0071e3]">LMS</span>
-          </span>
+        <div className="absolute left-6 top-6 z-20 sm:left-10 sm:top-8">
+          <Link to="/home" className="no-underline">
+            <BrandLogo iconSize={28} variant="on-light" />
+          </Link>
         </div>
 
         <div className="pointer-events-none absolute inset-0">
@@ -1269,6 +1713,20 @@ export default function NormalizationExplorerPage() {
         </Reveal>
       </section>
 
+      {/* ── 1NF REAL-WORLD SIMULATOR ─────────────────────────────────────────── */}
+      <section className="px-6 py-24 sm:py-28">
+        <Reveal>
+          <SectionHead
+            eyebrow="1NF · Real-world walkthrough"
+            title="Fixing a music streaming playlist table"
+            sub="This is the kind of table a junior dev might design for a Spotify-style app. Walk through three steps to see exactly what 1NF demands — and what gets unlocked when every cell is atomic."
+          />
+        </Reveal>
+        <Reveal delay={0.1}>
+          <OneNFSimulator />
+        </Reveal>
+      </section>
+
       {/* ── 2NF / 3NF / BCNF concept trio ──────────────────────────────────── */}
       <section className="px-6 py-24 sm:py-28">
         <Reveal>
@@ -1323,6 +1781,34 @@ export default function NormalizationExplorerPage() {
             </motion.div>
           ))}
         </motion.div>
+      </section>
+
+      {/* ── 2NF REAL-WORLD SIMULATOR ─────────────────────────────────────────── */}
+      <section className="bg-[#f5f5f7] px-6 py-24 sm:py-28">
+        <Reveal>
+          <SectionHead
+            eyebrow="2NF · Real-world walkthrough"
+            title="Fixing an e-commerce order table"
+            sub="This is the table a new developer builds on day one. It looks sensible — until you trace the partial dependencies and see the update anomalies hiding inside."
+          />
+        </Reveal>
+        <Reveal delay={0.1}>
+          <TwoNFSimulator />
+        </Reveal>
+      </section>
+
+      {/* ── 3NF REAL-WORLD SIMULATOR ─────────────────────────────────────────── */}
+      <section className="px-6 py-24 sm:py-28">
+        <Reveal>
+          <SectionHead
+            eyebrow="3NF · Real-world walkthrough"
+            title="Fixing an HR employee records table"
+            sub="Employee info that carries along department details creates transitive chains. Watch the chain animate, then see exactly which table gets extracted and why."
+          />
+        </Reveal>
+        <Reveal delay={0.1}>
+          <ThreeNFSimulator />
+        </Reveal>
       </section>
 
       {/* ── DECOMPOSITION ──────────────────────────────────────────────────── */}
@@ -1431,11 +1917,8 @@ export default function NormalizationExplorerPage() {
 
       {/* ── FOOTER ─────────────────────────────────────────────────────────── */}
       <footer className="border-t border-black/[0.06] px-6 py-12 text-center">
-        <div className="mb-4 flex items-center justify-center gap-2.5">
-          <BrandMark className="h-7 w-7 rounded-[8px]" />
-          <span className="text-[15px] font-semibold tracking-tight text-[#1d1d1f]">
-            Not a <span className="text-[#0071e3]">LMS</span>
-          </span>
+        <div className="mb-4 flex items-center justify-center">
+          <BrandLogo iconSize={28} variant="on-light" />
         </div>
         <p className="text-[14px] text-[#6e6e73]">
           A Database Normalisation lesson, put together by{' '}

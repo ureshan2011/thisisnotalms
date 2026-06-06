@@ -184,7 +184,8 @@ const FLASHCARDS = [
   { icon: '🪙', term: 'Sunk Cost', tag: 'Already spent', def: 'Money already spent and unrecoverable — must be ignored in future decisions.', ex: 'NZ$80,000 spent on a failed architecture — irrelevant to the go/no-go decision.' },
 ];
 
-function FlashCard({ icon, term, tag, def, ex }: typeof FLASHCARDS[0]) {
+interface FlashCardProps { icon: string; term: string; tag: string; def: string; ex: string; }
+function FlashCard({ icon, term, tag, def, ex }: FlashCardProps) {
   const [flipped, setFlipped] = useState(false);
   return (
     <div className="perspective-1000 h-52 cursor-pointer" onClick={() => setFlipped(f => !f)} role="button" tabIndex={0}
@@ -804,7 +805,7 @@ function FinalChallenge() {
     setDraggingO(null);
   }
 
-  const mcqScore = Object.entries(answers).filter(([qi, ai]) => FINAL_QS[+qi].a === +ai).length;
+  const mcqScore = Object.entries(answers).filter(([qi, ai]) => FINAL_QS[+qi].a === (ai as number)).length;
   const orderScore = orderBuckets.every((v, i) => v === correctOrder[i]) && orderBuckets.every(Boolean) ? 1 : 0;
   const total = mcqScore + orderScore;
 
@@ -957,7 +958,9 @@ export default function CostManagementPage() {
         <div className="mx-auto max-w-5xl space-y-10">
           <Reveal>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-              {FLASHCARDS.map(c => <FlashCard key={c.term} {...c} />)}
+              {FLASHCARDS.map(c => (
+                <FlashCard key={c.term} icon={c.icon} term={c.term} tag={c.tag} def={c.def} ex={c.ex} />
+              ))}
             </div>
           </Reveal>
           <Reveal>
@@ -1077,7 +1080,8 @@ export default function CostManagementPage() {
               </Card>
             </div>
           </Reveal>
-          <Reveal id="pert">
+          <div id="pert" />
+          <Reveal>
             <Card>
               <h3 className="mb-2 text-[18px] font-semibold text-[#1d1d1f]">PERT Calculator — Three-Point Estimating</h3>
               <p className="mb-5 text-[14px] text-[#6e6e73]">Enter Optimistic, Most Likely, and Pessimistic costs for each SecurePay NZ activity. E and SD calculate automatically.</p>

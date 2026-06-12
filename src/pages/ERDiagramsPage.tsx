@@ -18,8 +18,6 @@ export default function ERDiagramsPage() {
         { emoji: '◇', name: 'Relationships', color: '#0ea5e9' },
         { emoji: '↔️', name: '1:1 · 1:N · M:N', color: '#7c3aed' },
       ]}
-      embedPath="/er-diagrams"
-      embedTitle="MBI802 — ER Diagrams Basics"
     >
       <ERDiagramsDeck />
     </PublicLessonShell>

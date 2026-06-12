@@ -18,8 +18,6 @@ export default function ERAdvancedPage() {
         { emoji: '📦', name: 'Multivalued', color: '#a855f7' },
         { emoji: '🧮', name: 'Derived', color: '#0d9488' },
       ]}
-      embedPath="/er-advanced"
-      embedTitle="MBI802 — Advanced ER Concepts"
     >
       <ERAdvancedConceptsDeck />
     </PublicLessonShell>

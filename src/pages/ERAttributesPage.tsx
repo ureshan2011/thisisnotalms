@@ -18,8 +18,6 @@ export default function ERAttributesPage() {
         { emoji: '➕', name: 'Total', color: '#dc2626' },
         { emoji: '✅', name: 'Activities + answers', color: '#6366f1' },
       ]}
-      embedPath="/er-attributes"
-      embedTitle="MBI802 — Composite Attributes & Participation Constraints"
     >
       <ERAttributeConstraintsDeck />
     </PublicLessonShell>

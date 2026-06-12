@@ -19,8 +19,6 @@ export default function ERActivitiesPage() {
         { emoji: '🛒', name: 'Online Store', color: '#059669' },
         { emoji: '🏨', name: 'Hotel', color: '#d97706' },
       ]}
-      embedPath="/er-activities"
-      embedTitle="MBI802 — ER Diagram Activities"
     >
       <ERDiagramActivitiesDeck />
     </PublicLessonShell>

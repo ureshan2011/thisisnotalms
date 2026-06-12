@@ -51,6 +51,15 @@ const LESSONS: {
     to2: '#FF5A5F',
   },
   {
+    to: '/systems-security',
+    eyebrow: 'Strategic Information Systems',
+    title: 'Systems Security',
+    body: 'What can go wrong, what it would cost, and how to defend and recover. Calculate real risk, profile the attackers, tell malware apart, run a backup simulator, choose a disaster-recovery plan — then test yourself.',
+    emoji: '🛡️',
+    from: '#4f46e5',
+    to2: '#30a46c',
+  },
+  {
     to: '/xr-explorer',
     eyebrow: 'Extended Reality',
     title: "Let's make sense of Extended Reality",

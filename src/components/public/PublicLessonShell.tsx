@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import BrandLogo from '../ui/BrandLogo';
@@ -39,91 +39,8 @@ interface PublicLessonShellProps {
   subtitle: string;
   /** Topic chips shown under the subtitle. */
   pills: LessonPill[];
-  /** Hash route for this lesson, e.g. "/sql-programming" (used for the embed panel). */
-  embedPath: string;
-  /** Human title used in the iframe's title attribute. */
-  embedTitle: string;
   /** The interactive lesson body. */
   children: ReactNode;
-}
-
-const SITE_ORIGIN = 'https://ureshan2011.github.io/thisisnotalms';
-
-function EmbedPanel({
-  embedPath,
-  embedTitle,
-  accent,
-}: {
-  embedPath: string;
-  embedTitle: string;
-  accent: string;
-}) {
-  const [copied, setCopied] = useState(false);
-  const url = `${SITE_ORIGIN}/#${embedPath}`;
-  const snippet = `<iframe
-  src="${url}"
-  width="100%"
-  height="900"
-  style="border:1px solid #e5e5e5;border-radius:12px;"
-  loading="lazy"
-  allowfullscreen
-  title="${embedTitle}">
-</iframe>`;
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(snippet);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* clipboard unavailable — the snippet below is selectable as a fallback */
-    }
-  }
-
-  return (
-    <section className="mx-auto max-w-3xl px-6 pb-20">
-      <div className="rounded-[24px] border border-black/[0.08] bg-[#fafafa] p-7">
-        <div className="flex items-center gap-2">
-          <span className="text-[20px]">🧩</span>
-          <h2 className="text-[19px] font-semibold tracking-tight text-[#1d1d1f]">
-            Embed this lesson in Blackboard
-          </h2>
-        </div>
-        <p className="mt-2 text-[14px] leading-relaxed text-[#6e6e73]">
-          In Blackboard, add an item and choose <b>HTML / "Insert/Edit HTML"</b> (or a Content
-          Block), then paste the snippet below. Students get the full interactive lesson inside your
-          course — no login required.
-        </p>
-
-        <pre className="mt-4 overflow-x-auto rounded-xl border border-black/[0.08] bg-white p-4 text-[12.5px] leading-relaxed text-[#1d1d1f]">
-{snippet}
-        </pre>
-
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button
-            onClick={copy}
-            className="rounded-full px-5 py-2 text-[14px] font-semibold text-white transition hover:opacity-90"
-            style={{ background: accent }}
-          >
-            {copied ? '✓ Copied' : 'Copy embed code'}
-          </button>
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[14px] font-medium hover:underline"
-            style={{ color: accent }}
-          >
-            Open the standalone link ↗
-          </a>
-        </div>
-        <p className="mt-3 text-[12px] leading-relaxed text-[#aeaeb2]">
-          Tip: if your Blackboard theme clips the frame, increase <code>height</code>, or link
-          directly to the standalone URL above instead of embedding.
-        </p>
-      </div>
-    </section>
-  );
 }
 
 export default function PublicLessonShell({
@@ -136,8 +53,6 @@ export default function PublicLessonShell({
   orb3,
   subtitle,
   pills,
-  embedPath,
-  embedTitle,
   children,
 }: PublicLessonShellProps) {
   return (
@@ -246,9 +161,6 @@ export default function PublicLessonShell({
 
       {/* ── Lesson content ── */}
       <section className="mx-auto max-w-5xl px-4 pb-16 sm:px-6">{children}</section>
-
-      {/* ── Blackboard embed ── */}
-      <EmbedPanel embedPath={embedPath} embedTitle={embedTitle} accent={accent} />
 
       {/* ── Footer ── */}
       <footer className="border-t border-black/[0.06] px-6 py-12 text-center">

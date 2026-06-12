@@ -18,8 +18,6 @@ export default function SQLProgrammingPage() {
         { emoji: '🔍', name: 'SELECT', color: '#7c3aed' },
         { emoji: '⌨️', name: 'Live syntax', color: '#0d9488' },
       ]}
-      embedPath="/sql-programming"
-      embedTitle="MBI802 — SQL Programming"
     >
       <SQLProgrammingDeck />
     </PublicLessonShell>

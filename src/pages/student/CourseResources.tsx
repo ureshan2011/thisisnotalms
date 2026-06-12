@@ -184,41 +184,10 @@ const COURSES: Course[] = [
         icon: <Video size={18} />,
         accentColor: '#7c3aed',
       },
-      {
-        id: 'slides',
-        title: 'SQL Programming Slides',
-        subtitle: '13-slide interactive deck covering basic MySQL commands',
-        icon: <Presentation size={18} />,
-        accentColor: '#2563eb',
-      },
-      {
-        id: 'er',
-        title: 'ER Diagrams Basics',
-        subtitle: '24-slide deck · Chen\'s notation · entities, attributes, relationships & cardinality',
-        icon: <GitBranch size={18} />,
-        accentColor: '#0d7a72',
-      },
-      {
-        id: 'er-activities',
-        title: 'ER Diagram Activities',
-        subtitle: '12-slide activity deck · 5 real-world scenarios · Library, University, Hospital, Online Store, Hotel',
-        icon: <FlaskConical size={18} />,
-        accentColor: '#1d4ed8',
-      },
-      {
-        id: 'er-advanced',
-        title: 'Advanced ER Concepts',
-        subtitle: '11-slide deck · Weak entities, identifying relationships, multivalued & derived attributes · 2 exercises',
-        icon: <BookOpen size={18} />,
-        accentColor: '#3b82f6',
-      },
-      {
-        id: 'er-attr-constraints',
-        title: 'Composite Attributes & Participation Constraints',
-        subtitle: '20-slide deck · Composite attributes, participation constraints · 2 activities with answers',
-        icon: <GitBranch size={18} />,
-        accentColor: '#0f766e',
-      },
+      // NOTE: "SQL Programming Slides", "ER Diagrams Basics", "ER Diagram Activities",
+      // "Advanced ER Concepts" and "Composite Attributes & Participation Constraints"
+      // now live as public, standalone lessons on the home launchpad (no login needed):
+      //   /sql-programming · /er-diagrams · /er-activities · /er-advanced · /er-attributes
       {
         id: 'er-mapping',
         title: 'ER to Relational Schema Mapping',

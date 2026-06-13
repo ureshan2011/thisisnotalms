@@ -223,13 +223,7 @@ const COURSES: Course[] = [
         icon: <FlaskConical size={18} />,
         accentColor: '#7c3aed',
       },
-      {
-        id: 'free-mysql-certs',
-        title: 'Free MySQL / SQL / Database Design Certifications',
-        subtitle: 'Nine genuinely free credentials — vendor badges, skill certifications & course completion certificates · Boost your CV and LinkedIn profile',
-        icon: <Award size={18} />,
-        accentColor: '#6d28d9',
-      },
+      // NOTE: "Free MySQL / SQL / Database Design Certifications" is now a public page at /sql-certifications
     ],
   },
   {
@@ -1787,7 +1781,7 @@ export default function CourseResources() {
                       <AgileScrumMcq studentProfile={studentProfile} />
                     )}
                     {lesson.id === 'free-agile-certs' && <FreeAgileCertsLesson />}
-                    {lesson.id === 'free-mysql-certs' && <FreeMySQLCertsLesson />}
+                    {/* free-mysql-certs moved to public page /sql-certifications */}
                     {lesson.id === 'five-stories' && <FiveStoriesLesson />}
                     {lesson.id === 'sisp-lab' && <SISPPromptLab />}
                     {lesson.id === 'sql-practice' && <SQLPracticeLesson />}

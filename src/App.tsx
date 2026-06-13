@@ -21,6 +21,7 @@ const ERDiagramsPage = lazy(() => import('./pages/ERDiagramsPage'));
 const ERActivitiesPage = lazy(() => import('./pages/ERActivitiesPage'));
 const ERAdvancedPage = lazy(() => import('./pages/ERAdvancedPage'));
 const ERAttributesPage = lazy(() => import('./pages/ERAttributesPage'));
+const SQLCertificationsPage = lazy(() => import('./pages/SQLCertificationsPage'));
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const StudentSQLRace    = lazy(() => import('./pages/student/SQLRacePage'));
@@ -94,6 +95,7 @@ function AppRoutes() {
         <Route path="/er-activities" element={<Suspense fallback={null}><ERActivitiesPage /></Suspense>} />
         <Route path="/er-advanced"  element={<Suspense fallback={null}><ERAdvancedPage /></Suspense>} />
         <Route path="/er-attributes" element={<Suspense fallback={null}><ERAttributesPage /></Suspense>} />
+        <Route path="/sql-certifications" element={<Suspense fallback={null}><SQLCertificationsPage /></Suspense>} />
         <Route path="/login"        element={<Suspense fallback={null}><Login /></Suspense>} />
         <Route path="/register"     element={<Suspense fallback={null}><Register /></Suspense>} />
         <Route path="/attend/:code" element={<QuickAttend />} />
@@ -163,6 +165,7 @@ function ShutdownRoutes() {
       <Route path="/er-activities" element={<Suspense fallback={null}><ERActivitiesPage /></Suspense>} />
       <Route path="/er-advanced" element={<Suspense fallback={null}><ERAdvancedPage /></Suspense>} />
       <Route path="/er-attributes" element={<Suspense fallback={null}><ERAttributesPage /></Suspense>} />
+      <Route path="/sql-certifications" element={<Suspense fallback={null}><SQLCertificationsPage /></Suspense>} />
       {/* All other routes show the shutdown notice */}
       <Route path="*" element={<ShutdownPage />} />
     </Routes>

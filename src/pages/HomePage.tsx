@@ -141,6 +141,15 @@ const LESSONS: {
     to2: '#6366f1',
   },
   {
+    to: '/sql-certifications',
+    eyebrow: 'MBI802 · Career development',
+    title: "Let's make sense of free SQL certifications",
+    body: 'Nine genuinely free credentials — Oracle badges, IBM digital badges, HackerRank exams, Cisco certs and more. All no credit card required. Put one on LinkedIn and let your skills speak for themselves.',
+    emoji: '🏅',
+    from: '#7c3aed',
+    to2: '#dc2626',
+  },
+  {
     to: '/pre-class',
     eyebrow: 'Before class',
     title: 'The pre-class Idea Swarm',

@@ -150,6 +150,15 @@ const LESSONS: {
     to2: '#dc2626',
   },
   {
+    to: '/normalisation-videos',
+    eyebrow: 'Database design · Video',
+    title: "Let's make sense of Normalization — on video",
+    body: 'Prefer to watch? A short walkthrough series — why we normalise, functional dependencies, and First Normal Form — each as a bite-sized clip you can play any time.',
+    emoji: '🎬',
+    from: '#6366f1',
+    to2: '#06b6d4',
+  },
+  {
     to: '/pre-class',
     eyebrow: 'Before class',
     title: 'The pre-class Idea Swarm',

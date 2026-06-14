@@ -22,6 +22,7 @@ const ERActivitiesPage = lazy(() => import('./pages/ERActivitiesPage'));
 const ERAdvancedPage = lazy(() => import('./pages/ERAdvancedPage'));
 const ERAttributesPage = lazy(() => import('./pages/ERAttributesPage'));
 const SQLCertificationsPage = lazy(() => import('./pages/SQLCertificationsPage'));
+const NormalizationVideosPage = lazy(() => import('./pages/NormalizationVideosPage'));
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const StudentSQLRace    = lazy(() => import('./pages/student/SQLRacePage'));
@@ -96,6 +97,8 @@ function AppRoutes() {
         <Route path="/er-advanced"  element={<Suspense fallback={null}><ERAdvancedPage /></Suspense>} />
         <Route path="/er-attributes" element={<Suspense fallback={null}><ERAttributesPage /></Suspense>} />
         <Route path="/sql-certifications" element={<Suspense fallback={null}><SQLCertificationsPage /></Suspense>} />
+        <Route path="/normalisation-videos" element={<Suspense fallback={null}><NormalizationVideosPage /></Suspense>} />
+        <Route path="/normalization-videos" element={<Navigate to="/normalisation-videos" replace />} />
         <Route path="/login"        element={<Suspense fallback={null}><Login /></Suspense>} />
         <Route path="/register"     element={<Suspense fallback={null}><Register /></Suspense>} />
         <Route path="/attend/:code" element={<QuickAttend />} />
@@ -166,6 +169,8 @@ function ShutdownRoutes() {
       <Route path="/er-advanced" element={<Suspense fallback={null}><ERAdvancedPage /></Suspense>} />
       <Route path="/er-attributes" element={<Suspense fallback={null}><ERAttributesPage /></Suspense>} />
       <Route path="/sql-certifications" element={<Suspense fallback={null}><SQLCertificationsPage /></Suspense>} />
+      <Route path="/normalisation-videos" element={<Suspense fallback={null}><NormalizationVideosPage /></Suspense>} />
+      <Route path="/normalization-videos" element={<Navigate to="/normalisation-videos" replace />} />
       {/* All other routes show the shutdown notice */}
       <Route path="*" element={<ShutdownPage />} />
     </Routes>

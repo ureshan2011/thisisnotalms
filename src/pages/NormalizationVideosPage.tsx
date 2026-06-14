@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import PublicLessonShell from '../components/public/PublicLessonShell';
 import VideoGallery, { type VideoClip } from '../components/slides/VideoGallery';
 import { db } from '../lib/firebase';
@@ -45,17 +45,24 @@ export default function NormalizationVideosPage() {
     let cancelled = false;
     (async () => {
       try {
-        const snap = await getDocs(
-          query(
-            collection(db, 'videoLessons'),
-            where('courseId', '==', 'MBI802'),
-            where('lessonId', '==', 'normalization'),
-          ),
-        );
+        // Fetch the whole (small) collection and filter in JS — same approach as
+        // the logged-in Course Resources page, so the public page shows exactly
+        // the same MBI802 / normalization videos.
+        const snap = await getDocs(collection(db, 'videoLessons'));
         const videos: VideoClip[] = [];
         snap.forEach((d) => {
-          const data = d.data() as { videos?: VideoClip[] };
-          if (Array.isArray(data.videos)) videos.push(...data.videos);
+          const data = d.data() as {
+            courseId?: string;
+            lessonId?: string;
+            videos?: VideoClip[];
+          };
+          if (
+            data.courseId === 'MBI802' &&
+            data.lessonId === 'normalization' &&
+            Array.isArray(data.videos)
+          ) {
+            videos.push(...data.videos);
+          }
         });
         if (!cancelled) setExtraVideos(videos);
       } catch {

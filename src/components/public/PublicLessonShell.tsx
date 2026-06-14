@@ -63,14 +63,6 @@ export default function PublicLessonShell({
           <Link to="/home" className="no-underline">
             <BrandLogo iconSize={28} variant="on-light" />
           </Link>
-          <Link
-            to="/home"
-            className="flex items-center gap-1.5 rounded-full border border-black/[0.10] px-4 py-1.5 text-[13px] font-medium text-[#6e6e73] transition hover:text-[#1d1d1f]"
-            style={{ borderColor: accent + '33' }}
-          >
-            <span className="text-[15px]">‹</span>
-            All lessons
-          </Link>
         </div>
       </nav>
 

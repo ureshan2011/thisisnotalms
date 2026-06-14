@@ -170,11 +170,6 @@ export default function PublicLessonShell({
         <p className="text-[12px] text-[#aeaeb2]">
           Everything here runs in your own browser. No login, no personal data collected.
         </p>
-        <p className="mt-3">
-          <Link to="/home" className="text-[13px] font-medium hover:underline" style={{ color: accent }}>
-            ‹ Back to all lessons
-          </Link>
-        </p>
       </footer>
     </div>
   );

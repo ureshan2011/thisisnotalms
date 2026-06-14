@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import PublicLessonShell from '../components/public/PublicLessonShell';
 import VideoGallery, { type VideoClip } from '../components/slides/VideoGallery';
+import { db } from '../lib/firebase';
 
 const BASE = import.meta.env.BASE_URL;
 
@@ -32,6 +35,40 @@ const NORMALIZATION_VIDEOS: VideoClip[] = [
 ];
 
 export default function NormalizationVideosPage() {
+  // Lecturer-added videos (2NF, 1NF example, etc.) live in Firestore under the
+  // MBI802 / normalization lesson. The videoLessons collection is publicly
+  // readable, so we merge them in after the built-ins — no login required.
+  const [extraVideos, setExtraVideos] = useState<VideoClip[]>([]);
+
+  useEffect(() => {
+    if (!db) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const snap = await getDocs(
+          query(
+            collection(db, 'videoLessons'),
+            where('courseId', '==', 'MBI802'),
+            where('lessonId', '==', 'normalization'),
+          ),
+        );
+        const videos: VideoClip[] = [];
+        snap.forEach((d) => {
+          const data = d.data() as { videos?: VideoClip[] };
+          if (Array.isArray(data.videos)) videos.push(...data.videos);
+        });
+        if (!cancelled) setExtraVideos(videos);
+      } catch {
+        // Offline or rules not yet deployed — fall back to the built-in set.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const videos = [...NORMALIZATION_VIDEOS, ...extraVideos];
+
   return (
     <PublicLessonShell
       eyebrow="MBI802 · Database Design"
@@ -41,15 +78,15 @@ export default function NormalizationVideosPage() {
       accent="#6366f1"
       orb2="#818cf8"
       orb3="#06b6d4"
-      subtitle="Prefer to watch and learn? A short walkthrough series on database normalization — why we do it, functional dependencies, and First Normal Form — one clip at a time."
+      subtitle="Prefer to watch and learn? The full walkthrough series on database normalization — from why we do it and functional dependencies, climbing the normal forms one clip at a time."
       pills={[
-        { emoji: '▶️', name: 'Introduction', color: '#6366f1' },
         { emoji: '🤔', name: 'Why normalise?', color: '#7c3aed' },
         { emoji: '🔗', name: 'Functional deps', color: '#0891b2' },
         { emoji: '1️⃣', name: '1NF', color: '#0d9488' },
+        { emoji: '🪜', name: '2NF & beyond', color: '#6366f1' },
       ]}
     >
-      <VideoGallery videos={NORMALIZATION_VIDEOS} accentColor="#6366f1" />
+      <VideoGallery videos={videos} accentColor="#6366f1" />
     </PublicLessonShell>
   );
 }

@@ -32,6 +32,18 @@ const NORMALIZATION_VIDEOS: VideoClip[] = [
     url: 'https://myacg-my.sharepoint.com/:v:/g/personal/yasas_wickramasinghe_yoobeecolleges_com1/IQDwiXe1GAG4QornPClJYm6PAej3l8tqwmUvRsE9xRboIsA?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=INiQAM',
     thumbnailUrl: `${BASE}Norm1NF.png`,
   },
+  {
+    title: 'Normalization – 1NF Further Example',
+    description: 'First Normal Form worked example with a real-world Orders table',
+    url: 'https://myacg-my.sharepoint.com/:v:/r/personal/yasas_wickramasinghe_yoobeecolleges_com1/Documents/MBI802%20Supplementary%20Materials%20for%20YooBees/Normalization%201NF%20Further%20Example.mp4?csf=1&web=1&e=A2AjTt&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D',
+    thumbnailUrl: `${BASE}Norm1NFExample.png`,
+  },
+  {
+    title: 'Normalization – Second Normal Form (2NF)',
+    description: 'Second Normal Form theory — partial dependencies and how to eliminate them',
+    url: 'https://myacg-my.sharepoint.com/:v:/r/personal/yasas_wickramasinghe_yoobeecolleges_com1/Documents/MBI802%20Supplementary%20Materials%20for%20YooBees/Normalization%202NF%20Theory.mp4?csf=1&web=1&e=GX4edo&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D',
+    thumbnailUrl: `${BASE}Norm2ND.png`,
+  },
 ];
 
 export default function NormalizationVideosPage() {

@@ -23,6 +23,7 @@ const ERAdvancedPage = lazy(() => import('./pages/ERAdvancedPage'));
 const ERAttributesPage = lazy(() => import('./pages/ERAttributesPage'));
 const SQLCertificationsPage = lazy(() => import('./pages/SQLCertificationsPage'));
 const NormalizationVideosPage = lazy(() => import('./pages/NormalizationVideosPage'));
+const SecurityLabPage = lazy(() => import('./pages/SecurityLabPage'));
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const StudentSQLRace    = lazy(() => import('./pages/student/SQLRacePage'));
@@ -91,6 +92,7 @@ function AppRoutes() {
         <Route path="/pre-class"    element={<Suspense fallback={null}><PreClassSwarmPage /></Suspense>} />
         <Route path="/five-stories" element={<Suspense fallback={null}><FiveStoriesPage /></Suspense>} />
         <Route path="/systems-security" element={<Suspense fallback={null}><SystemsSecurityPage /></Suspense>} />
+        <Route path="/security-lab" element={<Suspense fallback={null}><SecurityLabPage /></Suspense>} />
         <Route path="/sql-programming" element={<Suspense fallback={null}><SQLProgrammingPage /></Suspense>} />
         <Route path="/er-diagrams"  element={<Suspense fallback={null}><ERDiagramsPage /></Suspense>} />
         <Route path="/er-activities" element={<Suspense fallback={null}><ERActivitiesPage /></Suspense>} />
@@ -163,6 +165,7 @@ function ShutdownRoutes() {
       <Route path="/pre-class" element={<Suspense fallback={null}><PreClassSwarmPage /></Suspense>} />
       <Route path="/five-stories" element={<Suspense fallback={null}><FiveStoriesPage /></Suspense>} />
       <Route path="/systems-security" element={<Suspense fallback={null}><SystemsSecurityPage /></Suspense>} />
+      <Route path="/security-lab" element={<Suspense fallback={null}><SecurityLabPage /></Suspense>} />
       <Route path="/sql-programming" element={<Suspense fallback={null}><SQLProgrammingPage /></Suspense>} />
       <Route path="/er-diagrams" element={<Suspense fallback={null}><ERDiagramsPage /></Suspense>} />
       <Route path="/er-activities" element={<Suspense fallback={null}><ERActivitiesPage /></Suspense>} />

@@ -8,16 +8,19 @@ const APPLE_FONT =
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 const TOPICS = [
-  { emoji: '⌨️', name: 'Input attacks', color: '#e5484d' },
-  { emoji: '🔓', name: 'Auth flaws', color: '#d97706' },
-  { emoji: '🛡️', name: 'Access control', color: '#4f46e5' },
-  { emoji: '📤', name: 'Data exposure', color: '#0891b2' },
-  { emoji: '🧬', name: 'Client tampering', color: '#7c3aed' },
-  { emoji: '💣', name: 'Sabotage', color: '#dc2626' },
-  { emoji: '🪙', name: 'Business logic', color: '#ca8a04' },
+  { emoji: '\u{1F4A5}', name: 'Input Attacks',          color: '#e5484d' },
+  { emoji: '\u{1F511}', name: 'Authentication Flaws',   color: '#f59e0b' },
+  { emoji: '\u{1F6E1}️', name: 'Access Control',  color: '#4f46e5' },
+  { emoji: '\u{1F4E1}', name: 'Data Exposure',          color: '#0071e3' },
+  { emoji: '\u{1F9E9}', name: 'Business Logic',         color: '#30a46c' },
+  { emoji: '\u{1F489}', name: 'Injection',              color: '#d946ef' },
+  { emoji: '\u{1F527}', name: 'Client-Side Tampering',  color: '#ea580c' },
 ];
 
-const LAB_HTML = `<!DOCTYPE html>
+/* -------------------------------------------------------------------------- */
+/*  SwiftShop e-commerce simulation HTML (self-contained, deliberately vuln)  */
+/* -------------------------------------------------------------------------- */
+const SWIFTSHOP_HTML = `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -52,7 +55,7 @@ const LAB_HTML = `<!DOCTYPE html>
   .search-bar{flex:1;max-width:400px;margin:0 auto;position:relative}
   .search-bar input{width:100%;padding:8px 12px 8px 36px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font-size:13px;outline:none;transition:border-color .2s}
   .search-bar input:focus{border-color:var(--blue)}
-  .search-bar::before{content:'🔍';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px}
+  .search-bar::before{content:'\\1F50D';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px}
   nav{display:flex;gap:2px}
   nav button{background:none;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);transition:all .15s}
   nav button:hover{background:var(--paper);color:var(--ink)}
@@ -194,45 +197,46 @@ const LAB_HTML = `<!DOCTYPE html>
   <div class="main" id="main"></div>
 
   <aside class="mission">
-    <h3>🎯 Mission Control</h3>
-    <p class="sub">SwiftShop was built fast and shipped with security as an afterthought. Fifteen classes of weakness are hiding in this app. Find them, exploit them, then explain how a security-first design would stop each one.</p>
+    <h3>\\u{1F3AF} Mission Control</h3>
+    <p class="sub">SwiftShop was built fast and shipped with security as an afterthought. Sixteen classes of weakness are hiding in this app. Find them, exploit them, then explain how a security-first design would stop each one.</p>
 
     <div class="target-group">
       <div class="target-group-label">Input & Injection</div>
-      <div class="target"><span class="ic">⌨️</span><div><div class="tl">1. Input Manipulation</div><div class="td">Feed the system values it should never accept (negative qty, decimals).</div></div></div>
-      <div class="target"><span class="ic">💉</span><div><div class="tl">2. Stored XSS</div><div class="td">Inject HTML/JS via reviews that runs for every visitor.</div></div></div>
-      <div class="target"><span class="ic">🔗</span><div><div class="tl">3. Reflected XSS</div><div class="td">Craft a URL with a ?promo= param that renders unsanitised HTML.</div></div></div>
+      <div class="target"><span class="ic">\\u{2328}\\uFE0F</span><div><div class="tl">1. Input Manipulation</div><div class="td">Feed the system values it should never accept (negative qty, decimals).</div></div></div>
+      <div class="target"><span class="ic">\\u{1F489}</span><div><div class="tl">2. Stored XSS</div><div class="td">Inject HTML/JS via reviews that runs for every visitor.</div></div></div>
+      <div class="target"><span class="ic">\\u{1F517}</span><div><div class="tl">3. Reflected XSS</div><div class="td">Craft a URL with a ?promo= param that renders unsanitised HTML.</div></div></div>
     </div>
 
     <div class="target-group">
       <div class="target-group-label">Auth & Access</div>
-      <div class="target"><span class="ic">🔓</span><div><div class="tl">4. Broken Authentication</div><div class="td">No rate limit, no lockout, plaintext passwords in the source.</div></div></div>
-      <div class="target"><span class="ic">👑</span><div><div class="tl">5. Privilege Escalation</div><div class="td">Edit your session role in storage to reach the admin panel.</div></div></div>
-      <div class="target"><span class="ic">📋</span><div><div class="tl">6. Mass Assignment</div><div class="td">The profile update takes every field — including role and balance.</div></div></div>
+      <div class="target"><span class="ic">\\u{1F513}</span><div><div class="tl">4. Broken Authentication</div><div class="td">No rate limit, no lockout, plaintext passwords in the source.</div></div></div>
+      <div class="target"><span class="ic">\\u{1F451}</span><div><div class="tl">5. Privilege Escalation</div><div class="td">Edit your session role in storage to reach the admin panel.</div></div></div>
+      <div class="target"><span class="ic">\\u{1F4CB}</span><div><div class="tl">6. Mass Assignment</div><div class="td">The profile update takes every field \\u2014 including role and balance.</div></div></div>
     </div>
 
     <div class="target-group">
       <div class="target-group-label">Data & Storage</div>
-      <div class="target"><span class="ic">📤</span><div><div class="tl">7. Data Theft</div><div class="td">Hardcoded API keys, credentials, and card numbers in the source.</div></div></div>
-      <div class="target"><span class="ic">🗄️</span><div><div class="tl">8. Direct Storage Tampering</div><div class="td">Edit localStorage directly — change prices, balances, roles.</div></div></div>
-      <div class="target"><span class="ic">📦</span><div><div class="tl">9. Insecure Deserialization</div><div class="td">Import a cart from base64 JSON — the app trusts whatever you send.</div></div></div>
-      <div class="target"><span class="ic">🔢</span><div><div class="tl">10. IDOR</div><div class="td">Order IDs are sequential — view any order by changing the number.</div></div></div>
+      <div class="target"><span class="ic">\\u{1F4E4}</span><div><div class="tl">7. Data Theft</div><div class="td">Hardcoded API keys, credentials, and card numbers in the source.</div></div></div>
+      <div class="target"><span class="ic">\\u{1F5C4}\\uFE0F</span><div><div class="tl">8. Direct Storage Tampering</div><div class="td">Edit localStorage directly \\u2014 change prices, balances, roles.</div></div></div>
+      <div class="target"><span class="ic">\\u{1F4E6}</span><div><div class="tl">9. Insecure Deserialization</div><div class="td">Import a cart from base64 JSON \\u2014 the app trusts whatever you send.</div></div></div>
+      <div class="target"><span class="ic">\\u{1F522}</span><div><div class="tl">10. IDOR</div><div class="td">Order IDs are sequential \\u2014 view any order by changing the number.</div></div></div>
+      <div class="target"><span class="ic">\\u{1F4AC}</span><div><div class="tl">11. Information Disclosure</div><div class="td">Console.log leaks secrets; verbose errors expose internals.</div></div></div>
     </div>
 
     <div class="target-group">
       <div class="target-group-label">Business Logic</div>
-      <div class="target"><span class="ic">🪙</span><div><div class="tl">11. Resource Misappropriation</div><div class="td">Unlimited loyalty bonus, staff coupon in the code.</div></div></div>
-      <div class="target"><span class="ic">🔁</span><div><div class="tl">12. Self-Referral Abuse</div><div class="td">Refer yourself or reuse the same referral code endlessly.</div></div></div>
-      <div class="target"><span class="ic">⚡</span><div><div class="tl">13. Race Condition</div><div class="td">Rapid-fire the bonus button — no mutex means multiple credits.</div></div></div>
+      <div class="target"><span class="ic">\\u{1FA99}</span><div><div class="tl">12. Resource Misappropriation</div><div class="td">Unlimited loyalty bonus, staff coupon in the code.</div></div></div>
+      <div class="target"><span class="ic">\\u{1F501}</span><div><div class="tl">13. Self-Referral Abuse</div><div class="td">Refer yourself or reuse the same referral code endlessly.</div></div></div>
+      <div class="target"><span class="ic">\\u{26A1}</span><div><div class="tl">14. Race Condition</div><div class="td">Rapid-fire the bonus button \\u2014 no mutex means multiple credits.</div></div></div>
     </div>
 
     <div class="target-group">
       <div class="target-group-label">Sabotage & Tampering</div>
-      <div class="target"><span class="ic">🧬</span><div><div class="tl">14. Program Alteration</div><div class="td">Change GLOBAL_DISCOUNT or cart functions from the console.</div></div></div>
-      <div class="target"><span class="ic">💣</span><div><div class="tl">15. Sabotage</div><div class="td">nukeStore() wipes everything — no auth, no confirmation needed.</div></div></div>
+      <div class="target"><span class="ic">\\u{1F9EC}</span><div><div class="tl">15. Program Alteration</div><div class="td">Change GLOBAL_DISCOUNT or cart functions from the console.</div></div></div>
+      <div class="target"><span class="ic">\\u{1F4A3}</span><div><div class="tl">16. Sabotage</div><div class="td">nukeStore() wipes everything \\u2014 no auth, no confirmation needed.</div></div></div>
     </div>
 
-    <div class="foot">💡 <b>Tip:</b> Open DevTools (F12) → Console / Application / Sources. The source code IS the vulnerability surface.</div>
+    <div class="foot">\\u{1F4A1} <b>Tip:</b> Open DevTools (F12) \\u2192 Console / Application / Sources. The source code IS the vulnerability surface.</div>
   </aside>
 </div>
 
@@ -240,9 +244,9 @@ const LAB_HTML = `<!DOCTYPE html>
 
 <script>
 /* =========================================================================
-   SwiftShop — deliberately insecure training app (v2).
+   SwiftShop \\u2014 deliberately insecure training app (v3).
    Everything runs client-side. "The database" is localStorage.
-   15 vulnerability classes for students to discover.
+   16 vulnerability classes for students to discover.
    ========================================================================= */
 
 // --- VULNERABILITY 4 & 7: Secrets baked into front-end ---
@@ -250,25 +254,33 @@ const ADMIN_CREDENTIALS = { username: "admin", password: "SwiftAdmin#2026", role
 const PAYMENT_API_SECRET = "sk_live_51Hx0FAKEkeyForClassDoNotUse_9920xZ";
 const INTERNAL_API_ENDPOINT = "https://api.swiftshop-internal.fake/v2/payments";
 const JWT_SIGNING_KEY = "super-secret-jwt-key-do-not-share-2026";
+const AWS_ACCESS_KEY = "AKIAIOSFODNN7EXAMPLE";
+const DB_CONNECTION = "postgres://admin:s3cretP@ss@db.swiftshop.fake/prod";
 const STAFF_COUPON = "STAFF100"; // 100% off
 const REFERRAL_BONUS = 15; // $15 per referral
 
-// --- VULNERABILITY 14: Global the totals depend on ---
+// --- VULNERABILITY 15: Global the totals depend on ---
 let GLOBAL_DISCOUNT = 0; // 0..1
 
-// --- VULNERABILITY 15: Information Disclosure via console ---
+// --- VULNERABILITY 11: Information Disclosure via console ---
 console.log("[SwiftShop DEBUG] Payment API Secret:", PAYMENT_API_SECRET);
 console.log("[SwiftShop DEBUG] JWT Key:", JWT_SIGNING_KEY);
 console.log("[SwiftShop DEBUG] Internal endpoint:", INTERNAL_API_ENDPOINT);
+console.log("[SwiftShop DEBUG] AWS Access Key:", AWS_ACCESS_KEY);
+console.log("[SwiftShop DEBUG] Database connection:", DB_CONNECTION);
 console.log("[SwiftShop DEBUG] Admin credentials loaded from config:", ADMIN_CREDENTIALS);
+console.log("[SwiftShop DEBUG] App initialized. Environment: PRODUCTION");
+console.log("[SwiftShop DEBUG] Server: swiftshop-api-prod.internal:3000");
+console.log("[SwiftShop DEBUG] Internal endpoints: /api/admin/users, /api/admin/config, /api/debug/dump");
+console.log("[SwiftShop DEBUG] Feature flags:", { enablePayments: true, debugMode: true, maintenanceMode: false });
 
 const SEED_PRODUCTS = [
-  { id:1, name:"Wireless Earbuds Pro", emoji:"🎧", desc:"Active noise-cancelling, 36h battery, IPX5 waterproof.", price:89.00, stock:12, rating:4.7, reviews:234 },
-  { id:2, name:"Mechanical Keyboard", emoji:"⌨️", desc:"Hot-swappable Cherry MX switches, per-key RGB.", price:119.00, stock:7, rating:4.9, reviews:89 },
-  { id:3, name:"Smart Desk Lamp", emoji:"💡", desc:"Warm/cool dimmable LED, auto-brightness sensor.", price:34.50, stock:25, rating:4.3, reviews:156 },
-  { id:4, name:"USB-C Hub 7-in-1", emoji:"🔌", desc:"4K HDMI, 100W PD, SD card, 3× USB-A.", price:45.00, stock:18, rating:4.5, reviews:312 },
-  { id:5, name:"Webcam 4K Ultra", emoji:"📷", desc:"Auto-focus, built-in ring light, noise-cancelling mic.", price:79.00, stock:9, rating:4.6, reviews:67 },
-  { id:6, name:"Portable SSD 1TB", emoji:"💾", desc:"USB 3.2 Gen 2, 1050 MB/s read, shock-resistant.", price:99.00, stock:14, rating:4.8, reviews:445 }
+  { id:1, name:"Wireless Earbuds Pro", emoji:"\\u{1F3A7}", desc:"Active noise-cancelling, 36h battery, IPX5 waterproof.", price:89.00, stock:12, rating:4.7, reviews:234 },
+  { id:2, name:"Mechanical Keyboard", emoji:"\\u{2328}\\uFE0F", desc:"Hot-swappable Cherry MX switches, per-key RGB.", price:119.00, stock:7, rating:4.9, reviews:89 },
+  { id:3, name:"Smart Desk Lamp", emoji:"\\u{1F4A1}", desc:"Warm/cool dimmable LED, auto-brightness sensor.", price:34.50, stock:25, rating:4.3, reviews:156 },
+  { id:4, name:"USB-C Hub 7-in-1", emoji:"\\u{1F50C}", desc:"4K HDMI, 100W PD, SD card, 3\\u00D7 USB-A.", price:45.00, stock:18, rating:4.5, reviews:312 },
+  { id:5, name:"Webcam 4K Ultra", emoji:"\\u{1F4F7}", desc:"Auto-focus, built-in ring light, noise-cancelling mic.", price:79.00, stock:9, rating:4.6, reviews:67 },
+  { id:6, name:"Portable SSD 1TB", emoji:"\\u{1F4BE}", desc:"USB 3.2 Gen 2, 1050 MB/s read, shock-resistant.", price:99.00, stock:14, rating:4.8, reviews:445 }
 ];
 
 const SEED_USERS = [
@@ -287,7 +299,11 @@ const DB = {
       { user:"priya.n", text:"Keyboard feels premium for the price.", rating:4 },
       { user:"student", text:"USB-C hub works perfectly with my MacBook.", rating:5 }
     ]));
-    if(!localStorage.getItem("swift_orders")) localStorage.setItem("swift_orders", JSON.stringify([]));
+    if(!localStorage.getItem("swift_orders")) localStorage.setItem("swift_orders", JSON.stringify([
+      { id:1001, user:"amir.k",  items:"Wireless Earbuds Pro \\u00D71, USB-C Hub 7-in-1 \\u00D72", total:179.00, address:"42 Oak Lane, Springfield", card:"**** 7781" },
+      { id:1002, user:"priya.n", items:"Mechanical Keyboard \\u00D71",                     total:119.00, address:"15 Elm Street, Portland",   card:"**** 9912" },
+      { id:1003, user:"student", items:"Smart Desk Lamp \\u00D72, Webcam 4K Ultra \\u00D71",    total:148.00, address:"88 Pine Ave, Denver",      card:"**** 0042" }
+    ]));
   },
   users()    { return JSON.parse(localStorage.getItem("swift_users")); },
   setUsers(u){ localStorage.setItem("swift_users", JSON.stringify(u)); },
@@ -297,11 +313,11 @@ const DB = {
   orders()   { return JSON.parse(localStorage.getItem("swift_orders")); },
   setOrders(o){ localStorage.setItem("swift_orders", JSON.stringify(o)); },
   session()  { const s=localStorage.getItem("swift_session"); return s?JSON.parse(s):null; },
-  setSession(s){ localStorage.setItem("swift_session", JSON.stringify(s)); },
+  setSession(s){ localStorage.setItem("swift_session", JSON.stringify(s)); console.log("[SwiftShop DEBUG] Session saved:", s); },
   clearSession(){ localStorage.removeItem("swift_session"); }
 };
 
-// --- VULNERABILITY 15: Global wipe with no guard rails ---
+// --- VULNERABILITY 16: Global wipe with no guard rails ---
 function nukeStore(){ localStorage.clear(); location.reload(); }
 
 let cart = [];
@@ -324,38 +340,51 @@ function getPromoFromURL(){
   return params.get("promo") || "";
 }
 
-/* ---------- cart maths (VULNERABILITY 1 & 14) ---------- */
+/* ---------- cart maths (VULNERABILITY 1 & 15) ---------- */
 function lineTotal(item){ return item.price * item.qty; }
 function cartSubtotal(){ return cart.reduce((a,i)=>a+lineTotal(i),0); }
 function getCartTotal(){ return cartSubtotal() * (1 - GLOBAL_DISCOUNT); }
 
 /* ---------- auth (VULNERABILITY 4) ---------- */
+let loginAttempts = 0;
 function login(username, password){
-  // No rate limiting, no account lockout
-  console.log("[SwiftShop DEBUG] Login attempt:", username, password); // VULNERABILITY: info disclosure
+  // VULNERABILITY 4: No rate limiting, no account lockout, plaintext comparison
+  loginAttempts++;
+  console.log("[SwiftShop DEBUG] Login attempt #" + loginAttempts + " for user:", username, "password:", password);
   if(username===ADMIN_CREDENTIALS.username && password===ADMIN_CREDENTIALS.password){
-    DB.setSession({username,role:"admin"}); return true;
+    DB.setSession({username,role:"admin"}); return { success: true };
   }
   const u=DB.users().find(x=>x.username===username && x.password===password);
-  if(u){ DB.setSession({username:u.username,role:u.role}); return true; }
-  return false;
+  if(u){ DB.setSession({username:u.username,role:u.role}); return { success: true }; }
+  // VULNERABILITY 11: Verbose error discloses whether user exists
+  const exists = DB.users().find(x=>x.username===username);
+  if(exists){
+    console.log("[SwiftShop DEBUG] Password mismatch for existing user:", username, "Expected:", exists.password);
+    return { success: false, error: 'Incorrect password for "' + username + '". Hint: password starts with "' + exists.password.substring(0,3) + '..."' };
+  }
+  return { success: false, error: 'User "' + username + '" does not exist in the database. Try: student, amir.k, priya.n, or admin.' };
 }
 function logout(){ DB.clearSession(); cart=[]; render(); }
 
 /* ---------- VULNERABILITY 9: Cart export/import (insecure deserialization) ---------- */
 function exportCart(){
-  const data = JSON.stringify(cart);
-  return btoa(data);
+  const data = { cart: cart, discount: GLOBAL_DISCOUNT, session: DB.session(), timestamp: Date.now() };
+  return btoa(JSON.stringify(data));
 }
 function importCart(b64){
   try{
+    // VULNERABILITY 9: No validation \\u2014 trusts whatever comes in
     const data = JSON.parse(atob(b64));
-    // No validation at all — trusts whatever comes in
-    cart = data;
+    console.log("[SwiftShop DEBUG] Importing cart data (no validation):", data);
+    if(data.cart) cart = data.cart; // Could have negative prices
+    if(data.discount !== undefined) GLOBAL_DISCOUNT = data.discount; // Could set 100% off
+    if(data.session) DB.setSession(data.session); // Could escalate privileges
     toast("Cart imported successfully","good");
     render();
   }catch(e){
-    toast("Invalid cart data","bad");
+    // VULNERABILITY 11: Verbose error exposes internals
+    toast("Import error: " + e.message,"bad");
+    console.error("[SwiftShop DEBUG] Full import error:", e.message, e.stack);
   }
 }
 
@@ -364,34 +393,34 @@ function shopView(){
   const products = DB.products();
   const promo = getPromoFromURL();
   // VULNERABILITY 3: promo is rendered as raw HTML
-  const promoBanner = promo ? '<div style="background:linear-gradient(135deg,#DBEAFE,#EDE9FE);border:1px solid #93C5FD;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1E3A5F">🎉 '+promo+'</div>' : '';
+  const promoBanner = promo ? '<div style="background:linear-gradient(135deg,#DBEAFE,#EDE9FE);border:1px solid #93C5FD;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1E3A5F">\\u{1F389} '+promo+'</div>' : '';
 
   return promoBanner + '<div class="panel"><div class="eyebrow">Catalogue</div><h2>Today at SwiftShop</h2><p class="lead">Browse our curated selection. Add items to your cart, then head to checkout.</p><div class="grid">' +
-    products.map(p => '<div class="product"><div class="emoji">'+p.emoji+'</div><div class="pname">'+p.name+'</div><div class="pdesc">'+p.desc+'</div><div class="rating">'+"★".repeat(Math.floor(p.rating))+(p.rating%1>=0.5?"½":"")+" "+p.rating+' <span style="color:var(--muted)">('+p.reviews+')</span></div><div class="prow"><span><span class="price">$'+p.price.toFixed(2)+'</span></span><span class="stock'+(p.stock<10?" low":"")+'">'+p.stock+' in stock</span></div><div class="qtyrow"><input type="number" id="qty-'+p.id+'" value="1" min="1"><button class="btn btn-primary btn-sm" onclick="addToCart('+p.id+')">Add to cart</button></div></div>').join("") +
+    products.map(p => '<div class="product"><div class="emoji">'+p.emoji+'</div><div class="pname">'+p.name+'</div><div class="pdesc">'+p.desc+'</div><div class="rating">'+"\\u2605".repeat(Math.floor(p.rating))+(p.rating%1>=0.5?"\\u00BD":"")+" "+p.rating+' <span style="color:var(--muted)">('+p.reviews+')</span></div><div class="prow"><span><span class="price">$'+p.price.toFixed(2)+'</span></span><span class="stock'+(p.stock<10?" low":"")+'">'+p.stock+' in stock</span></div><div class="qtyrow"><input type="number" id="qty-'+p.id+'" value="1" min="1"><button class="btn btn-primary btn-sm" onclick="addToCart('+p.id+')">Add to cart</button></div></div>').join("") +
     '</div></div>' +
-    '<div class="panel"><div class="eyebrow">Community</div><h2>Product reviews</h2><p class="lead">See what other shoppers think — and leave your own.</p><div id="reviewList">'+reviewsHtml()+'</div><div class="rev-form" style="margin-top:12px"><textarea id="reviewText" placeholder="Write a review…"></textarea><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="postReview()">Post review</button></div></div>';
+    '<div class="panel"><div class="eyebrow">Community</div><h2>Product reviews</h2><p class="lead">See what other shoppers think \\u2014 and leave your own.</p><div id="reviewList">'+reviewsHtml()+'</div><div class="rev-form" style="margin-top:12px"><textarea id="reviewText" placeholder="Write a review\\u2026"></textarea><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="postReview()">Post review</button></div></div>';
 }
 
 function reviewsHtml(){
   // VULNERABILITY 2: review text is inserted as raw HTML
   return DB.reviews().map(r =>
-    '<div class="review"><div class="rh"><span class="avatar" style="width:20px;height:20px;font-size:9px;display:inline-grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff">'+r.user[0].toUpperCase()+'</span> '+r.user+' <span class="badge-user">'+("★".repeat(r.rating||5))+'</span></div><div class="rb">'+r.text+'</div></div>'
+    '<div class="review"><div class="rh"><span class="avatar" style="width:20px;height:20px;font-size:9px;display:inline-grid;place-items:center;border-radius:50%;background:linear-gradient(135deg,#2563EB,#7C3AED);color:#fff">'+r.user[0].toUpperCase()+'</span> '+r.user+' <span class="badge-user">'+("\\u2605".repeat(r.rating||5))+'</span></div><div class="rb">'+r.text+'</div></div>'
   ).join("");
 }
 
 function cartView(){
   const lines = cart.length ? cart.map((i,idx)=>
-    '<div class="cart-line"><span class="nm">'+i.name+' <span style="color:var(--muted)">× '+i.qty+'</span></span><span class="lt">$'+lineTotal(i).toFixed(2)+'</span><button class="btn btn-ghost btn-sm" onclick="removeLine('+idx+')">Remove</button></div>'
-  ).join("") : '<div class="cart-empty">🛒 Your cart is empty. Start shopping!</div>';
+    '<div class="cart-line"><span class="nm">'+i.name+' <span style="color:var(--muted)">\\u00D7 '+i.qty+'</span></span><span class="lt">$'+lineTotal(i).toFixed(2)+'</span><button class="btn btn-ghost btn-sm" onclick="removeLine('+idx+')">Remove</button></div>'
+  ).join("") : '<div class="cart-empty">\\u{1F6D2} Your cart is empty. Start shopping!</div>';
 
-  return '<div class="loyalty"><span style="font-size:24px">🪙</span><div class="lt"><b>Loyalty bonus:</b> Claim $10 store credit as a thank-you for shopping with us!</div><button class="btn btn-primary btn-sm" onclick="claimBonus()">Claim $10</button></div>' +
+  return '<div class="loyalty"><span style="font-size:24px">\\u{1FA99}</span><div class="lt"><b>Loyalty bonus:</b> Claim $10 store credit as a thank-you for shopping with us!</div><button class="btn btn-primary btn-sm" onclick="claimBonus()">Claim $10</button></div>' +
 
-  '<div class="referral-box"><div class="lt"><b>🎁 Refer a friend:</b> Enter a referral code to earn $'+REFERRAL_BONUS+' credit.</div><div style="display:flex;gap:6px;margin-top:8px"><input id="referralInput" placeholder="Enter referral code" style="flex:1;padding:8px;border:1px solid #93C5FD;border-radius:6px;font-size:13px"><button class="btn btn-primary btn-sm" onclick="applyReferral()">Apply</button></div></div>' +
+  '<div class="referral-box"><div class="lt"><b>\\u{1F381} Refer a friend:</b> Enter a referral code to earn $'+REFERRAL_BONUS+' credit.</div><div style="display:flex;gap:6px;margin-top:8px"><input id="referralInput" placeholder="Enter referral code" style="flex:1;padding:8px;border:1px solid #93C5FD;border-radius:6px;font-size:13px"><button class="btn btn-primary btn-sm" onclick="applyReferral()">Apply</button></div></div>' +
 
   '<div class="panel"><div class="eyebrow">Checkout</div><h2>Your cart</h2><p class="lead">Review your items and apply a coupon if you have one.</p>' +
   lines +
   '<div class="coupon"><input id="couponInput" placeholder="Coupon code"><button class="btn btn-ghost" onclick="applyCoupon()">Apply</button></div>' +
-  '<div class="total"><span style="font-size:12px;color:var(--muted)">Total '+(GLOBAL_DISCOUNT>0?'(−'+Math.round(GLOBAL_DISCOUNT*100)+'%)':'')+'</span><span class="big">$'+getCartTotal().toFixed(2)+'</span></div>' +
+  '<div class="total"><span style="font-size:12px;color:var(--muted)">Total '+(GLOBAL_DISCOUNT>0?'(\\u2212'+Math.round(GLOBAL_DISCOUNT*100)+'%)':'')+'</span><span class="big">$'+getCartTotal().toFixed(2)+'</span></div>' +
   '<button class="btn btn-primary" style="width:100%;margin-top:14px;padding:11px" onclick="checkout()">Pay with wallet</button></div>' +
 
   '<div class="panel"><div class="eyebrow">Cart Tools</div><h2>Import / Export Cart</h2><p class="lead">Save or restore your cart using encoded data.</p><div class="import-export"><button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'exportData\').value=exportCart()">Export cart</button><textarea id="exportData" placeholder="Encoded cart data will appear here..." style="margin-top:8px"></textarea><div style="margin-top:8px;display:flex;gap:6px"><input id="importData" placeholder="Paste encoded cart data..." style="flex:1;padding:8px;border:1px solid var(--line);border-radius:6px;font-size:12px;font-family:ui-monospace,monospace"><button class="btn btn-primary btn-sm" onclick="importCart(document.getElementById(\'importData\').value)">Import</button></div></div></div>';
@@ -401,21 +430,21 @@ function ordersView(){
   const s=DB.session();
   if(!s) return loginPrompt("Sign in to view your orders.");
   const orders=DB.orders();
-  // VULNERABILITY 10: IDOR — any user can view any order
+  // VULNERABILITY 10: IDOR \\u2014 any user can view any order by sequential ID
   return '<div class="panel"><div class="eyebrow">Order History</div><h2>Your orders</h2><p class="lead">View details of any order by ID.</p>' +
-    '<div style="display:flex;gap:6px;margin-bottom:16px"><input id="orderLookup" placeholder="Enter order ID (e.g. 1, 2, 3...)" style="flex:1;padding:8px;border:1px solid var(--line);border-radius:6px"><button class="btn btn-ghost btn-sm" onclick="lookupOrder()">Look up</button></div>' +
+    '<div style="display:flex;gap:6px;margin-bottom:16px"><input id="orderLookup" placeholder="Enter order ID (e.g. 1001, 1002, 1003...)" style="flex:1;padding:8px;border:1px solid var(--line);border-radius:6px"><button class="btn btn-ghost btn-sm" onclick="lookupOrder()">Look up</button></div>' +
     '<div id="orderResult"></div>' +
-    (orders.length ? orders.map((o,i)=> '<div class="order-card"><div class="order-id">Order #'+(i+1)+'</div><div class="order-details">'+o.user+' — '+o.items+' — <b>$'+o.total.toFixed(2)+'</b></div></div>').join("") : '<p class="lead">No orders yet.</p>') +
+    (orders.length ? orders.map(o => '<div class="order-card"><div class="order-id">Order #'+o.id+'</div><div class="order-details">'+o.user+' \\u2014 '+o.items+' \\u2014 <b>$'+o.total.toFixed(2)+'</b></div></div>').join("") : '<p class="lead">No orders yet.</p>') +
     '</div>';
 }
 
 function accountView(){
   const u=currentUser();
   if(!u) return loginPrompt("Sign in to view your account.");
-  // VULNERABILITY 6: Mass assignment — profile form includes role and balance fields
+  // VULNERABILITY 6: Mass assignment \\u2014 profile form includes role and balance fields
   return '<div class="panel"><div class="eyebrow">Account</div><h2>'+u.username+'</h2><p class="lead">Manage your SwiftShop profile and wallet.</p>' +
-    '<div class="stats-row"><div class="stat-card"><div class="val">$'+(u.balance||0).toFixed(2)+'</div><div class="lbl">Wallet Balance</div></div><div class="stat-card"><div class="val"><span class="badge '+(u.role==="admin"?"admin":"user-badge")+'">'+u.role+'</span></div><div class="lbl">Account Role</div></div><div class="stat-card"><div class="val">'+(u.card?u.card.slice(-4):"—")+'</div><div class="lbl">Card ending</div></div></div>' +
-    '<div class="tab-bar"><button class="active" onclick="this.parentElement.querySelectorAll(\\'.active\\').forEach(b=>b.classList.remove(\\'.active\\'));this.classList.add(\\'.active\\')">Profile</button><button>Security</button><button>Preferences</button></div>' +
+    '<div class="stats-row"><div class="stat-card"><div class="val">$'+(u.balance||0).toFixed(2)+'</div><div class="lbl">Wallet Balance</div></div><div class="stat-card"><div class="val"><span class="badge '+(u.role==="admin"?"admin":"user-badge")+'">'+u.role+'</span></div><div class="lbl">Account Role</div></div><div class="stat-card"><div class="val">'+(u.card?u.card.slice(-4):"\\u2014")+'</div><div class="lbl">Card ending</div></div></div>' +
+    '<div class="tab-bar"><button class="active">Profile</button><button>Security</button><button>Preferences</button></div>' +
     '<h3 style="font-size:14px;margin-bottom:12px">Update profile</h3>' +
     '<div class="field"><label>Username</label><input id="profUsername" value="'+u.username+'"></div>' +
     '<div class="field"><label>Email</label><input id="profEmail" value="'+(u.email||"")+'"></div>' +
@@ -433,29 +462,37 @@ function adminView(){
   if(!s||s.role!=="admin") return loginPrompt("Admin access only.");
   const users=DB.users();
   const orders=DB.orders();
-  return '<div class="panel"><div class="eyebrow">Admin · Restricted</div><h2>Control panel</h2><p class="lead">Full customer and order data. Handle with care.</p>' +
+  return '<div class="panel"><div class="eyebrow">Admin \\u00B7 Restricted</div><h2>Control panel</h2><p class="lead">Full customer and order data. Handle with care.</p>' +
     '<h3 style="font-size:14px;margin:14px 0 8px">Customers</h3>' +
     '<table><tr><th>User</th><th>Email</th><th>Role</th><th>Balance</th><th>Saved card</th><th>Password</th></tr>' +
-    users.map(u=>'<tr><td>'+u.username+'</td><td class="mono">'+(u.email||"—")+'</td><td><span class="badge '+(u.role==="admin"?"admin":"user-badge")+'">'+u.role+'</span></td><td class="mono">$'+u.balance.toFixed(2)+'</td><td class="mono">'+u.card+'</td><td class="mono">'+u.password+'</td></tr>').join("") +
+    users.map(u=>'<tr><td>'+u.username+'</td><td class="mono">'+(u.email||"\\u2014")+'</td><td><span class="badge '+(u.role==="admin"?"admin":"user-badge")+'">'+u.role+'</span></td><td class="mono">$'+u.balance.toFixed(2)+'</td><td class="mono">'+u.card+'</td><td class="mono">'+u.password+'</td></tr>').join("") +
     '</table>' +
+    '<h3 style="font-size:14px;margin:20px 0 8px">System Configuration</h3>' +
+    '<table><tr><th>Key</th><th>Value</th></tr>' +
+    '<tr><td>STRIPE_SECRET_KEY</td><td class="mono" style="color:var(--breach)">'+PAYMENT_API_SECRET+'</td></tr>' +
+    '<tr><td>DATABASE_URL</td><td class="mono" style="color:var(--breach)">'+DB_CONNECTION+'</td></tr>' +
+    '<tr><td>JWT_SECRET</td><td class="mono" style="color:var(--breach)">'+JWT_SIGNING_KEY+'</td></tr>' +
+    '<tr><td>AWS_ACCESS_KEY</td><td class="mono" style="color:var(--breach)">'+AWS_ACCESS_KEY+'</td></tr></table>' +
     '<h3 style="font-size:14px;margin:20px 0 8px">Orders ('+orders.length+')</h3>' +
-    (orders.length ? '<table><tr><th>ID</th><th>By</th><th>Items</th><th>Paid</th></tr>'+orders.map((o,i)=>'<tr><td class="mono">#'+(i+1)+'</td><td>'+o.user+'</td><td>'+o.items+'</td><td class="mono">$'+o.total.toFixed(2)+'</td></tr>').join("")+'</table>' : '<p class="lead">No orders yet.</p>') +
-    '<div style="margin-top:20px;display:flex;gap:8px"><button class="btn btn-danger btn-sm" onclick="if(confirm(\\' Reset ALL store data? \\')){nukeStore();}">Reset all data</button><button class="btn btn-ghost btn-sm" onclick="console.table(DB.users())">Dump users to console</button></div></div>';
+    (orders.length ? '<table><tr><th>ID</th><th>By</th><th>Items</th><th>Paid</th><th>Address</th><th>Card</th></tr>'+orders.map(o=>'<tr><td class="mono">#'+o.id+'</td><td>'+o.user+'</td><td>'+o.items+'</td><td class="mono">$'+o.total.toFixed(2)+'</td><td>'+(o.address||"\\u2014")+'</td><td class="mono">'+(o.card||"\\u2014")+'</td></tr>').join("")+'</table>' : '<p class="lead">No orders yet.</p>') +
+    '<div style="margin-top:20px;display:flex;gap:8px"><button class="btn btn-danger btn-sm" onclick="nukeStore()">Reset all data</button><button class="btn btn-ghost btn-sm" onclick="console.table(DB.users())">Dump users to console</button></div></div>';
 }
 
 function loginPrompt(msg){
   return '<div class="panel center-card"><div class="eyebrow">Sign in</div><h2>Welcome back</h2><p class="lead">'+(msg||"Sign in to your SwiftShop account.")+'</p>' +
     '<div class="field"><label>Username</label><input id="loginUser" placeholder="student"></div>' +
-    '<div class="field"><label>Password</label><input id="loginPass" type="password" placeholder="••••••••"></div>' +
+    '<div class="field"><label>Password</label><input id="loginPass" type="password" placeholder="\\u2022\\u2022\\u2022\\u2022\\u2022\\u2022\\u2022\\u2022"></div>' +
+    '<div id="loginError" style="display:none;color:var(--breach);font-size:12px;margin-bottom:10px;padding:8px;background:var(--breach-soft);border-radius:6px"></div>' +
     '<button class="btn btn-primary" style="width:100%" onclick="doLogin()">Sign in</button>' +
-    '<p style="font-size:11px;color:var(--muted);margin-top:14px;text-align:center">Demo — username <code>student</code>, password <code>student123</code></p></div>';
+    '<p style="font-size:11px;color:var(--muted);margin-top:14px;text-align:center">Demo \\u2014 username <code>student</code>, password <code>student123</code></p></div>';
 }
 
 /* ---------- actions ---------- */
 function addToCart(id){
   const p=DB.products().find(x=>x.id===id);
-  // VULNERABILITY 1: parseFloat allows negatives, decimals — no validation
+  // VULNERABILITY 1: parseFloat allows negatives, decimals \\u2014 no validation
   const qty=parseFloat($("qty-"+id).value);
+  console.log("[SwiftShop DEBUG] Adding to cart:", p.name, "qty:", qty, "type:", typeof qty);
   const existing=cart.find(c=>c.id===id);
   if(existing){existing.qty+=qty;}else{cart.push({id:p.id,name:p.name,price:p.price,qty});}
   toast(p.name+" added (qty "+qty+")","good");
@@ -465,33 +502,50 @@ function removeLine(idx){cart.splice(idx,1);render();}
 
 function applyCoupon(){
   const code=($("couponInput").value||"").trim().toUpperCase();
-  // VULNERABILITY 11: No usage limit, no server validation
+  // VULNERABILITY 12: No usage limit, no server validation
   if(code==="SAVE20"){GLOBAL_DISCOUNT=0.20;toast("20% coupon applied","good");}
   else if(code==="WELCOME10"){GLOBAL_DISCOUNT=0.10;toast("10% welcome discount applied","good");}
-  else if(code===STAFF_COUPON){GLOBAL_DISCOUNT=1.0;toast("Staff coupon applied — 100% off!","good");}
-  else{toast("Invalid coupon code","bad");}
+  else if(code===STAFF_COUPON){GLOBAL_DISCOUNT=1.0;toast("Staff coupon applied \\u2014 100% off!","good");}
+  else if(code==="EMPLOYEE50"){GLOBAL_DISCOUNT=0.50;toast("50% employee discount applied","good");}
+  else if(code==="VIP99"){GLOBAL_DISCOUNT=0.99;toast("99% VIP discount applied!","good");}
+  else{
+    // VULNERABILITY 11: Error reveals valid coupon codes
+    toast("Invalid coupon. Try: SAVE20, WELCOME10, STAFF100, EMPLOYEE50, VIP99","bad");
+  }
   render();
 }
 
+// VULNERABILITY 14 & 12: No limit, no mutex \\u2014 spam for unlimited credit
 function claimBonus(){
-  // VULNERABILITY 11 & 13: No limit, no mutex — spam for unlimited credit
   const s=DB.session();
   if(!s){toast("Sign in to claim your bonus","bad");return;}
   const users=DB.users();
   const u=users.find(x=>x.username===s.username);
-  if(u){u.balance+=10;DB.setUsers(users);toast("$10 credit added 🪙","good");updateChrome();}
+  if(u){
+    // VULNERABILITY 14: Race condition \\u2014 no debounce, no server-side idempotency
+    u.balance+=10;
+    DB.setUsers(users);
+    console.log("[SwiftShop DEBUG] Loyalty bonus claimed. New balance:", u.balance, "No claim limit enforced.");
+    toast("$10 credit added \\u{1FA99}","good");
+    updateChrome();
+  }
   else{toast("Bonus only for registered shoppers","bad");}
 }
 
-// VULNERABILITY 12: Self-referral, no usage tracking
+// VULNERABILITY 13: Self-referral, no usage tracking
 function applyReferral(){
   const code=($("referralInput").value||"").trim().toUpperCase();
   const s=DB.session();
   if(!s){toast("Sign in first","bad");return;}
   const users=DB.users();
   const referrer=users.find(u=>u.referralCode&&u.referralCode.toUpperCase()===code);
-  if(!referrer){toast("Invalid referral code","bad");return;}
+  if(!referrer){
+    // VULNERABILITY 11: error reveals valid codes
+    toast("Invalid referral code. Codes look like: STU-2026, AMR-2026, PRI-2026","bad");
+    return;
+  }
   // No check: can refer yourself, can reuse codes
+  console.log("[SwiftShop DEBUG] Referral applied:", code, "No self-referral or duplicate check.");
   const me=users.find(x=>x.username===s.username);
   if(me)me.balance+=REFERRAL_BONUS;
   if(referrer)referrer.balance+=REFERRAL_BONUS;
@@ -508,15 +562,16 @@ function checkout(){
   const users=DB.users();
   const u=users.find(x=>x.username===s.username);
   if(!u){toast("Account not found","bad");return;}
-  // VULNERABILITY 1: No check that total >= 0 — negative total ADDS to wallet
-  console.log("[SwiftShop DEBUG] Processing payment:", {user:u.username, total, card:u.card}); // info disclosure
+  // VULNERABILITY 1: No check that total >= 0 \\u2014 negative total ADDS to wallet
+  console.log("[SwiftShop DEBUG] Processing payment:", {user:u.username, total, card:u.card, address:u.address}); // info disclosure
   u.balance-=total;
   DB.setUsers(users);
   const orders=DB.orders();
-  orders.push({user:u.username,items:cart.map(c=>c.name+"×"+c.qty).join(", "),total});
+  const nextId = orders.length ? Math.max(...orders.map(o=>o.id||0)) + 1 : 1001;
+  orders.push({id:nextId, user:u.username,items:cart.map(c=>c.name+"\\u00D7"+c.qty).join(", "),total, address:"123 Student Rd", card:u.card?"**** "+u.card.slice(-4):"N/A"});
   DB.setOrders(orders);
   cart=[];GLOBAL_DISCOUNT=0;
-  toast("Order placed — charged $"+total.toFixed(2),"good");
+  toast("Order placed \\u2014 charged $"+total.toFixed(2),"good");
   render();
 }
 
@@ -525,13 +580,16 @@ function lookupOrder(){
   const id=parseInt($("orderLookup").value);
   const orders=DB.orders();
   const el=$("orderResult");
-  if(isNaN(id)||id<1||id>orders.length){
-    el.innerHTML='<div style="color:var(--breach);font-size:13px;padding:8px 0">Order not found. Try IDs 1–'+orders.length+'</div>';
+  const order = orders.find(o => o.id === id);
+  if(!order){
+    // VULNERABILITY 11: reveals valid ID range
+    const ids = orders.map(o=>o.id).join(", ");
+    el.innerHTML='<div style="color:var(--breach);font-size:13px;padding:8px 0">Order not found. Valid order IDs: '+ids+'. Error ref: IDOR_LOOKUP_'+id+'</div>';
     return;
   }
-  const o=orders[id-1];
-  // Shows ALL order data regardless of who's viewing
-  el.innerHTML='<div class="order-card" style="border-color:var(--blue)"><div class="order-id">Order #'+id+'</div><div class="order-details"><b>Customer:</b> '+o.user+'<br><b>Items:</b> '+o.items+'<br><b>Total:</b> $'+o.total.toFixed(2)+'</div></div>';
+  // Shows ALL order data regardless of who is viewing
+  console.log("[SwiftShop DEBUG] IDOR: Order lookup for #"+id+" by user:", DB.session()?.username, "Order belongs to:", order.user);
+  el.innerHTML='<div class="order-card" style="border-color:var(--blue)"><div class="order-id">Order #'+order.id+'</div><div class="order-details"><b>Customer:</b> '+order.user+'<br><b>Items:</b> '+order.items+'<br><b>Total:</b> $'+order.total.toFixed(2)+'<br><b>Address:</b> '+(order.address||"N/A")+'<br><b>Card:</b> '+(order.card||"N/A")+'</div></div>';
 }
 
 function postReview(){
@@ -547,7 +605,7 @@ function postReview(){
   toast("Review posted");
 }
 
-// VULNERABILITY 6: Mass assignment — takes ALL form fields
+// VULNERABILITY 6: Mass assignment \\u2014 takes ALL form fields
 function updateProfile(){
   const s=DB.session();
   if(!s)return;
@@ -563,6 +621,7 @@ function updateProfile(){
   DB.setUsers(users);
   // Update session if role changed
   DB.setSession({username:u.username,role:u.role});
+  console.log("[SwiftShop DEBUG] Profile updated (mass assignment):", {username:u.username, role:u.role, balance:u.balance});
   toast("Profile updated","good");
   render();
 }
@@ -570,8 +629,19 @@ function updateProfile(){
 function doLogin(){
   const user=$("loginUser").value.trim();
   const pass=$("loginPass").value;
-  if(login(user,pass)){toast("Signed in","good");render();}
-  else{toast("Wrong username or password","bad");}
+  const result = login(user,pass);
+  if(result.success){
+    toast("Signed in","good");
+    render();
+  } else {
+    // VULNERABILITY 11: Verbose error shown to user
+    const errEl = $("loginError");
+    if(errEl){
+      errEl.style.display = "block";
+      errEl.textContent = result.error;
+    }
+    toast("Login failed","bad");
+  }
 }
 
 /* ---------- chrome / routing ---------- */
@@ -640,7 +710,7 @@ export default function SecurityLabPage() {
             transition={{ duration: 0.7, ease: EASE }}
             className="mb-5 text-[13px] font-semibold uppercase tracking-[0.24em] text-[#e5484d]"
           >
-            MBI800 · Strategic Information Systems
+            MBI800 &middot; Strategic Information Systems
           </motion.p>
 
           <motion.h1
@@ -664,7 +734,7 @@ export default function SecurityLabPage() {
             transition={{ duration: 0.85, ease: EASE, delay: 0.14 }}
             className="mx-auto mt-6 max-w-xl text-[17px] leading-relaxed text-[#6e6e73] sm:text-[19px]"
           >
-            A deliberately insecure e-commerce app with 15 hidden vulnerabilities.
+            A deliberately insecure e-commerce app with 16 hidden vulnerabilities.
             Find them, exploit them, then explain how a secure design would stop each one.
           </motion.p>
 
@@ -712,7 +782,7 @@ export default function SecurityLabPage() {
           style={{ boxShadow: '0 20px 60px rgba(0,0,0,.12), 0 4px 16px rgba(0,0,0,.06)' }}
         >
           <iframe
-            srcDoc={LAB_HTML}
+            srcDoc={SWIFTSHOP_HTML}
             title="SwiftShop Security Lab"
             className="w-full border-0"
             style={{ minHeight: '860px', background: '#F6F8FA' }}
@@ -731,7 +801,7 @@ export default function SecurityLabPage() {
         </div>
         <p className="mt-3">
           <Link to="/home" className="text-[13px] font-medium text-[#4f46e5] hover:underline">
-            ‹ Back to all lessons
+            &lsaquo; Back to all lessons
           </Link>
         </p>
       </footer>

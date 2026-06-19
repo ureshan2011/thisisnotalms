@@ -63,7 +63,7 @@ const LESSONS: {
     href: 'security-lab.html',
     eyebrow: 'Strategic Information Systems',
     title: 'Security Threat Lab',
-    body: 'A deliberately insecure e-commerce app with 16 hidden vulnerabilities — from XSS and privilege escalation to business logic flaws. Find them, exploit them, then explain how a security-first design would stop each one.',
+    body: 'A deliberately insecure e-commerce app with 20 hidden vulnerabilities — from easy wins like editable price tags and secrets in the page source, to XSS, privilege escalation and business logic flaws. Find them, exploit them, then explain how a security-first design would stop each one.',
     emoji: '🔓',
     from: '#dc2626',
     to2: '#d97706',

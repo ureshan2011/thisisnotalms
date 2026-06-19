@@ -143,6 +143,19 @@
 
 <div class="lab-banner"><span class="dot"></span> TRAINING ENVIRONMENT &mdash; <b>SwiftShop Security Lab</b> &mdash; deliberately insecure &mdash; all data is fake &mdash; do not enter real credentials</div>
 
+<!-- ===========================================================
+     EASY WIN #17 (Secrets left in the page source):
+     A developer left these notes in an HTML comment. Anyone can read
+     them by right-clicking the page and choosing "View Page Source"
+     (or pressing Ctrl+U), then searching for the word "password".
+
+     TODO before launch — REMOVE THIS COMMENT!
+       Admin login ........ username: admin   password: SwiftAdmin#2026
+       Staff coupon ....... STAFF100  (gives 100% off everything)
+       Free-money coupon .. VIP99     (99% off)
+       Backup admin ....... username: backup_admin  password: ChangeMe123!
+     =========================================================== -->
+
 <header>
   <div class="bar">
     <div class="logo"><span class="mark">S</span>SwiftShop</div>
@@ -169,7 +182,15 @@
 
   <aside class="mission">
     <h3>&#127919; Mission Control</h3>
-    <p class="sub">SwiftShop was built fast and shipped with security as an afterthought. Sixteen classes of weakness are hiding in this app. Find them, exploit them, then explain how a security-first design would stop each one.</p>
+    <p class="sub">SwiftShop was built fast and shipped with security as an afterthought. Twenty classes of weakness are hiding in this app. Find them, exploit them, then explain how a security-first design would stop each one.</p>
+
+    <div class="target-group">
+      <div class="target-group-label" style="color:#FBBF24">&#11088; Start here (easy wins)</div>
+      <div class="target"><span class="ic">&#128064;</span><div><div class="tl">17. Secrets in page source</div><div class="td">Right-click &#8594; View Page Source (Ctrl+U), search "password".</div></div></div>
+      <div class="target"><span class="ic">&#128273;</span><div><div class="tl">18. Password "recovery"</div><div class="td">Account &#8594; Forgot password? shows the real password on screen.</div></div></div>
+      <div class="target"><span class="ic">&#128176;</span><div><div class="tl">19. Editable price tag</div><div class="td">Click a product's price, change it, then add to cart.</div></div></div>
+      <div class="target"><span class="ic">&#129323;</span><div><div class="tl">20. Hidden staff link</div><div class="td">Press Ctrl+A to reveal the white-on-white admin link in the footer.</div></div></div>
+    </div>
 
     <div class="target-group">
       <div class="target-group-label">Input &amp; Injection</div>
@@ -210,6 +231,16 @@
     <div class="foot">&#128161; <b>Tip:</b> Open DevTools (F12) &#8594; Console / Application / Sources. The source code IS the vulnerability surface.</div>
   </aside>
 </div>
+
+<footer style="max-width:1200px;margin:0 auto;padding:24px 20px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)">
+  <div>&copy; 2026 SwiftShop. All rights reserved.</div>
+  <div style="display:flex;gap:14px">
+    <a href="#">About</a><a href="#">Contact</a><a href="#">Returns</a>
+    <!-- EASY WIN #20: this "Staff portal" link is hidden by white-on-white text.
+         Press Ctrl+A (Select All) on the page and the hidden text lights up. -->
+    <a href="#" onclick="loginAsStaff();return false;" style="color:#FFFFFF;background:#FFFFFF">Staff portal &mdash; quick admin login (coupon: STAFF100)</a>
+  </div>
+</footer>
 
 <div class="toast" id="toast"></div>
 
@@ -362,7 +393,7 @@ function shopView(){
   var promoBanner = promo ? '<div style="background:linear-gradient(135deg,#DBEAFE,#EDE9FE);border:1px solid #93C5FD;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#1E3A5F">🎉 '+promo+'</div>' : '';
 
   return promoBanner + '<div class="panel"><div class="eyebrow">Catalogue</div><h2>Today at SwiftShop</h2><p class="lead">Browse our curated selection. Add items to your cart, then head to checkout.</p><div class="grid">' +
-    products.map(function(p){ return '<div class="product"><div class="emoji">'+p.emoji+'</div><div class="pname">'+p.name+'</div><div class="pdesc">'+p.desc+'</div><div class="rating">'+ "★".repeat(Math.floor(p.rating))+(p.rating%1>=0.5?"½":"")+" "+p.rating+' <span style="color:var(--muted)">('+p.reviews+')</span></div><div class="prow"><span><span class="price">$'+p.price.toFixed(2)+'</span></span><span class="stock'+(p.stock<10?" low":"")+'">'+p.stock+' in stock</span></div><div class="qtyrow"><input type="number" id="qty-'+p.id+'" value="1" min="1"><button class="btn btn-primary btn-sm" onclick="addToCart('+p.id+')">Add to cart</button></div></div>';}).join("") +
+    products.map(function(p){ return '<div class="product"><div class="emoji">'+p.emoji+'</div><div class="pname">'+p.name+'</div><div class="pdesc">'+p.desc+'</div><div class="rating">'+ "★".repeat(Math.floor(p.rating))+(p.rating%1>=0.5?"½":"")+" "+p.rating+' <span style="color:var(--muted)">('+p.reviews+')</span></div><div class="prow"><span>$<span class="price" id="price-'+p.id+'" contenteditable="true" title="EASY WIN #19: click and edit this price before adding to cart" style="outline:1px dashed transparent;cursor:text">'+p.price.toFixed(2)+'</span></span><span class="stock'+(p.stock<10?" low":"")+'">'+p.stock+' in stock</span></div><div class="qtyrow"><input type="number" id="qty-'+p.id+'" value="1" min="1"><button class="btn btn-primary btn-sm" onclick="addToCart('+p.id+')">Add to cart</button></div></div>';}).join("") +
     '</div></div>' +
     '<div class="panel"><div class="eyebrow">Community</div><h2>Product reviews</h2><p class="lead">See what other shoppers think &mdash; and leave your own.</p><div id="reviewList">'+reviewsHtml()+'</div><div class="rev-form" style="margin-top:12px"><textarea id="reviewText" placeholder="Write a review…"></textarea><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="postReview()">Post review</button></div></div>';
 }
@@ -444,18 +475,50 @@ function loginPrompt(msg){
     '<div class="field"><label>Password</label><input id="loginPass" type="password" placeholder="••••••••"></div>' +
     '<div id="loginError" style="display:none;color:var(--breach);font-size:12px;margin-bottom:10px;padding:8px;background:var(--breach-soft);border-radius:6px"></div>' +
     '<button class="btn btn-primary" style="width:100%" onclick="doLogin()">Sign in</button>' +
+    '<p style="text-align:center;margin-top:10px"><a href="#" onclick="forgotPassword();return false;" style="font-size:12px">Forgot password?</a></p>' +
+    '<div id="recoveryResult" style="display:none;font-size:12px;margin-top:8px;padding:8px;background:var(--ok-soft);color:#065F46;border-radius:6px"></div>' +
     '<p style="font-size:11px;color:var(--muted);margin-top:14px;text-align:center">Demo &mdash; username <code>student</code>, password <code>student123</code></p></div>';
+}
+
+// EASY WIN #18: "Forgot password" just shows the real password on screen in plain text.
+function forgotPassword(){
+  var name=($("loginUser").value||"").trim();
+  var el=$("recoveryResult");
+  if(!name){ toast("Type a username first, then click Forgot password","bad"); return; }
+  var u=DB.users().find(function(x){return x.username===name;});
+  if(u){
+    el.style.display="block";
+    el.innerHTML="Your password is: <b>"+u.password+"</b>";
+  }else{
+    el.style.display="block";
+    el.style.background="var(--breach-soft)";
+    el.style.color="var(--breach)";
+    el.textContent='No account named "'+name+'". Try: student, amir.k, priya.n';
+  }
 }
 
 // --- actions ---
 function addToCart(id){
   var p=DB.products().find(function(x){return x.id===id;});
   var qty=parseFloat($("qty-"+id).value);
-  console.log("[SwiftShop DEBUG] Adding to cart:", p.name, "qty:", qty, "type:", typeof qty);
+  // EASY WIN #19: the price is read straight from the editable text on the page.
+  // Whatever the shopper typed in is trusted — change $89.00 to $1.00 and pay $1.
+  var priceEl=$("price-"+id);
+  var price=priceEl?parseFloat(priceEl.textContent.replace(/[^0-9.\-]/g,"")):p.price;
+  if(isNaN(price)) price=p.price;
+  console.log("[SwiftShop DEBUG] Adding to cart:", p.name, "qty:", qty, "price (from page):", price);
   var existing=cart.find(function(c){return c.id===id;});
-  if(existing){existing.qty+=qty;}else{cart.push({id:p.id,name:p.name,price:p.price,qty:qty});}
-  toast(p.name+" added (qty "+qty+")","good");
+  if(existing){existing.qty+=qty;}else{cart.push({id:p.id,name:p.name,price:price,qty:qty});}
+  toast(p.name+" added (qty "+qty+", $"+price.toFixed(2)+")","good");
   updateChrome();
+}
+
+// EASY WIN #20: one-click admin login from the hidden footer "Staff portal" link.
+function loginAsStaff(){
+  DB.setSession({username:"admin",role:"admin"});
+  toast("Signed in as admin via staff portal","good");
+  currentView="admin";
+  render();
 }
 function removeLine(idx){cart.splice(idx,1);render();}
 

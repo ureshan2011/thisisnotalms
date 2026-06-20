@@ -1530,6 +1530,126 @@ function ThreeNFSimulator() {
   );
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// INTERACTIVE — The "is my table in this form?" checklist
+// A friendly tabbed checklist so students can self-check the characteristics of
+// 1NF, 2NF and 3NF. Tap a tab, read the boxes, tick them off in your head.
+// ════════════════════════════════════════════════════════════════════════════
+const CHECKLISTS = [
+  {
+    nf: '1NF',
+    color: '#5e5ce6',
+    tagline: 'Tidy up the cells',
+    plain: 'One value per cell. Nothing crammed together.',
+    items: [
+      'Every cell holds a single value — no lists like “Maths, Science” stuffed into one box.',
+      'No repeating columns like Phone1, Phone2, Phone3 to hold “more of the same thing”.',
+      'Each row can be told apart from the rest (there is a key).',
+    ],
+    example: 'Split a cell that says “Maths, Science” into two separate rows — one per subject.',
+  },
+  {
+    nf: '2NF',
+    color: '#ff9f0a',
+    tagline: 'Use the whole key',
+    plain: 'Every column should need the full key — not just half of it.',
+    items: [
+      'It is already in 1NF.',
+      'Every non-key column depends on the whole key, not just part of it.',
+      'Heads-up: if your key is a single column, you get 2NF for free — there is no “part” of the key to worry about.',
+    ],
+    example: 'In a table keyed by {OrderID, ProductID}, move ProductName into its own Products table — it only needs ProductID.',
+  },
+  {
+    nf: '3NF',
+    color: '#0071e3',
+    tagline: 'No middlemen',
+    plain: 'Every column should point straight at the key — no hopping through another column.',
+    items: [
+      'It is already in 2NF.',
+      'No ordinary (non-key) column depends on another ordinary column.',
+      'In other words: nothing sneaks to the key through a “middleman” column.',
+    ],
+    example: 'If DeptName rides along on DeptID, pull departments out into their own table and keep only DeptID here.',
+  },
+];
+
+function NFChecklist() {
+  const [active, setActive] = useState(0);
+  const c = CHECKLISTS[active];
+  return (
+    <div className="mx-auto max-w-3xl">
+      {/* Tabs */}
+      <div className="flex justify-center gap-2 sm:gap-3">
+        {CHECKLISTS.map((cl, i) => (
+          <button
+            key={cl.nf}
+            onClick={() => setActive(i)}
+            className="rounded-full px-5 py-2.5 font-mono text-[15px] font-semibold transition sm:px-7"
+            style={
+              active === i
+                ? { background: cl.color, color: '#fff' }
+                : { background: cl.color + '14', color: cl.color }
+            }
+          >
+            {cl.nf}
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={c.nf}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.35, ease: EASE }}
+          className="mt-8 rounded-[28px] border bg-white p-8 sm:p-10"
+          style={{ borderColor: c.color + '33' }}
+        >
+          <p className="text-[14px] font-semibold uppercase tracking-wide" style={{ color: c.color }}>
+            {c.tagline}
+          </p>
+          <p className="mt-1 text-[20px] font-semibold leading-snug text-[#1d1d1f] sm:text-[22px]">
+            {c.plain}
+          </p>
+
+          <ul className="mt-6 space-y-3">
+            {c.items.map((it, i) => (
+              <motion.li
+                key={i}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 + i * 0.08, duration: 0.4, ease: EASE }}
+                className="flex items-start gap-3"
+              >
+                <span
+                  className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[14px] font-bold text-white"
+                  style={{ background: c.color }}
+                >
+                  ✓
+                </span>
+                <span className="text-[16px] leading-relaxed text-[#424245]">{it}</span>
+              </motion.li>
+            ))}
+          </ul>
+
+          <div className="mt-7 rounded-2xl p-5" style={{ background: c.color + '0d' }}>
+            <p className="text-[14px] font-semibold" style={{ color: c.color }}>
+              Quick example
+            </p>
+            <p className="mt-1 text-[15px] leading-relaxed text-[#6e6e73]">{c.example}</p>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      <p className="mt-6 text-center text-[14px] text-[#86868b]">
+        Tick all the boxes on a tab? Your table is in that form. Each form builds on the one before it.
+      </p>
+    </div>
+  );
+}
+
 // Smooth-scroll without touching the URL hash (the app runs under HashRouter).
 function scrollToSection(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1727,60 +1847,99 @@ export default function NormalizationExplorerPage() {
         </Reveal>
       </section>
 
-      {/* ── 2NF / 3NF / BCNF concept trio ──────────────────────────────────── */}
+      {/* ── 2NF & 3NF in plain words ────────────────────────────────────────── */}
       <section className="px-6 py-24 sm:py-28">
         <Reveal>
           <SectionHead
             eyebrow="Climbing higher"
-            title="2NF, 3NF and BCNF in plain words"
-            sub="Each form removes one specific kind of bad dependency. Here’s the intuition for the three that build on 1NF."
+            title="2NF and 3NF, in really plain words"
+            sub="1NF was about tidying up the cells. 2NF and 3NF are about one thing only: making sure each column is sitting in the right table. Let’s take them one at a time — slowly."
           />
         </Reveal>
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-60px' }}
-          className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3"
-        >
-          {[
-            {
-              c: '#ff9f0a',
-              t: '2NF — whole-key',
-              dep: 'ProductID → ProductName',
-              d: 'With a composite key like {OrderID, ProductID}, no column may depend on just one half. ProductName needs only ProductID — a partial dependency — so it moves to a Products table.',
-            },
-            {
-              c: '#0071e3',
-              t: '3NF — no middlemen',
-              dep: 'EmpID → DeptID → DeptPhone',
-              d: 'A non-key column shouldn’t reach the key through another non-key column. DeptPhone rides on DeptID, so departments get their own table and the chain is cut.',
-            },
-            {
-              c: '#30d158',
-              t: 'BCNF — every determinant is a key',
-              dep: 'Teacher → Subject',
-              d: 'Even when 3NF holds, a determinant that isn’t a superkey is a problem. BCNF insists the left side of every dependency is a key, splitting the table further if needed.',
-            },
-          ].map((p) => (
-            <motion.div
-              key={p.t}
-              variants={item}
-              className="flex flex-col rounded-[28px] border border-black/[0.07] bg-[#fafafa] p-8 transition hover:-translate-y-1 hover:shadow-[0_18px_50px_-20px_rgba(0,0,0,0.18)]"
-            >
-              <h3 className="text-[20px] font-semibold tracking-tight text-[#1d1d1f]">{p.t}</h3>
-              <div className="mt-3">
-                <span
-                  className="inline-block rounded-lg px-3 py-1.5 font-mono text-[13px] font-medium"
-                  style={{ background: p.c + '1a', color: p.c }}
-                >
-                  {p.dep}
+
+        <div className="mx-auto max-w-3xl space-y-6">
+          {/* 2NF */}
+          <Reveal delay={0.05}>
+            <div className="rounded-[28px] border border-[#ff9f0a]/30 bg-[#fffaf2] p-8 sm:p-10">
+              <Pill color="#ff9f0a">2NF · use the whole key</Pill>
+              <p className="mt-5 text-[18px] font-semibold leading-snug text-[#1d1d1f] sm:text-[20px]">
+                Does each column need the <em>whole</em> key, or just half of it?
+              </p>
+              <p className="mt-4 text-[16px] leading-relaxed text-[#424245]">
+                2NF only matters when your table’s key is made of two columns stuck together (a
+                “composite” key). Picture an order table where the key is{' '}
+                <span className="font-mono text-[#9a6a00]">{'{OrderID, ProductID}'}</span>. Now look at{' '}
+                <strong>ProductName</strong>. Does it care which order it was on? Nope — it only depends on{' '}
+                <strong>ProductID</strong>. So you’d be repeating “iPhone 15” on every single order that
+                includes it.
+              </p>
+              <p className="mt-4 text-[16px] leading-relaxed text-[#424245]">
+                The fix: move ProductName into its own little Products table, where ProductID alone is the key.
+              </p>
+              <p className="mt-5 rounded-2xl bg-[#ff9f0a]/[0.1] px-5 py-4 text-[15px] font-medium leading-relaxed text-[#9a6a00]">
+                In one line: if a column only needs <em>part</em> of the key, it’s sitting in the wrong table.
+              </p>
+            </div>
+          </Reveal>
+
+          {/* 3NF */}
+          <Reveal delay={0.1}>
+            <div className="rounded-[28px] border border-[#0071e3]/25 bg-[#f4f9ff] p-8 sm:p-10">
+              <Pill color="#0071e3">3NF · no middlemen</Pill>
+              <p className="mt-5 text-[18px] font-semibold leading-snug text-[#1d1d1f] sm:text-[20px]">
+                Does each column point straight at the key — or sneak in through another column?
+              </p>
+              <p className="mt-4 text-[16px] leading-relaxed text-[#424245]">
+                Once 2NF is sorted, 3NF asks the next question. Take an employee table. Each{' '}
+                <strong>Employee</strong> has a <strong>DeptID</strong>, and that DeptID tells you the{' '}
+                <strong>DeptName</strong> and <strong>DeptPhone</strong>. So DeptName doesn’t really depend on
+                the employee — it depends on the <em>department</em>, which depends on the employee. That extra
+                hop is a “middleman”:
+              </p>
+              <p className="mt-4 text-center">
+                <span className="inline-block rounded-lg bg-[#0071e3]/[0.08] px-3 py-1.5 font-mono text-[14px] font-medium text-[#0071e3]">
+                  Employee → DeptID → DeptName
                 </span>
-              </div>
-              <p className="mt-3 text-[15px] leading-relaxed text-[#6e6e73]">{p.d}</p>
-            </motion.div>
-          ))}
-        </motion.div>
+              </p>
+              <p className="mt-4 text-[16px] leading-relaxed text-[#424245]">
+                The fix: give departments their own table, and let the employee row just keep the DeptID.
+              </p>
+              <p className="mt-5 rounded-2xl bg-[#0071e3]/[0.08] px-5 py-4 text-[15px] font-medium leading-relaxed text-[#0066cc]">
+                In one line: every column should point straight at the key — no hopping through another column.
+              </p>
+            </div>
+          </Reveal>
+
+          {/* BCNF — optional */}
+          <Reveal delay={0.15}>
+            <div className="rounded-[28px] border border-black/[0.08] bg-[#fafafa] p-8 sm:p-10">
+              <Pill color="#30d158">BCNF · optional extra</Pill>
+              <p className="mt-5 text-[18px] font-semibold leading-snug text-[#1d1d1f] sm:text-[20px]">
+                Nice to have — but you usually don’t need it.
+              </p>
+              <p className="mt-4 text-[16px] leading-relaxed text-[#424245]">
+                Here’s the honest truth: most real databases stop at 3NF and are completely fine. BCNF is just a
+                stricter, extra-tidy version of 3NF that handles a few rare edge cases. Think of it as a polish,
+                not a box you <em>have</em> to tick. If your table is solidly in 3NF, you’re already in great
+                shape — so feel free to treat this one as bonus reading.
+              </p>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ── THE CHECKLIST ──────────────────────────────────────────────────── */}
+      <section className="bg-[#f5f5f7] px-6 py-24 sm:py-28">
+        <Reveal>
+          <SectionHead
+            eyebrow="Self-check"
+            title="Is my table in this form?"
+            sub="A quick checklist for the three forms that matter. Tap a tab and run down the boxes — if they all hold true, your table has reached that form."
+          />
+        </Reveal>
+        <Reveal delay={0.1}>
+          <NFChecklist />
+        </Reveal>
       </section>
 
       {/* ── 2NF REAL-WORLD SIMULATOR ─────────────────────────────────────────── */}

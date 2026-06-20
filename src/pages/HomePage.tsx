@@ -159,6 +159,15 @@ const LESSONS: {
     to2: '#dc2626',
   },
   {
+    to: '/jira-certifications',
+    eyebrow: 'Career development',
+    title: "Let's make sense of free Jira & Agile certifications",
+    body: "Three hand-picked credentials — Atlassian's own Jira learning path, a LinkedIn Agile Professional Certificate, and a quick free completion cert. Earn one, post it on LinkedIn, and let your skills speak for themselves.",
+    emoji: '🔷',
+    from: '#0052CC',
+    to2: '#059669',
+  },
+  {
     to: '/normalisation-videos',
     eyebrow: 'Database design · Video',
     title: "Let's make sense of Normalization — on video",

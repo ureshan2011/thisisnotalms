@@ -22,6 +22,7 @@ const ERActivitiesPage = lazy(() => import('./pages/ERActivitiesPage'));
 const ERAdvancedPage = lazy(() => import('./pages/ERAdvancedPage'));
 const ERAttributesPage = lazy(() => import('./pages/ERAttributesPage'));
 const SQLCertificationsPage = lazy(() => import('./pages/SQLCertificationsPage'));
+const JiraCertificationsPage = lazy(() => import('./pages/JiraCertificationsPage'));
 const NormalizationVideosPage = lazy(() => import('./pages/NormalizationVideosPage'));
 const SecurityLabPage = lazy(() => import('./pages/SecurityLabPage'));
 
@@ -99,6 +100,7 @@ function AppRoutes() {
         <Route path="/er-advanced"  element={<Suspense fallback={null}><ERAdvancedPage /></Suspense>} />
         <Route path="/er-attributes" element={<Suspense fallback={null}><ERAttributesPage /></Suspense>} />
         <Route path="/sql-certifications" element={<Suspense fallback={null}><SQLCertificationsPage /></Suspense>} />
+        <Route path="/jira-certifications" element={<Suspense fallback={null}><JiraCertificationsPage /></Suspense>} />
         <Route path="/normalisation-videos" element={<Suspense fallback={null}><NormalizationVideosPage /></Suspense>} />
         <Route path="/normalization-videos" element={<Navigate to="/normalisation-videos" replace />} />
         <Route path="/login"        element={<Suspense fallback={null}><Login /></Suspense>} />
@@ -172,6 +174,7 @@ function ShutdownRoutes() {
       <Route path="/er-advanced" element={<Suspense fallback={null}><ERAdvancedPage /></Suspense>} />
       <Route path="/er-attributes" element={<Suspense fallback={null}><ERAttributesPage /></Suspense>} />
       <Route path="/sql-certifications" element={<Suspense fallback={null}><SQLCertificationsPage /></Suspense>} />
+      <Route path="/jira-certifications" element={<Suspense fallback={null}><JiraCertificationsPage /></Suspense>} />
       <Route path="/normalisation-videos" element={<Suspense fallback={null}><NormalizationVideosPage /></Suspense>} />
       <Route path="/normalization-videos" element={<Navigate to="/normalisation-videos" replace />} />
       {/* All other routes show the shutdown notice */}

@@ -16,6 +16,7 @@ const ERMappingExplorerPage = lazy(() => import('./pages/ERMappingExplorerPage')
 const CostManagementPage = lazy(() => import('./pages/CostManagementPage'));
 const FiveStoriesPage = lazy(() => import('./pages/FiveStoriesPage'));
 const SystemsSecurityPage = lazy(() => import('./pages/SystemsSecurityPage'));
+const WebArchitecturePage = lazy(() => import('./pages/WebArchitecturePage'));
 const SQLProgrammingPage = lazy(() => import('./pages/SQLProgrammingPage'));
 const ERDiagramsPage = lazy(() => import('./pages/ERDiagramsPage'));
 const ERActivitiesPage = lazy(() => import('./pages/ERActivitiesPage'));
@@ -93,6 +94,7 @@ function AppRoutes() {
         <Route path="/pre-class"    element={<Suspense fallback={null}><PreClassSwarmPage /></Suspense>} />
         <Route path="/five-stories" element={<Suspense fallback={null}><FiveStoriesPage /></Suspense>} />
         <Route path="/systems-security" element={<Suspense fallback={null}><SystemsSecurityPage /></Suspense>} />
+        <Route path="/web-architecture" element={<Suspense fallback={null}><WebArchitecturePage /></Suspense>} />
         <Route path="/security-lab" element={<Suspense fallback={null}><SecurityLabPage /></Suspense>} />
         <Route path="/sql-programming" element={<Suspense fallback={null}><SQLProgrammingPage /></Suspense>} />
         <Route path="/er-diagrams"  element={<Suspense fallback={null}><ERDiagramsPage /></Suspense>} />
@@ -167,6 +169,7 @@ function ShutdownRoutes() {
       <Route path="/pre-class" element={<Suspense fallback={null}><PreClassSwarmPage /></Suspense>} />
       <Route path="/five-stories" element={<Suspense fallback={null}><FiveStoriesPage /></Suspense>} />
       <Route path="/systems-security" element={<Suspense fallback={null}><SystemsSecurityPage /></Suspense>} />
+      <Route path="/web-architecture" element={<Suspense fallback={null}><WebArchitecturePage /></Suspense>} />
       <Route path="/security-lab" element={<Suspense fallback={null}><SecurityLabPage /></Suspense>} />
       <Route path="/sql-programming" element={<Suspense fallback={null}><SQLProgrammingPage /></Suspense>} />
       <Route path="/er-diagrams" element={<Suspense fallback={null}><ERDiagramsPage /></Suspense>} />

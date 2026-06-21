@@ -69,6 +69,15 @@ const LESSONS: {
     to2: '#d97706',
   },
   {
+    to: '/web-architecture',
+    eyebrow: 'MBI802 · Database & Web Systems',
+    title: 'Client, Server & Databases',
+    body: 'How a website actually works, for absolute beginners. Sort jobs between the two computers, watch a request travel to the server and database in 3D, run a live database search — then step into a safe attack lab (SQL injection, XSS, client-vs-server checks) to feel exactly why validating data is the security habit that matters most.',
+    emoji: '🌐',
+    from: '#0071e3',
+    to2: '#0d9488',
+  },
+  {
     to: '/xr-explorer',
     eyebrow: 'Extended Reality',
     title: "Let's make sense of Extended Reality",

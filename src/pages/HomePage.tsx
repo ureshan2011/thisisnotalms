@@ -99,7 +99,7 @@ const LESSONS: {
     to: '/normalisation-activities',
     eyebrow: 'Database design · Practice',
     title: "Normalisation activities — try it yourself",
-    body: 'Four short tables, each with a hidden flaw. Decide which normal form each is in, normalise it to 1NF, 2NF or 3NF, then unlock the worked answer to check your decomposition and dependencies.',
+    body: 'Seven short tables to practise on, mixed up and with no hints. For each one, work out what normal form it is in and normalise it. The answer is behind a password so you can try it first.',
     emoji: '🧮',
     from: '#ff375f',
     to2: '#0071e3',

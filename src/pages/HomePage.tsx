@@ -96,6 +96,15 @@ const LESSONS: {
     to2: '#0071e3',
   },
   {
+    to: '/normalisation-activities',
+    eyebrow: 'Database design · Practice',
+    title: "Normalisation activities — try it yourself",
+    body: 'Four short tables, each with a hidden flaw. Decide which normal form each is in, normalise it to 1NF, 2NF or 3NF, then unlock the worked answer to check your decomposition and dependencies.',
+    emoji: '🧮',
+    from: '#ff375f',
+    to2: '#0071e3',
+  },
+  {
     to: '/er-mapping',
     eyebrow: 'Data modelling',
     title: "Let's make sense of ER → relational mapping",

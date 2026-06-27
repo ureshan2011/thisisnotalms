@@ -12,6 +12,7 @@ const HomePage = lazy(() => import('./pages/HomePage'));
 const PreClassSwarmPage = lazy(() => import('./pages/PreClassSwarmPage'));
 const SQLReelsPage = lazy(() => import('./pages/SQLReelsPage'));
 const NormalizationExplorerPage = lazy(() => import('./pages/NormalizationExplorerPage'));
+const NormalizationActivitiesPage = lazy(() => import('./pages/NormalizationActivitiesPage'));
 const ERMappingExplorerPage = lazy(() => import('./pages/ERMappingExplorerPage'));
 const CostManagementPage = lazy(() => import('./pages/CostManagementPage'));
 const FiveStoriesPage = lazy(() => import('./pages/FiveStoriesPage'));
@@ -87,6 +88,8 @@ function AppRoutes() {
         <Route path="/xr-explorer"  element={<XRExplorerPage />} />
         <Route path="/normalisation" element={<Suspense fallback={null}><NormalizationExplorerPage /></Suspense>} />
         <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />
+        <Route path="/normalisation-activities" element={<Suspense fallback={null}><NormalizationActivitiesPage /></Suspense>} />
+        <Route path="/normalization-activities" element={<Navigate to="/normalisation-activities" replace />} />
         <Route path="/er-mapping" element={<Suspense fallback={null}><ERMappingExplorerPage /></Suspense>} />
         <Route path="/er-to-relational" element={<Navigate to="/er-mapping" replace />} />
         <Route path="/cost-management" element={<Suspense fallback={null}><CostManagementPage /></Suspense>} />
@@ -163,6 +166,8 @@ function ShutdownRoutes() {
       <Route path="/xr-explorer" element={<XRExplorerPage />} />
       <Route path="/normalisation" element={<Suspense fallback={null}><NormalizationExplorerPage /></Suspense>} />
       <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />
+      <Route path="/normalisation-activities" element={<Suspense fallback={null}><NormalizationActivitiesPage /></Suspense>} />
+      <Route path="/normalization-activities" element={<Navigate to="/normalisation-activities" replace />} />
       <Route path="/er-mapping" element={<Suspense fallback={null}><ERMappingExplorerPage /></Suspense>} />
       <Route path="/er-to-relational" element={<Navigate to="/er-mapping" replace />} />
       <Route path="/sql-reels" element={<Suspense fallback={null}><SQLReelsPage /></Suspense>} />

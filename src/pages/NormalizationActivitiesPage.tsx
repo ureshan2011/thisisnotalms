@@ -16,8 +16,8 @@ const APPLE_FONT =
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-// The single password that unlocks every answer on this page.
-const ANSWER_PASSWORD = 'MBi802NF';
+// Each activity has its own password (see the `password` field on each one).
+// They are independent — unlocking one does not unlock the others.
 
 // The same instruction for every activity — it never says which form the table
 // is in, so it gives nothing away.
@@ -194,6 +194,7 @@ interface Activity {
   accent: string;
   eyebrow: string; // a plain context label — never says the normal form
   title: string;
+  password: string; // unlocks this activity's answer only
   scenario: string;
   tableName: string;
   pk: string;
@@ -216,6 +217,7 @@ const ACTIVITIES: Activity[] = [
     accent: '#ff375f',
     eyebrow: 'Online shop',
     title: 'The order lines table',
+    password: 'Mbi802-Order',
     scenario:
       'An online shop keeps its order lines in one table. The key is made of two columns, {OrderID, ProductID}. Look at what each column depends on.',
     tableName: 'Order_Items',
@@ -279,6 +281,7 @@ const ACTIVITIES: Activity[] = [
     accent: '#0071e3',
     eyebrow: 'Streaming service',
     title: 'The movies table',
+    password: 'Mbi802-Cast',
     scenario:
       'A streaming app stores each movie with its cast in one column, separated by commas. Look at the table and decide what to do.',
     tableName: 'Movies',
@@ -331,6 +334,7 @@ const ACTIVITIES: Activity[] = [
     accent: '#30d158',
     eyebrow: 'Library',
     title: 'The books table',
+    password: 'Mbi802-Shelf',
     scenario:
       'A library lists its books in one table. The key is a single column, BookID. Look at how the city is linked to the book.',
     tableName: 'Books',
@@ -393,6 +397,7 @@ const ACTIVITIES: Activity[] = [
     accent: '#5e5ce6',
     eyebrow: 'Customer records',
     title: 'The customers table',
+    password: 'Mbi802-Loyal',
     scenario:
       'A shop keeps its customers in this table. The key is a single column, CustomerID. Read it carefully — not every table needs changing.',
     tableName: 'Customers',
@@ -444,6 +449,7 @@ const ACTIVITIES: Activity[] = [
     accent: '#ff9f0a',
     eyebrow: 'Student clubs',
     title: 'The student clubs table',
+    password: 'Mbi802-Club',
     scenario:
       'A coordinator keeps each student’s clubs in one column, separated by commas. Look at the table and decide what to do.',
     tableName: 'Student_Clubs',
@@ -496,6 +502,7 @@ const ACTIVITIES: Activity[] = [
     accent: '#bf5af2',
     eyebrow: 'Health clinic',
     title: 'The appointments table',
+    password: 'Mbi802-Clinic',
     scenario:
       'A small clinic books appointments in one table. The key is the pair {PatientID, DoctorID}. This one has two repeated facts — find them both.',
     tableName: 'Appointments',
@@ -571,6 +578,7 @@ const ACTIVITIES: Activity[] = [
     accent: '#0d9488',
     eyebrow: 'HR system',
     title: 'The employees table',
+    password: 'Mbi802-Payroll',
     scenario:
       'This HR table lists employees and the department each one works in. The key is a single column, EmpID. Look at how DeptName is linked to the key.',
     tableName: 'Employees',
@@ -629,28 +637,27 @@ const ACTIVITIES: Activity[] = [
 ];
 
 // ════════════════════════════════════════════════════════════════════════════
-// PASSWORD GATE — wraps each answer. Every gate shares one unlock state, so
-// entering the password once reveals all answers for the rest of the session.
+// PASSWORD GATE — wraps each answer. Each gate has its own password and its own
+// unlock state, so each activity is unlocked on its own.
 // ════════════════════════════════════════════════════════════════════════════
 function AnswerGate({
   accent,
-  unlocked,
-  onUnlock,
+  password,
   children,
 }: {
   accent: string;
-  unlocked: boolean;
-  onUnlock: () => void;
+  password: string;
   children: React.ReactNode;
 }) {
   const [value, setValue] = useState('');
   const [error, setError] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (value.trim() === ANSWER_PASSWORD) {
+    if (value.trim() === password) {
       setError(false);
-      onUnlock();
+      setUnlocked(true);
     } else {
       setError(true);
     }
@@ -681,7 +688,8 @@ function AnswerGate({
       </div>
       <p className="text-[18px] font-semibold text-[#1d1d1f]">The answer is locked</p>
       <p className="mt-1.5 max-w-md text-[15px] leading-relaxed text-[#6e6e73]">
-        Try the table on your own first. Your lecturer will give you the password to see the full answer.
+        Try the table on your own first. Each activity has its own password — your lecturer will give you the one for
+        this table to see the full answer.
       </p>
       <form onSubmit={submit} className="mt-6 flex w-full max-w-sm flex-col items-center gap-3 sm:flex-row">
         <input
@@ -788,15 +796,7 @@ function AnswerBody({ a }: { a: Activity }) {
 // ACTIVITY CARD — scenario + table + question on top, gated answer below.
 // No dependencies and no hints are shown — the student reads the data.
 // ════════════════════════════════════════════════════════════════════════════
-function ActivityCard({
-  a,
-  unlocked,
-  onUnlock,
-}: {
-  a: Activity;
-  unlocked: boolean;
-  onUnlock: () => void;
-}) {
+function ActivityCard({ a }: { a: Activity }) {
   return (
     <div className="mx-auto max-w-3xl">
       {/* Header */}
@@ -839,7 +839,7 @@ function ActivityCard({
 
       {/* Gated answer */}
       <div className="mt-6">
-        <AnswerGate accent={a.accent} unlocked={unlocked} onUnlock={onUnlock}>
+        <AnswerGate accent={a.accent} password={a.password}>
           <AnswerBody a={a} />
         </AnswerGate>
       </div>
@@ -849,9 +849,6 @@ function ActivityCard({
 
 // ─── Page ───────────────────────────────────────────────────────────────────
 export default function NormalizationActivitiesPage() {
-  const [unlocked, setUnlocked] = useState(false);
-  const unlock = () => setUnlocked(true);
-
   return (
     <div className="bg-white text-[#1d1d1f]" style={{ fontFamily: APPLE_FONT }}>
       {/* ── HERO ───────────────────────────────────────────────────────────── */}
@@ -895,8 +892,8 @@ export default function NormalizationActivitiesPage() {
             className="mx-auto mt-6 max-w-2xl text-[19px] leading-relaxed text-[#6e6e73] sm:text-[21px]"
           >
             Seven short tables, mixed up — they are not in order, and we don’t tell you which form each one is in. For
-            each table, work out the highest normal form it is in, then normalise it. Try it yourself first. The
-            answer is hidden behind a password until your lecturer shares it.
+            each table, work out the highest normal form it is in, then normalise it. Try it yourself first. Each
+            answer has its own password, which your lecturer will share.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -961,7 +958,7 @@ export default function NormalizationActivitiesPage() {
           className={`px-6 py-24 sm:py-28 ${i % 2 === 1 ? 'bg-[#f5f5f7]' : ''}`}
         >
           <Reveal>
-            <ActivityCard a={a} unlocked={unlocked} onUnlock={unlock} />
+            <ActivityCard a={a} />
           </Reveal>
         </section>
       ))}

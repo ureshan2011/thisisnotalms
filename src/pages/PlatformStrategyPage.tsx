@@ -13,7 +13,7 @@ const TOPICS = [
   { emoji: '🥚', name: 'Chicken-and-egg', color: '#0d9488' },
   { emoji: '🛠️', name: 'Governance', color: '#7c3aed' },
   { emoji: '📦', name: 'Case studies', color: '#d97706' },
-  { emoji: '🎮', name: 'Live simulator', color: '#e11d48' },
+  { emoji: '👥', name: 'Group activity', color: '#e11d48' },
 ];
 
 export default function PlatformStrategyPage() {
@@ -69,8 +69,8 @@ export default function PlatformStrategyPage() {
             className="mx-auto mt-7 max-w-xl text-[18px] leading-relaxed text-[#6e6e73] sm:text-[20px]"
           >
             Why Uber owns no cars, Airbnb owns no rooms, and the App Store doesn't write a single app —
-            and what that means for how you plan information systems. Includes a live launch-strategy
-            simulator and a knowledge check.
+            and what that means for how you plan information systems. Includes a group research
+            presentation and a knowledge check.
           </motion.p>
 
           <motion.div

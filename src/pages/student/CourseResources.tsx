@@ -172,7 +172,7 @@ const COURSES: Course[] = [
       {
         id: 'platform-strategy',
         title: 'Platform Strategy',
-        subtitle: '18-slide interactive deck · Network effects, chicken-and-egg, governance, Amazon vs. GE Predix · Live launch simulator · Knowledge check',
+        subtitle: '18-slide interactive deck · Network effects, chicken-and-egg, governance, Amazon vs. GE Predix · Group research presentation · Knowledge check',
         icon: <BookOpen size={18} />,
         accentColor: '#2563eb',
       },

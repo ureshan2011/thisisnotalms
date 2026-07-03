@@ -41,6 +41,7 @@ import AgileScrumMcq from '../../components/quiz/AgileScrumMcq';
 import AgileScrumMcqDashboard from '../../components/quiz/AgileScrumMcqDashboard';
 import APAReferencingDeck from '../../components/slides/APAReferencingDeck';
 import FiveStoriesLesson from '../../components/slides/FiveStoriesLesson';
+import PlatformStrategyDeck from '../../components/slides/PlatformStrategyDeck';
 import { useAuth } from '../../contexts/AuthContext';
 import { db } from '../../lib/firebase';
 import type { StudentProfile } from '../../lib/types';
@@ -167,6 +168,13 @@ const COURSES: Course[] = [
         subtitle: '5 scenario-based challenges · AI-evaluated · Covers Iceberg Model, Process Dimensions, Participation, Consistency & Methodology',
         icon: <FlaskConical size={18} />,
         accentColor: '#0ea5e9',
+      },
+      {
+        id: 'platform-strategy',
+        title: 'Platform Strategy',
+        subtitle: '18-slide interactive deck · Network effects, chicken-and-egg, governance, Amazon vs. GE Predix · Live launch simulator · Knowledge check',
+        icon: <BookOpen size={18} />,
+        accentColor: '#2563eb',
       },
     ],
   },
@@ -1784,6 +1792,7 @@ export default function CourseResources() {
                     {/* free-mysql-certs moved to public page /sql-certifications */}
                     {lesson.id === 'five-stories' && <FiveStoriesLesson />}
                     {lesson.id === 'sisp-lab' && <SISPPromptLab />}
+                    {lesson.id === 'platform-strategy' && <PlatformStrategyDeck />}
                     {lesson.id === 'sql-practice' && <SQLPracticeLesson />}
                     {lesson.id === 'apa-referencing' && <APAReferencingDeck />}
 

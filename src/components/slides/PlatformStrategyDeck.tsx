@@ -2,16 +2,15 @@
 // MBI800 · Strategic Information Systems
 // "Platform Strategy" — pipes vs platforms, network effects, governance, and why some platforms fail
 
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Maximize, Minimize, RotateCcw, CheckCircle, XCircle, Play } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { useState, useEffect, useRef } from 'react';
+import { ChevronLeft, ChevronRight, Maximize2, Minimize2, Maximize, Minimize, RotateCcw, CheckCircle, XCircle } from 'lucide-react';
 
 const DECK_CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Lora:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');
 
 .pfs *{box-sizing:border-box;margin:0;padding:0}
 .pfs{font-family:'Inter',sans-serif;
-  --title:64px;--h2:48px;--body:32px;--small:26px;--tiny:22px;--micro:19px;
+  --title:64px;--h2:48px;--body:32px;--small:27px;--tiny:23px;--micro:21px;
   --px:88px;--pt:68px;--pb:52px;--title-gap:30px;--item-gap:18px;
   --navy:#0b1220;--navy2:#111827;
   --blue:#2563eb;--blue2:#1d4ed8;--blue-light:#dbeafe;
@@ -64,8 +63,8 @@ const DECK_CSS = `
 .pfs .badge-ghost{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.72);border:1px solid rgba(255,255,255,0.2)}
 
 .pfs table{border-collapse:collapse;font-size:var(--small);width:100%}
-.pfs th{background:var(--navy2);color:#fff;padding:14px 22px;text-align:left;font-weight:600;font-size:var(--tiny)}
-.pfs td{padding:12px 22px;border-bottom:1.5px solid #e2e8f0;vertical-align:middle;font-size:var(--tiny)}
+.pfs th{background:var(--navy2);color:#fff;padding:16px 22px;text-align:left;font-weight:700;font-size:var(--small)}
+.pfs td{padding:14px 22px;border-bottom:1.5px solid #e2e8f0;vertical-align:middle;font-size:var(--small)}
 .pfs tr:nth-child(even) td{background:#f8fafc}
 .pfs tr:hover td{background:var(--blue-light);transition:background 0.18s}
 .pfs .tbl-blue th{background:var(--blue2)}
@@ -103,8 +102,8 @@ const DECK_CSS = `
 .pfs .tactic-card{border-radius:20px;padding:26px 24px;cursor:pointer;transition:all 0.28s cubic-bezier(0.34,1.56,0.64,1);border:2px solid rgba(37,99,235,0.15);background:rgba(255,255,255,0.9);user-select:none}
 .pfs .tactic-card:hover{transform:translateY(-5px);box-shadow:0 14px 32px rgba(37,99,235,0.14);border-color:var(--blue2)}
 .pfs .tactic-card[data-revealed='true']{background:var(--blue-light);border-color:var(--blue2);transform:translateY(-3px)}
-.pfs .tactic-card .hint-text{font-size:var(--micro);color:var(--slate);margin-top:8px;opacity:0.7}
-.pfs .tactic-card .reveal-content{display:none;margin-top:12px;padding-top:12px;border-top:1.5px dashed rgba(37,99,235,0.3);font-size:var(--micro);color:var(--blue2);font-weight:600;line-height:1.5}
+.pfs .tactic-card .hint-text{font-size:var(--tiny);color:var(--slate);margin-top:8px;opacity:0.75}
+.pfs .tactic-card .reveal-content{display:none;margin-top:12px;padding-top:12px;border-top:1.5px dashed rgba(37,99,235,0.3);font-size:var(--tiny);color:var(--blue2);font-weight:600;line-height:1.45}
 .pfs .tactic-card[data-revealed='true'] .reveal-content{display:block}
 .pfs .tactic-card[data-revealed='true'] .hint-text{display:none}
 
@@ -112,7 +111,7 @@ const DECK_CSS = `
 .pfs .fail-card{border-radius:18px;padding:22px 22px;cursor:pointer;transition:all 0.25s;background:rgba(255,255,255,0.92);border:2px solid rgba(225,29,72,0.15);user-select:none}
 .pfs .fail-card:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(225,29,72,0.12);border-color:var(--rose)}
 .pfs .fail-card[data-open='true']{background:var(--rose-light);border-color:var(--rose)}
-.pfs .fail-card .fix{display:none;margin-top:10px;padding-top:10px;border-top:1.5px dashed rgba(225,29,72,0.3);font-size:var(--micro);color:#9f1239;line-height:1.5}
+.pfs .fail-card .fix{display:none;margin-top:10px;padding-top:10px;border-top:1.5px dashed rgba(225,29,72,0.3);font-size:var(--tiny);color:#9f1239;line-height:1.45}
 .pfs .fail-card[data-open='true'] .fix{display:block}
 .pfs .fail-title{font-size:var(--tiny);font-weight:700;color:#1e293b;line-height:1.3}
 .pfs .fail-card[data-open='true'] .fail-title{color:#9f1239}
@@ -150,7 +149,7 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
         <span class="badge badge-ghost">18 Slides</span>
         <span class="badge badge-blue">Network Effects</span>
         <span class="badge badge-amber">Case Studies</span>
-        <span class="badge badge-teal">30-Min Activity</span>
+        <span class="badge badge-teal">40-Min Group Activity</span>
         <span class="badge badge-violet">Knowledge Check</span>
       </div>
     </div>
@@ -167,18 +166,18 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
     <div class="two-col">
       <div style="display:flex;flex-direction:column;gap:20px;">
         <div class="callout callout-blue">
-          Classic SISP models — Ward &amp; Peppard, Earl, the Strategic Alignment Model — assume the firm already controls its whole value chain, end to end. IT strategy just has to align with a business strategy that exists independently of it.
+          Classic SISP models assume the firm controls its whole value chain, end to end.
         </div>
-        <p style="font-size:var(--small);line-height:1.65;color:var(--slate);">That assumption breaks the moment a firm's biggest strategic decisions are about a network it doesn't fully own — sellers it doesn't employ, developers it doesn't manage, drivers who aren't on payroll. Bharadwaj et al. (2013) called this the shift to <em>digital business strategy</em>: IT and business strategy stop being two separate things to align, and start being one thing.</p>
-        <div class="callout callout-amber">Platform strategy is what that shift looks like in practice — and it changes what a strategic IS plan actually has to decide.</div>
+        <p style="font-size:var(--small);line-height:1.6;color:var(--slate);">That breaks once a firm's biggest decisions involve a network it doesn't fully own — outside sellers, developers, drivers.</p>
+        <div class="callout callout-amber">Platform strategy is what that shift looks like in practice.</div>
       </div>
       <table class="tbl-blue">
-        <thead><tr><th style="width:46%;">A traditional SISP asks…</th><th>A platform-era plan also asks…</th></tr></thead>
+        <thead><tr><th style="width:46%;">A traditional plan asks…</th><th>A platform-era plan also asks…</th></tr></thead>
         <tbody>
-          <tr><td>What systems does our value chain need?</td><td>What ecosystem are we orchestrating, and how much of it sits outside our walls?</td></tr>
-          <tr><td>How do we align IT with the business?</td><td>How do we design APIs and rules that let outsiders safely co-create value?</td></tr>
-          <tr><td>What's our enterprise architecture roadmap?</td><td>Is our architecture modular enough for a stable core and an open periphery?</td></tr>
-          <tr><td>How do we govern IT risk?</td><td>How do we govern a network we don't fully control?</td></tr>
+          <tr><td>What systems does our value chain need?</td><td>What ecosystem are we part of?</td></tr>
+          <tr><td>How do we align IT with the business?</td><td>How do outsiders safely build on us?</td></tr>
+          <tr><td>What's our architecture roadmap?</td><td>Is our architecture open at the edges?</td></tr>
+          <tr><td>How do we govern IT risk?</td><td>How do we govern a network we don't own?</td></tr>
         </tbody>
       </table>
     </div>
@@ -197,21 +196,21 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
       <div class="pillar" style="background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);">
         <div class="pillar-icon">📦</div>
         <div class="pillar-title" style="color:#fff;">Pipeline business</div>
-        <div class="pillar-body" style="color:rgba(255,255,255,0.7);">Value moves in one direction: design → build → sell. The firm controls the whole chain. Think of a traditional publisher or a car maker selling through dealers.</div>
+        <div class="pillar-body" style="color:rgba(255,255,255,0.75);">Value flows one way: design → build → sell. The firm owns the whole chain.</div>
       </div>
       <div class="pillar" style="background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);">
         <div class="pillar-icon">🎯</div>
         <div class="pillar-title" style="color:#fff;">Product business</div>
-        <div class="pillar-body" style="color:rgba(255,255,255,0.7);">One self-contained offering, sold to a customer, without needing a crowd of outside complementors to create most of its value.</div>
+        <div class="pillar-body" style="color:rgba(255,255,255,0.75);">One offering, sold directly. No crowd of outside partners needed.</div>
       </div>
       <div class="pillar" style="background:rgba(37,99,235,0.16);border:1.5px solid rgba(147,197,253,0.4);">
         <div class="pillar-icon">🔗</div>
         <div class="pillar-title" style="color:#93c5fd;">Platform business</div>
-        <div class="pillar-body" style="color:rgba(255,255,255,0.85);">A technical and business architecture that lets two or more distinct groups find, trust, and transact with each other — with the platform owner providing the rules and infrastructure, not necessarily the product itself.</div>
+        <div class="pillar-body" style="color:rgba(255,255,255,0.9);">Connects two or more groups. The owner supplies the rules and infrastructure — not always the product.</div>
       </div>
     </div>
     <div class="callout callout-blue" style="margin-top:28px;background:rgba(37,99,235,0.14);border-left-color:#93c5fd;color:#dbeafe;">
-      Platforms <strong>orchestrate</strong> value rather than <strong>own</strong> it. That single sentence explains why Uber can be worth more than most airlines while owning zero vehicles.
+      Platforms <strong>orchestrate</strong> value. They don't have to <strong>own</strong> it.
     </div>
     <div class="copyright">© All rights reserved · Yasas Sri Wickramasinghe</div>`,
   },
@@ -223,35 +222,35 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
     html: `
     <div class="section-label">Core Mechanics · Click each card</div>
     <div class="slide-title">Why Platforms Get <span class="accent">Stronger With Size</span></div>
-    <p class="small" style="color:var(--slate);margin-bottom:20px;">A <strong>network effect</strong> exists when the platform gets more valuable as more people use it. Not all network effects behave the same way — click each card below.</p>
+    <p class="small" style="color:var(--slate);margin-bottom:20px;">A <strong>network effect</strong>: the platform gets more valuable as more people use it. Click each card.</p>
     <div class="four-col">
       <div class="tactic-card fu1" onclick="this.setAttribute('data-revealed','true')">
         <div style="font-size:34px;">🚗</div>
         <div style="font-weight:700;font-size:var(--small);margin-top:8px;">Cross-side, positive</div>
-        <div class="hint-text">Click to see the ride-hailing example →</div>
-        <div class="reveal-content">More drivers → shorter wait times for riders. More riders → more fares for drivers. Each side makes the <em>other</em> side's experience better.</div>
+        <div class="hint-text">Ride-hailing example →</div>
+        <div class="reveal-content">More drivers = shorter waits for riders. More riders = more fares for drivers.</div>
       </div>
       <div class="tactic-card fu2" onclick="this.setAttribute('data-revealed','true')">
         <div style="font-size:34px;">💬</div>
         <div style="font-weight:700;font-size:var(--small);margin-top:8px;">Same-side, positive</div>
-        <div class="hint-text">Click to see the messaging example →</div>
-        <div class="reveal-content">More of your friends on a messaging app makes it more useful to <em>you directly</em> — no other side involved.</div>
+        <div class="hint-text">Messaging example →</div>
+        <div class="reveal-content">More friends on a messaging app makes it more useful to you — no other side involved.</div>
       </div>
       <div class="tactic-card fu3" onclick="this.setAttribute('data-revealed','true')">
         <div style="font-size:34px;">🚦</div>
         <div style="font-weight:700;font-size:var(--small);margin-top:8px;">Same-side, negative</div>
-        <div class="hint-text">Click to see the congestion example →</div>
-        <div class="reveal-content">Too many drivers in one small area depresses earnings per driver. Too many sellers flood a search results page. Growth isn't automatically good.</div>
+        <div class="hint-text">Congestion example →</div>
+        <div class="reveal-content">Too many drivers in one area lowers earnings per driver. Growth isn't always good.</div>
       </div>
       <div class="tactic-card" onclick="this.setAttribute('data-revealed','true')">
         <div style="font-size:34px;">🧠</div>
         <div style="font-weight:700;font-size:var(--small);margin-top:8px;">Data network effect</div>
-        <div class="hint-text">Click to see the Netflix example →</div>
-        <div class="reveal-content">Every interaction improves the matching or recommendation engine for <em>everyone</em>. This compounds even without adding a single new user.</div>
+        <div class="hint-text">Netflix example →</div>
+        <div class="reveal-content">Every interaction improves recommendations for everyone — even without new users.</div>
       </div>
     </div>
     <div class="callout callout-amber" style="margin-top:24px;">
-      <strong>Exam trap:</strong> students often assume network effects are always good. Managing the negative ones — congestion, fraud, low-quality supply — is just as much a platform strategist's job as growing the good ones.
+      <strong>Watch out:</strong> network effects aren't always good. Managing the negative ones matters as much as growing the positive ones.
     </div>
     <div class="copyright">© All rights reserved · Yasas Sri Wickramasinghe</div>`,
   },
@@ -263,41 +262,41 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
     html: `
     <div class="section-label">Two-Sided Markets · Click each tactic</div>
     <div class="slide-title">Solving the <span class="accent">Chicken-and-Egg Problem</span></div>
-    <p class="small" style="color:rgba(255,255,255,0.65);margin-bottom:20px;">Neither side wants to join an empty platform. Rochet &amp; Tirole's two-sided market theory explains the fix: price the two sides differently — often subsidising one to attract the other. Click a tactic to see who used it.</p>
+    <p class="small" style="color:rgba(255,255,255,0.65);margin-bottom:20px;">Neither side wants to join an empty platform. The fix: price the two sides differently. Click a tactic to see who used it.</p>
     <div class="five-col">
       <div class="tactic-card fu1" style="background:rgba(255,255,255,0.92);" onclick="this.setAttribute('data-revealed','true')">
         <div style="font-size:30px;">💸</div>
-        <div style="font-weight:700;font-size:var(--micro);margin-top:6px;">Subsidise one side</div>
+        <div style="font-weight:700;font-size:var(--tiny);margin-top:6px;">Subsidise one side</div>
         <div class="hint-text">Click →</div>
-        <div class="reveal-content">Uber subsidised early driver earnings to guarantee enough supply before riders had any reason to trust the app.</div>
+        <div class="reveal-content">Uber paid early drivers to guarantee supply before riders trusted the app.</div>
       </div>
       <div class="tactic-card fu2" style="background:rgba(255,255,255,0.92);" onclick="this.setAttribute('data-revealed','true')">
         <div style="font-size:30px;">🎮</div>
-        <div style="font-weight:700;font-size:var(--micro);margin-top:6px;">Single-player mode</div>
+        <div style="font-weight:700;font-size:var(--tiny);margin-top:6px;">Single-player mode</div>
         <div class="hint-text">Click →</div>
-        <div class="reveal-content">Early Airbnb worked as a browsing and wishlist tool even with zero hosts nearby — useful before the "other side" existed at all.</div>
+        <div class="reveal-content">Early Airbnb worked as a browsing tool even with zero hosts nearby.</div>
       </div>
       <div class="tactic-card fu3" style="background:rgba(255,255,255,0.92);" onclick="this.setAttribute('data-revealed','true')">
         <div style="font-size:30px;">📦</div>
-        <div style="font-weight:700;font-size:var(--micro);margin-top:6px;">Seed with your own supply</div>
+        <div style="font-weight:700;font-size:var(--tiny);margin-top:6px;">Seed your own supply</div>
         <div class="hint-text">Click →</div>
-        <div class="reveal-content">Amazon and Zappos both listed their own inventory first, to create liquidity before opening up to third-party sellers.</div>
+        <div class="reveal-content">Amazon and Zappos listed their own inventory first, before opening to sellers.</div>
       </div>
       <div class="tactic-card" style="background:rgba(255,255,255,0.92);" onclick="this.setAttribute('data-revealed','true')">
         <div style="font-size:30px;">🐴</div>
-        <div style="font-weight:700;font-size:var(--micro);margin-top:6px;">Piggyback a network</div>
+        <div style="font-weight:700;font-size:var(--tiny);margin-top:6px;">Piggyback a network</div>
         <div class="hint-text">Click →</div>
-        <div class="reveal-content">PayPal grew by piggybacking on eBay auctions — showing up wherever its target users already were.</div>
+        <div class="reveal-content">PayPal grew by riding on eBay auctions — showing up where its users already were.</div>
       </div>
       <div class="tactic-card" style="background:rgba(255,255,255,0.92);" onclick="this.setAttribute('data-revealed','true')">
         <div style="font-size:30px;">📍</div>
-        <div style="font-weight:700;font-size:var(--micro);margin-top:6px;">Target a micro-market</div>
+        <div style="font-weight:700;font-size:var(--tiny);margin-top:6px;">Target a micro-market</div>
         <div class="hint-text">Click →</div>
-        <div class="reveal-content">Facebook launched at one campus — Harvard — before expanding campus by campus. Food-delivery apps still launch suburb by suburb.</div>
+        <div class="reveal-content">Facebook launched at one campus first. Food-delivery apps still launch suburb by suburb.</div>
       </div>
     </div>
     <div class="callout callout-blue" style="margin-top:24px;background:rgba(37,99,235,0.16);border-left-color:#93c5fd;color:#dbeafe;">
-      You'll test some of these tactics yourself in today's activity — the <strong>Chicken-and-Egg Launch Simulator</strong>, further down this page.
+      Today's group activity: find a real platform online and work out which of these tactics it actually used.
     </div>
     <div class="copyright">© All rights reserved · Yasas Sri Wickramasinghe</div>`,
   },
@@ -312,20 +311,20 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
     <div class="two-col">
       <div style="display:flex;flex-direction:column;gap:18px;">
         <div class="callout callout-teal">
-          <strong>Single-homing:</strong> a user sticks to one platform in a category. <strong>Multi-homing:</strong> a user runs several rival platforms at once — a driver with two ride-hailing apps open, a hotel listed on Booking.com <em>and</em> Expedia.
+          <strong>Single-homing:</strong> sticking to one platform. <strong>Multi-homing:</strong> using rival platforms at once — a hotel listed on Booking.com <em>and</em> Expedia.
         </div>
-        <p class="small" style="color:var(--slate);">The easier it is to multi-home, the harder it is for any single platform to become a winner-take-all monopoly — because switching, or simply running both, costs almost nothing.</p>
+        <p class="small" style="color:var(--slate);">The easier it is to multi-home, the harder it is for one platform to become a monopoly.</p>
       </div>
       <div style="display:flex;flex-direction:column;gap:16px;">
         <div style="background:white;border-radius:18px;padding:24px 26px;border:1.5px solid rgba(0,0,0,0.08);box-shadow:0 4px 16px rgba(0,0,0,0.06);">
           <div style="font-weight:700;color:var(--blue2);font-size:var(--small);margin-bottom:8px;">Low multi-homing cost →</div>
-          <div class="small" style="color:var(--slate);">Several competing platforms can survive side by side.</div>
+          <div class="small" style="color:var(--slate);">Several platforms survive side by side.</div>
         </div>
         <div style="background:white;border-radius:18px;padding:24px 26px;border:1.5px solid rgba(0,0,0,0.08);box-shadow:0 4px 16px rgba(0,0,0,0.06);">
           <div style="font-weight:700;color:var(--rose);font-size:var(--small);margin-bottom:8px;">High multi-homing cost →</div>
-          <div class="small" style="color:var(--slate);">The market tends to tip toward a single dominant platform.</div>
+          <div class="small" style="color:var(--slate);">The market tips toward one winner.</div>
         </div>
-        <div class="callout callout-amber">Cusumano, Yoffie &amp; Gawer point to the voice-assistant contest between Alexa, Siri and Google Assistant as an example: the outcome depends largely on how easily consumers and device makers can — or can't — multi-home.</div>
+        <div class="callout callout-amber">Example: Alexa, Siri and Google Assistant — the winner depends on how easily people can switch between them.</div>
       </div>
     </div>
     <div class="copyright">© All rights reserved · Yasas Sri Wickramasinghe</div>`,
@@ -350,7 +349,7 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
       </tbody>
     </table>
     <div class="callout callout-blue" style="margin-top:22px;">
-      <strong>Hybrid platforms</strong> do both — and that's where most of the largest tech companies now sit. Apple's iOS is an innovation platform (developers build apps); its App Store is a transaction platform layered on top (Apple sells and distributes those apps). Amazon's Marketplace is a transaction platform; AWS underneath it is an innovation platform other companies build entire businesses on.
+      <strong>Hybrid platforms</strong> do both. Apple's iOS lets developers build apps (innovation); the App Store sells and distributes them (transaction). Amazon's Marketplace is transaction; AWS underneath is innovation.
     </div>
     <div class="copyright">© All rights reserved · Yasas Sri Wickramasinghe</div>`,
   },
@@ -366,22 +365,22 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
     <div class="step-list" style="margin-top:8px;">
       <div class="step">
         <div class="step-num">1</div>
-        <div class="step-text" style="color:rgba(255,255,255,0.9);"><strong style="color:#93c5fd;">Choose your sides.</strong> Which distinct groups will you connect? More sides mean more ways to monetise — and more conflicting interests to manage.</div>
+        <div class="step-text" style="color:rgba(255,255,255,0.9);"><strong style="color:#93c5fd;">Choose your sides.</strong> Which groups will you connect?</div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
-        <div class="step-text" style="color:rgba(255,255,255,0.9);"><strong style="color:#93c5fd;">Solve the chicken-and-egg problem.</strong> Decide which side to seed first, and how (see the tactics from the previous slide).</div>
+        <div class="step-text" style="color:rgba(255,255,255,0.9);"><strong style="color:#93c5fd;">Solve chicken-and-egg.</strong> Which side do you seed first, and how?</div>
       </div>
       <div class="step">
         <div class="step-num">3</div>
-        <div class="step-text" style="color:rgba(255,255,255,0.9);"><strong style="color:#93c5fd;">Design the business model.</strong> Transaction fees, subscriptions, freemium, advertising — and who pays how much on each side.</div>
+        <div class="step-text" style="color:rgba(255,255,255,0.9);"><strong style="color:#93c5fd;">Design the business model.</strong> Who pays, how much, on each side?</div>
       </div>
       <div class="step">
         <div class="step-num">4</div>
-        <div class="step-text" style="color:rgba(255,255,255,0.9);"><strong style="color:#93c5fd;">Set the governance rules.</strong> How open is it? What quality standards apply? How is revenue and IP shared with the people building on top of you?</div>
+        <div class="step-text" style="color:rgba(255,255,255,0.9);"><strong style="color:#93c5fd;">Set the governance rules.</strong> How open is it, and who shares in the value?</div>
       </div>
     </div>
-    <div class="callout callout-blue" style="margin-top:26px;background:rgba(37,99,235,0.16);border-left-color:#93c5fd;color:#dbeafe;">Source: adapted from Cusumano, Gawer &amp; Yoffie, <em>The Business of Platforms</em> (2019).</div>
+    <div class="callout callout-blue" style="margin-top:26px;background:rgba(37,99,235,0.16);border-left-color:#93c5fd;color:#dbeafe;">Source: Cusumano, Gawer &amp; Yoffie, <em>The Business of Platforms</em> (2019).</div>
     <div class="copyright">© All rights reserved · Yasas Sri Wickramasinghe</div>`,
   },
 
@@ -395,27 +394,27 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
     <div class="two-col">
       <div style="display:flex;flex-direction:column;gap:18px;">
         <div class="callout callout-violet">
-          Platform owners govern outsiders through <strong>boundary resources</strong> — APIs, SDKs, documentation, and review processes that sit at the edge of the platform.
+          Platform owners govern outsiders through <strong>boundary resources</strong> — APIs, SDKs, and review processes.
         </div>
-        <p class="small" style="color:var(--slate);">Every boundary resource balances two pulls in the same direction: give developers enough capability to build valuable things, without losing control of quality, security, and your own strategic position.</p>
+        <p class="small" style="color:var(--slate);">Every boundary resource balances two things: enough capability for developers to build value, without losing control.</p>
         <div style="display:flex;gap:16px;">
           <div style="flex:1;background:var(--teal-light);border-radius:16px;padding:20px;">
             <div style="font-weight:700;color:#0f766e;font-size:var(--small);">Resourcing →</div>
-            <div class="micro" style="color:#0f766e;margin-top:6px;">Enable. Provide capability. Attract developers.</div>
+            <div class="tiny" style="color:#0f766e;margin-top:6px;">Enable. Attract developers.</div>
           </div>
           <div style="flex:1;background:var(--rose-light);border-radius:16px;padding:20px;">
             <div style="font-weight:700;color:#9f1239;font-size:var(--small);">← Securing</div>
-            <div class="micro" style="color:#9f1239;margin-top:6px;">Control. Protect. Certify. Review.</div>
+            <div class="tiny" style="color:#9f1239;margin-top:6px;">Control. Protect. Review.</div>
           </div>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:18px;">
         <div style="background:white;border-radius:18px;padding:26px;border:1.5px solid rgba(0,0,0,0.08);box-shadow:0 4px 16px rgba(0,0,0,0.06);">
           <div style="font-weight:700;font-size:var(--small);margin-bottom:10px;">Case in point: Apple's App Store</div>
-          <p class="micro" style="color:var(--slate);line-height:1.6;">Apple's iOS APIs and App Review process do both jobs at once — they hand developers frameworks and a huge addressable market (resourcing), while reviewing every app and taking a commission on every sale (securing). It's the same policy doing two things.</p>
+          <p class="tiny" style="color:var(--slate);line-height:1.55;">Apple's app review does both jobs at once: it gives developers a huge market (resourcing), while reviewing every app and taking a commission (securing).</p>
         </div>
         <div class="callout callout-amber">
-          Tiwana, Konsynski &amp; Bush (2010) add the harder point: architecture, governance, and the competitive environment <em>co-evolve</em>. Open up governance without redesigning the architecture to support it, and you create risk — not an improvement.
+          Governance and architecture <em>co-evolve</em>. Open up the rules without redesigning the system to support it, and you create risk.
         </div>
       </div>
     </div>
@@ -476,7 +475,7 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
       </div>
     </div>
     <div class="callout callout-blue" style="margin-top:22px;background:rgba(37,99,235,0.16);border-left-color:#93c5fd;color:#dbeafe;">
-      <strong>Defending against envelopment:</strong> Eisenmann et al. suggest two responses — open up a previously proprietary layer to build a broader defending coalition, or assemble a comparable bundle yourself before the attacker does.
+      <strong>Defending against it:</strong> open up your own layer to build allies, or build a comparable bundle yourself, first.
     </div>
     <div class="copyright">© All rights reserved · Yasas Sri Wickramasinghe</div>`,
   },
@@ -492,19 +491,19 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
       <div style="display:flex;flex-direction:column;gap:16px;">
         <div style="padding:22px 24px;background:var(--teal-light);border-radius:16px;border:1.5px solid rgba(13,148,136,0.25);">
           <div style="font-weight:700;color:#0f766e;">🔁 Marketplace — transaction platform</div>
-          <div class="micro" style="color:#0f766e;margin-top:6px;line-height:1.6;">Opened to third-party sellers to fill selection gaps without carrying the inventory risk. Industry estimates put third-party sellers at roughly 60% of unit sales by the mid-2020s — treat that as a directional trend, not an audited figure.</div>
+          <div class="tiny" style="color:#0f766e;margin-top:6px;line-height:1.5;">Opened to third-party sellers to fill selection gaps, without carrying inventory risk.</div>
         </div>
         <div style="padding:22px 24px;background:var(--violet-light);border-radius:16px;border:1.5px solid rgba(124,58,237,0.25);">
           <div style="font-weight:700;color:#5b21b6;">🛠️ AWS — innovation platform</div>
-          <div class="micro" style="color:#5b21b6;margin-top:6px;line-height:1.6;">Started as internal infrastructure Amazon built to handle its own scaling problem, then productised and sold externally — including to some of Amazon's own retail competitors.</div>
+          <div class="tiny" style="color:#5b21b6;margin-top:6px;line-height:1.5;">Started as Amazon's own infrastructure, then sold externally — even to Amazon's retail rivals.</div>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:16px;">
         <div class="callout callout-blue">
-          <strong>The Flywheel:</strong> lower prices and more selection draw traffic → traffic attracts sellers → more sellers widen selection and pricing → scale lowers Amazon's own cost base → prices fall further, and the loop repeats.
+          <strong>The Flywheel:</strong> lower prices + more selection → more traffic → more sellers → lower costs → lower prices again.
         </div>
         <div class="callout callout-amber">
-          <strong>SISP takeaway:</strong> Amazon shows how a strategic IS plan can deliberately turn internal infrastructure into a second platform business — and how "who gets admitted, and what data can we see about them" are strategic governance calls, not operational ones.
+          <strong>SISP takeaway:</strong> internal infrastructure can become a second platform business. Who gets admitted is a governance call, not an operational one.
         </div>
       </div>
     </div>
@@ -518,26 +517,26 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
     html: `
     <div class="section-label">Case Study 2 · A Counter-Example · Click each card</div>
     <div class="slide-title">GE Predix: When a <span class="accent">Platform Strategy Fails</span></div>
-    <p class="small" style="color:rgba(255,255,255,0.65);margin-bottom:16px;">GE launched Predix in 2014–2015 to become "the Android of the industrial internet," projecting $15B in software sales by 2020. It was quietly retired around 2022. Click each card for the post-mortem.</p>
+    <p class="small" style="color:rgba(255,255,255,0.65);margin-bottom:16px;">GE launched Predix in 2014 to become "the Android of industry." It was quietly retired around 2022. Click each card.</p>
     <div class="three-col">
       <div class="fail-card fu1" style="background:rgba(255,255,255,0.94);" onclick="var o=this.getAttribute('data-open');this.setAttribute('data-open',o?'':'true')">
         <div class="fail-title">Tried to serve too many sides</div>
-        <div class="micro" style="color:var(--slate);margin-top:4px;">Click for detail</div>
-        <div class="fix">Aviation, healthcare, power and oil &amp; gas all have different data, regulation and buyers. One undifferentiated platform couldn't go deep enough in any of them — a direct violation of "choose your sides."</div>
+        <div class="tiny" style="color:var(--slate);margin-top:4px;">Click for detail</div>
+        <div class="fix">Aviation, healthcare and oil &amp; gas all need different things. One platform couldn't go deep enough in any of them.</div>
       </div>
       <div class="fail-card fu2" style="background:rgba(255,255,255,0.94);" onclick="var o=this.getAttribute('data-open');this.setAttribute('data-open',o?'':'true')">
         <div class="fail-title">Built its own cloud, alone</div>
-        <div class="micro" style="color:var(--slate);margin-top:4px;">Click for detail</div>
-        <div class="fix">GE built its own data centres rather than build on AWS, Azure or Google Cloud — putting an industrial firm in direct infrastructure competition with hyperscalers with vastly larger economies of scale.</div>
+        <div class="tiny" style="color:var(--slate);margin-top:4px;">Click for detail</div>
+        <div class="fix">GE built its own data centres instead of using AWS or Azure — competing with far bigger cloud players.</div>
       </div>
       <div class="fail-card fu3" style="background:rgba(255,255,255,0.94);" onclick="var o=this.getAttribute('data-open');this.setAttribute('data-open',o?'':'true')">
         <div class="fail-title">Not developer-friendly</div>
-        <div class="micro" style="color:var(--slate);margin-top:4px;">Click for detail</div>
-        <div class="fix">Multiple retrospectives describe Predix as hard for third parties to build on. An innovation platform with no engaged developer ecosystem isn't really a platform — it's expensive custom software with a platform label.</div>
+        <div class="tiny" style="color:var(--slate);margin-top:4px;">Click for detail</div>
+        <div class="fix">Hard for outsiders to build on. A platform with no developer ecosystem is just expensive custom software.</div>
       </div>
     </div>
     <div class="callout callout-rose" style="margin-top:20px;background:rgba(225,29,72,0.16);border-left-color:#fb7185;color:#fecdd3;">
-      By the time a new CEO called a strategic pause in 2017–18, GE had spent roughly $4 billion over six years on Predix. It's a useful reminder: most platform teaching leans on winners. This is the counter-example a strategic planner actually needs.
+      GE spent roughly $4 billion over six years on Predix. Most platform teaching leans on winners — this is the counter-example worth remembering.
     </div>
     <div class="copyright">© All rights reserved · Yasas Sri Wickramasinghe</div>`,
   },
@@ -552,9 +551,9 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
     <div class="two-col">
       <div style="display:flex;flex-direction:column;gap:16px;">
         <div class="callout callout-blue">
-          Cusumano, Gawer &amp; Yoffie tracked 43 public companies drawing 20%+ of revenue from platform models between 1995–2015. Against a matched control group of similarly sized non-platform firms, the platform firms did the same revenue with <strong>half the headcount</strong>, were <strong>twice as profitable</strong>, grew <strong>twice as fast</strong>, and were valued at <strong>more than double</strong>.
+          A study of 43 public platform companies found they did the same revenue with <strong>half the staff</strong>, <strong>twice the profit</strong>, and <strong>twice the growth</strong> of similar non-platform firms.
         </div>
-        <p class="small" style="color:var(--slate);">A separate 2023 study of 959 unicorns found platform business models carried a statistically significant valuation premium over comparable non-platform firms — though the size of that premium varied sharply by region.</p>
+        <p class="small" style="color:var(--slate);">A separate study of 959 unicorns found platform models carry a real valuation premium — though the size varies by region.</p>
       </div>
       <div style="display:flex;flex-direction:column;gap:14px;">
         <div style="background:white;border-radius:16px;padding:20px 24px;border:1.5px solid rgba(0,0,0,0.08);">
@@ -569,7 +568,7 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
           <div class="small" style="font-weight:700;">Asia-Pacific</div>
           <div style="background:var(--blue-light);border-radius:8px;height:28px;width:100%;margin-top:8px;position:relative;"><div style="background:var(--blue2);height:100%;width:30%;border-radius:8px;"></div><span style="position:absolute;left:calc(30% + 10px);top:2px;font-size:var(--tiny);font-weight:700;color:var(--blue2);">+39%</span></div>
         </div>
-        <div class="micro" style="color:var(--slate);">Investor valuation premium, platform vs. non-platform unicorns · Boston University Platform Strategy Symposium (2023). One dataset, one point in time — treat it as directional.</div>
+        <div class="tiny" style="color:var(--slate);">Valuation premium, platform vs. non-platform unicorns · one study, one point in time.</div>
       </div>
     </div>
     <div class="copyright">© All rights reserved · Yasas Sri Wickramasinghe</div>`,
@@ -583,19 +582,19 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
     <div class="section-label">Don't Teach This Uncritically</div>
     <div class="slide-title">Where Platform Strategy <span class="accent">Goes Wrong</span></div>
     <div class="two-col">
-      <ul class="cross" style="gap:16px;">
-        <li style="font-size:var(--body);color:rgba(255,255,255,0.9);"><strong>Mispricing across sides</strong> — subsidise the wrong side, or charge too soon, and liquidity never arrives.</li>
-        <li style="font-size:var(--body);color:rgba(255,255,255,0.9);"><strong>Cold-start failure</strong> — most launches never solve chicken-and-egg. Survivorship bias means we mostly hear about the ones that did.</li>
-        <li style="font-size:var(--body);color:rgba(255,255,255,0.9);"><strong>Scope overreach</strong> — the Predix pattern: too many verticals, proprietary infrastructure competing with hyperscale economics.</li>
+      <ul class="cross" style="gap:18px;">
+        <li style="font-size:var(--body);color:rgba(255,255,255,0.9);"><strong>Mispricing</strong> — subsidise the wrong side and liquidity never arrives.</li>
+        <li style="font-size:var(--body);color:rgba(255,255,255,0.9);"><strong>Cold-start failure</strong> — most launches never solve chicken-and-egg.</li>
+        <li style="font-size:var(--body);color:rgba(255,255,255,0.9);"><strong>Scope overreach</strong> — the Predix pattern: too many verticals at once.</li>
       </ul>
-      <ul class="cross" style="gap:16px;">
-        <li style="font-size:var(--body);color:rgba(255,255,255,0.9);"><strong>Trust collapse</strong> — weak governance over what happens on the platform can destroy the core value proposition fast.</li>
-        <li style="font-size:var(--body);color:rgba(255,255,255,0.9);"><strong>Complementor dependence</strong> — once sellers, drivers or developers rely on a dominant platform, the owner can change the rules unilaterally.</li>
-        <li style="font-size:var(--body);color:rgba(255,255,255,0.9);"><strong>Regulatory exposure</strong> — antitrust and competition scrutiny scale with platform dominance, across every major jurisdiction.</li>
+      <ul class="cross" style="gap:18px;">
+        <li style="font-size:var(--body);color:rgba(255,255,255,0.9);"><strong>Trust collapse</strong> — weak governance can destroy the value fast.</li>
+        <li style="font-size:var(--body);color:rgba(255,255,255,0.9);"><strong>Dependence</strong> — once sellers rely on you, you can change the rules on them.</li>
+        <li style="font-size:var(--body);color:rgba(255,255,255,0.9);"><strong>Regulation</strong> — antitrust scrutiny grows with platform dominance.</li>
       </ul>
     </div>
     <div class="callout callout-blue" style="margin-top:24px;background:rgba(37,99,235,0.16);border-left-color:#93c5fd;color:#dbeafe;">
-      None of this means "don't build platforms." It means treat platform strategy as a set of trade-offs to plan for, not a guaranteed win.
+      This isn't "don't build platforms." It's: plan for the trade-offs — don't assume a guaranteed win.
     </div>
     <div class="copyright">© All rights reserved · Yasas Sri Wickramasinghe</div>`,
   },
@@ -608,12 +607,12 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
     <div class="section-label">Practical Toolkit</div>
     <div class="slide-title">Six Questions for <span class="accent">Your Own SISP Work</span></div>
     <div class="step-list">
-      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Sides test:</strong> do we sit between two or more groups who need to find, trust, or transact with each other?</div></div>
-      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Latent-asset test:</strong> do we have internal infrastructure or data a wider market would also value, if we productised it?</div></div>
-      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Network-effect test:</strong> does adding one more user genuinely make the platform more valuable to existing users — or is this just a product?</div></div>
-      <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Chicken-and-egg feasibility:</strong> which side can we seed first, at what cost, and for how long?</div></div>
-      <div class="step"><div class="step-num">5</div><div class="step-text"><strong>Governance-readiness:</strong> can we build the boundary resources — APIs, developer relations, trust and safety — responsibly?</div></div>
-      <div class="step"><div class="step-num">6</div><div class="step-text"><strong>Envelopment-exposure:</strong> which adjacent platform could bundle our functionality and cut off our access to users?</div></div>
+      <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Sides:</strong> do we connect two or more groups who need each other?</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Latent asset:</strong> do we have infrastructure or data others would value too?</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Network effect:</strong> does one more user make it better for everyone else?</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Chicken-and-egg:</strong> which side can we seed first, and how?</div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-text"><strong>Governance readiness:</strong> can we build the rules and APIs responsibly?</div></div>
+      <div class="step"><div class="step-num">6</div><div class="step-text"><strong>Envelopment risk:</strong> who could bundle us out of our own market?</div></div>
     </div>
     <div class="copyright">© All rights reserved · Yasas Sri Wickramasinghe</div>`,
   },
@@ -640,227 +639,142 @@ const SLIDES: { classes: string; label: string; html: string }[] = [
     label: '18 Today\'s Activity',
     html: `
     <div class="deco-circle" style="width:600px;height:600px;background:radial-gradient(circle,rgba(37,99,235,0.16) 0%,transparent 70%);left:-120px;bottom:-140px;"></div>
-    <div class="section-label">Individual Activity · 30 Minutes</div>
-    <div class="slide-title">Now Test It Yourself: <span class="accent">The Chicken-and-Egg Simulator</span></div>
+    <div class="section-label">Group Activity · 4–6 Members · 40 Minutes</div>
+    <div class="slide-title">Find a Platform. <span class="accent">Present It.</span></div>
     <div class="two-col">
       <div style="display:flex;flex-direction:column;gap:16px;">
         <div class="callout callout-blue" style="background:rgba(37,99,235,0.16);border-left-color:#93c5fd;color:#dbeafe;">
-          Every launch tactic on slide 5 is a bet on which side to seed, and how. Below this deck is a simulator where you'll set the dials yourself and watch two sides of a market grow — or fail to.
+          Get into groups of 4–6. Pick any real platform — one you use, or one you've heard of. Research it online, then prepare a short presentation for the class.
         </div>
         <ul class="check" style="gap:12px;">
-          <li style="color:rgba(255,255,255,0.9);">Pick a platform idea and name its two sides</li>
-          <li style="color:rgba(255,255,255,0.9);">Run the simulator with at least three different strategies</li>
-          <li style="color:rgba(255,255,255,0.9);">Write a short justification for the strategy you'd actually launch with</li>
+          <li style="color:rgba(255,255,255,0.9);">Who are its two or more sides?</li>
+          <li style="color:rgba(255,255,255,0.9);">How did it solve the chicken-and-egg problem?</li>
+          <li style="color:rgba(255,255,255,0.9);">How does it make money, and how open is it?</li>
         </ul>
       </div>
       <div style="display:flex;flex-direction:column;gap:12px;">
-        <div style="background:rgba(255,255,255,0.08);border-radius:16px;padding:20px 22px;display:flex;justify-content:space-between;align-items:center;"><span class="small" style="color:#fff;font-weight:700;">Pick your idea</span><span class="badge badge-blue">5 min</span></div>
-        <div style="background:rgba(255,255,255,0.08);border-radius:16px;padding:20px 22px;display:flex;justify-content:space-between;align-items:center;"><span class="small" style="color:#fff;font-weight:700;">Run the simulator</span><span class="badge badge-teal">15 min</span></div>
-        <div style="background:rgba(255,255,255,0.08);border-radius:16px;padding:20px 22px;display:flex;justify-content:space-between;align-items:center;"><span class="small" style="color:#fff;font-weight:700;">Write your justification</span><span class="badge badge-amber">10 min</span></div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:16px;padding:20px 22px;display:flex;justify-content:space-between;align-items:center;"><span class="small" style="color:#fff;font-weight:700;">Form groups, pick a platform</span><span class="badge badge-blue">5 min</span></div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:16px;padding:20px 22px;display:flex;justify-content:space-between;align-items:center;"><span class="small" style="color:#fff;font-weight:700;">Research online, build slides</span><span class="badge badge-teal">25 min</span></div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:16px;padding:20px 22px;display:flex;justify-content:space-between;align-items:center;"><span class="small" style="color:#fff;font-weight:700;">Present to the class</span><span class="badge badge-amber">10 min</span></div>
       </div>
     </div>
     <div class="copyright">© All rights reserved · Yasas Sri Wickramasinghe</div>`,
   },
 ];
 
-// ── Interactive Activity: Chicken-and-Egg Launch Simulator ──────────────────
+// ── Group Activity: Find a Platform, Present It ─────────────────────────────
 
-type Strategy = 'none' | 'subsidiseSupply' | 'subsidiseDemand' | 'singlePlayer';
-
-const STRATEGIES: { id: Strategy; label: string; blurb: string }[] = [
-  { id: 'none', label: 'No subsidy', blurb: 'Charge both sides from day one and let organic growth do the work.' },
-  { id: 'subsidiseSupply', label: 'Subsidise supply', blurb: 'Pay or discount for Side A (the side that creates value for the other) to build it up first.' },
-  { id: 'subsidiseDemand', label: 'Subsidise demand', blurb: 'Make Side B free or cheap to build a crowd that then attracts Side A.' },
-  { id: 'singlePlayer', label: 'Single-player mode first', blurb: 'Give Side A standalone value before Side B exists at all, then open the gates.' },
+const IDEA_LIST = [
+  'Airbnb', 'Uber', 'Spotify', 'Etsy', 'Duolingo', 'Roblox', 'Twitch',
+  'DoorDash', 'Discord', 'Shopify', 'Steam', 'Substack', 'YouTube',
+  'TradeMe', 'LinkedIn', 'Fiverr', 'Booking.com', 'PlayStation Network',
 ];
 
-const LIQUIDITY_THRESHOLD = 55;
-const WEEKS = 12;
+const RESEARCH_QUESTIONS = [
+  'Who are its two or more sides?',
+  'How did it solve the chicken-and-egg problem when it launched?',
+  'What kind of network effect does it rely on?',
+  'How does it make money — who pays, and who doesn\'t?',
+  'How open or closed is it to outsiders?',
+  'What is one real risk it faces today?',
+];
 
-function simulate(opts: {
-  strategy: Strategy;
-  seed: number;
-  virality: number;
-  sensitivityA: number;
-  sensitivityB: number;
-}) {
-  const { strategy, seed, virality, sensitivityA, sensitivityB } = opts;
-  const crossEffect = 0.05;
-  const data: { week: number; sideA: number; sideB: number }[] = [];
+const PRESENTATION_SLIDES = [
+  'Slide 1 — Name the platform and what it does',
+  'Slide 2 — Its sides, and one network effect example',
+  'Slide 3 — Business model and how open it is',
+  'Slide 4 — One risk, or one question for the class',
+];
 
-  let a = strategy === 'none' ? Math.max(2, seed * 0.2) : seed;
-  let b = strategy === 'singlePlayer' ? 0 : Math.max(1, seed * 0.1);
+function GroupResearchActivity() {
+  const [idea, setIdea] = useState<string | null>(null);
+  const [checked, setChecked] = useState<boolean[]>(Array(RESEARCH_QUESTIONS.length).fill(false));
 
-  data.push({ week: 0, sideA: Math.round(a), sideB: Math.round(b) });
-
-  let liquidityWeek: number | null = null;
-
-  for (let week = 1; week <= WEEKS; week++) {
-    const subsidyA = strategy === 'subsidiseSupply' && week <= 6 ? seed * 0.4 * sensitivityA : 0;
-    const subsidyB = strategy === 'subsidiseDemand' && week <= 6 ? seed * 0.4 * sensitivityB : 0;
-    const singlePlayerBoost = strategy === 'singlePlayer' && week <= 4 ? a * 0.35 : 0;
-
-    const organicA = virality * a * 0.35;
-    const organicB = virality * b * 0.35;
-    const crossToA = crossEffect * b * 3;
-    const crossToB = crossEffect * a * 3;
-
-    const nextA = a + organicA + crossToA + subsidyA;
-    const nextB = b + organicB + crossToB + subsidyB + singlePlayerBoost;
-
-    a = Math.min(nextA, 400);
-    b = Math.min(nextB, 400);
-
-    data.push({ week, sideA: Math.round(a), sideB: Math.round(b) });
-
-    if (liquidityWeek === null && a >= LIQUIDITY_THRESHOLD && b >= LIQUIDITY_THRESHOLD) {
-      liquidityWeek = week;
+  function shuffleIdea() {
+    let next = idea;
+    while (next === idea) {
+      next = IDEA_LIST[Math.floor(Math.random() * IDEA_LIST.length)];
     }
+    setIdea(next);
   }
 
-  return { data, liquidityWeek };
-}
-
-function ChickenEggSimulator() {
-  const [strategy, setStrategy] = useState<Strategy>('subsidiseSupply');
-  const [seed, setSeed] = useState(40);
-  const [virality, setVirality] = useState(1);
-  const [sensitivityA, setSensitivityA] = useState<'low' | 'med' | 'high'>('med');
-  const [sensitivityB, setSensitivityB] = useState<'low' | 'med' | 'high'>('med');
-  const [notes, setNotes] = useState('');
-
-  const sensMap = { low: 0.6, med: 1, high: 1.5 };
-
-  const { data, liquidityWeek } = useMemo(
-    () =>
-      simulate({
-        strategy,
-        seed,
-        virality,
-        sensitivityA: sensMap[sensitivityA],
-        sensitivityB: sensMap[sensitivityB],
-      }),
-    [strategy, seed, virality, sensitivityA, sensitivityB]
-  );
+  function toggle(i: number) {
+    setChecked(prev => prev.map((v, idx) => (idx === i ? !v : v)));
+  }
 
   return (
     <div className="rounded-2xl overflow-hidden" style={{ border: '2px solid rgba(37,99,235,0.2)', background: 'rgba(255,255,255,0.95)' }}>
       <div className="px-6 py-4" style={{ background: 'linear-gradient(135deg, #0b1220, #1d4ed8)' }}>
-        <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#93c5fd' }}>Individual Activity · 30 Minutes</p>
-        <h3 className="text-base font-bold text-white mt-0.5">Chicken-and-Egg Launch Simulator</h3>
-        <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.6)' }}>A simplified model built to teach the trade-off, not to predict real growth.</p>
+        <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#93c5fd' }}>Group Activity · 4–6 Members · 40 Minutes</p>
+        <h3 className="text-base font-bold text-white mt-0.5">Find a Platform. Present It.</h3>
+        <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.6)' }}>Pick any real platform, research it online, and prepare a short presentation for the class.</p>
       </div>
 
       <div className="p-6 grid gap-6 md:grid-cols-2">
         <div className="flex flex-col gap-5">
           <div>
-            <p className="text-xs font-bold mb-2" style={{ color: '#1e1b4b' }}>1 · Launch strategy</p>
-            <div className="grid grid-cols-2 gap-2">
-              {STRATEGIES.map(s => (
-                <button
-                  key={s.id}
-                  onClick={() => setStrategy(s.id)}
-                  className="text-left px-3 py-2.5 rounded-xl text-xs font-semibold transition-all"
-                  style={{
-                    background: strategy === s.id ? '#1d4ed8' : 'rgba(37,99,235,0.08)',
-                    color: strategy === s.id ? '#fff' : '#1d4ed8',
-                    border: `1.5px solid ${strategy === s.id ? '#1d4ed8' : 'rgba(37,99,235,0.2)'}`,
-                  }}
-                >
-                  {s.label}
-                </button>
+            <p className="text-xs font-bold mb-2" style={{ color: '#1e1b4b' }}>Timing (40 minutes total)</p>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between rounded-xl px-3 py-2.5" style={{ background: 'rgba(37,99,235,0.06)' }}>
+                <span className="text-xs font-semibold" style={{ color: '#1e1b4b' }}>Form groups of 4–6, pick a platform</span>
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: '#1d4ed8', color: '#fff' }}>5 min</span>
+              </div>
+              <div className="flex items-center justify-between rounded-xl px-3 py-2.5" style={{ background: 'rgba(13,148,136,0.08)' }}>
+                <span className="text-xs font-semibold" style={{ color: '#1e1b4b' }}>Research online, build simple slides</span>
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: '#0d9488', color: '#fff' }}>25 min</span>
+              </div>
+              <div className="flex items-center justify-between rounded-xl px-3 py-2.5" style={{ background: 'rgba(217,119,6,0.08)' }}>
+                <span className="text-xs font-semibold" style={{ color: '#1e1b4b' }}>Present to the class</span>
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: '#d97706', color: '#fff' }}>10 min</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-bold" style={{ color: '#1e1b4b' }}>Stuck for an idea?</p>
+              <button
+                onClick={shuffleIdea}
+                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:opacity-80"
+                style={{ background: 'rgba(37,99,235,0.1)', color: '#1d4ed8' }}
+              >
+                <RotateCcw size={12} /> Shuffle
+              </button>
+            </div>
+            <div className="rounded-xl px-4 py-3 text-sm font-semibold text-center" style={{ background: 'rgba(37,99,235,0.06)', color: '#1d4ed8', minHeight: 44 }}>
+              {idea ?? 'Click shuffle for a suggestion — or pick your own'}
+            </div>
+            <p className="text-xs mt-2" style={{ color: '#6b7280' }}>Any real platform works. Use it, or something completely different — your choice.</p>
+          </div>
+
+          <div>
+            <p className="text-xs font-bold mb-2" style={{ color: '#1e1b4b' }}>Your presentation should cover</p>
+            <div className="flex flex-col gap-1.5">
+              {PRESENTATION_SLIDES.map(s => (
+                <p key={s} className="text-xs" style={{ color: '#374151' }}>{s}</p>
               ))}
-            </div>
-            <p className="text-xs mt-2" style={{ color: '#6b7280' }}>
-              {STRATEGIES.find(s => s.id === strategy)?.blurb}
-            </p>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-xs font-bold" style={{ color: '#1e1b4b' }}>2 · Initial seed size</p>
-              <span className="text-xs font-semibold" style={{ color: '#1d4ed8' }}>{seed} units</span>
-            </div>
-            <input
-              type="range" min={5} max={100} value={seed}
-              onChange={e => setSeed(Number(e.target.value))}
-              className="w-full"
-            />
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-xs font-bold" style={{ color: '#1e1b4b' }}>3 · Virality / referral strength</p>
-              <span className="text-xs font-semibold" style={{ color: '#1d4ed8' }}>{virality.toFixed(1)}×</span>
-            </div>
-            <input
-              type="range" min={0} max={2} step={0.1} value={virality}
-              onChange={e => setVirality(Number(e.target.value))}
-              className="w-full"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs font-bold mb-2" style={{ color: '#1e1b4b' }}>4 · Side A price sensitivity</p>
-              <div className="flex gap-1.5">
-                {(['low', 'med', 'high'] as const).map(v => (
-                  <button key={v} onClick={() => setSensitivityA(v)} className="flex-1 text-xs font-semibold py-2 rounded-lg capitalize" style={{ background: sensitivityA === v ? '#0d9488' : 'rgba(13,148,136,0.1)', color: sensitivityA === v ? '#fff' : '#0d9488' }}>{v}</button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <p className="text-xs font-bold mb-2" style={{ color: '#1e1b4b' }}>Side B price sensitivity</p>
-              <div className="flex gap-1.5">
-                {(['low', 'med', 'high'] as const).map(v => (
-                  <button key={v} onClick={() => setSensitivityB(v)} className="flex-1 text-xs font-semibold py-2 rounded-lg capitalize" style={{ background: sensitivityB === v ? '#7c3aed' : 'rgba(124,58,237,0.1)', color: sensitivityB === v ? '#fff' : '#7c3aed' }}>{v}</button>
-                ))}
-              </div>
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-3">
-          <div style={{ height: 240 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data} margin={{ left: -14, right: 8, top: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="week" tick={{ fontSize: 11 }} label={{ value: 'Week', position: 'insideBottom', offset: -3, fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Legend wrapperStyle={{ fontSize: 11 }} />
-                <ReferenceLine y={LIQUIDITY_THRESHOLD} stroke="#94a3b8" strokeDasharray="4 4" label={{ value: 'Liquidity', fontSize: 10, fill: '#94a3b8', position: 'insideTopRight' }} />
-                <Line type="monotone" dataKey="sideA" name="Side A" stroke="#0d9488" strokeWidth={2.5} dot={false} />
-                <Line type="monotone" dataKey="sideB" name="Side B" stroke="#7c3aed" strokeWidth={2.5} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div
-            className="rounded-xl px-4 py-3 flex items-center gap-3"
-            style={{
-              background: liquidityWeek ? 'rgba(5,150,105,0.08)' : 'rgba(225,29,72,0.08)',
-              border: `1.5px solid ${liquidityWeek ? 'rgba(5,150,105,0.25)' : 'rgba(225,29,72,0.25)'}`,
-            }}
-          >
-            <Play size={16} style={{ color: liquidityWeek ? '#059669' : '#e11d48' }} />
-            <p className="text-xs font-semibold" style={{ color: liquidityWeek ? '#065f46' : '#9f1239' }}>
-              {liquidityWeek
-                ? `Liquidity reached in week ${liquidityWeek} — both sides passed ${LIQUIDITY_THRESHOLD} units.`
-                : `Never reached liquidity within ${WEEKS} weeks. Try a different strategy or seed size.`}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-xs font-bold mb-1.5" style={{ color: '#1e1b4b' }}>Your reflection (5 · not saved, just for you to think through)</p>
-            <textarea
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              placeholder="Which strategy reached liquidity fastest for your idea? What would happen if a competitor copied your subsidy the following week?"
-              className="w-full text-xs rounded-xl px-3 py-2.5 resize-none"
-              style={{ border: '1.5px solid rgba(37,99,235,0.2)', minHeight: 72, background: 'rgba(37,99,235,0.03)', color: '#1e293b' }}
-            />
-          </div>
+          <p className="text-xs font-bold" style={{ color: '#1e1b4b' }}>Research checklist — tick as you go</p>
+          {RESEARCH_QUESTIONS.map((q, i) => (
+            <button
+              key={q}
+              onClick={() => toggle(i)}
+              className="flex items-start gap-3 text-left rounded-xl px-4 py-3 transition-all"
+              style={{
+                background: checked[i] ? 'rgba(5,150,105,0.08)' : 'rgba(37,99,235,0.04)',
+                border: `1.5px solid ${checked[i] ? 'rgba(5,150,105,0.3)' : 'rgba(37,99,235,0.15)'}`,
+              }}
+            >
+              <span className="mt-0.5 flex-shrink-0">
+                {checked[i] ? <CheckCircle size={16} style={{ color: '#059669' }} /> : <span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, border: '1.5px solid #94a3b8' }} />}
+              </span>
+              <span className="text-xs font-medium" style={{ color: checked[i] ? '#065f46' : '#374151' }}>{q}</span>
+            </button>
+          ))}
         </div>
       </div>
     </div>
@@ -1231,11 +1145,11 @@ export default function PlatformStrategyDeck() {
       {/* In-class activity */}
       <div className="mt-4">
         <div className="mb-3 px-1">
-          <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#9ca3af' }}>In-Class Activity · Individual · 30 Minutes</p>
-          <h3 className="text-base font-bold mt-1" style={{ color: '#0b1220' }}>Chicken-and-Egg Launch Simulator</h3>
-          <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>5 min pick an idea · 15 min experiment with the simulator · 10 min write your justification</p>
+          <p className="text-xs font-bold uppercase tracking-widest" style={{ color: '#9ca3af' }}>In-Class Activity · Group of 4–6 · 40 Minutes</p>
+          <h3 className="text-base font-bold mt-1" style={{ color: '#0b1220' }}>Find a Platform. Present It.</h3>
+          <p className="text-xs mt-0.5" style={{ color: '#6b7280' }}>5 min form groups · 25 min research online and build slides · 10 min present</p>
         </div>
-        <ChickenEggSimulator />
+        <GroupResearchActivity />
       </div>
 
       {/* Quiz section */}

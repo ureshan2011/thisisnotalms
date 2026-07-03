@@ -54,7 +54,7 @@ const LESSONS: {
     to: '/platform-strategy',
     eyebrow: 'Strategic Information Systems',
     title: 'Platform Strategy',
-    body: "Why Uber owns no cars and the App Store doesn't write a single app. Network effects, the chicken-and-egg problem, governance and boundary resources, Amazon vs. GE Predix — then a live launch-strategy simulator and a knowledge check.",
+    body: "Why Uber owns no cars and the App Store doesn't write a single app. Network effects, the chicken-and-egg problem, governance and boundary resources, Amazon vs. GE Predix — then a group research presentation and a knowledge check.",
     emoji: '🔗',
     from: '#2563eb',
     to2: '#7c3aed',

@@ -1,0 +1,31 @@
+/* ============================================================
+   Per-page watermark layer — injected into every rendered page
+   by the Paged.js afterPageLayout hook (see hooks.js).
+   position:fixed does NOT repeat per page under Paged.js, so
+   the layer is appended into each .pagedjs_pagebox instead.
+   ============================================================ */
+
+.pagedjs_pagebox { position: relative; }
+
+.wm-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  overflow: hidden;
+}
+.wm-layer .wm-text {
+  transform: rotate(-36deg);
+  text-align: center;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 21pt;
+  line-height: 1.9;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(13, 27, 42, 0.052);
+  white-space: pre-line;
+}

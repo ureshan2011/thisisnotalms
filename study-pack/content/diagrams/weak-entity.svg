@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 190" width="660" font-family="DM Sans, sans-serif">
+  <g stroke="#5b6b7c" stroke-width="1.5">
+    <line x1="120" y1="65" x2="80" y2="35"/>
+    <line x1="540" y1="65" x2="580" y2="35"/>
+  </g>
+  <!-- strong entity -->
+  <rect x="60" y="60" width="140" height="50" fill="#e9f0f9" stroke="#1e56a0" stroke-width="2"/>
+  <text x="130" y="90" text-anchor="middle" font-size="13" font-weight="700" fill="#0d1b2a">BUILDING</text>
+  <ellipse cx="78" cy="30" rx="58" ry="18" fill="#fdf3e0" stroke="#f59e0b" stroke-width="1.6"/>
+  <text x="78" y="34" text-anchor="middle" font-size="10.5" font-weight="700" text-decoration="underline" fill="#0d1b2a">BuildingID</text>
+  <!-- identifying relationship: double line on weak side -->
+  <line x1="200" y1="85" x2="270" y2="85" stroke="#5b6b7c" stroke-width="1.6"/>
+  <text x="212" y="77" font-size="11" font-weight="700" fill="#92610a">1</text>
+  <!-- double diamond -->
+  <polygon points="330,52 396,85 330,118 264,85" fill="#e8f4ee" stroke="#1e7a4f" stroke-width="2"/>
+  <polygon points="330,60 380,85 330,110 280,85" fill="none" stroke="#1e7a4f" stroke-width="1.4"/>
+  <text x="330" y="89" text-anchor="middle" font-size="10.5" font-style="italic" fill="#0d1b2a">has</text>
+  <!-- double line (total participation) to weak entity -->
+  <line x1="396" y1="82" x2="466" y2="82" stroke="#5b6b7c" stroke-width="1.6"/>
+  <line x1="396" y1="88" x2="466" y2="88" stroke="#5b6b7c" stroke-width="1.6"/>
+  <text x="440" y="74" font-size="11" font-weight="700" fill="#92610a">N</text>
+  <!-- weak entity: double rectangle -->
+  <rect x="466" y="60" width="140" height="50" fill="#fdf3e0" stroke="#b3261e" stroke-width="2"/>
+  <rect x="472" y="66" width="128" height="38" fill="none" stroke="#b3261e" stroke-width="1.4"/>
+  <text x="536" y="90" text-anchor="middle" font-size="13" font-weight="700" fill="#0d1b2a">ROOM</text>
+  <ellipse cx="586" cy="30" rx="50" ry="18" fill="#fdf3e0" stroke="#f59e0b" stroke-width="1.6"/>
+  <text x="586" y="34" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0d1b2a" style="text-decoration:underline;text-decoration-style:dashed">RoomNo</text>
+  <text x="330" y="150" text-anchor="middle" font-size="10" font-style="italic" fill="#5b6b7c" font-family="Source Serif 4, serif">Double rectangle = weak entity · double diamond = identifying relationship · double line = total participation.</text>
+  <text x="330" y="168" text-anchor="middle" font-size="10" font-style="italic" fill="#5b6b7c" font-family="Source Serif 4, serif">RoomNo is only a partial key (dashed underline) — the full key is {BuildingID, RoomNo}.</text>
+</svg>

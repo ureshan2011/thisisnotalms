@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 170" width="660" font-family="DM Sans, sans-serif">
+  <defs>
+    <marker id="diArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5b6b7c"/>
+    </marker>
+  </defs>
+  <rect x="20" y="30" width="170" height="95" rx="8" fill="#fbeceb" stroke="#b3261e" stroke-width="2"/>
+  <text x="105" y="55" text-anchor="middle" font-size="12.5" font-weight="700" fill="#b3261e">DATA</text>
+  <text x="105" y="74" text-anchor="middle" font-size="10" font-family="DM Mono, monospace" fill="#16212e">85 · "Auckland" · 42</text>
+  <text x="105" y="95" text-anchor="middle" font-size="9" fill="#5b6b7c">raw facts and figures,</text>
+  <text x="105" y="108" text-anchor="middle" font-size="9" fill="#5b6b7c">no meaning on their own</text>
+  <line x1="190" y1="77" x2="255" y2="77" stroke="#5b6b7c" stroke-width="2" marker-end="url(#diArrow)"/>
+  <rect x="258" y="42" width="145" height="70" rx="35" fill="#0d1b2a"/>
+  <text x="330" y="70" text-anchor="middle" font-size="11" font-weight="700" fill="#f59e0b">PROCESSING</text>
+  <text x="330" y="88" text-anchor="middle" font-size="9" fill="#cbd5e1">+ context · structure · purpose</text>
+  <line x1="403" y1="77" x2="468" y2="77" stroke="#5b6b7c" stroke-width="2" marker-end="url(#diArrow)"/>
+  <rect x="470" y="30" width="172" height="95" rx="8" fill="#e8f4ee" stroke="#1e7a4f" stroke-width="2"/>
+  <text x="556" y="55" text-anchor="middle" font-size="12.5" font-weight="700" fill="#1e7a4f">INFORMATION</text>
+  <text x="556" y="76" text-anchor="middle" font-size="8.7" fill="#16212e">"John Smith achieved 85% in</text>
+  <text x="556" y="89" text-anchor="middle" font-size="8.7" fill="#16212e">MBI802, Semester 1"</text>
+  <text x="556" y="108" text-anchor="middle" font-size="9" fill="#5b6b7c">meaningful, decision-ready</text>
+  <text x="330" y="152" text-anchor="middle" font-size="10" font-style="italic" fill="#5b6b7c" font-family="Source Serif 4, serif">Quality information is accurate, complete, timely and relevant — raw form is precisely what it is not.</text>
+</svg>

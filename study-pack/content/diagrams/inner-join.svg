@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 230" width="660" font-family="DM Sans, sans-serif">
+  <defs>
+    <marker id="jnArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5b6b7c"/>
+    </marker>
+  </defs>
+  <!-- students table -->
+  <g font-size="10" font-family="DM Mono, monospace">
+    <text x="90" y="26" text-anchor="middle" font-size="11" font-family="DM Sans" font-weight="700" fill="#0d1b2a">students</text>
+    <rect x="25" y="34" width="130" height="22" fill="#0d1b2a"/>
+    <text x="55" y="49" fill="#fff">id</text><text x="105" y="49" fill="#fff">name</text>
+    <g fill="#16212e">
+      <rect x="25" y="56" width="130" height="20" fill="#f6f8fb" stroke="#d7dee6" stroke-width="0.6"/>
+      <text x="55" y="70">1</text><text x="105" y="70">Alice</text>
+      <rect x="25" y="76" width="130" height="20" fill="#fff" stroke="#d7dee6" stroke-width="0.6"/>
+      <text x="55" y="90">2</text><text x="105" y="90">Bob</text>
+      <rect x="25" y="96" width="130" height="20" fill="#f6f8fb" stroke="#d7dee6" stroke-width="0.6"/>
+      <text x="55" y="110">3</text><text x="105" y="110">Carol</text>
+    </g>
+  </g>
+  <!-- grades table -->
+  <g font-size="10" font-family="DM Mono, monospace">
+    <text x="270" y="26" text-anchor="middle" font-size="11" font-family="DM Sans" font-weight="700" fill="#0d1b2a">grades</text>
+    <rect x="195" y="34" width="150" height="22" fill="#0d1b2a"/>
+    <text x="205" y="49" fill="#fff">student_id</text><text x="300" y="49" fill="#fff">score</text>
+    <g fill="#16212e">
+      <rect x="195" y="56" width="150" height="20" fill="#f6f8fb" stroke="#d7dee6" stroke-width="0.6"/>
+      <text x="230" y="70">1</text><text x="305" y="70">88</text>
+      <rect x="195" y="76" width="150" height="20" fill="#fff" stroke="#d7dee6" stroke-width="0.6"/>
+      <text x="230" y="90">2</text><text x="305" y="90">75</text>
+      <rect x="195" y="96" width="150" height="20" fill="#f6f8fb" stroke="#d7dee6" stroke-width="0.6"/>
+      <text x="230" y="110">3</text><text x="305" y="110">95</text>
+    </g>
+  </g>
+  <!-- join condition -->
+  <path d="M 90 122 C 90 155 270 155 270 122" fill="none" stroke="#1e56a0" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <text x="180" y="168" text-anchor="middle" font-size="10" font-family="DM Mono, monospace" fill="#1e56a0">ON s.id = g.student_id</text>
+  <line x1="360" y1="80" x2="430" y2="80" stroke="#5b6b7c" stroke-width="2" marker-end="url(#jnArrow)"/>
+  <text x="395" y="68" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1e7a4f">INNER JOIN</text>
+  <!-- result -->
+  <g font-size="10" font-family="DM Mono, monospace">
+    <text x="530" y="26" text-anchor="middle" font-size="11" font-family="DM Sans" font-weight="700" fill="#1e7a4f">combined result</text>
+    <rect x="445" y="34" width="170" height="22" fill="#1e7a4f"/>
+    <text x="470" y="49" fill="#fff">name</text><text x="560" y="49" fill="#fff">score</text>
+    <g fill="#16212e">
+      <rect x="445" y="56" width="170" height="20" fill="#e8f4ee" stroke="#d7dee6" stroke-width="0.6"/>
+      <text x="470" y="70">Alice</text><text x="565" y="70">88</text>
+      <rect x="445" y="76" width="170" height="20" fill="#fff" stroke="#d7dee6" stroke-width="0.6"/>
+      <text x="470" y="90">Bob</text><text x="565" y="90">75</text>
+      <rect x="445" y="96" width="170" height="20" fill="#e8f4ee" stroke="#d7dee6" stroke-width="0.6"/>
+      <text x="470" y="110">Carol</text><text x="565" y="110">95</text>
+    </g>
+  </g>
+  <text x="330" y="205" text-anchor="middle" font-size="10" font-style="italic" fill="#5b6b7c" font-family="Source Serif 4, serif">INNER JOIN returns only the rows that match in both tables — the ON condition pairs each student with their grade.</text>
+</svg>

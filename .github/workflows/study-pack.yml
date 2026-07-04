@@ -1,0 +1,55 @@
+name: Build Study Pack
+
+on:
+  push:
+    paths:
+      - 'study-pack/**'
+      - '.github/workflows/study-pack.yml'
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write # needed only by the tag-gated release step
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: study-pack/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: study-pack
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+        working-directory: study-pack
+
+      - name: Build and verify PDFs
+        run: npm run build
+        working-directory: study-pack
+        env:
+          STUDY_PACK_USER_PASSWORD: ${{ secrets.STUDY_PACK_USER_PASSWORD }}
+          STUDY_PACK_OWNER_PASSWORD: ${{ secrets.STUDY_PACK_OWNER_PASSWORD }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mbi802-study-pack
+          path: |
+            study-pack/dist/pdf/*.pdf
+            study-pack/dist/manifest.json
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Attach PDFs to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: study-pack/dist/pdf/*.pdf

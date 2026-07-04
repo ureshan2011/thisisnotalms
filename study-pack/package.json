@@ -1,0 +1,21 @@
+{
+  "name": "mbi802-study-pack",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Secure study pack generator for MBI802 Database Management Systems",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:draft": "node scripts/build.mjs --no-encrypt --keep-html",
+    "verify": "node scripts/verify.mjs"
+  },
+  "dependencies": {
+    "@cantoo/pdf-lib": "^2.5.3",
+    "markdown-it": "^14.1.0",
+    "markdown-it-anchor": "^9.2.0",
+    "markdown-it-container": "^4.0.0",
+    "pagedjs": "^0.4.3",
+    "pdfjs-dist": "^4.10.38",
+    "playwright": "^1.49.0"
+  }
+}

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 200" width="660" font-family="DM Sans, sans-serif">
+  <!-- total -->
+  <g>
+    <text x="20" y="30" font-size="11.5" font-weight="700" fill="#1e7a4f">TOTAL participation — double line ══ (mandatory)</text>
+    <rect x="30" y="48" width="140" height="44" fill="#e9f0f9" stroke="#1e56a0" stroke-width="2"/>
+    <text x="100" y="75" text-anchor="middle" font-size="12" font-weight="700" fill="#0d1b2a">EMPLOYEE</text>
+    <line x1="170" y1="66" x2="255" y2="66" stroke="#5b6b7c" stroke-width="1.6"/>
+    <line x1="170" y1="73" x2="255" y2="73" stroke="#5b6b7c" stroke-width="1.6"/>
+    <polygon points="315,42 375,70 315,98 255,70" fill="#e8f4ee" stroke="#1e7a4f" stroke-width="2"/>
+    <text x="315" y="74" text-anchor="middle" font-size="10.5" font-style="italic" fill="#0d1b2a">works_in</text>
+    <line x1="375" y1="70" x2="460" y2="70" stroke="#5b6b7c" stroke-width="1.6"/>
+    <rect x="460" y="48" width="150" height="44" fill="#e9f0f9" stroke="#1e56a0" stroke-width="2"/>
+    <text x="535" y="75" text-anchor="middle" font-size="12" font-weight="700" fill="#0d1b2a">DEPARTMENT</text>
+    <text x="330" y="122" text-anchor="middle" font-size="9.5" font-style="italic" fill="#5b6b7c" font-family="Source Serif 4, serif">"Every employee must work in a department" — keywords: must, every, all, required</text>
+  </g>
+  <!-- partial -->
+  <g transform="translate(0,116)">
+    <text x="20" y="30" font-size="11.5" font-weight="700" fill="#92610a">PARTIAL participation — single line ── (optional)</text>
+    <rect x="30" y="40" width="140" height="44" fill="#e9f0f9" stroke="#1e56a0" stroke-width="2"/>
+    <text x="100" y="67" text-anchor="middle" font-size="12" font-weight="700" fill="#0d1b2a">EMPLOYEE</text>
+    <line x1="170" y1="62" x2="255" y2="62" stroke="#5b6b7c" stroke-width="1.6"/>
+    <polygon points="315,34 375,62 315,90 255,62" fill="#e8f4ee" stroke="#1e7a4f" stroke-width="2"/>
+    <text x="315" y="66" text-anchor="middle" font-size="10.5" font-style="italic" fill="#0d1b2a">manages</text>
+    <line x1="375" y1="62" x2="460" y2="62" stroke="#5b6b7c" stroke-width="1.6"/>
+    <rect x="460" y="40" width="150" height="44" fill="#e9f0f9" stroke="#1e56a0" stroke-width="2"/>
+    <text x="535" y="67" text-anchor="middle" font-size="12" font-weight="700" fill="#0d1b2a">DEPARTMENT</text>
+  </g>
+</svg>

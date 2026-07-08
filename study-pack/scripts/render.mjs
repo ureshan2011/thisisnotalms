@@ -1,11 +1,9 @@
 /* Render assembled HTML documents to PDF with Playwright Chromium + Paged.js. */
 import path from 'node:path';
 import fs from 'node:fs';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
-
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DIST_PDF_TMP = path.join(ROOT, 'dist', 'pdf-unencrypted');
+import { distDirs } from './paths.mjs';
 
 function launchOptions() {
   // Prefer the version-matched browser Playwright resolves itself; fall back
@@ -24,8 +22,9 @@ function launchOptions() {
   }
 }
 
-export async function renderAll(outputs) {
-  fs.mkdirSync(DIST_PDF_TMP, { recursive: true });
+export async function renderAll(outputs, slug) {
+  const pdfTmp = distDirs(slug).pdfTmp;
+  fs.mkdirSync(pdfTmp, { recursive: true });
   const browser = await chromium.launch(launchOptions());
   try {
     const results = [];
@@ -50,7 +49,7 @@ export async function renderAll(outputs) {
         throw new Error(`Paged.js failed on ${path.basename(out.html)}: ${pagedError}`);
       }
       const pageCount = await page.evaluate('window.__pagedDone');
-      const pdfPath = path.join(DIST_PDF_TMP, out.pdfName);
+      const pdfPath = path.join(pdfTmp, out.pdfName);
       await page.pdf({
         path: pdfPath,
         preferCSSPageSize: true,

@@ -1,11 +1,8 @@
 /* Verify the built PDFs: encryption present, passwords enforced, permission
    bits set, watermark text on sampled pages, page-count budgets, master TOC. */
-import path from 'node:path';
 import fs from 'node:fs';
 import crypto from 'node:crypto';
-import { fileURLToPath } from 'node:url';
-
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+import { distDirs } from './paths.mjs';
 
 let getDocument, PasswordResponses, PermissionFlag;
 async function loadPdfjs() {
@@ -164,11 +161,11 @@ function manifestTitle(course, lesson) {
   return { title: lesson.fileTitle.replace(/-/g, ' ') };
 }
 
-export function writeManifest(manifest, extra) {
+export function writeManifest(manifest, extra, slug) {
   const out = {
     generatedAt: new Date().toISOString(),
     ...extra,
     files: manifest,
   };
-  fs.writeFileSync(path.join(ROOT, 'dist', 'manifest.json'), JSON.stringify(out, null, 2));
+  fs.writeFileSync(distDirs(slug).manifest, JSON.stringify(out, null, 2));
 }

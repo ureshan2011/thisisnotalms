@@ -10,11 +10,19 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import MarkdownIt from 'markdown-it';
 import anchor from 'markdown-it-anchor';
 import container from 'markdown-it-container';
+import { distDirs } from './paths.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const CONTENT = path.join(ROOT, 'content');
+const CONTENT_ROOT = path.join(ROOT, 'content');
 const TEMPLATE = path.join(ROOT, 'template');
-const DIST_HTML = path.join(ROOT, 'dist', 'html');
+
+export function listCourses() {
+  return fs
+    .readdirSync(CONTENT_ROOT, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && fs.existsSync(path.join(CONTENT_ROOT, e.name, 'course.json')))
+    .map((e) => e.name)
+    .sort();
+}
 
 const CALLOUTS = {
   definition: 'Definition',
@@ -26,8 +34,16 @@ const CALLOUTS = {
   summary: 'Summary',
 };
 
-export function loadCourse() {
-  return JSON.parse(fs.readFileSync(path.join(CONTENT, 'course.json'), 'utf8'));
+export function loadCourse(slug) {
+  const dir = path.join(CONTENT_ROOT, slug);
+  const file = path.join(dir, 'course.json');
+  if (!fs.existsSync(file)) {
+    throw new Error(`Unknown course "${slug}" — no content/${slug}/course.json. Known: ${listCourses().join(', ')}`);
+  }
+  const course = JSON.parse(fs.readFileSync(file, 'utf8'));
+  course.slug = slug;
+  course._contentDir = dir;
+  return course;
 }
 
 /* Minimal frontmatter parser: `key: value` pairs plus `- ` list items.
@@ -90,12 +106,12 @@ function makeRenderer(idPrefix) {
 
 /* Replace <img src="diagrams/x.svg" alt="..."> with the inlined SVG in a <figure>. */
 let figCounter = 0;
-function inlineSvgs(html, { chapterNumber }) {
+function inlineSvgs(html, { chapterNumber, contentDir }) {
   let localFig = 0;
   return html.replace(
     /<p><img src="diagrams\/([^"]+\.svg)" alt="([^"]*)"\s*\/?><\/p>/g,
     (_, file, alt) => {
-      const svgPath = path.join(CONTENT, 'diagrams', file);
+      const svgPath = path.join(contentDir, 'diagrams', file);
       const svg = fs.readFileSync(svgPath, 'utf8').replace(/<\?xml[^>]*\?>\s*/, '');
       localFig += 1;
       const num = chapterNumber ? `${chapterNumber}.${localFig}` : String(++figCounter);
@@ -152,7 +168,7 @@ function renderTemplate(tokens) {
 
 function loadLesson(course, lesson) {
   const file = `${lesson.slug}.md`;
-  const src = fs.readFileSync(path.join(CONTENT, 'lessons', file), 'utf8');
+  const src = fs.readFileSync(path.join(course._contentDir, 'lessons', file), 'utf8');
   const { meta, body } = parseFrontmatter(src);
   meta.number = Number(meta.number ?? lesson.number);
   // A typo'd or missing frontmatter key would otherwise interpolate as the
@@ -180,7 +196,9 @@ function splitAnswerKey(html, idPrefix) {
 }
 
 export function assemble(course, { only } = {}) {
-  fs.mkdirSync(DIST_HTML, { recursive: true });
+  const contentDir = course._contentDir;
+  const distHtml = distDirs(course.slug).html;
+  fs.mkdirSync(distHtml, { recursive: true });
   const courseMeta = `${course.code} · ${course.title} · Academic Year ${course.academicYear}`;
   const baseTokens = {
     __FOOTER_LINE__: course.footerLine,
@@ -192,7 +210,7 @@ export function assemble(course, { only } = {}) {
 
   for (const lesson of course.lessons) {
     if (only && Number(only) !== lesson.number) continue;
-    const guidePath = path.join(CONTENT, 'lessons', `${lesson.slug}.md`);
+    const guidePath = path.join(contentDir, 'lessons', `${lesson.slug}.md`);
     if (!fs.existsSync(guidePath)) {
       console.warn(`  [skip] no content yet for lesson ${lesson.number} (${lesson.slug})`);
       continue;
@@ -202,13 +220,13 @@ export function assemble(course, { only } = {}) {
     // --- individual study guide ---
     {
       const md = makeRenderer('');
-      const contentHtml = inlineSvgs(md.render(body), { chapterNumber: meta.number });
+      const contentHtml = inlineSvgs(md.render(body), { chapterNumber: meta.number, contentDir });
       const bodyHtml =
         `<section class="chapter" id="lesson-${meta.number}">` +
         chapterOpener(meta, course, { forMaster: false }) +
         contentHtml +
         '</section>';
-      const file = path.join(DIST_HTML, `${lesson.slug}.guide.html`);
+      const file = path.join(distHtml, `${lesson.slug}.guide.html`);
       fs.writeFileSync(
         file,
         renderTemplate({
@@ -226,12 +244,12 @@ export function assemble(course, { only } = {}) {
     }
 
     // --- revision sheet ---
-    const revPath = path.join(CONTENT, 'lessons', `${lesson.slug}.revision.md`);
+    const revPath = path.join(contentDir, 'lessons', `${lesson.slug}.revision.md`);
     if (fs.existsSync(revPath)) {
       const revSrc = fs.readFileSync(revPath, 'utf8');
       const { meta: revMeta, body: revBody } = parseFrontmatter(revSrc);
       const md = makeRenderer('');
-      const contentHtml = inlineSvgs(md.render(revBody), { chapterNumber: null });
+      const contentHtml = inlineSvgs(md.render(revBody), { chapterNumber: null, contentDir });
       const bodyHtml = `
 <section class="revision-doc">
   <div class="rev-head">
@@ -240,7 +258,7 @@ export function assemble(course, { only } = {}) {
   </div>
   <div class="rev-cols">${contentHtml}</div>
 </section>`;
-      const file = path.join(DIST_HTML, `${lesson.slug}.revision.html`);
+      const file = path.join(distHtml, `${lesson.slug}.revision.html`);
       fs.writeFileSync(
         file,
         renderTemplate({
@@ -270,7 +288,7 @@ export function assemble(course, { only } = {}) {
     for (const { lesson, meta, body } of chapters) {
       const prefix = `ch${meta.number}-`;
       const md = makeRenderer(prefix);
-      const rendered = inlineSvgs(md.render(body), { chapterNumber: meta.number });
+      const rendered = inlineSvgs(md.render(body), { chapterNumber: meta.number, contentDir });
       const { main, answers } = splitAnswerKey(rendered, prefix);
       const subEntries = [...main.matchAll(/<h2 id="([^"]+)"[^>]*>(.*?)<\/h2>/g)]
         .map(([, id, text]) => ({ id, text: text.replace(/<[^>]+>/g, '') }));
@@ -296,7 +314,7 @@ export function assemble(course, { only } = {}) {
 
     // glossary
     let glossaryHtml = '';
-    const glossaryPath = path.join(CONTENT, 'lessons', 'glossary.md');
+    const glossaryPath = path.join(contentDir, 'lessons', 'glossary.md');
     if (fs.existsSync(glossaryPath)) {
       const md = makeRenderer('gl-');
       const { body: glBody } = parseFrontmatter(fs.readFileSync(glossaryPath, 'utf8'));
@@ -337,7 +355,7 @@ ${answersSection ? '<li class="toc-l1"><a href="#answer-appendix"><span class="t
 </ol></nav>`;
 
     const cover = buildCover(course);
-    const file = path.join(DIST_HTML, 'master.html');
+    const file = path.join(distHtml, 'master.html');
     fs.writeFileSync(
       file,
       renderTemplate({

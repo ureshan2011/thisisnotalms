@@ -133,7 +133,7 @@ enrolment(student_id PK+FK→student, module_code PK+FK→module, grade)
 
 ## 6.4 Common mapping mistakes
 
-| ❌ Mistake | ✅ Correct approach |
+| Common mistake | Correct approach |
 |---|---|
 | Storing a derived attribute (`age INT` goes stale every birthday) | Store `date_of_birth`; compute age in the query |
 | One column for a composite (`address VARCHAR(200)`) | Flatten: `street_name`, `city`, `post_code` — individually queryable |

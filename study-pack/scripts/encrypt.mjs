@@ -50,7 +50,12 @@ export async function encryptAll(rendered, { userPassword, ownerPassword }) {
       },
     });
     const outPath = path.join(DIST_PDF, item.pdfName);
-    fs.writeFileSync(outPath, await doc.save({ useObjectStreams: false }));
+    // Object streams are required here: @cantoo/pdf-lib's encryption garbles
+    // strings written as plain indirect objects (Info title, outline entries
+    // show up as mojibake/"undefined" in viewers). Inside object streams the
+    // whole stream is encrypted as one unit, which round-trips correctly.
+    // verify.mjs asserts the decrypted title and bookmarks stay readable.
+    fs.writeFileSync(outPath, await doc.save({ useObjectStreams: true }));
     fs.rmSync(item.pdfTmp);
     console.log(`  [encrypt] ${item.pdfName}`);
     results.push({ ...item, pdf: outPath });

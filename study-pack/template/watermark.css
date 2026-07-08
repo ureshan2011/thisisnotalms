@@ -20,12 +20,14 @@
 .wm-layer .wm-text {
   transform: rotate(-36deg);
   text-align: center;
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 700;
-  font-size: 21pt;
+  font-family: 'STIX Two Text', serif;
+  font-weight: 600;
+  font-size: 20pt;
   line-height: 1.9;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(13, 27, 42, 0.052);
+  /* Barely visible by design: deterrence lives in the extractable text and
+     the footer line, not in visual noise over the study material. */
+  color: rgba(27, 27, 27, 0.02);
   white-space: pre-line;
 }

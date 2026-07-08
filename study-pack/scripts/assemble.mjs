@@ -139,15 +139,30 @@ function renderTemplate(tokens) {
     ...tokens,
   };
   for (const [key, value] of Object.entries(replacements)) {
+    if (typeof value !== 'string') {
+      throw new Error(`Template token ${key} is ${value} — refusing to interpolate junk into a PDF`);
+    }
     html = html.split(key).join(value);
   }
   return html;
 }
 
 function loadLesson(course, lesson) {
-  const src = fs.readFileSync(path.join(CONTENT, 'lessons', `${lesson.slug}.md`), 'utf8');
+  const file = `${lesson.slug}.md`;
+  const src = fs.readFileSync(path.join(CONTENT, 'lessons', file), 'utf8');
   const { meta, body } = parseFrontmatter(src);
   meta.number = Number(meta.number ?? lesson.number);
+  // A typo'd or missing frontmatter key would otherwise interpolate as the
+  // literal string "undefined"/"NaN" into the chapter opener.
+  if (!Number.isFinite(meta.number)) {
+    throw new Error(`${file}: frontmatter "number" is missing or not a number`);
+  }
+  if (typeof meta.title !== 'string' || !meta.title.trim()) {
+    throw new Error(`${file}: frontmatter "title" is missing or empty`);
+  }
+  if (!Array.isArray(meta.objectives) || meta.objectives.length === 0) {
+    throw new Error(`${file}: frontmatter "objectives" list is missing or empty`);
+  }
   return { meta, body };
 }
 
@@ -345,31 +360,24 @@ ${answersSection ? '<li class="toc-l1"><a href="#answer-appendix"><span class="t
 function buildCover(course) {
   return `
 <section class="cover">
-  <svg class="cover-grid" viewBox="0 0 210 297" preserveAspectRatio="none">
-    <defs><pattern id="cgrid" width="12" height="12" patternUnits="userSpaceOnUse">
-      <path d="M 12 0 L 0 0 0 12" fill="none" stroke="white" stroke-width="0.25"/>
-    </pattern></defs>
-    <rect width="210" height="297" fill="url(#cgrid)"/>
-  </svg>
-  <div class="cover-ring"></div>
-  <div class="cover-ring2"></div>
   <div class="cover-head">
-    <svg width="42" height="42" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="96" cy="96" r="95" fill="#0f1117" stroke="#f59e0b" stroke-width="3"/>
-      <path fill="#f3f4f6" d="M70 35c-7.73 0-14 6.27-14 14v37c0 22.09 17.91 40 40 40s40-17.91 40-40V49c0-7.73-6.27-14-14-14s-14 6.27-14 14v37c0 6.63-5.37 12-12 12s-12-5.37-12-12V49c0-7.73-6.27-14-14-14z"/>
-      <path fill="#f3f4f6" d="M70 107c-7.73 0-14 6.27-14 14v23c0 7.73 6.27 14 14 14s14-6.27 14-14v-23c0-7.73-6.27-14-14-14z"/>
-      <path fill="#f3f4f6" d="M122 107c-7.73 0-14 6.27-14 14v12c0 6.63-5.37 12-12 12s-12-5.37-12-12c0-7.73-6.27-14-14-14s-14 6.27-14 14c0 22.09 17.91 40 40 40s40-17.91 40-40v-12c0-7.73-6.27-14-14-14z"/>
+    <svg width="38" height="38" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="96" cy="96" r="94" fill="#1b1b1b"/>
+      <path fill="#ffffff" d="M70 35c-7.73 0-14 6.27-14 14v37c0 22.09 17.91 40 40 40s40-17.91 40-40V49c0-7.73-6.27-14-14-14s-14 6.27-14 14v37c0 6.63-5.37 12-12 12s-12-5.37-12-12V49c0-7.73-6.27-14-14-14z"/>
+      <path fill="#ffffff" d="M70 107c-7.73 0-14 6.27-14 14v23c0 7.73 6.27 14 14 14s14-6.27 14-14v-23c0-7.73-6.27-14-14-14z"/>
+      <path fill="#ffffff" d="M122 107c-7.73 0-14 6.27-14 14v12c0 6.63-5.37 12-12 12s-12-5.37-12-12c0-7.73-6.27-14-14-14s-14 6.27-14 14c0 22.09 17.91 40 40 40s40-17.91 40-40v-12c0-7.73-6.27-14-14-14z"/>
     </svg>
-    <div class="cover-brand">YooBees<small>${course.institution}</small></div>
+    <div class="cover-inst">${course.institution}</div>
   </div>
   <div class="cover-mid">
-    <div class="cover-code">${course.code} · AY ${course.academicYear}</div>
-    <h1>${course.title}<br><span class="accent">Master Study Pack</span></h1>
+    <div class="cover-code">${course.code} · Academic Year ${course.academicYear}</div>
+    <div class="cover-title">${course.title} <span class="cover-kind">Master Study Pack</span></div>
     <div class="cover-sub">${course.subtitle}</div>
   </div>
   <div class="cover-foot">
-    <div><strong>${course.author}</strong>${course.institution}</div>
-    <div class="cf-right">${course.edition} · ${course.notice}<br>${course.copyrightLine}</div>
+    <strong>${course.author}</strong>
+    ${course.institution}
+    <div class="cf-notice">${course.edition} · ${course.notice}<br>${course.copyrightLine}</div>
   </div>
 </section>`;
 }

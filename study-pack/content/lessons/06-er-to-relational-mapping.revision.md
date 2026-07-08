@@ -44,7 +44,7 @@ room(building_id FK, room_no,
 
 ## The four classic mistakes
 
-| ❌ | ✅ |
+| Mistake | Correct |
 |---|---|
 | `age INT` stored | store `date_of_birth`, compute age |
 | `address VARCHAR(200)` | `street_name`, `city`, `post_code` |

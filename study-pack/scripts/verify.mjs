@@ -64,6 +64,29 @@ export async function verifyAll(built, course, { encrypted, userPassword }) {
     }
 
     if (encrypted) {
+      // The encryption backend must round-trip metadata strings: a broken
+      // backend garbles the Info title and outline entries, which viewers
+      // then display as mojibake or "undefined".
+      // Mis-decrypted strings show up as empty, letterless, or laced with
+      // control characters — legitimate titles may contain ’ → — etc.
+      const garbled = (t) => !t || /[\x00-\x1F\x7F�]/.test(t) || !/[A-Za-z]/.test(t);
+      const expectedTitle = name.replace(/\.pdf$/, '').replace(/-/g, ' ');
+      const info = (await doc.getMetadata()).info;
+      if (info.Title !== expectedTitle) {
+        problems.push(`${name}: document title corrupted by encryption — got ${JSON.stringify(info.Title)}`);
+      }
+      const outline = (await doc.getOutline()) || [];
+      const flat = [];
+      const walk = (items) => items.forEach((o) => { flat.push(o.title); walk(o.items || []); });
+      walk(outline);
+      if (!flat.length) {
+        warnings.push(`${name}: no bookmarks/outline in encrypted PDF`);
+      } else if (flat.some(garbled)) {
+        problems.push(
+          `${name}: bookmark titles corrupted by encryption — ${JSON.stringify(flat.filter(garbled).slice(0, 3))}`
+        );
+      }
+
       const perms = await doc.getPermissions();
       if (!perms) {
         problems.push(`${name}: no permission flags reported`);
@@ -84,6 +107,16 @@ export async function verifyAll(built, course, { encrypted, userPassword }) {
     }
     if (item.kind === 'guide' && n < 4) {
       warnings.push(`${name}: study guide only ${n} pages — thin?`);
+    }
+
+    // No page may contain interpolation junk from a bad data binding.
+    // (Word-bounded and case-sensitive: lesson 7's "determinant" contains "nan".)
+    const junk = /\b(?:undefined|NaN|null)\b|\[object /;
+    for (let p = 1; p <= n; p++) {
+      const text = await extractPageText(doc, p);
+      if (junk.test(text)) {
+        problems.push(`${name} p.${p}: template junk in rendered text (${junk.exec(text)[0]})`);
+      }
     }
 
     // Watermark + footer text on sampled pages (skip page 1 of master = cover).

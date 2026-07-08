@@ -95,7 +95,8 @@ Nothing else changes.
 - [ ] Opening any PDF prompts for a password; the user password opens it, a wrong one fails.
 - [ ] Document properties show *Content Copying: Not Allowed* / *Changing: Not Allowed*;
       selecting + copying text fails in Acrobat/Preview.
-- [ ] Watermark visible but body text comfortably readable; footer + page numbers on every page.
+- [ ] Watermark faint — barely visible by design — but its text still extractable (verify.mjs checks); footer + page numbers on every page.
+- [ ] Document properties show a human-readable title; the bookmarks panel lists chapters with readable names (a broken encryption backend garbles both).
 - [ ] Master TOC entries jump to the right chapters; printed page numbers match.
 - [ ] SVG diagrams stay crisp at 400 % zoom; A4 print preview shows correct margins.
 - [ ] Revision sheets fit their page budget (≤ 2 pages).

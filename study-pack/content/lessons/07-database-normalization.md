@@ -123,7 +123,7 @@ A table is in **2NF** if it is in 1NF *and* every non-prime attribute is **fully
 The table `OrderLines` has primary key `{OrderID, ProductID}`:
 
 <table class="tbl-bad">
-<thead><tr><th>OrderID 🔑</th><th>ProductID 🔑</th><th>ProductName</th><th>UnitPrice</th><th>CustomerName</th><th>Qty</th></tr></thead>
+<thead><tr><th><u>OrderID</u></th><th><u>ProductID</u></th><th>ProductName</th><th>UnitPrice</th><th>CustomerName</th><th>Qty</th></tr></thead>
 <tbody>
 <tr><td>O1</td><td>P10</td><td class="cell-bad">Laptop</td><td class="cell-bad">$999</td><td class="cell-bad">Alice</td><td>1</td></tr>
 <tr><td>O1</td><td>P20</td><td class="cell-bad">Mouse</td><td class="cell-bad">$29</td><td class="cell-bad">Alice</td><td>2</td></tr>
@@ -266,21 +266,21 @@ When a question drops an unfamiliar table in front of you, work through this seq
 
 Work each problem on paper before opening the answer key at the end of this guide. State the highest normal form the table currently satisfies, name the violated rule, then write the decomposed tables.
 
-1. **University enrolment.** `Enrollment(StudentID 🔑, CourseID 🔑, StudentName, CourseName, Grade)` with FDs `{StudentID, CourseID} → Grade`, `StudentID → StudentName`, `CourseID → CourseName`. Which normal form is violated, and why? Decompose.
+1. **University enrolment.** `Enrollment(StudentID, CourseID, StudentName, CourseName, Grade)` with primary key `{StudentID, CourseID}` and FDs `{StudentID, CourseID} → Grade`, `StudentID → StudentName`, `CourseID → CourseName`. Which normal form is violated, and why? Decompose.
 
-2. **Employee projects.** `Employee_Project(EmpID 🔑, EmpName, ProjectID, ProjectName, ManagerID, ManagerPhone)` with FDs `EmpID → EmpName, ProjectID, ManagerID`; `ProjectID → ProjectName`; `ManagerID → ManagerPhone`. The table is in 2NF. Find all transitive dependencies and decompose to 3NF.
+2. **Employee projects.** `Employee_Project(EmpID, EmpName, ProjectID, ProjectName, ManagerID, ManagerPhone)` with primary key `EmpID` and FDs `EmpID → EmpName, ProjectID, ManagerID`; `ProjectID → ProjectName`; `ManagerID → ManagerPhone`. The table is in 2NF. Find all transitive dependencies and decompose to 3NF.
 
 3. **Advising (BCNF challenge).** `Advising(Student, Advisor, Department)` with FDs `{Student, Department} → Advisor` and `Advisor → Department`; candidate keys `{Student, Department}` and `{Student, Advisor}`. Is it in 3NF? In BCNF? Decompose if needed, and state whether your decomposition is lossless and dependency-preserving.
 
-4. **Order lines.** `Order_Items(OrderID 🔑, ProductID 🔑, ProductName, Quantity)`. "Keyboard" repeats every time product P1 is ordered. Diagnose and fix.
+4. **Order lines.** `Order_Items(OrderID, ProductID, ProductName, Quantity)` with primary key `{OrderID, ProductID}`. "Keyboard" repeats every time product P1 is ordered. Diagnose and fix.
 
-5. **Movies.** `Movies(MovieID 🔑, Title, Actors)` where `Actors` holds values like "DiCaprio, Hardy". Diagnose and fix.
+5. **Movies.** `Movies(MovieID, Title, Actors)` with primary key `MovieID`, where `Actors` holds values like "DiCaprio, Hardy". Diagnose and fix.
 
-6. **Books.** `Books(BookID 🔑, Title, PublisherID, PublisherCity)` — "London" repeats for every book from publisher PUB1. Diagnose and fix.
+6. **Books.** `Books(BookID, Title, PublisherID, PublisherCity)` with primary key `BookID` — "London" repeats for every book from publisher PUB1. Diagnose and fix.
 
-7. **Customers.** `Customers(CustomerID 🔑, CustomerName, Email)`. What, if anything, needs fixing?
+7. **Customers.** `Customers(CustomerID, CustomerName, Email)` with primary key `CustomerID`. What, if anything, needs fixing?
 
-8. **Clinic appointments.** `Appointments(PatientID 🔑, PatientName, DoctorID 🔑, DoctorName, Fee)` with PK `{PatientID, DoctorID}`; the fee depends on patient and doctor together. This one hides *two* problems — find both and decompose.
+8. **Clinic appointments.** `Appointments(PatientID, PatientName, DoctorID, DoctorName, Fee)` with PK `{PatientID, DoctorID}`; the fee depends on patient and doctor together. This one hides *two* problems — find both and decompose.
 
 ## Answer Key
 

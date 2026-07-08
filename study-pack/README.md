@@ -9,7 +9,7 @@ watermarked, encrypted PDF study packs:
 - **1 master study pack** — cover, clickable table of contents with page numbers, all
   8 chapters, glossary appendix and consolidated answer key (~60 pages)
 
-Every page carries the author/institution watermark, copyright line, course code, academic
+Every page carries the author watermark, copyright line, course code, academic
 year and "For enrolled students only". Output PDFs are AES-256 encrypted with an **open
 (user) password** and an **owner password** that disables copying, editing and annotation
 (high-resolution printing and screen-reader access stay enabled).
@@ -59,7 +59,7 @@ page budgets, TOC entries)  ──►  dist/pdf/*.pdf + dist/manifest.json
   `::: definition | tip | warning | example | activity | answer | summary` … `:::`.
   Diagrams are hand-authored SVGs in `content/diagrams/`, referenced as
   `![caption](diagrams/name.svg)` and inlined at build time.
-- **Course metadata** (author, institution, academic year, watermark and footer strings,
+- **Course metadata** (author, series label, academic year, watermark and footer strings,
   lesson list, output names) lives in `content/course.json` — edit it there, never in code.
 - **Convention:** the `## Answer Key` section must be the **last** section of each lesson —
   the master build relocates it into the consolidated answer-key appendix.

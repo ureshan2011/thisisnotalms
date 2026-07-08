@@ -233,7 +233,7 @@ export function assemble(course, { only } = {}) {
 <section class="revision-doc">
   <div class="rev-head">
     <div class="rh-title"><span class="rh-kicker">Revision sheet · ${course.code} Lesson ${meta.number}</span>${meta.title}</div>
-    <div class="rh-meta">${course.author}<br>${course.institution} · AY ${course.academicYear}</div>
+    <div class="rh-meta">${course.author}<br>${course.series} · AY ${course.academicYear}</div>
   </div>
   <div class="rev-cols">${contentHtml}</div>
 </section>`;
@@ -361,13 +361,14 @@ function buildCover(course) {
   return `
 <section class="cover">
   <div class="cover-head">
-    <svg width="38" height="38" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="96" cy="96" r="94" fill="#1b1b1b"/>
-      <path fill="#ffffff" d="M70 35c-7.73 0-14 6.27-14 14v37c0 22.09 17.91 40 40 40s40-17.91 40-40V49c0-7.73-6.27-14-14-14s-14 6.27-14 14v37c0 6.63-5.37 12-12 12s-12-5.37-12-12V49c0-7.73-6.27-14-14-14z"/>
-      <path fill="#ffffff" d="M70 107c-7.73 0-14 6.27-14 14v23c0 7.73 6.27 14 14 14s14-6.27 14-14v-23c0-7.73-6.27-14-14-14z"/>
-      <path fill="#ffffff" d="M122 107c-7.73 0-14 6.27-14 14v12c0 6.63-5.37 12-12 12s-12-5.37-12-12c0-7.73-6.27-14-14-14s-14 6.27-14 14c0 22.09 17.91 40 40 40s40-17.91 40-40v-12c0-7.73-6.27-14-14-14z"/>
+    <svg width="44" height="44" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="#1b1b1b">
+      <circle cx="24" cy="24" r="22.6" stroke-width="1.1"/>
+      <circle cx="24" cy="24" r="20.2" stroke-width="0.4"/>
+      <path d="M24 17.8 C20.4 15.6 15.6 15.6 12.4 17.4 V31.6 C15.6 29.8 20.4 29.8 24 32 C27.6 29.8 32.4 29.8 35.6 31.6 V17.4 C32.4 15.6 27.6 15.6 24 17.8 Z" stroke-width="1.4" stroke-linejoin="round"/>
+      <path d="M24 17.8 V32" stroke-width="1.1"/>
+      <path d="M16 21.2 C18 20.4 20.4 20.5 21.8 21.2 M16 24.4 C18 23.6 20.4 23.7 21.8 24.4 M26.2 21.2 C27.6 20.5 30 20.4 32 21.2 M26.2 24.4 C27.6 23.7 30 24.4 32 24.4" stroke-width="0.7" stroke-linecap="round"/>
     </svg>
-    <div class="cover-inst">${course.institution}</div>
+    <div class="cover-series">${course.series}</div>
   </div>
   <div class="cover-mid">
     <div class="cover-code">${course.code} · Academic Year ${course.academicYear}</div>
@@ -376,7 +377,6 @@ function buildCover(course) {
   </div>
   <div class="cover-foot">
     <strong>${course.author}</strong>
-    ${course.institution}
     <div class="cf-notice">${course.edition} · ${course.notice}<br>${course.copyrightLine}</div>
   </div>
 </section>`;

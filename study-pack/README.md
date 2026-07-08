@@ -1,4 +1,4 @@
-# MBI802 Secure Study Pack Generator
+# MBI802 Secure Study Pack Generator New
 
 Turns the MBI802 (Database Management Systems) course content into professionally typeset,
 watermarked, encrypted PDF study packs:

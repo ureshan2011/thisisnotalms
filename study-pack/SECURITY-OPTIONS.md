@@ -1,7 +1,8 @@
-# Protecting the MBI802 Study Pack — Options Compared
+# Protecting the Study Packs — Options Compared
 
-**Author:** prepared for Dr. Yasas Sri Wickramasinghe, Yoobee College of Creative Innovation
-**Scope:** distribution of student-facing study guides (PDF) for enrolled students only.
+**Author:** prepared for Dr. Yasas Sri Wickramasinghe.
+**Scope:** distribution of student-facing study guides (PDF), across every course this
+generator produces, for enrolled students only.
 
 ## 1. Threat model — what we are actually defending against
 

@@ -80,6 +80,11 @@ function parseFrontmatter(rawSrc) {
 
 function makeRenderer(idPrefix) {
   const md = new MarkdownIt({ html: true, typographer: true });
+  // typographer:true enables two rules: smartquotes (wanted — curly quotes,
+  // em dashes) and replacements, which silently rewrites "(c)", "(r)", "(tm)"
+  // and "(p)" into ©/®/™/§. That silently corrupts multiple-choice option
+  // labels like "(c)" in practice questions, so disable replacements only.
+  md.disable(['replacements']);
   md.use(anchor, {
     level: [2, 3],
     slugify: (s) =>
@@ -127,8 +132,9 @@ function chapterOpener(meta, course, { forMaster }) {
   const objectives = (meta.objectives || [])
     .map((o) => `<li>${o}</li>`)
     .join('\n');
+  const runningTitle = meta.shortTitle || meta.title;
   return `
-<header class="chapter-opener" data-running-title="${meta.number}. ${meta.title}">
+<header class="chapter-opener" data-running-title="${meta.number}. ${runningTitle}">
   <div class="co-band">
     <div class="co-kicker">${course.code} · ${course.title} · ${forMaster ? 'Chapter' : 'Lesson'} ${meta.number} of ${course.lessons.length}</div>
     <h1 class="co-title">${meta.title}</h1>
@@ -216,6 +222,7 @@ export function assemble(course, { only } = {}) {
       continue;
     }
     const { meta, body } = loadLesson(course, lesson);
+    const lessonNum = String(meta.number).padStart(2, '0');
 
     // --- individual study guide ---
     {
@@ -237,7 +244,7 @@ export function assemble(course, { only } = {}) {
       );
       outputs.push({
         html: file,
-        pdfName: `${course.code}-L0${meta.number}-${lesson.fileTitle}-Study-Guide.pdf`,
+        pdfName: `${course.code}-L${lessonNum}-${lesson.fileTitle}-Study-Guide.pdf`,
         kind: 'guide',
         lesson: meta.number,
       });
@@ -269,7 +276,7 @@ export function assemble(course, { only } = {}) {
       );
       outputs.push({
         html: file,
-        pdfName: `${course.code}-L0${meta.number}-${lesson.fileTitle}-Revision-Sheet.pdf`,
+        pdfName: `${course.code}-L${lessonNum}-${lesson.fileTitle}-Revision-Sheet.pdf`,
         kind: 'revision',
         lesson: meta.number,
         maxPages: Number(revMeta.maxPages || 2),

@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" width="640" font-family="STIX Two Text, serif">
+  <!-- waterline -->
+  <line x1="40" y1="90" x2="600" y2="90" stroke="#1b1b1b" stroke-width="1.4"/>
+  <text x="46" y="82" font-size="11" fill="#6a6a66" font-style="italic">what is seen</text>
+  <text x="46" y="106" font-size="11" fill="#6a6a66" font-style="italic">what is unseen</text>
+
+  <!-- iceberg triangle, apex above waterline -->
+  <polygon points="320,20 380,90 260,90" fill="#c9c9c3" fill-opacity="0.55" stroke="#1b1b1b" stroke-width="1.4"/>
+  <polygon points="260,90 380,90 430,160 210,160" fill="#c9c9c3" fill-opacity="0.4" stroke="#1b1b1b" stroke-width="1.2"/>
+  <polygon points="210,160 430,160 470,230 170,230" fill="#c9c9c3" fill-opacity="0.3" stroke="#1b1b1b" stroke-width="1.2"/>
+  <polygon points="170,230 470,230 510,300 130,300" fill="#c9c9c3" fill-opacity="0.2" stroke="#1b1b1b" stroke-width="1.2"/>
+
+  <!-- layer labels -->
+  <text x="320" y="58" text-anchor="middle" font-size="13" font-weight="700" fill="#1b1b1b">Events</text>
+  <text x="320" y="72" text-anchor="middle" font-size="10" font-style="italic" fill="#454545">What's happening?</text>
+
+  <text x="320" y="122" text-anchor="middle" font-size="13" font-weight="700" fill="#1b1b1b">Patterns of Behaviour</text>
+  <text x="320" y="136" text-anchor="middle" font-size="10" font-style="italic" fill="#454545">What's been happening? Trends?</text>
+
+  <text x="320" y="192" text-anchor="middle" font-size="13" font-weight="700" fill="#1b1b1b">Structures</text>
+  <text x="320" y="206" text-anchor="middle" font-size="10" font-style="italic" fill="#454545">Policies, workflows, resource allocation</text>
+
+  <text x="320" y="262" text-anchor="middle" font-size="13" font-weight="700" fill="#1b1b1b">Mental Models</text>
+  <text x="320" y="276" text-anchor="middle" font-size="10" font-style="italic" fill="#454545">Values, beliefs, assumptions</text>
+
+  <!-- learning / leverage arrows -->
+  <g font-size="10" fill="#33415c">
+    <line x1="565" y1="30" x2="565" y2="295" stroke="#33415c" stroke-width="1.2" marker-end="url(#icebergArrow)"/>
+    <text x="578" y="60" transform="rotate(90 578 60)">Learning</text>
+    <line x1="600" y1="30" x2="600" y2="295" stroke="#33415c" stroke-width="1.2" marker-end="url(#icebergArrow)"/>
+    <text x="613" y="60" transform="rotate(90 613 60)">Leverage</text>
+  </g>
+  <defs>
+    <marker id="icebergArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#33415c"/>
+    </marker>
+  </defs>
+  <text x="320" y="325" text-anchor="middle" font-size="11" font-style="italic" fill="#454545">Senge, "The Fifth Discipline," 1996</text>
+</svg>

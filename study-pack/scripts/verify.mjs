@@ -17,8 +17,11 @@ async function extractPageText(doc, pageNumber) {
 }
 
 /* Letter-spaced text (headers, watermark) extracts with spaces between
-   glyphs — compare with all whitespace stripped, case-insensitively. */
-const normalize = (s) => s.toLowerCase().replace(/&(amp;)?/g, 'and').replace(/\s+/g, '');
+   glyphs — compare with all whitespace and punctuation stripped, so a title
+   with a colon or em dash in its frontmatter still matches the plainer
+   fileTitle-derived string the TOC check searches for. */
+const normalize = (s) =>
+  s.toLowerCase().replace(/&(amp;)?/g, 'and').replace(/[:,–—/-]/g, '').replace(/\s+/g, '');
 const textIncludes = (haystack, needle) => normalize(haystack).includes(normalize(needle));
 
 export async function verifyAll(built, course, { encrypted, userPassword }) {
@@ -130,8 +133,11 @@ export async function verifyAll(built, course, { encrypted, userPassword }) {
     }
 
     if (item.kind === 'master') {
-      const tocText =
-        (await extractPageText(doc, 2)) + ' ' + (n >= 3 ? await extractPageText(doc, 3) : '');
+      // The TOC can span more than 2 pages once a course has many chapters
+      // with sub-entries; sample generously rather than hardcoding a length.
+      const tocPageEnd = Math.min(n, 6);
+      let tocText = '';
+      for (let p = 2; p <= tocPageEnd; p++) tocText += ' ' + (await extractPageText(doc, p));
       for (const lesson of course.lessons) {
         const { title } = manifestTitle(course, lesson);
         if (!textIncludes(tocText, title)) {

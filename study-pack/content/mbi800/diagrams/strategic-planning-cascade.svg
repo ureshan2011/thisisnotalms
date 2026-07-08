@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 460" width="640" font-family="STIX Two Text, serif">
+  <defs>
+    <marker id="spcArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1b1b1b"/>
+    </marker>
+  </defs>
+  <g font-size="12" font-weight="700" fill="#1b1b1b" text-anchor="middle">
+    <rect x="60" y="16" width="140" height="42" fill="none" stroke="#1b1b1b" stroke-width="1.4"/>
+    <text x="130" y="42">Purpose</text>
+    <rect x="250" y="16" width="140" height="42" fill="none" stroke="#1b1b1b" stroke-width="1.4"/>
+    <text x="320" y="42">Vision</text>
+    <rect x="440" y="16" width="140" height="42" fill="none" stroke="#1b1b1b" stroke-width="1.4"/>
+    <text x="510" y="42">Values</text>
+  </g>
+  <line x1="130" y1="58" x2="300" y2="96" stroke="#1b1b1b" stroke-width="1.3" marker-end="url(#spcArrow)"/>
+  <line x1="320" y1="58" x2="320" y2="96" stroke="#1b1b1b" stroke-width="1.3" marker-end="url(#spcArrow)"/>
+  <line x1="510" y1="58" x2="340" y2="96" stroke="#1b1b1b" stroke-width="1.3" marker-end="url(#spcArrow)"/>
+
+  <rect x="200" y="100" width="240" height="44" fill="#c9c9c3" fill-opacity="0.3" stroke="#1b1b1b" stroke-width="1.5"/>
+  <text x="320" y="126" text-anchor="middle" font-size="13" font-weight="700" fill="#1b1b1b">Mission Statement</text>
+
+  <line x1="320" y1="144" x2="320" y2="176" stroke="#1b1b1b" stroke-width="1.3" marker-end="url(#spcArrow)"/>
+  <rect x="240" y="180" width="160" height="40" fill="none" stroke="#1b1b1b" stroke-width="1.3"/>
+  <text x="320" y="204" text-anchor="middle" font-size="12" font-weight="700" fill="#1b1b1b">Goals</text>
+
+  <line x1="320" y1="220" x2="320" y2="250" stroke="#1b1b1b" stroke-width="1.3" marker-end="url(#spcArrow)"/>
+  <rect x="240" y="254" width="160" height="40" fill="none" stroke="#1b1b1b" stroke-width="1.3"/>
+  <text x="320" y="278" text-anchor="middle" font-size="12" font-weight="700" fill="#1b1b1b">Objectives</text>
+
+  <line x1="320" y1="294" x2="320" y2="324" stroke="#1b1b1b" stroke-width="1.3" marker-end="url(#spcArrow)"/>
+  <rect x="60" y="328" width="150" height="42" fill="none" stroke="#33415c" stroke-width="1.3"/>
+  <text x="135" y="353" text-anchor="middle" font-size="11" font-weight="700" fill="#33415c">Information Technology</text>
+  <rect x="235" y="328" width="170" height="42" fill="#c9c9c3" fill-opacity="0.3" stroke="#1b1b1b" stroke-width="1.5"/>
+  <text x="320" y="353" text-anchor="middle" font-size="12" font-weight="700" fill="#1b1b1b">Business Operations</text>
+  <rect x="430" y="328" width="150" height="42" fill="none" stroke="#33415c" stroke-width="1.3"/>
+  <text x="505" y="353" text-anchor="middle" font-size="10.5" font-weight="700" fill="#33415c">Other Corporate Resources</text>
+  <line x1="210" y1="349" x2="230" y2="349" stroke="#33415c" stroke-width="1.3" marker-end="url(#spcArrow)"/>
+  <line x1="430" y1="349" x2="410" y2="349" stroke="#33415c" stroke-width="1.3" marker-end="url(#spcArrow)"/>
+
+  <line x1="320" y1="370" x2="320" y2="400" stroke="#1b1b1b" stroke-width="1.3" marker-end="url(#spcArrow)"/>
+  <rect x="230" y="404" width="180" height="40" fill="none" stroke="#1b1b1b" stroke-width="1.3"/>
+  <text x="320" y="428" text-anchor="middle" font-size="12" font-weight="700" fill="#1b1b1b">Business Results</text>
+
+  <text x="320" y="454" text-anchor="middle" font-size="11" font-style="italic" fill="#454545">Business Results affect Stakeholders — read the chain in both directions.</text>
+</svg>

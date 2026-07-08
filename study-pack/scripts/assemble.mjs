@@ -30,8 +30,11 @@ export function loadCourse() {
   return JSON.parse(fs.readFileSync(path.join(CONTENT, 'course.json'), 'utf8'));
 }
 
-/* Minimal frontmatter parser: `key: value` pairs plus `- ` list items. */
-function parseFrontmatter(src) {
+/* Minimal frontmatter parser: `key: value` pairs plus `- ` list items.
+   Tolerates CRLF line endings (Windows checkouts with core.autocrlf=true
+   rewrite the authored LF files to CRLF) by normalizing before parsing. */
+function parseFrontmatter(rawSrc) {
+  const src = rawSrc.replace(/\r\n/g, '\n');
   const m = src.match(/^---\n([\s\S]*?)\n---\n?/);
   if (!m) return { meta: {}, body: src };
   const meta = {};

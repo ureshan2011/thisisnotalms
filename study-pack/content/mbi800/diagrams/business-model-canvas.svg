@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 340" width="640" font-family="STIX Two Text, serif">
+  <g stroke="#1b1b1b" stroke-width="1.4" fill="none">
+    <rect x="10" y="10" width="620" height="320"/>
+    <!-- top row: 5 columns, col widths: 124,124,124,124,124 -->
+    <line x1="134" y1="10" x2="134" y2="230"/>
+    <line x1="258" y1="10" x2="258" y2="230"/>
+    <line x1="382" y1="10" x2="382" y2="330"/>
+    <line x1="506" y1="10" x2="506" y2="230"/>
+    <!-- key resources sits under key partners? Standard layout: partners | activities(top)/resources(bottom) | value prop | relationships(top)/channels(bottom) | segments -->
+    <line x1="134" y1="120" x2="258" y2="120"/>
+    <line x1="382" y1="120" x2="506" y2="120"/>
+    <!-- bottom row split cost/revenue -->
+    <line x1="10" y1="230" x2="630" y2="230"/>
+    <line x1="320" y1="230" x2="320" y2="330"/>
+  </g>
+  <g font-size="11.5" font-weight="700" fill="#1b1b1b">
+    <text x="72" y="30">Key Partners</text>
+    <text x="196" y="30">Key Activities</text>
+    <text x="196" y="140">Key Resources</text>
+    <text x="320" y="30" text-anchor="middle">Value</text>
+    <text x="320" y="45" text-anchor="middle">Proposition</text>
+    <text x="444" y="30">Customer</text>
+    <text x="444" y="44">Relationships</text>
+    <text x="444" y="140">Channels</text>
+    <text x="568" y="30">Customer</text>
+    <text x="568" y="44">Segments</text>
+    <text x="165" y="248">Cost Structure</text>
+    <text x="480" y="248">Revenue Streams</text>
+  </g>
+  <g font-size="9" fill="#454545" font-style="italic">
+    <text x="20" y="50">Mentors? Lawyers?</text>
+    <text x="20" y="62">Distributors? Suppliers?</text>
+    <text x="20" y="248">How much time and money</text>
+    <text x="20" y="260">will this require?</text>
+    <text x="330" y="260">How do you make $?</text>
+    <text x="330" y="272">What non-$ value?</text>
+    <text x="330" y="284">(social, academic, monetary)</text>
+  </g>
+  <text x="320" y="70" text-anchor="middle" font-size="9.5" fill="#454545" font-style="italic">What value does this create, and for whom?</text>
+</svg>

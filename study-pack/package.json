@@ -1,13 +1,12 @@
 {
-  "name": "mbi802-study-pack",
+  "name": "study-pack",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Secure study pack generator for MBI802 Database Management Systems",
+  "description": "Secure study pack generator — builds every course under content/*/course.json",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "build:draft": "node scripts/build.mjs --no-encrypt --keep-html",
-    "verify": "node scripts/verify.mjs"
+    "build:draft": "node scripts/build.mjs --no-encrypt --keep-html"
   },
   "dependencies": {
     "@cantoo/pdf-lib": "^2.5.3",

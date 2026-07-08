@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" width="640" font-family="STIX Two Text, serif">
+  <rect x="0" y="0" width="640" height="300" fill="#f7f7f3"/>
+  <g fill="none" stroke="#1b1b1b" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+    <!-- elephant body -->
+    <path d="M180 190 Q170 130 230 120 Q260 90 320 100 Q390 95 420 130 Q460 130 470 160 Q490 155 495 175 Q500 195 470 195 L450 200 Q440 220 400 220 L260 220 Q210 225 180 190 Z" fill="#c9c9c3" fill-opacity="0.5"/>
+    <!-- ear -->
+    <path d="M260 120 Q280 100 300 125 Q285 145 260 140 Z" fill="#c9c9c3" fill-opacity="0.7"/>
+    <!-- legs -->
+    <line x1="230" y1="215" x2="225" y2="250"/>
+    <line x1="290" y1="220" x2="288" y2="252"/>
+    <line x1="380" y1="220" x2="382" y2="252"/>
+    <line x1="420" y1="215" x2="424" y2="250"/>
+    <!-- tail -->
+    <path d="M180 185 Q150 200 145 225"/>
+    <!-- trunk -->
+    <path d="M470 160 Q510 175 520 205 Q525 225 505 228"/>
+    <circle cx="330" cy="115" r="2.4" fill="#1b1b1b"/>
+  </g>
+  <!-- six investigators (stick figures), each touching a different part -->
+  <g stroke="#33415c" stroke-width="2" fill="none" stroke-linecap="round">
+    <!-- tail -->
+    <g transform="translate(110,225)"><circle cx="0" cy="-8" r="6" fill="#33415c"/><line x1="0" y1="-2" x2="0" y2="20"/><line x1="0" y1="4" x2="16" y2="0"/><line x1="0" y1="4" x2="-14" y2="10"/><line x1="0" y1="20" x2="-8" y2="38"/><line x1="0" y1="20" x2="8" y2="38"/></g>
+    <!-- leg -->
+    <g transform="translate(220,255)"><circle cx="0" cy="-8" r="6" fill="#33415c"/><line x1="0" y1="-2" x2="0" y2="18"/><line x1="0" y1="2" x2="14" y2="-4"/><line x1="0" y1="2" x2="-14" y2="6"/><line x1="0" y1="18" x2="-6" y2="36"/><line x1="0" y1="18" x2="6" y2="36"/></g>
+    <!-- ladder to the back -->
+    <g transform="translate(310,150)">
+      <line x1="-10" y1="40" x2="8" y2="-30" stroke="#8f8f8a" stroke-width="1.6"/>
+      <line x1="2" y1="30" x2="20" y2="-38" stroke="#8f8f8a" stroke-width="1.6"/>
+      <line x1="-8" y1="20" x2="10" y2="14" stroke="#8f8f8a" stroke-width="1.4"/>
+      <line x1="-4" y1="0" x2="14" y2="-6" stroke="#8f8f8a" stroke-width="1.4"/>
+      <circle cx="16" cy="-34" r="6" fill="#33415c"/><line x1="14" y1="-28" x2="10" y2="-8"/><line x1="10" y1="-20" x2="24" y2="-24"/><line x1="10" y1="-8" x2="4" y2="6"/><line x1="10" y1="-8" x2="16" y2="6"/>
+    </g>
+    <!-- ear -->
+    <g transform="translate(400,220)"><circle cx="0" cy="-8" r="6" fill="#33415c"/><line x1="0" y1="-2" x2="0" y2="18"/><line x1="0" y1="0" x2="16" y2="-10"/><line x1="0" y1="0" x2="-14" y2="4"/><line x1="0" y1="18" x2="-6" y2="36"/><line x1="0" y1="18" x2="6" y2="36"/></g>
+    <!-- tusk / trunk -->
+    <g transform="translate(480,225)"><circle cx="0" cy="-8" r="6" fill="#33415c"/><line x1="0" y1="-2" x2="0" y2="18"/><line x1="0" y1="2" x2="-16" y2="-6"/><line x1="0" y1="2" x2="14" y2="8"/><line x1="0" y1="18" x2="-6" y2="36"/><line x1="0" y1="18" x2="6" y2="36"/></g>
+    <!-- pulling trunk end -->
+    <g transform="translate(560,222)"><circle cx="0" cy="-8" r="6" fill="#33415c"/><line x1="0" y1="-2" x2="0" y2="18"/><line x1="0" y1="0" x2="-18" y2="-4"/><line x1="0" y1="0" x2="14" y2="8"/><line x1="0" y1="18" x2="-6" y2="36"/><line x1="0" y1="18" x2="6" y2="36"/></g>
+  </g>
+  <text x="320" y="20" text-anchor="middle" font-size="13" font-style="italic" fill="#454545">Six investigators, six different animals — no single vantage point sees the whole system.</text>
+</svg>

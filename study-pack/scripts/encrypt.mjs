@@ -4,11 +4,8 @@
    build.mjs. */
 import path from 'node:path';
 import fs from 'node:fs';
-import { fileURLToPath } from 'node:url';
 import { PDFDocument, PDFHeader } from '@cantoo/pdf-lib';
-
-const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const DIST_PDF = path.join(ROOT, 'dist', 'pdf');
+import { distDirs } from './paths.mjs';
 
 export function getPasswords({ required }) {
   const userPassword = process.env.STUDY_PACK_USER_PASSWORD;
@@ -26,8 +23,9 @@ export function getPasswords({ required }) {
   return { userPassword, ownerPassword };
 }
 
-export async function encryptAll(rendered, { userPassword, ownerPassword }) {
-  fs.mkdirSync(DIST_PDF, { recursive: true });
+export async function encryptAll(rendered, { userPassword, ownerPassword }, slug) {
+  const dirs = distDirs(slug);
+  fs.mkdirSync(dirs.pdf, { recursive: true });
   const results = [];
   for (const item of rendered) {
     const bytes = fs.readFileSync(item.pdfTmp);
@@ -49,7 +47,7 @@ export async function encryptAll(rendered, { userPassword, ownerPassword }) {
         contentAccessibility: true,
       },
     });
-    const outPath = path.join(DIST_PDF, item.pdfName);
+    const outPath = path.join(dirs.pdf, item.pdfName);
     // Object streams are required here: @cantoo/pdf-lib's encryption garbles
     // strings written as plain indirect objects (Info title, outline entries
     // show up as mojibake/"undefined" in viewers). Inside object streams the
@@ -60,16 +58,17 @@ export async function encryptAll(rendered, { userPassword, ownerPassword }) {
     console.log(`  [encrypt] ${item.pdfName}`);
     results.push({ ...item, pdf: outPath });
   }
-  fs.rmSync(path.join(ROOT, 'dist', 'pdf-unencrypted'), { recursive: true, force: true });
+  fs.rmSync(dirs.pdfTmp, { recursive: true, force: true });
   return results;
 }
 
-export function passthroughAll(rendered) {
+export function passthroughAll(rendered, slug) {
   // --no-encrypt draft mode: move files with a loud name, never the real name.
-  fs.mkdirSync(DIST_PDF, { recursive: true });
+  const dirs = distDirs(slug);
+  fs.mkdirSync(dirs.pdf, { recursive: true });
   return rendered.map((item) => {
     const draftName = item.pdfName.replace(/\.pdf$/, '-UNPROTECTED-DRAFT.pdf');
-    const outPath = path.join(DIST_PDF, draftName);
+    const outPath = path.join(dirs.pdf, draftName);
     fs.renameSync(item.pdfTmp, outPath);
     return { ...item, pdf: outPath, pdfName: draftName, draft: true };
   });

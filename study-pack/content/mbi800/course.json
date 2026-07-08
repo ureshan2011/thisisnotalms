@@ -1,0 +1,27 @@
+{
+  "code": "MBI800",
+  "title": "Strategic Information Systems Planning",
+  "subtitle": "Complete Study Pack — from systems thinking to SISP frameworks, risk, case studies and emerging technology",
+  "author": "Dr. Yasas Sri Wickramasinghe",
+  "series": "Additional Learning Materials",
+  "academicYear": "2026",
+  "edition": "Student Edition",
+  "notice": "For enrolled students only",
+  "copyrightLine": "© 2026 Dr. Yasas Sri Wickramasinghe",
+  "footerLine": "© 2026 Dr. Yasas Sri Wickramasinghe · For enrolled students only · MBI800 · AY 2026",
+  "watermarkText": "MBI800 · Dr. Yasas Sri Wickramasinghe\nFor enrolled students only",
+  "masterFileName": "MBI800-Master-Study-Pack-AY2026",
+  "lessons": [
+    { "number": 1, "slug": "01-introduction", "fileTitle": "Introduction" },
+    { "number": 2, "slug": "02-systems-thinking-iceberg-model", "fileTitle": "Systems-Thinking-and-the-Iceberg-Model" },
+    { "number": 3, "slug": "03-sisp-foundations-six-process-dimensions", "fileTitle": "SISP-Foundations-and-the-Six-Process-Dimensions" },
+    { "number": 4, "slug": "04-strategic-it-planning-business-case-sdlc", "fileTitle": "Strategic-IT-Planning-Business-Case-and-the-SDLC" },
+    { "number": 5, "slug": "05-business-model-idea-canvases", "fileTitle": "Business-Model-and-Idea-Canvases" },
+    { "number": 6, "slug": "06-risk-management-standards", "fileTitle": "Risk-Management-Standards" },
+    { "number": 7, "slug": "07-global-sisp-case-studies", "fileTitle": "Global-SISP-Case-Studies" },
+    { "number": 8, "slug": "08-five-stories-that-changed-everything", "fileTitle": "Five-Stories-That-Changed-Everything" },
+    { "number": 9, "slug": "09-immersive-realities", "fileTitle": "Immersive-Realities-AR-VR-in-the-Enterprise" },
+    { "number": 10, "slug": "10-systems-security", "fileTitle": "Systems-Security" },
+    { "number": 11, "slug": "11-platform-strategy", "fileTitle": "Platform-Strategy" }
+  ]
+}

@@ -18,6 +18,7 @@ const CostManagementPage = lazy(() => import('./pages/CostManagementPage'));
 const FiveStoriesPage = lazy(() => import('./pages/FiveStoriesPage'));
 const PlatformStrategyPage = lazy(() => import('./pages/PlatformStrategyPage'));
 const SystemsSecurityPage = lazy(() => import('./pages/SystemsSecurityPage'));
+const StudyPacksPage = lazy(() => import('./pages/StudyPacksPage'));
 const WebArchitecturePage = lazy(() => import('./pages/WebArchitecturePage'));
 const SQLProgrammingPage = lazy(() => import('./pages/SQLProgrammingPage'));
 const ERDiagramsPage = lazy(() => import('./pages/ERDiagramsPage'));
@@ -97,6 +98,7 @@ function AppRoutes() {
         <Route path="/sql-reels"    element={<Suspense fallback={null}><SQLReelsPage /></Suspense>} />
         <Route path="/pre-class"    element={<Suspense fallback={null}><PreClassSwarmPage /></Suspense>} />
         <Route path="/five-stories" element={<Suspense fallback={null}><FiveStoriesPage /></Suspense>} />
+        <Route path="/study-packs" element={<Suspense fallback={null}><StudyPacksPage /></Suspense>} />
         <Route path="/platform-strategy" element={<Suspense fallback={null}><PlatformStrategyPage /></Suspense>} />
         <Route path="/systems-security" element={<Suspense fallback={null}><SystemsSecurityPage /></Suspense>} />
         <Route path="/web-architecture" element={<Suspense fallback={null}><WebArchitecturePage /></Suspense>} />
@@ -175,6 +177,7 @@ function ShutdownRoutes() {
       <Route path="/sql-reels" element={<Suspense fallback={null}><SQLReelsPage /></Suspense>} />
       <Route path="/pre-class" element={<Suspense fallback={null}><PreClassSwarmPage /></Suspense>} />
       <Route path="/five-stories" element={<Suspense fallback={null}><FiveStoriesPage /></Suspense>} />
+      <Route path="/study-packs" element={<Suspense fallback={null}><StudyPacksPage /></Suspense>} />
       <Route path="/platform-strategy" element={<Suspense fallback={null}><PlatformStrategyPage /></Suspense>} />
       <Route path="/systems-security" element={<Suspense fallback={null}><SystemsSecurityPage /></Suspense>} />
       <Route path="/web-architecture" element={<Suspense fallback={null}><WebArchitecturePage /></Suspense>} />

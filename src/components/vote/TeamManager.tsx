@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   addDoc, collection, deleteDoc, doc, serverTimestamp, setDoc, updateDoc, writeBatch,
 } from 'firebase/firestore';
-import { ArrowDown, ArrowUp, Pencil, Plus, Radio, Trash2, X, Check } from 'lucide-react';
+import { ArrowDown, ArrowUp, Pencil, Plus, Trash2, X, Check } from 'lucide-react';
 import { db } from '../../lib/firebase';
 import { VOTE_COLLECTIONS, type Team } from '../../lib/voteTypes';
 
@@ -70,18 +70,16 @@ export default function TeamManager({ teams, currentTeamId }: TeamManagerProps) 
           onChange={(e) => setNewTeamName(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter') addTeam(); }}
           placeholder="New team name…"
-          className="input-field flex-1"
+          className="vote-input flex-1"
         />
-        <button onClick={addTeam} disabled={adding || !newTeamName.trim()} className="btn-primary !px-4">
+        <button onClick={addTeam} disabled={adding || !newTeamName.trim()} className="vote-btn-primary !px-4">
           <Plus size={15} /> Add
         </button>
       </div>
 
       {/* Team list */}
       {teams.length === 0 ? (
-        <div className="rounded-2xl py-8 text-center" style={{ background: 'rgba(124,58,237,0.04)', border: '1px dashed rgba(124,58,237,0.20)' }}>
-          <p className="text-sm font-medium" style={{ color: '#9ca3af' }}>No teams yet — add one above.</p>
-        </div>
+        <div className="vote-empty">No teams yet — add one above.</div>
       ) : (
         <div className="space-y-2">
           {teams.map((team, i) => {
@@ -90,18 +88,18 @@ export default function TeamManager({ teams, currentTeamId }: TeamManagerProps) 
             return (
               <div
                 key={team.id}
-                className="flex items-center gap-2 rounded-2xl px-3 py-2.5"
+                className="flex items-center gap-2 rounded-lg px-3 py-2.5"
                 style={{
-                  background: isPresenting ? 'linear-gradient(135deg, rgba(124,58,237,0.10), rgba(167,139,250,0.06))' : 'rgba(255,255,255,0.7)',
-                  border: isPresenting ? '1px solid rgba(124,58,237,0.30)' : '1px solid rgba(124,58,237,0.10)',
+                  background: isPresenting ? 'var(--gold-wash)' : 'var(--ink-raised-2)',
+                  border: `1px solid ${isPresenting ? 'var(--gold-border)' : 'var(--ink-line)'}`,
                 }}
               >
                 {/* Reorder */}
                 <div className="flex flex-col gap-0.5 flex-shrink-0">
-                  <button onClick={() => moveTeam(i, -1)} disabled={i === 0} className="btn-ghost !p-1 disabled:opacity-25">
+                  <button onClick={() => moveTeam(i, -1)} disabled={i === 0} className="vote-btn-ghost !p-1 disabled:opacity-25">
                     <ArrowUp size={13} />
                   </button>
-                  <button onClick={() => moveTeam(i, 1)} disabled={i === teams.length - 1} className="btn-ghost !p-1 disabled:opacity-25">
+                  <button onClick={() => moveTeam(i, 1)} disabled={i === teams.length - 1} className="vote-btn-ghost !p-1 disabled:opacity-25">
                     <ArrowDown size={13} />
                   </button>
                 </div>
@@ -114,12 +112,12 @@ export default function TeamManager({ teams, currentTeamId }: TeamManagerProps) 
                       value={editingName}
                       onChange={(e) => setEditingName(e.target.value)}
                       onKeyDown={(e) => { if (e.key === 'Enter') saveEdit(team.id); if (e.key === 'Escape') setEditingId(null); }}
-                      className="input-field !py-1.5 text-sm"
+                      className="vote-input !py-1.5 text-sm"
                     />
                   ) : (
                     <div className="flex items-center gap-1.5">
-                      <p className="text-sm font-semibold truncate" style={{ color: '#1e1b4b' }}>{team.name}</p>
-                      {isPresenting && <Radio size={12} className="pulse-ring flex-shrink-0" style={{ color: '#7c3aed' }} />}
+                      <p className="text-sm font-semibold truncate" style={{ color: 'var(--paper)' }}>{team.name}</p>
+                      {isPresenting && <span className="vote-live-dot" />}
                     </div>
                   )}
                 </div>
@@ -128,26 +126,26 @@ export default function TeamManager({ teams, currentTeamId }: TeamManagerProps) 
                 <div className="flex items-center gap-1 flex-shrink-0">
                   {isEditing ? (
                     <>
-                      <button onClick={() => saveEdit(team.id)} className="btn-ghost !p-1.5" aria-label="Save">
-                        <Check size={14} style={{ color: '#059669' }} />
+                      <button onClick={() => saveEdit(team.id)} className="vote-btn-ghost !p-1.5" aria-label="Save">
+                        <Check size={14} style={{ color: 'var(--gold-strong)' }} />
                       </button>
-                      <button onClick={() => setEditingId(null)} className="btn-ghost !p-1.5" aria-label="Cancel">
-                        <X size={14} style={{ color: '#9ca3af' }} />
+                      <button onClick={() => setEditingId(null)} className="vote-btn-ghost !p-1.5" aria-label="Cancel">
+                        <X size={14} />
                       </button>
                     </>
                   ) : (
                     <>
                       <button
                         onClick={() => togglePresenting(team)}
-                        className={isPresenting ? 'btn-primary !px-3 !py-1.5 !text-xs' : 'btn-secondary !px-3 !py-1.5 !text-xs'}
+                        className={isPresenting ? 'vote-btn-primary !px-3 !py-1.5 !text-xs' : 'vote-btn-secondary !px-3 !py-1.5 !text-xs'}
                       >
                         {isPresenting ? 'Presenting' : 'Set live'}
                       </button>
-                      <button onClick={() => { setEditingId(team.id); setEditingName(team.name); }} className="btn-ghost !p-1.5" aria-label="Edit">
-                        <Pencil size={13} style={{ color: '#9ca3af' }} />
+                      <button onClick={() => { setEditingId(team.id); setEditingName(team.name); }} className="vote-btn-ghost !p-1.5" aria-label="Edit">
+                        <Pencil size={13} />
                       </button>
-                      <button onClick={() => removeTeam(team)} className="btn-ghost !p-1.5" aria-label="Remove">
-                        <Trash2 size={13} style={{ color: '#f87171' }} />
+                      <button onClick={() => removeTeam(team)} className="vote-btn-ghost !p-1.5" aria-label="Remove">
+                        <Trash2 size={13} style={{ color: 'var(--danger)' }} />
                       </button>
                     </>
                   )}

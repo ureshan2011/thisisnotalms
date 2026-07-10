@@ -1,0 +1,292 @@
+/* ── Live Vote — "Scoreboard" theme ─────────────────────────────
+   A deliberately single dark visual world for the in-class voting
+   module: a night-scoreboard palette instead of the app's purple
+   glass system, and a bold condensed marquee face for headlines. */
+
+@import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
+.vote-theme {
+  --ink:          #0f1512;
+  --ink-raised:   #182420;
+  --ink-raised-2: #20302a;
+  --ink-line:     rgba(242, 240, 230, 0.14);
+  --ink-line-strong: rgba(242, 240, 230, 0.26);
+  --paper:        #f2f0e6;
+  --paper-dim:    #93a39b;
+  --gold:         #e8b23c;
+  --gold-strong:  #f5c65c;
+  --gold-wash:    rgba(232, 178, 60, 0.14);
+  --gold-border:  rgba(232, 178, 60, 0.38);
+  --danger:       #e2604a;
+  --danger-wash:  rgba(226, 96, 74, 0.14);
+  --font-display: 'Anton', 'Arial Narrow', sans-serif;
+
+  position: relative;
+  min-height: 100vh;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Faint grain — evokes a chalkboard/scoreboard surface without looking hand-drawn */
+.vote-theme::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.vote-theme > * {
+  position: relative;
+  z-index: 1;
+}
+
+.vote-marquee {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--paper);
+}
+
+.vote-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--paper-dim);
+}
+
+.vote-card {
+  background: var(--ink-raised);
+  border: 1px solid var(--ink-line);
+  border-radius: 10px;
+}
+
+.vote-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--paper-dim);
+  margin-bottom: 7px;
+}
+
+.vote-hint {
+  font-size: 12.5px;
+  color: var(--paper-dim);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.vote-divider {
+  height: 1px;
+  background: var(--ink-line);
+  border: none;
+}
+
+.vote-input {
+  width: 100%;
+  background: var(--ink);
+  border: 1px solid var(--ink-line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: var(--paper);
+  font-size: 15px;
+  font-weight: 500;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.vote-input::placeholder { color: rgba(147, 163, 155, 0.6); }
+.vote-input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-wash);
+}
+.vote-input.vote-error {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-wash);
+}
+.vote-input option { background: var(--ink-raised); color: var(--paper); }
+
+.vote-error-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--danger);
+  margin-top: 5px;
+}
+
+.vote-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--gold);
+  color: var(--ink);
+  font-weight: 800;
+  font-size: 14.5px;
+  border: none;
+  border-radius: 8px;
+  padding: 13px 20px;
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.vote-btn-primary:hover:not(:disabled) { background: var(--gold-strong); }
+.vote-btn-primary:active:not(:disabled) { transform: scale(0.98); }
+.vote-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.vote-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: transparent;
+  color: var(--paper);
+  font-weight: 700;
+  font-size: 13px;
+  border: 1px solid var(--ink-line-strong);
+  border-radius: 8px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.vote-btn-secondary:hover:not(:disabled) { border-color: var(--gold-border); background: var(--gold-wash); }
+.vote-btn-secondary:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.vote-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--paper-dim);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.vote-btn-ghost:hover { color: var(--paper); background: rgba(242, 240, 230, 0.06); }
+
+.vote-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: var(--gold-wash);
+  color: var(--gold-strong);
+  border: 1px solid var(--gold-border);
+  white-space: nowrap;
+}
+
+.vote-live-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--gold-wash);
+  border: 1px solid var(--gold-border);
+  color: var(--gold-strong);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.vote-live-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: vote-pulse 1.7s ease-in-out infinite;
+}
+@keyframes vote-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232, 178, 60, 0.55); }
+  50%      { box-shadow: 0 0 0 7px rgba(232, 178, 60, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vote-live-dot { animation: none; }
+}
+
+.vote-star-row {
+  display: flex;
+  gap: 8px;
+}
+.vote-star-btn {
+  flex: 1;
+  height: 46px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--ink-line-strong);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+.vote-star-btn:active { transform: scale(0.95); }
+.vote-star-btn.filled {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.vote-tab {
+  padding: 9px 3px;
+  font-weight: 700;
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--paper-dim);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.vote-tab.active {
+  color: var(--gold-strong);
+  border-bottom-color: var(--gold);
+}
+.vote-tab:hover:not(.active) { color: var(--paper); }
+
+.vote-table {
+  width: 100%;
+  font-size: 13.5px;
+  border-collapse: collapse;
+}
+.vote-table th {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--paper-dim);
+  font-weight: 700;
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--ink-line-strong);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.vote-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--ink-line);
+  font-variant-numeric: tabular-nums;
+  color: var(--paper);
+}
+.vote-table tr:hover td { background: rgba(242, 240, 230, 0.02); }
+
+.vote-empty {
+  padding: 32px 16px;
+  text-align: center;
+  border-radius: 10px;
+  border: 1px dashed var(--ink-line-strong);
+  color: var(--paper-dim);
+  font-size: 13.5px;
+}

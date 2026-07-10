@@ -33,6 +33,15 @@ const LESSONS: {
   to2: string;
 }[] = [
   {
+    to: '/study-packs',
+    eyebrow: 'MBI800 + MBI802 · For enrolled students',
+    title: 'Your Study Packs — a gift',
+    body: 'The complete courses, rewritten as properly typeset books: 11 chapters of Strategic IS Planning and 8 of Database Management Systems, with worked examples, practice questions and answer keys. Download, keep forever — passwords printed right on the page.',
+    emoji: '🎁',
+    from: '#92610a',
+    to2: '#6d28d9',
+  },
+  {
     to: '/cost-management',
     eyebrow: 'MBI804 · Project Management',
     title: 'Project Cost Management',

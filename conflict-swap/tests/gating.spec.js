@@ -112,4 +112,56 @@ test.describe('character-count gating', () => {
     expect(assignedToB).not.toContain('BBB456');
     expect(assignedToB).toContain('AAA123');
   });
+
+  test('teacher dashboard shows the ticket-to-ticket assignment map and flips to "Done" once an analysis is submitted', async ({ context }) => {
+    const code = randomCode();
+    const teacher = await context.newPage();
+    const studentA = await context.newPage();
+    const studentB = await context.newPage();
+
+    await joinAs(teacher, code, 'teacher');
+    await joinAs(studentA, code, 'student');
+    await joinAs(studentB, code, 'student');
+
+    // Before shuffling, the teacher sees the empty state, not a table.
+    await expect(teacher.locator('#assignmentsEmpty')).toBeVisible();
+    await expect(teacher.locator('#assignmentsTable')).toBeHidden();
+
+    await studentA.fill('#conflictTextarea', LONG_CONFLICT + ' from student A');
+    await studentA.click('#btnSubmitConflict');
+    const ticketA = await studentA.locator('#waitingTicket').innerText();
+    await studentB.fill('#conflictTextarea', LONG_CONFLICT + ' from student B');
+    await studentB.click('#btnSubmitConflict');
+    const ticketB = await studentB.locator('#waitingTicket').innerText();
+
+    teacher.once('dialog', (d) => d.dismiss());
+    await teacher.click('#btnShuffle');
+
+    // After shuffling with exactly 2 submissions, each is assigned to the other.
+    await expect(teacher.locator('#assignmentsTable')).toBeVisible({ timeout: 5000 });
+    await expect(teacher.locator('#assignmentsEmpty')).toBeHidden();
+    const rows = teacher.locator('#assignmentsBody tr');
+    await expect(rows).toHaveCount(2);
+    const rowTexts = await rows.allInnerTexts();
+    expect(rowTexts.some((r) => r.includes(ticketA) && r.includes(ticketB))).toBe(true);
+    expect(rowTexts.some((r) => r.includes(ticketB) && r.includes(ticketA))).toBe(true);
+    expect(rowTexts.every((r) => r.includes('Pending'))).toBe(true);
+
+    // Student A is reviewing B's conflict (2-submission shuffle always swaps
+    // the pair), so once A submits their analysis, submission B's row —
+    // keyed by conflict ticket B, not A — should flip to Done live.
+    await expect(studentA.locator('#shuffledForm')).toBeVisible({ timeout: 5000 });
+    await studentA.fill('#rootCauseInput', LONG_ANALYSIS);
+    await studentA.fill('#modeUsedInput', LONG_ANALYSIS);
+    await studentA.fill('#betterModeInput', LONG_ANALYSIS);
+    await studentA.click('#btnSubmitAnalysis');
+
+    await expect(async () => {
+      const cells = await teacher.locator('#assignmentsBody tr').evaluateAll((trs) =>
+        trs.map((tr) => Array.from(tr.children).map((td) => td.textContent))
+      );
+      const rowForConflictB = cells.find((row) => row[0] === ticketB);
+      expect(rowForConflictB[2]).toBe('Done');
+    }).toPass({ timeout: 5000 });
+  });
 });

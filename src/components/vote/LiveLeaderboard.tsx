@@ -70,34 +70,27 @@ export default function LiveLeaderboard({ teams, votes }: LiveLeaderboardProps) 
   ];
 
   if (teams.length === 0) {
-    return (
-      <div className="rounded-2xl py-8 text-center" style={{ background: 'rgba(124,58,237,0.04)', border: '1px dashed rgba(124,58,237,0.20)' }}>
-        <p className="text-sm font-medium" style={{ color: '#9ca3af' }}>Add teams to see the leaderboard.</p>
-      </div>
-    );
+    return <div className="vote-empty">Add teams to see the leaderboard.</div>;
   }
 
   return (
-    <div className="rounded-2xl border overflow-hidden" style={{ borderColor: 'rgba(124,58,237,0.15)' }}>
+    <div className="vote-card overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="vote-table">
           <thead>
-            <tr style={{ background: 'rgba(124,58,237,0.06)' }}>
-              <th
-                className="table-header-cell cursor-pointer whitespace-nowrap"
-                onClick={() => toggleSort('order')}
-              >
+            <tr>
+              <th onClick={() => toggleSort('order')}>
                 <span className="inline-flex items-center gap-1">Team <SortIcon k="order" /></span>
               </th>
               {columns.map(({ k, label }) => (
-                <th key={k} className="table-header-cell cursor-pointer text-center whitespace-nowrap" onClick={() => toggleSort(k)}>
+                <th key={k} className="text-center" onClick={() => toggleSort(k)}>
                   <span className="inline-flex items-center gap-1">{label} <SortIcon k={k} /></span>
                 </th>
               ))}
-              <th className="table-header-cell cursor-pointer text-center whitespace-nowrap" onClick={() => toggleSort('overall')}>
+              <th className="text-center" onClick={() => toggleSort('overall')}>
                 <span className="inline-flex items-center gap-1">Overall <SortIcon k="overall" /></span>
               </th>
-              <th className="table-header-cell cursor-pointer text-center whitespace-nowrap" onClick={() => toggleSort('votes')}>
+              <th className="text-center" onClick={() => toggleSort('votes')}>
                 <span className="inline-flex items-center gap-1">Votes <SortIcon k="votes" /></span>
               </th>
             </tr>
@@ -106,20 +99,20 @@ export default function LiveLeaderboard({ teams, votes }: LiveLeaderboardProps) 
             {sorted.map((row, i) => {
               const isTop = sortKey === 'overall' && sortDir === 'desc' && i === 0 && row.count > 0;
               return (
-                <tr key={row.team.id} style={{ borderTop: '1px solid rgba(124,58,237,0.08)', background: i % 2 === 0 ? 'rgba(255,255,255,0.5)' : 'rgba(124,58,237,0.02)' }}>
-                  <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-1.5 font-semibold" style={{ color: '#1e1b4b' }}>
-                      {isTop && <Trophy size={13} style={{ color: '#d97706' }} />}
+                <tr key={row.team.id}>
+                  <td>
+                    <span className="inline-flex items-center gap-1.5 font-semibold">
+                      {isTop && <Trophy size={13} style={{ color: 'var(--gold-strong)' }} />}
                       {row.team.name}
                     </span>
                   </td>
                   {columns.map(({ k }) => (
-                    <td key={k} className="px-4 py-3 text-center" style={{ color: '#6b7280' }}>{fmt(row[k])}</td>
+                    <td key={k} className="text-center" style={{ color: 'var(--paper-dim)' }}>{fmt(row[k])}</td>
                   ))}
-                  <td className="px-4 py-3 text-center">
-                    <span className="badge-purple">{fmt(row.overall)}</span>
+                  <td className="text-center">
+                    <span className="vote-badge">{fmt(row.overall)}</span>
                   </td>
-                  <td className="px-4 py-3 text-center" style={{ color: '#9ca3af' }}>{row.count}</td>
+                  <td className="text-center" style={{ color: 'var(--paper-dim)' }}>{row.count}</td>
                 </tr>
               );
             })}

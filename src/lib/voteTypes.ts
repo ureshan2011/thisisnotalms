@@ -39,14 +39,16 @@ export interface Team {
 }
 
 export interface VoteRecord {
-  id:                     string;
-  studentId:              string;
-  firstName:              string;
-  teamId:                 string;
-  teamName:               string;
-  ratings:                Ratings;
-  mostInterestingFinding: string;
-  updatedAt:              Date;
+  id:            string;
+  studentId:     string;
+  firstName:     string;
+  teamId:        string;
+  teamName:      string;
+  ratings:       Ratings;
+  platform:      string;
+  wentWell:      string;
+  couldImprove:  string;
+  updatedAt:     Date;
 }
 
 export function firestoreToTeam(id: string, data: Record<string, unknown>): Team {
@@ -72,7 +74,9 @@ export function firestoreToVote(id: string, data: Record<string, unknown>): Vote
       businessModel: ratings.businessModel ?? 0,
       risk:          ratings.risk ?? 0,
     },
-    mostInterestingFinding: (data.mostInterestingFinding as string) ?? '',
+    platform:     (data.platform as string) ?? '',
+    wentWell:     (data.wentWell as string) ?? '',
+    couldImprove: (data.couldImprove as string) ?? '',
     updatedAt: (data.updatedAt as Timestamp)?.toDate?.() ?? new Date(),
   };
 }

@@ -1,23 +1,16 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { doc, getDoc, serverTimestamp, setDoc } from 'firebase/firestore';
-import { CheckCircle2, Eye, Share2, DollarSign, AlertTriangle, Radio, Send } from 'lucide-react';
+import { CheckCircle2, Send } from 'lucide-react';
 import { db } from '../lib/firebase';
 import { useTeams, useLiveState } from '../lib/useVoteData';
 import { EMPTY_RATINGS, RATING_CRITERIA, VOTE_COLLECTIONS, voteDocId, type Ratings } from '../lib/voteTypes';
-import BrandMark from '../components/ui/BrandMark';
+import '../styles/voteTheme.css';
 import StarRating from '../components/vote/StarRating';
 
-const CRITERION_ICONS: Record<string, React.ReactNode> = {
-  clarity:       <Eye size={15} style={{ color: '#7c3aed' }} />,
-  networkEffect: <Share2 size={15} style={{ color: '#7c3aed' }} />,
-  businessModel: <DollarSign size={15} style={{ color: '#7c3aed' }} />,
-  risk:          <AlertTriangle size={15} style={{ color: '#7c3aed' }} />,
-};
+const STORAGE_KEY_STUDENT_ID = 'yoobees_vote_studentId';
+const STORAGE_KEY_FIRST_NAME = 'yoobees_vote_firstName';
 
-const STORAGE_KEY_STUDENT_ID  = 'yoobees_vote_studentId';
-const STORAGE_KEY_FIRST_NAME  = 'yoobees_vote_firstName';
-
-type FieldErrors = Partial<Record<'studentId' | 'firstName' | 'teamId' | 'finding' | keyof Ratings, boolean>>;
+type FieldErrors = Partial<Record<'studentId' | 'firstName' | 'teamId' | 'platform' | 'wentWell' | 'couldImprove' | keyof Ratings, boolean>>;
 
 export default function VotePage() {
   const { teams } = useTeams();
@@ -25,26 +18,24 @@ export default function VotePage() {
 
   const [studentId, setStudentId] = useState(() => localStorage.getItem(STORAGE_KEY_STUDENT_ID) ?? '');
   const [firstName, setFirstName] = useState(() => localStorage.getItem(STORAGE_KEY_FIRST_NAME) ?? '');
-  const [teamId, setTeamId]                 = useState('');
+  const [teamId, setTeamId]                   = useState('');
   const [teamManuallySet, setTeamManuallySet] = useState(false);
-  const [ratings, setRatings]               = useState<Ratings>(EMPTY_RATINGS);
-  const [finding, setFinding]               = useState('');
-  const [submitting, setSubmitting]         = useState(false);
-  const [fieldErrors, setFieldErrors]       = useState<FieldErrors>({});
-  const [submitError, setSubmitError]       = useState<string | null>(null);
-  const [confirmation, setConfirmation]     = useState<{ type: 'created' | 'updated'; teamName: string } | null>(null);
+  const [ratings, setRatings]                 = useState<Ratings>(EMPTY_RATINGS);
+  const [platform, setPlatform]               = useState('');
+  const [wentWell, setWentWell]               = useState('');
+  const [couldImprove, setCouldImprove]       = useState('');
+  const [submitting, setSubmitting]           = useState(false);
+  const [fieldErrors, setFieldErrors]         = useState<FieldErrors>({});
+  const [submitError, setSubmitError]         = useState<string | null>(null);
+  const [confirmation, setConfirmation]       = useState<{ type: 'created' | 'updated'; teamName: string } | null>(null);
 
   // Follow the admin's "currently presenting" pick until the student overrides it.
   useEffect(() => {
     if (!teamManuallySet && currentTeamId) setTeamId(currentTeamId);
   }, [currentTeamId, teamManuallySet]);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_STUDENT_ID, studentId);
-  }, [studentId]);
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY_FIRST_NAME, firstName);
-  }, [firstName]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEY_STUDENT_ID, studentId); }, [studentId]);
+  useEffect(() => { localStorage.setItem(STORAGE_KEY_FIRST_NAME, firstName); }, [firstName]);
 
   useEffect(() => {
     if (!confirmation) return;
@@ -54,15 +45,26 @@ export default function VotePage() {
 
   const currentTeam = teams.find((t) => t.id === currentTeamId) ?? null;
 
+  function clearError(key: keyof FieldErrors) {
+    setFieldErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSubmitError(null);
 
     const errors: FieldErrors = {};
-    if (!studentId.trim()) errors.studentId = true;
-    if (!firstName.trim()) errors.firstName = true;
-    if (!teamId)           errors.teamId = true;
-    if (!finding.trim())   errors.finding = true;
+    if (!studentId.trim())     errors.studentId = true;
+    if (!firstName.trim())     errors.firstName = true;
+    if (!teamId)                errors.teamId = true;
+    if (!platform.trim())      errors.platform = true;
+    if (!wentWell.trim())      errors.wentWell = true;
+    if (!couldImprove.trim())  errors.couldImprove = true;
     for (const { key } of RATING_CRITERIA) {
       if (ratings[key] === 0) errors[key] = true;
     }
@@ -82,14 +84,18 @@ export default function VotePage() {
         teamId,
         teamName: team?.name ?? '',
         ratings,
-        mostInterestingFinding: finding.trim(),
+        platform: platform.trim(),
+        wentWell: wentWell.trim(),
+        couldImprove: couldImprove.trim(),
         updatedAt: serverTimestamp(),
       });
       setConfirmation({ type: existing.exists() ? 'updated' : 'created', teamName: team?.name ?? '' });
       setTeamManuallySet(false);
       setTeamId(currentTeamId ?? '');
       setRatings(EMPTY_RATINGS);
-      setFinding('');
+      setPlatform('');
+      setWentWell('');
+      setCouldImprove('');
       setFieldErrors({});
     } catch {
       setSubmitError('Something went wrong submitting your vote. Please try again.');
@@ -99,28 +105,15 @@ export default function VotePage() {
   }
 
   return (
-    <div className="min-h-screen bg-page px-4 py-6 sm:py-10">
+    <div className="vote-theme px-4 py-6 sm:py-10">
       {/* Confirmation toast */}
       {confirmation && (
         <div className="fixed z-50 top-4 inset-x-4 sm:inset-x-auto sm:right-6 sm:w-96 animate-toastIn">
-          <div
-            className="flex items-center gap-3 rounded-2xl px-4 py-3.5"
-            style={{
-              background: 'rgba(255,255,255,0.97)',
-              backdropFilter: 'blur(16px)',
-              border: '1px solid rgba(16,185,129,0.20)',
-              boxShadow: '0 16px 40px rgba(0,0,0,0.12)',
-            }}
-          >
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, #10b981, #2dd4bf)' }}
-            >
-              <CheckCircle2 size={15} color="white" />
-            </div>
-            <p className="text-sm font-bold" style={{ color: '#065f46' }}>
+          <div className="vote-card flex items-center gap-3 px-4 py-3.5" style={{ borderColor: 'var(--gold-border)' }}>
+            <CheckCircle2 size={18} style={{ color: 'var(--gold-strong)', flexShrink: 0 }} />
+            <p className="text-sm font-bold" style={{ color: 'var(--paper)' }}>
               {confirmation.type === 'created' ? 'Vote recorded' : 'Vote updated'}
-              {confirmation.teamName && <span className="font-medium"> — {confirmation.teamName}</span>}
+              {confirmation.teamName && <span style={{ color: 'var(--paper-dim)', fontWeight: 500 }}> — {confirmation.teamName}</span>}
             </p>
           </div>
         </div>
@@ -128,64 +121,53 @@ export default function VotePage() {
 
       <div className="max-w-lg mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-5">
-          <div className="rounded-2xl p-2 flex-shrink-0" style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)' }}>
-            <BrandMark className="h-7 w-7" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold tracking-tight" style={{ color: '#1e1b4b' }}>Live Vote</h1>
-            <p className="text-xs font-medium" style={{ color: '#9ca3af' }}>Platform strategy presentations</p>
-          </div>
+        <div className="mb-5">
+          <p className="vote-eyebrow mb-1">MBI · Platform Strategy Presentations</p>
+          <h1 className="vote-marquee text-4xl">Live Vote</h1>
         </div>
 
         {/* Currently presenting banner */}
         {currentTeam && (
-          <div
-            className="flex items-center gap-2.5 rounded-2xl px-4 py-3 mb-5"
-            style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.08), rgba(167,139,250,0.05))', border: '1px solid rgba(124,58,237,0.15)' }}
-          >
-            <Radio size={15} className="pulse-ring" style={{ color: '#7c3aed', flexShrink: 0 }} />
-            <p className="text-sm font-semibold" style={{ color: '#5b21b6' }}>
-              Now presenting: <span className="font-bold">{currentTeam.name}</span>
-            </p>
+          <div className="vote-live-banner mb-5">
+            <span className="vote-live-dot" />
+            <span>Now presenting — {currentTeam.name}</span>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="rounded-3xl p-5 sm:p-6 space-y-5" style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(124,58,237,0.15)', boxShadow: '0 4px 24px rgba(124,58,237,0.10)' }}>
+        <form onSubmit={handleSubmit} className="vote-card p-5 sm:p-6 space-y-5">
           {/* Student ID */}
           <div>
-            <label className="label">Student ID (index number)</label>
+            <label className="vote-label">Student ID (index number)</label>
             <input
               type="text"
-              inputMode="text"
               autoComplete="off"
               value={studentId}
-              onChange={(e) => setStudentId(e.target.value)}
+              onChange={(e) => { setStudentId(e.target.value); clearError('studentId'); }}
               placeholder="e.g. 21ug1234"
-              className={`input-field ${fieldErrors.studentId ? 'ring-2 ring-red-400' : ''}`}
+              className={`vote-input ${fieldErrors.studentId ? 'vote-error' : ''}`}
             />
           </div>
 
           {/* First name */}
           <div>
-            <label className="label">First name</label>
+            <label className="vote-label">First name</label>
             <input
               type="text"
               autoComplete="off"
               value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              onChange={(e) => { setFirstName(e.target.value); clearError('firstName'); }}
               placeholder="e.g. Amara"
-              className={`input-field ${fieldErrors.firstName ? 'ring-2 ring-red-400' : ''}`}
+              className={`vote-input ${fieldErrors.firstName ? 'vote-error' : ''}`}
             />
           </div>
 
           {/* Team */}
           <div>
-            <label className="label">Team</label>
+            <label className="vote-label">Team</label>
             <select
               value={teamId}
-              onChange={(e) => { setTeamId(e.target.value); setTeamManuallySet(true); }}
-              className={`input-field ${fieldErrors.teamId ? 'ring-2 ring-red-400' : ''}`}
+              onChange={(e) => { setTeamId(e.target.value); setTeamManuallySet(true); clearError('teamId'); }}
+              className={`vote-input ${fieldErrors.teamId ? 'vote-error' : ''}`}
             >
               <option value="" disabled>Select a team</option>
               {teams.map((t) => (
@@ -194,7 +176,7 @@ export default function VotePage() {
             </select>
           </div>
 
-          <div className="divider" />
+          <hr className="vote-divider" />
 
           {/* Ratings */}
           <div className="space-y-5">
@@ -203,36 +185,58 @@ export default function VotePage() {
                 key={key}
                 label={label}
                 description={description}
-                icon={CRITERION_ICONS[key]}
                 value={ratings[key]}
-                onChange={(v) => setRatings((r) => ({ ...r, [key]: v }))}
+                onChange={(v) => { setRatings((r) => ({ ...r, [key]: v })); clearError(key); }}
                 error={fieldErrors[key]}
               />
             ))}
           </div>
 
-          <div className="divider" />
+          <hr className="vote-divider" />
 
-          {/* Most interesting finding */}
+          {/* Platform presented */}
           <div>
-            <label className="label">Most interesting finding</label>
-            <p className="text-xs font-medium mb-2" style={{ color: '#9ca3af' }}>
-              What's the most interesting thing you learned from this team?
-            </p>
-            <textarea
-              value={finding}
-              onChange={(e) => setFinding(e.target.value)}
-              rows={3}
-              placeholder="Type your answer…"
-              className={`input-field resize-none ${fieldErrors.finding ? 'ring-2 ring-red-400' : ''}`}
+            <label className="vote-label">Platform they presented</label>
+            <p className="vote-hint">Which company or platform was this pitch about?</p>
+            <input
+              type="text"
+              autoComplete="off"
+              value={platform}
+              onChange={(e) => { setPlatform(e.target.value); clearError('platform'); }}
+              placeholder="e.g. DoorDash, Airbnb, Uber…"
+              className={`vote-input ${fieldErrors.platform ? 'vote-error' : ''}`}
             />
           </div>
 
-          {submitError && (
-            <p className="text-sm font-semibold text-center" style={{ color: '#dc2626' }}>{submitError}</p>
-          )}
+          {/* What went well */}
+          <div>
+            <label className="vote-label">What went well</label>
+            <p className="vote-hint">Name one best practice this team nailed — something you'd reuse.</p>
+            <textarea
+              value={wentWell}
+              onChange={(e) => { setWentWell(e.target.value); clearError('wentWell'); }}
+              rows={3}
+              placeholder="e.g. They clearly separated the two sides of the marketplace and showed how each one hooks the other…"
+              className={`vote-input resize-none ${fieldErrors.wentWell ? 'vote-error' : ''}`}
+            />
+          </div>
 
-          <button type="submit" disabled={submitting} className="btn-primary w-full justify-center py-3.5 text-base">
+          {/* What could improve */}
+          <div>
+            <label className="vote-label">What could improve</label>
+            <p className="vote-hint">Name one gap, risk, or unclear point they missed.</p>
+            <textarea
+              value={couldImprove}
+              onChange={(e) => { setCouldImprove(e.target.value); clearError('couldImprove'); }}
+              rows={3}
+              placeholder="e.g. They didn't address what stops a competitor from undercutting on price…"
+              className={`vote-input resize-none ${fieldErrors.couldImprove ? 'vote-error' : ''}`}
+            />
+          </div>
+
+          {submitError && <p className="vote-error-text text-center">{submitError}</p>}
+
+          <button type="submit" disabled={submitting} className="vote-btn-primary w-full py-3.5 text-base">
             {submitting ? 'Submitting…' : <><Send size={16} /> Submit vote</>}
           </button>
         </form>

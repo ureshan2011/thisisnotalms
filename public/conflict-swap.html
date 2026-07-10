@@ -71,50 +71,65 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
+  /* Matches the "Apple-style" design system used across the other YooBees
+     lesson pages (see HomePage.tsx / CostManagementPage.tsx): same font
+     stack, ink/muted/accent colors, card and button treatment. */
   :root {
-    --cream: #F7F5EF;
-    --sage: #7C9A78;
-    --maroon: #8B2E3B;
-    --ink: #2B2B28;
-    --muted: #6B6A63;
-    --card-bg: #FFFFFF;
-    --warn: #C0524B;
-    --confirm: #4C7A52;
+    --ink: #1d1d1f;
+    --muted: #6e6e73;
+    --accent: #0071e3;
+    --accent-hover: #0077ed;
+    --danger: #ff375f;
+    --success: #30d158;
+    --warn: #ff9f0a;
+    --card-bg: #fafafa;
+    --card-border: rgba(0,0,0,0.07);
+    --field-bg: #ffffff;
+    --field-border: rgba(0,0,0,0.12);
   }
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0;
-    background: var(--cream);
+    background: #ffffff;
     color: var(--ink);
-    font-family: 'Inter', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", system-ui, sans-serif;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3 {
-    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
     margin: 0 0 0.4em 0;
     color: var(--ink);
   }
   .wrap {
     max-width: 720px;
     margin: 0 auto;
-    padding: 24px 16px 64px;
+    padding: 20px 16px 64px;
   }
+  .top-nav {
+    display: block;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 14px;
+  }
+  .top-nav:hover { color: var(--accent); }
   .card {
     background: var(--card-bg);
-    border-left: 6px solid var(--sage);
-    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
     padding: 24px;
     margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(43,43,40,0.08);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 12px 32px -20px rgba(0,0,0,0.18);
   }
-  .card.maroon-edge { border-left-color: var(--maroon); }
   .divider {
     border: none;
-    border-top: 2px solid var(--maroon);
-    opacity: 0.25;
+    border-top: 1px solid var(--card-border);
     margin: 20px 0;
   }
   .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
@@ -122,44 +137,47 @@
   label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95em; }
   input[type="text"], textarea {
     width: 100%;
-    font-family: 'Inter', sans-serif;
+    font-family: inherit;
     font-size: 1em;
     padding: 12px 14px;
-    border: 1.5px solid #DAD6C9;
-    border-radius: 8px;
-    background: #FFFDF9;
+    border: 1px solid var(--field-border);
+    border-radius: 12px;
+    background: var(--field-bg);
     color: var(--ink);
     resize: vertical;
   }
   input[type="text"]:focus, textarea:focus {
     outline: none;
-    border-color: var(--sage);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
   }
   textarea { min-height: 140px; line-height: 1.5; }
   button {
-    font-family: 'Inter', sans-serif;
-    font-weight: 600;
-    font-size: 0.98em;
-    padding: 12px 20px;
-    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 500;
+    font-size: 0.95em;
+    padding: 11px 22px;
+    border-radius: 999px;
     border: none;
     cursor: pointer;
-    transition: transform 0.08s ease, opacity 0.15s ease;
+    transition: transform 0.08s ease, opacity 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
   }
   button:active { transform: scale(0.97); }
-  button.primary { background: var(--sage); color: #fff; }
-  button.secondary { background: var(--maroon); color: #fff; }
-  button.ghost { background: transparent; color: var(--maroon); border: 1.5px solid var(--maroon); }
-  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  button.primary { background: var(--accent); color: #fff; }
+  button.primary:hover:not(:disabled) { background: var(--accent-hover); }
+  button.danger { background: var(--danger); color: #fff; }
+  button.danger:hover:not(:disabled) { opacity: 0.9; }
+  button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--field-border); }
+  button.ghost:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
   .char-counter { font-size: 0.85em; margin-top: 6px; font-weight: 600; }
   .char-counter.warn { color: var(--warn); }
-  .char-counter.confirm { color: var(--confirm); }
+  .char-counter.confirm { color: var(--success); }
   .big-code {
-    font-family: 'Playfair Display', serif;
-    font-size: 3em;
+    font-size: 2.6em;
     font-weight: 700;
-    letter-spacing: 0.12em;
-    color: var(--maroon);
+    letter-spacing: 0.1em;
+    color: var(--accent);
     text-align: center;
     margin: 0.2em 0;
   }
@@ -167,28 +185,28 @@
     font-size: 2.2em;
     font-weight: 700;
     text-align: center;
+    color: var(--ink);
     font-variant-numeric: tabular-nums;
   }
   .stat-row { display: flex; gap: 16px; margin: 16px 0; }
   .stat-box {
     flex: 1;
     text-align: center;
-    background: #FBF9F3;
-    border-radius: 8px;
+    background: #ffffff;
+    border-radius: 14px;
     padding: 14px;
-    border: 1px solid #EEE9DB;
+    border: 1px solid var(--card-border);
   }
-  .stat-box .num { font-size: 1.8em; font-weight: 700; color: var(--sage); }
+  .stat-box .num { font-size: 1.8em; font-weight: 700; color: var(--accent); }
   .stat-box .lbl { font-size: 0.8em; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
   details.danger summary {
     cursor: pointer;
-    color: var(--maroon);
+    color: var(--danger);
     font-weight: 600;
     padding: 8px 0;
   }
   .called-name-display {
-    font-family: 'Playfair Display', serif;
-    font-size: 2.6em;
+    font-size: 2.4em;
     font-weight: 700;
     text-align: center;
     color: var(--ink);
@@ -220,31 +238,51 @@
   .hidden { display: none !important; }
   .field-block { margin-bottom: 18px; }
   .assigned-text {
-    background: #FBF9F3;
-    border: 1px solid #EEE9DB;
-    border-radius: 8px;
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
     padding: 16px;
     white-space: pre-wrap;
     line-height: 1.55;
   }
   .ticket-badge {
     display: inline-block;
-    font-family: 'Inter', sans-serif;
     font-weight: 700;
     letter-spacing: 0.06em;
-    background: var(--sage);
+    background: var(--accent);
     color: #fff;
     padding: 3px 10px;
     border-radius: 999px;
     font-size: 0.8em;
   }
+  .assignments-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92em;
+  }
+  .assignments-table th {
+    text-align: left;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.8em;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .assignments-table td {
+    padding: 8px;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .assignments-table tr:last-child td { border-bottom: none; }
   footer.app-footer {
     text-align: center;
     color: var(--muted);
     font-size: 0.8em;
     margin-top: 30px;
   }
-  a.link-btn { color: var(--maroon); text-decoration: underline; cursor: pointer; font-size: 0.9em; }
+  a.link-btn { color: var(--accent); text-decoration: none; cursor: pointer; font-size: 0.9em; font-weight: 500; }
+  a.link-btn:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -252,8 +290,9 @@
 <div id="confettiLayer"></div>
 
 <div class="wrap">
+  <a class="top-nav" href="./">← Not a LMS</a>
   <div style="text-align:center; margin-bottom: 8px;">
-    <h1 style="font-size:1.6em;">Conflict Swap</h1>
+    <h1 style="font-size:1.7em;">Conflict Swap</h1>
     <p class="muted" style="margin-top:-6px;">MBI804 · Communication &amp; Conflict Management</p>
   </div>
 
@@ -267,7 +306,7 @@
     </div>
     <div id="landingError" class="muted" style="color:var(--warn); display:none; margin-bottom:12px;"></div>
     <div class="row">
-      <button class="secondary" id="btnTeacher">I'm the teacher</button>
+      <button class="ghost" id="btnTeacher">I'm the teacher</button>
       <button class="primary" id="btnStudent">I'm a student</button>
     </div>
     <p id="backendModeNote" class="muted" style="margin-top:16px;"></p>
@@ -298,8 +337,18 @@
         <div class="stat-box"><div class="num" id="statSubmissions">0</div><div class="lbl">Submissions</div></div>
         <div class="stat-box"><div class="num" id="statAnalyses">0</div><div class="lbl">Analyses done</div></div>
       </div>
-      <button class="secondary" id="btnShuffle" style="width:100%;">Shuffle &amp; assign</button>
+      <button class="primary" id="btnShuffle" style="width:100%;">Shuffle &amp; assign</button>
       <p class="muted" style="margin-top:8px;">Needs at least 2 submissions. Every student gets someone else's conflict — never their own.</p>
+    </div>
+
+    <div class="card">
+      <h3>Assignments</h3>
+      <p class="muted" id="assignmentsEmpty">Nothing to show yet — assignments appear here once you shuffle.</p>
+      <table class="assignments-table hidden" id="assignmentsTable">
+        <thead><tr><th>Conflict ticket</th><th>Assigned to (ticket)</th><th>Analysis</th></tr></thead>
+        <tbody id="assignmentsBody"></tbody>
+      </table>
+      <p class="muted" style="margin-top:8px;">Tickets, not names — students stay anonymous to each other, but you can track who has what.</p>
     </div>
 
     <div class="card">
@@ -313,17 +362,17 @@
       <hr class="divider" />
       <div class="called-name-display" id="calledNameDisplay">—</div>
       <div class="row" style="justify-content:center;">
-        <button class="secondary" id="btnCallSomeone">Call someone</button>
+        <button class="primary" id="btnCallSomeone">Call someone</button>
         <button class="ghost" id="btnResetCalled">Reset called list</button>
       </div>
       <p class="muted" id="calledProgress" style="text-align:center; margin-top:8px;"></p>
     </div>
 
-    <div class="card maroon-edge">
+    <div class="card">
       <details class="danger">
         <summary>Danger zone</summary>
         <p class="muted">Wipes all submissions and analyses, resets the phase to "writing", and clears the roster/called list for this class code. Use this between class sections so the code can be reused.</p>
-        <button class="secondary" id="btnResetEverything">Reset everything for this code</button>
+        <button class="danger" id="btnResetEverything">Reset everything for this code</button>
       </details>
     </div>
   </div>
@@ -531,7 +580,7 @@
 
   function fireConfetti() {
     const layer = document.getElementById('confettiLayer');
-    const colors = ['#7C9A78', '#8B2E3B', '#E8C97A', '#F7F5EF', '#4C7A52'];
+    const colors = ['#0071e3', '#30d158', '#ff9f0a', '#ff375f', '#5e5ce6'];
     for (let i = 0; i < 40; i++) {
       const piece = document.createElement('div');
       piece.className = 'confetti-piece';
@@ -838,7 +887,43 @@
       latestSubs = subs;
       document.getElementById('statSubmissions').textContent = subs.length;
       document.getElementById('statAnalyses').textContent = subs.filter(function (s) { return !!s.analysis; }).length;
+      renderAssignments(subs);
     }));
+
+    // Ticket-to-ticket view for the teacher: which conflict went to which
+    // reviewer, and whether that reviewer has turned in their analysis yet.
+    // Uses tickets, not names/anonIds — students stay anonymous to each
+    // other, but the teacher can still see the shuffle actually worked and
+    // track completion.
+    function renderAssignments(subs) {
+      const assigned = subs.filter(function (s) { return !!s.assignedTo; });
+      const empty = document.getElementById('assignmentsEmpty');
+      const table = document.getElementById('assignmentsTable');
+      const body = document.getElementById('assignmentsBody');
+      if (!assigned.length) {
+        empty.classList.remove('hidden');
+        table.classList.add('hidden');
+        return;
+      }
+      empty.classList.add('hidden');
+      table.classList.remove('hidden');
+      body.innerHTML = '';
+      assigned.forEach(function (s) {
+        const reviewer = subs.find(function (r) { return r.anonId === s.assignedTo; });
+        const tr = document.createElement('tr');
+        const ticketCell = document.createElement('td');
+        ticketCell.textContent = s.ticket;
+        const reviewerCell = document.createElement('td');
+        reviewerCell.textContent = reviewer ? reviewer.ticket : '—';
+        const statusCell = document.createElement('td');
+        statusCell.textContent = s.analysis ? 'Done' : 'Pending';
+        statusCell.style.color = s.analysis ? 'var(--success)' : 'var(--muted)';
+        tr.appendChild(ticketCell);
+        tr.appendChild(reviewerCell);
+        tr.appendChild(statusCell);
+        body.appendChild(tr);
+      });
+    }
 
     function renderTeacherSession(session) {
       const roster = session.roster || [];

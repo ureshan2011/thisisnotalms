@@ -297,6 +297,23 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ── Live Vote (in-class platform strategy presentations) ───
+    // No student login and a client-side-only admin password by design (see
+    // spec) — this is a disposable, single-session classroom tool with no
+    // sensitive data beyond first names and index numbers, so reads/writes
+    // are open rather than gated behind Firebase Auth.
+    match /presentationTeams/{teamId} {
+      allow read, write: if true;
+    }
+
+    match /presentationVotes/{voteId} {
+      allow read, write: if true;
+    }
+
+    match /liveState/{docId} {
+      allow read, write: if true;
+    }
+
     function isStaff() {
       return isLecturer() || isTeachingAssistant();
     }

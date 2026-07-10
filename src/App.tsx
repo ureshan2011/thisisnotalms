@@ -28,6 +28,8 @@ const SQLCertificationsPage = lazy(() => import('./pages/SQLCertificationsPage')
 const JiraCertificationsPage = lazy(() => import('./pages/JiraCertificationsPage'));
 const NormalizationVideosPage = lazy(() => import('./pages/NormalizationVideosPage'));
 const SecurityLabPage = lazy(() => import('./pages/SecurityLabPage'));
+const VotePage = lazy(() => import('./pages/VotePage'));
+const VoteAdminPage = lazy(() => import('./pages/VoteAdminPage'));
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const StudentSQLRace    = lazy(() => import('./pages/student/SQLRacePage'));
@@ -110,6 +112,8 @@ function AppRoutes() {
         <Route path="/jira-certifications" element={<Suspense fallback={null}><JiraCertificationsPage /></Suspense>} />
         <Route path="/normalisation-videos" element={<Suspense fallback={null}><NormalizationVideosPage /></Suspense>} />
         <Route path="/normalization-videos" element={<Navigate to="/normalisation-videos" replace />} />
+        <Route path="/vote"         element={<Suspense fallback={null}><VotePage /></Suspense>} />
+        <Route path="/vote/admin"   element={<Suspense fallback={null}><VoteAdminPage /></Suspense>} />
         <Route path="/login"        element={<Suspense fallback={null}><Login /></Suspense>} />
         <Route path="/register"     element={<Suspense fallback={null}><Register /></Suspense>} />
         <Route path="/attend/:code" element={<QuickAttend />} />
@@ -188,6 +192,8 @@ function ShutdownRoutes() {
       <Route path="/jira-certifications" element={<Suspense fallback={null}><JiraCertificationsPage /></Suspense>} />
       <Route path="/normalisation-videos" element={<Suspense fallback={null}><NormalizationVideosPage /></Suspense>} />
       <Route path="/normalization-videos" element={<Navigate to="/normalisation-videos" replace />} />
+      <Route path="/vote"         element={<Suspense fallback={null}><VotePage /></Suspense>} />
+      <Route path="/vote/admin"   element={<Suspense fallback={null}><VoteAdminPage /></Suspense>} />
       {/* All other routes show the shutdown notice */}
       <Route path="*" element={<ShutdownPage />} />
     </Routes>

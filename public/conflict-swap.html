@@ -14,8 +14,19 @@
   classroom exercise on Communication Management + Human Resource/Conflict
   Management. Students anonymously write a real conflict they experienced;
   the teacher shuffles submissions so each student analyzes someone else's
-  conflict (root cause, conflict-handling mode used, mode that should have
-  been used); the teacher then cold-calls names from a roster.
+  conflict through five structured questions (root cause, stakeholders,
+  conflict-handling mode used, mode that should have been used, prevention);
+  the teacher then cold-calls names from a roster, reviews each submitted
+  analysis, and sends written feedback that appears live on the student's
+  screen.
+
+  The teacher panel sits behind an instructor password. This is a client-side
+  gate in a public static page — its job is to stop students from wandering
+  into the teacher controls, not to withstand a determined attacker (there is
+  no auth in this tool by design; see the rules comment below). There is also
+  a read-only "class dashboard" view (?board=CODE) meant to be projected or
+  shared in a webinar chat: it shows live progress, the timer, and the
+  cold-call display, and never any student text — so it needs no password.
 
   DEPLOYMENT
   This file lives in the Vite app's public/ folder, exactly like
@@ -135,7 +146,7 @@
   .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
   .muted { color: var(--muted); font-size: 0.92em; }
   label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.95em; }
-  input[type="text"], textarea {
+  input[type="text"], input[type="password"], textarea {
     width: 100%;
     font-family: inherit;
     font-size: 1em;
@@ -146,7 +157,7 @@
     color: var(--ink);
     resize: vertical;
   }
-  input[type="text"]:focus, textarea:focus {
+  input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(0,113,227,0.15);
@@ -219,23 +230,84 @@
     60% { transform: scale(1.12); opacity: 1; }
     100% { transform: scale(1); }
   }
-  #confettiLayer {
-    position: fixed; inset: 0;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: 50;
-  }
-  .confetti-piece {
-    position: absolute;
-    top: -20px;
-    width: 10px; height: 14px;
-    opacity: 0.9;
-    animation: confettiFall linear forwards;
-  }
-  @keyframes confettiFall {
-    to { transform: translateY(105vh) rotate(540deg); opacity: 0.2; }
-  }
   .hidden { display: none !important; }
+  .progress-track {
+    height: 8px;
+    background: rgba(0,0,0,0.07);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+  .phase-pill {
+    display: inline-block;
+    padding: 5px 16px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.85em;
+    letter-spacing: 0.02em;
+  }
+  .phase-pill.writing { background: rgba(0,113,227,0.1); color: var(--accent); }
+  .phase-pill.shuffled { background: rgba(48,209,88,0.14); color: #1e9e46; }
+  .share-link-box {
+    flex: 1;
+    min-width: 0;
+    background: #ffffff;
+    border: 1px solid var(--field-border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 0.85em;
+    color: var(--muted);
+    word-break: break-all;
+    font-variant-numeric: tabular-nums;
+  }
+  details.review-item {
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  details.review-item summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95em;
+  }
+  details.review-item summary .summary-tag {
+    color: var(--success);
+    font-weight: 600;
+    font-size: 0.85em;
+    margin-left: 8px;
+  }
+  .qa-label {
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    font-weight: 600;
+    margin: 14px 0 4px;
+  }
+  .qa-text {
+    line-height: 1.5;
+    white-space: pre-wrap;
+    font-size: 0.95em;
+    overflow-wrap: anywhere;
+  }
+  .feedback-note {
+    background: rgba(0,113,227,0.06);
+    border: 1px solid rgba(0,113,227,0.25);
+    border-radius: 12px;
+    padding: 16px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
   .field-block { margin-bottom: 18px; }
   .assigned-text {
     background: #ffffff;
@@ -244,6 +316,7 @@
     padding: 16px;
     white-space: pre-wrap;
     line-height: 1.55;
+    overflow-wrap: anywhere; /* a long unbroken token must never blow the layout */
   }
   .ticket-badge {
     display: inline-block;
@@ -287,8 +360,6 @@
 </head>
 <body>
 
-<div id="confettiLayer"></div>
-
 <div class="wrap">
   <a class="top-nav" href="./">← Not a LMS</a>
   <div style="text-align:center; margin-bottom: 8px;">
@@ -309,6 +380,15 @@
       <button class="ghost" id="btnTeacher">I'm the teacher</button>
       <button class="primary" id="btnStudent">I'm a student</button>
     </div>
+    <div id="teacherPassRow" class="hidden" style="margin-top:18px;">
+      <label for="teacherPassInput">Instructor password</label>
+      <div class="row">
+        <input type="password" id="teacherPassInput" autocomplete="off" style="flex:1; min-width:180px;" />
+        <button class="primary" id="btnTeacherPassGo">Open teacher panel</button>
+      </div>
+      <p class="muted" id="teacherPassError" style="color:var(--danger); display:none; margin-top:8px;"></p>
+    </div>
+    <p style="margin-top:16px;"><a class="link-btn" id="btnOpenBoard">Open the shared class dashboard →</a></p>
     <p id="backendModeNote" class="muted" style="margin-top:16px;"></p>
   </div>
 
@@ -323,12 +403,25 @@
     </div>
 
     <div class="card">
+      <h3>Class dashboard</h3>
+      <p class="muted">A read-only live view of this session — keep it on the projector or share the link in the webinar chat. It shows the timer, class progress, and the cold-call display. It never shows any student text, so it needs no password.</p>
+      <div class="row">
+        <div class="share-link-box" id="boardLinkBox"></div>
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <button class="ghost" id="btnCopyBoardLink">Copy link</button>
+        <button class="ghost" id="btnOpenBoardFromTeacher">Open dashboard</button>
+        <span class="muted" id="copyConfirm" style="color:var(--success); display:none;">Copied</span>
+      </div>
+    </div>
+
+    <div class="card">
       <h3>Session timer</h3>
       <div class="timer" id="timerDisplay">60:00</div>
       <div class="row" style="justify-content:center; margin-top:10px;">
         <button class="primary" id="btnStartSession">Start session</button>
       </div>
-      <p class="muted" style="text-align:center; margin-top:8px;">Purely visual — does not lock anything.</p>
+      <p class="muted" style="text-align:center; margin-top:8px;">The countdown also appears on the class dashboard. It does not lock submissions.</p>
     </div>
 
     <div class="card">
@@ -337,6 +430,7 @@
         <div class="stat-box"><div class="num" id="statSubmissions">0</div><div class="lbl">Submissions</div></div>
         <div class="stat-box"><div class="num" id="statAnalyses">0</div><div class="lbl">Analyses done</div></div>
       </div>
+      <div class="progress-track" style="margin-bottom:14px;"><div class="progress-fill" id="analysisProgressFill"></div></div>
       <button class="primary" id="btnShuffle" style="width:100%;">Shuffle &amp; assign</button>
       <p class="muted" style="margin-top:8px;">Needs at least 2 submissions. Every student gets someone else's conflict — never their own.</p>
     </div>
@@ -349,6 +443,12 @@
         <tbody id="assignmentsBody"></tbody>
       </table>
       <p class="muted" style="margin-top:8px;">Tickets, not names — students stay anonymous to each other, but you can track who has what.</p>
+    </div>
+
+    <div class="card">
+      <h3>Review analyses &amp; give feedback</h3>
+      <p class="muted" id="reviewEmpty">Submitted analyses appear here as students finish. Open one to read the full conflict and all five answers, then send written feedback — it appears on that student's screen immediately.</p>
+      <div id="reviewList"></div>
     </div>
 
     <div class="card">
@@ -389,50 +489,65 @@
 
     <!-- writing phase, not yet submitted -->
     <div id="writeForm" class="card hidden">
-      <h3>Describe a real conflict you've experienced</h3>
-      <p class="muted">Could be work, school, family, a team project — anything real. Include what happened, who was involved (no real names needed), and how it played out. Write at least 350 characters — this is what forces real depth instead of a one-liner.</p>
-      <textarea id="conflictTextarea" placeholder="It started when..."></textarea>
-      <div class="char-counter warn" id="conflictCounter">0 / 350</div>
+      <h3>Step 1 of 2 · Describe a real conflict you've experienced</h3>
+      <p class="muted">Work, university, a team project, family — anything real. A strong write-up covers all four of these: (1)&nbsp;the background and the people involved (no real names), (2)&nbsp;what triggered the conflict, (3)&nbsp;how each side actually responded, and (4)&nbsp;how it ended, or where it stands now. Minimum 400 characters — a classmate has to be able to analyze this without asking you anything.</p>
+      <textarea id="conflictTextarea" placeholder="Set the scene first: where this happened, who was involved, and what each person wanted..."></textarea>
+      <div class="char-counter warn" id="conflictCounter">0 / 400</div>
       <button class="primary" id="btnSubmitConflict" style="margin-top:14px; width:100%;" disabled>Submit anonymously</button>
     </div>
 
     <!-- writing phase, already submitted -->
     <div id="waitingScreen" class="card hidden">
-      <h3>Submitted!</h3>
+      <h3>Submission received</h3>
       <p>Your ticket: <span class="ticket-badge" id="waitingTicket"></span></p>
-      <p class="muted" id="waitingMessage">Waiting for the teacher to shuffle...</p>
+      <p class="muted" id="waitingMessage">When everyone has submitted, your instructor will assign you a classmate's conflict to analyze. This screen updates automatically — keep it open.</p>
     </div>
 
     <!-- shuffled phase, has assignment -->
     <div id="shuffledForm" class="card hidden">
-      <h3>Analyze this conflict</h3>
+      <h3>Step 2 of 2 · Analyze this conflict</h3>
+      <p class="muted">Read the conflict below carefully — you may be asked to walk the class through it. Each answer needs at least 80 characters; specific beats general.</p>
       <div class="assigned-text" id="assignedText"></div>
       <hr class="divider" />
       <div class="field-block">
-        <label for="rootCauseInput">1. What is the root cause of this conflict?</label>
+        <label for="rootCauseInput">1. What is the root cause of this conflict? Look past the surface disagreement to what actually drives it.</label>
         <textarea id="rootCauseInput" style="min-height:80px;"></textarea>
-        <div class="char-counter warn" id="rootCauseCounter">0 / 50</div>
+        <div class="char-counter warn" id="rootCauseCounter">0 / 80</div>
       </div>
       <div class="field-block">
-        <label for="modeUsedInput">2. Which conflict-handling mode was actually used, and how can you tell?</label>
+        <label for="stakeholdersInput">2. Who are the stakeholders in this conflict, and what does each of them stand to lose?</label>
+        <textarea id="stakeholdersInput" style="min-height:80px;"></textarea>
+        <div class="char-counter warn" id="stakeholdersCounter">0 / 80</div>
+      </div>
+      <div class="field-block">
+        <label for="modeUsedInput">3. Which conflict-handling mode was actually used? Point to the specific behaviour that tells you.</label>
         <textarea id="modeUsedInput" style="min-height:80px;"></textarea>
-        <div class="char-counter warn" id="modeUsedCounter">0 / 50</div>
+        <div class="char-counter warn" id="modeUsedCounter">0 / 80</div>
       </div>
       <div class="field-block">
-        <label for="betterModeInput">3. Which mode should have been used instead, and why?</label>
+        <label for="betterModeInput">4. Which mode should have been used instead, and why would it have produced a better outcome?</label>
         <textarea id="betterModeInput" style="min-height:80px;"></textarea>
-        <div class="char-counter warn" id="betterModeCounter">0 / 50</div>
+        <div class="char-counter warn" id="betterModeCounter">0 / 80</div>
+      </div>
+      <div class="field-block">
+        <label for="preventionInput">5. If you were the project manager, which communication practices would have prevented this conflict? Name concrete practices, not "communicate better".</label>
+        <textarea id="preventionInput" style="min-height:80px;"></textarea>
+        <div class="char-counter warn" id="preventionCounter">0 / 80</div>
       </div>
       <button class="primary" id="btnSubmitAnalysis" style="width:100%;" disabled>Submit analysis</button>
     </div>
 
     <!-- done screen -->
     <div id="doneScreen" class="card hidden">
-      <h3>You're done</h3>
-      <p class="muted">Here's a recap of what you wrote. You might get cold-called to explain this scenario out loud — that's safe, since it isn't your own story.</p>
+      <h3>Analysis submitted</h3>
+      <p class="muted">Here is a recap of what you wrote. Be ready to walk the class through this scenario if your name is called — it isn't your own story, so you can speak freely.</p>
       <div class="field-block">
         <label>Root cause</label>
         <div class="assigned-text" id="recapRootCause"></div>
+      </div>
+      <div class="field-block">
+        <label>Stakeholders and what they stand to lose</label>
+        <div class="assigned-text" id="recapStakeholders"></div>
       </div>
       <div class="field-block">
         <label>Mode actually used</label>
@@ -442,12 +557,56 @@
         <label>Mode that should have been used</label>
         <div class="assigned-text" id="recapBetterMode"></div>
       </div>
+      <div class="field-block">
+        <label>Prevention as project manager</label>
+        <div class="assigned-text" id="recapPrevention"></div>
+      </div>
+      <hr class="divider" />
+      <div class="field-block hidden" id="feedbackBlock">
+        <label>Instructor feedback</label>
+        <div class="feedback-note" id="feedbackText"></div>
+      </div>
+      <p class="muted" id="noFeedbackNote">Your instructor may send written feedback on this analysis — it will appear here automatically.</p>
     </div>
 
     <!-- no assignment edge case -->
     <div id="noAssignmentScreen" class="card hidden">
-      <h3>Hmm — nothing assigned to you</h3>
-      <p>The teacher already shuffled, but you don't have a conflict assigned (maybe you joined late, or there was an odd number of submissions). Please flag this to your teacher — they can fix it manually.</p>
+      <h3>No conflict assigned to you</h3>
+      <p>The instructor has already shuffled, but no conflict is assigned to you — usually because you joined after the shuffle. Let your instructor know; they can pair you up manually.</p>
+    </div>
+  </div>
+
+  <!-- ===================== SHARED CLASS DASHBOARD (read-only) ===================== -->
+  <div id="boardView" class="hidden">
+    <div class="card" style="text-align:center;">
+      <div class="row" style="justify-content:space-between;">
+        <p class="muted" style="margin:0;">Class dashboard</p>
+        <a class="link-btn" id="btnLeaveBoard">exit</a>
+      </div>
+      <p class="muted" style="margin:8px 0 2px;">Class code</p>
+      <div class="big-code" id="boardClassCode">----</div>
+      <span class="phase-pill writing" id="boardPhasePill">Writing phase</span>
+    </div>
+
+    <div class="card" style="text-align:center;">
+      <h3>Time remaining</h3>
+      <div class="timer" id="boardTimer">60:00</div>
+    </div>
+
+    <div class="card">
+      <h3>Class progress</h3>
+      <div class="stat-row">
+        <div class="stat-box"><div class="num" id="boardSubmissions">0</div><div class="lbl">Conflicts submitted</div></div>
+        <div class="stat-box"><div class="num" id="boardAnalyses">0</div><div class="lbl">Analyses done</div></div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="boardProgressFill"></div></div>
+      <p class="muted" id="boardProgressLabel" style="text-align:center; margin-top:10px;"></p>
+    </div>
+
+    <div class="card" style="text-align:center;">
+      <h3>Now presenting</h3>
+      <div class="called-name-display" id="boardCalledName">—</div>
+      <p class="muted" id="boardCalledProgress"></p>
     </div>
   </div>
 
@@ -475,22 +634,17 @@
     appId: "1:423333451221:web:9e2f949f8cbf4d8574d95c"
   };
 
-  const MIN_CONFLICT_LEN = 350;
-  const MIN_ANALYSIS_LEN = 50;
+  const MIN_CONFLICT_LEN = 400;
+  const MIN_ANALYSIS_LEN = 80;
   const SESSION_DURATION_MS = 60 * 60 * 1000;
   const FIRESTORE_COLLECTION = 'conflictSwapSessions';
   const LOCAL_STORAGE_PREFIX = 'cs_';
 
-  const WAITING_MESSAGES = [
-    "Waiting for the teacher to shuffle...",
-    "Somewhere, a classmate is still typing their conflict story.",
-    "Patience is a conflict-management skill too.",
-    "This is basically a compromising strategy: you wait, they write.",
-    "No hard deadline — just vibes and peer pressure.",
-    "Rehearse your poker face for when your story gets assigned to someone else.",
-    "The teacher is definitely not scrolling their phone right now.",
-    "Fun fact: avoidance is a real conflict-handling mode. This is not that.",
-  ];
+  // Client-side gate for the teacher panel. This page is public static HTML,
+  // so the password is necessarily visible in source — its job is to keep
+  // students out of the teacher controls during class, not to be real auth
+  // (see the security-rules comment in the <head>).
+  const TEACHER_PASSWORD = 'adminadmin';
 
   function isPlaceholder(v) {
     return typeof v !== 'string' || v.indexOf('PASTE_YOUR_') === 0 || v.trim() === '';
@@ -578,23 +732,6 @@
     return remaining[Math.floor(Math.random() * remaining.length)];
   }
 
-  function fireConfetti() {
-    const layer = document.getElementById('confettiLayer');
-    const colors = ['#0071e3', '#30d158', '#ff9f0a', '#ff375f', '#5e5ce6'];
-    for (let i = 0; i < 40; i++) {
-      const piece = document.createElement('div');
-      piece.className = 'confetti-piece';
-      piece.style.left = (Math.random() * 100) + 'vw';
-      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-      piece.style.animationDuration = (1.4 + Math.random() * 1.2) + 's';
-      piece.style.transform = 'rotate(' + Math.floor(Math.random() * 360) + 'deg)';
-      layer.appendChild(piece);
-      (function (el) {
-        el.addEventListener('animationend', function () { el.remove(); });
-      })(piece);
-    }
-  }
-
   function formatMMSS(ms) {
     if (ms < 0) ms = 0;
     const totalSec = Math.floor(ms / 1000);
@@ -617,6 +754,7 @@
   //   addSubmission(code, submission) -> Promise
   //   applyAssignments(code, assignmentPairs) -> Promise       (batch update assignedTo + phase)
   //   updateSubmissionAnalysis(code, submissionId, analysis) -> Promise
+  //   updateSubmissionFeedback(code, submissionId, feedback) -> Promise
   //   wipeSession(code) -> Promise
   // ==========================================================================
 
@@ -678,6 +816,9 @@
       },
       updateSubmissionAnalysis: function (code, submissionId, analysis) {
         return subsRef(code).doc(submissionId).update({ analysis: analysis });
+      },
+      updateSubmissionFeedback: function (code, submissionId, feedback) {
+        return subsRef(code).doc(submissionId).update({ feedback: feedback, feedbackAt: Date.now() });
       },
       wipeSession: function (code) {
         return subsRef(code).get().then(function (snap) {
@@ -796,6 +937,14 @@
         notifySubs(code);
         return Promise.resolve();
       },
+      updateSubmissionFeedback: function (code, submissionId, feedback) {
+        const subs = readJSON(subKey(code), []);
+        const target = subs.find(function (s) { return s.id === submissionId; });
+        if (target) { target.feedback = feedback; target.feedbackAt = Date.now(); }
+        writeJSON(subKey(code), subs);
+        notifySubs(code);
+        return Promise.resolve();
+      },
       wipeSession: function (code) {
         writeJSON(subKey(code), []);
         const current = readJSON(sKey(code), {}) || {};
@@ -817,7 +966,7 @@
 
   const anonId = getAnonId();
   let currentCode = null;
-  let currentRole = null; // 'teacher' | 'student'
+  let currentRole = null; // 'teacher' | 'student' | 'board'
   let unsubs = [];
 
   function clearUnsubs() {
@@ -838,8 +987,13 @@
     currentRole = null;
     sessionStorage.removeItem(LOCAL_STORAGE_PREFIX + 'active_code');
     sessionStorage.removeItem(LOCAL_STORAGE_PREFIX + 'active_role');
+    sessionStorage.removeItem(LOCAL_STORAGE_PREFIX + 'teacher_ok');
     hide('teacherView');
     hide('studentView');
+    hide('boardView');
+    document.getElementById('teacherPassInput').value = '';
+    document.getElementById('teacherPassRow').classList.add('hidden');
+    document.getElementById('teacherPassError').style.display = 'none';
     show('landing');
   }
 
@@ -859,6 +1013,9 @@
     if (role === 'teacher') {
       show('teacherView');
       initTeacher(code);
+    } else if (role === 'board') {
+      show('boardView');
+      initBoard(code);
     } else {
       show('studentView');
       initStudent(code);
@@ -885,10 +1042,43 @@
 
     unsubs.push(Backend.onAllSubmissions(code, function (subs) {
       latestSubs = subs;
+      const analyses = subs.filter(function (s) { return !!s.analysis; }).length;
       document.getElementById('statSubmissions').textContent = subs.length;
-      document.getElementById('statAnalyses').textContent = subs.filter(function (s) { return !!s.analysis; }).length;
+      document.getElementById('statAnalyses').textContent = analyses;
+      document.getElementById('analysisProgressFill').style.width =
+        (subs.length ? Math.round((analyses / subs.length) * 100) : 0) + '%';
       renderAssignments(subs);
+      renderReviewList(subs);
     }));
+
+    // The dashboard link is the same page with ?board=CODE — read-only, no
+    // password, safe to paste into a webinar chat. Preserve localDemo so a
+    // demo-mode teacher gets a demo-mode dashboard.
+    const boardLink = location.origin + location.pathname + '?board=' + encodeURIComponent(code) +
+      (FORCE_LOCAL_DEMO ? '&localDemo=1' : '');
+    document.getElementById('boardLinkBox').textContent = boardLink;
+    document.getElementById('btnCopyBoardLink').onclick = function () {
+      function confirmCopied() {
+        const el = document.getElementById('copyConfirm');
+        el.style.display = 'inline';
+        setTimeout(function () { el.style.display = 'none'; }, 2000);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(boardLink).then(confirmCopied);
+      } else {
+        // http:// fallback (clipboard API needs a secure context)
+        const tmp = document.createElement('textarea');
+        tmp.value = boardLink;
+        document.body.appendChild(tmp);
+        tmp.select();
+        document.execCommand('copy');
+        tmp.remove();
+        confirmCopied();
+      }
+    };
+    document.getElementById('btnOpenBoardFromTeacher').onclick = function () {
+      window.open(boardLink, '_blank');
+    };
 
     // Ticket-to-ticket view for the teacher: which conflict went to which
     // reviewer, and whether that reviewer has turned in their analysis yet.
@@ -922,6 +1112,79 @@
         tr.appendChild(reviewerCell);
         tr.appendChild(statusCell);
         body.appendChild(tr);
+      });
+    }
+
+    // One expandable review card per submitted analysis: the conflict as
+    // written, all five answers, and a feedback box. Feedback saves onto the
+    // submission doc, so the student analyzing it (assignedTo) sees it live
+    // on their done screen through the same onMySubmission listener.
+    // Everything is built with textContent — student text is untrusted and
+    // must never be parsed as HTML.
+    function renderReviewList(subs) {
+      const list = document.getElementById('reviewList');
+      // Don't rebuild while the teacher is typing in a feedback box — a
+      // snapshot can arrive at any moment (e.g. another student finishing)
+      // and would wipe the draft.
+      if (list.contains(document.activeElement)) return;
+      const done = subs.filter(function (s) { return !!s.analysis; });
+      document.getElementById('reviewEmpty').classList.toggle('hidden', done.length > 0);
+      list.innerHTML = '';
+      done.forEach(function (s) {
+        const reviewer = subs.find(function (r) { return r.anonId === s.assignedTo; });
+
+        const item = document.createElement('details');
+        item.className = 'review-item';
+        const summary = document.createElement('summary');
+        summary.textContent = 'Conflict ' + s.ticket + ' — analyzed by ' + (reviewer ? reviewer.ticket : '—');
+        if (s.feedback) {
+          const tag = document.createElement('span');
+          tag.className = 'summary-tag';
+          tag.textContent = 'Feedback sent';
+          summary.appendChild(tag);
+        }
+        item.appendChild(summary);
+
+        [
+          ['Conflict as written', s.text],
+          ['1 · Root cause', s.analysis.rootCause],
+          ['2 · Stakeholders', s.analysis.stakeholders],
+          ['3 · Mode actually used', s.analysis.modeUsed],
+          ['4 · Mode that should have been used', s.analysis.betterMode],
+          ['5 · Prevention as project manager', s.analysis.prevention]
+        ].forEach(function (pair) {
+          const lbl = document.createElement('div');
+          lbl.className = 'qa-label';
+          lbl.textContent = pair[0];
+          const txt = document.createElement('div');
+          txt.className = 'qa-text';
+          txt.textContent = pair[1] || '—';
+          item.appendChild(lbl);
+          item.appendChild(txt);
+        });
+
+        const fbLabel = document.createElement('div');
+        fbLabel.className = 'qa-label';
+        fbLabel.textContent = 'Your feedback to this student';
+        item.appendChild(fbLabel);
+        const fbInput = document.createElement('textarea');
+        fbInput.style.minHeight = '80px';
+        fbInput.placeholder = 'What they got right, what they missed, and one thing to sharpen...';
+        fbInput.value = s.feedback || '';
+        item.appendChild(fbInput);
+        const fbBtn = document.createElement('button');
+        fbBtn.className = 'primary';
+        fbBtn.style.marginTop = '10px';
+        fbBtn.textContent = s.feedback ? 'Update feedback' : 'Send feedback';
+        fbBtn.onclick = function () {
+          const text = fbInput.value.trim();
+          if (!text) return;
+          fbBtn.blur(); // release focus so the snapshot-driven rebuild isn't skipped
+          Backend.updateSubmissionFeedback(code, s.id, text);
+        };
+        item.appendChild(fbBtn);
+
+        list.appendChild(item);
       });
     }
 
@@ -981,7 +1244,6 @@
       display.classList.remove('pop');
       void display.offsetWidth; // restart animation
       display.classList.add('pop');
-      fireConfetti();
       Backend.saveSession(code, { calledNames: calledNames.concat([pick]), lastCalled: pick });
     };
 
@@ -1000,8 +1262,6 @@
   // ==========================================================================
   // STUDENT VIEW
   // ==========================================================================
-
-  let waitingMsgInterval = null;
 
   function initStudent(code) {
     document.getElementById('studentClassCode').textContent = code;
@@ -1028,8 +1288,16 @@
           if (myDoc.analysis) {
             show('doneScreen');
             document.getElementById('recapRootCause').textContent = myDoc.analysis.rootCause;
+            document.getElementById('recapStakeholders').textContent = myDoc.analysis.stakeholders;
             document.getElementById('recapModeUsed').textContent = myDoc.analysis.modeUsed;
             document.getElementById('recapBetterMode').textContent = myDoc.analysis.betterMode;
+            document.getElementById('recapPrevention').textContent = myDoc.analysis.prevention;
+            // Instructor feedback lands on this same doc, so it appears here
+            // live the moment the teacher sends it — no reload needed.
+            const hasFeedback = !!myDoc.feedback;
+            document.getElementById('feedbackBlock').classList.toggle('hidden', !hasFeedback);
+            document.getElementById('noFeedbackNote').classList.toggle('hidden', hasFeedback);
+            if (hasFeedback) document.getElementById('feedbackText').textContent = myDoc.feedback;
           } else {
             show('shuffledForm');
             document.getElementById('assignedText').textContent = myDoc.text;
@@ -1044,25 +1312,9 @@
       if (myDoc && myDoc.anonId === anonId) {
         show('waitingScreen');
         document.getElementById('waitingTicket').textContent = myDoc.ticket;
-        startWaitingMessages();
       } else {
         show('writeForm');
-        stopWaitingMessages();
       }
-    }
-
-    function startWaitingMessages() {
-      if (waitingMsgInterval) return;
-      let i = 0;
-      const el = document.getElementById('waitingMessage');
-      el.textContent = WAITING_MESSAGES[0];
-      waitingMsgInterval = setInterval(function () {
-        i = (i + 1) % WAITING_MESSAGES.length;
-        el.textContent = WAITING_MESSAGES[i];
-      }, 4000);
-    }
-    function stopWaitingMessages() {
-      if (waitingMsgInterval) { clearInterval(waitingMsgInterval); waitingMsgInterval = null; }
     }
 
     // ---- writing textarea gating ----
@@ -1097,8 +1349,10 @@
     // ---- analysis fields gating ----
     const fields = [
       { input: 'rootCauseInput', counter: 'rootCauseCounter' },
+      { input: 'stakeholdersInput', counter: 'stakeholdersCounter' },
       { input: 'modeUsedInput', counter: 'modeUsedCounter' },
-      { input: 'betterModeInput', counter: 'betterModeCounter' }
+      { input: 'betterModeInput', counter: 'betterModeCounter' },
+      { input: 'preventionInput', counter: 'preventionCounter' }
     ];
     const btnSubmitAnalysis = document.getElementById('btnSubmitAnalysis');
 
@@ -1126,8 +1380,10 @@
       if (!myDoc) return;
       const analysis = {
         rootCause: document.getElementById('rootCauseInput').value.trim(),
+        stakeholders: document.getElementById('stakeholdersInput').value.trim(),
         modeUsed: document.getElementById('modeUsedInput').value.trim(),
         betterMode: document.getElementById('betterModeInput').value.trim(),
+        prevention: document.getElementById('preventionInput').value.trim(),
         analyzedAt: Date.now()
       };
       Backend.updateSubmissionAnalysis(code, myDoc.id, analysis);
@@ -1137,14 +1393,95 @@
   }
 
   // ==========================================================================
+  // SHARED CLASS DASHBOARD (read-only)
+  // --------------------------------------------------------------------------
+  // Projector / webinar view: live phase, timer, progress, and the cold-call
+  // display. It only ever renders counts, the timer, and roster names the
+  // teacher already called aloud — never submission or analysis text — which
+  // is why it's safe to share without a password.
+  // ==========================================================================
+
+  let boardTimerInterval = null;
+
+  function initBoard(code) {
+    document.getElementById('boardClassCode').textContent = code;
+    clearUnsubs();
+
+    unsubs.push(Backend.onSession(code, function (session) {
+      session = session || { phase: 'writing' };
+      const shuffled = session.phase === 'shuffled';
+      const pill = document.getElementById('boardPhasePill');
+      pill.textContent = shuffled ? 'Analysis phase' : 'Writing phase';
+      pill.classList.toggle('shuffled', shuffled);
+      pill.classList.toggle('writing', !shuffled);
+
+      const display = document.getElementById('boardCalledName');
+      const called = session.lastCalled || '—';
+      if (display.textContent !== called) {
+        display.textContent = called;
+        display.classList.remove('pop');
+        void display.offsetWidth; // restart animation
+        display.classList.add('pop');
+      }
+      const roster = session.roster || [];
+      const calledNames = session.calledNames || [];
+      document.getElementById('boardCalledProgress').textContent =
+        roster.length ? (calledNames.length + ' of ' + roster.length + ' called') : '';
+
+      if (boardTimerInterval) clearInterval(boardTimerInterval);
+      function tick() {
+        const el = document.getElementById('boardTimer');
+        el.textContent = session.startedAt
+          ? formatMMSS(SESSION_DURATION_MS - (Date.now() - session.startedAt))
+          : formatMMSS(SESSION_DURATION_MS);
+      }
+      tick();
+      boardTimerInterval = setInterval(tick, 1000);
+    }));
+
+    unsubs.push(Backend.onAllSubmissions(code, function (subs) {
+      const analyses = subs.filter(function (s) { return !!s.analysis; }).length;
+      document.getElementById('boardSubmissions').textContent = subs.length;
+      document.getElementById('boardAnalyses').textContent = analyses;
+      const pct = subs.length ? Math.round((analyses / subs.length) * 100) : 0;
+      document.getElementById('boardProgressFill').style.width = pct + '%';
+      document.getElementById('boardProgressLabel').textContent =
+        subs.length ? (pct + '% of analyses submitted') : 'Waiting for the first submission';
+    }));
+
+    document.getElementById('btnLeaveBoard').onclick = goLanding;
+  }
+
+  // ==========================================================================
   // LANDING WIRING / INIT
   // ==========================================================================
 
+  // The teacher button reveals the password field instead of entering
+  // directly; only a correct password opens the panel (see TEACHER_PASSWORD).
   document.getElementById('btnTeacher').onclick = function () {
-    enterSession(document.getElementById('classCodeInput').value, 'teacher');
+    document.getElementById('teacherPassRow').classList.remove('hidden');
+    document.getElementById('teacherPassInput').focus();
   };
+  function tryTeacherLogin() {
+    const err = document.getElementById('teacherPassError');
+    if (document.getElementById('teacherPassInput').value !== TEACHER_PASSWORD) {
+      err.textContent = 'Incorrect password. Ask the course instructor for access.';
+      err.style.display = 'block';
+      return;
+    }
+    err.style.display = 'none';
+    sessionStorage.setItem(LOCAL_STORAGE_PREFIX + 'teacher_ok', '1');
+    enterSession(document.getElementById('classCodeInput').value, 'teacher');
+  }
+  document.getElementById('btnTeacherPassGo').onclick = tryTeacherLogin;
+  document.getElementById('teacherPassInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') tryTeacherLogin();
+  });
   document.getElementById('btnStudent').onclick = function () {
     enterSession(document.getElementById('classCodeInput').value, 'student');
+  };
+  document.getElementById('btnOpenBoard').onclick = function () {
+    enterSession(document.getElementById('classCodeInput').value, 'board');
   };
   document.getElementById('classCodeInput').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') enterSession(this.value, 'student');
@@ -1162,9 +1499,19 @@
   // case. sessionStorage is per-tab, so each tab remembers its own role.
   const savedCode = sessionStorage.getItem(LOCAL_STORAGE_PREFIX + 'active_code');
   const savedRole = sessionStorage.getItem(LOCAL_STORAGE_PREFIX + 'active_role');
-  if (savedCode && savedRole) {
-    document.getElementById('classCodeInput').value = savedCode;
-    enterSession(savedCode, savedRole);
+  const boardParam = new URLSearchParams(location.search).get('board');
+  if (boardParam) {
+    // ?board=CODE is the shareable read-only dashboard link — it always wins
+    // over any restored role, so a pasted link does exactly what it says.
+    enterSession(boardParam, 'board');
+  } else if (savedCode && savedRole) {
+    if (savedRole === 'teacher' && sessionStorage.getItem(LOCAL_STORAGE_PREFIX + 'teacher_ok') !== '1') {
+      // Never silently restore a teacher panel that was not password-unlocked
+      // in this tab.
+    } else {
+      document.getElementById('classCodeInput').value = savedCode;
+      enterSession(savedCode, savedRole);
+    }
   }
 
   // ==========================================================================

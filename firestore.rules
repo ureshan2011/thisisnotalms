@@ -297,6 +297,20 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
+    // ── Conflict Swap — no-login classroom module (see /conflict-swap) ──────
+    // There is no auth in this tool — the "class code" written on the board
+    // is the only scoping mechanism, so rules must allow open read/write.
+    // Deliberately its own top-level collection (NOT /sessions, which is
+    // already used above by the authenticated Live Lesson Playground) so
+    // this can never collide with or expose any other YooBees data.
+    match /conflictSwapSessions/{code} {
+      allow read, write: if true;
+
+      match /submissions/{submissionId} {
+        allow read, write: if true;
+      }
+    }
+
     // ── Live Vote (in-class platform strategy presentations) ───
     // No student login and a client-side-only admin password by design (see
     // spec) — this is a disposable, single-session classroom tool with no

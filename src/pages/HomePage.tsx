@@ -42,6 +42,15 @@ const LESSONS: {
     to2: '#2a9d8f',
   },
   {
+    href: 'conflict-swap.html',
+    eyebrow: 'MBI804 · Project Management',
+    title: 'Conflict Swap',
+    body: 'Write a real conflict you’ve experienced, anonymously. The class shuffles everyone’s stories so you analyze someone else’s — root cause, which conflict-handling mode was used, and which one should have been. No login, just a class code from your teacher.',
+    emoji: '🤝',
+    from: '#7C9A78',
+    to2: '#8B2E3B',
+  },
+  {
     to: '/five-stories',
     eyebrow: 'Strategic Information Systems',
     title: 'Five Stories That Changed Everything',

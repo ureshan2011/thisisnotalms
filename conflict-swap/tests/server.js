@@ -5,7 +5,11 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = path.resolve(__dirname, '..'); // conflict-swap/
+// The page itself lives in the Vite app's public/ folder (see
+// public/conflict-swap.html) so it ships with the existing GitHub Pages
+// build, exactly like public/security-lab.html — these tests just serve
+// that same file directly, without going through a Vite build.
+const ROOT = path.resolve(__dirname, '..', '..', 'public');
 const PORT = process.env.PORT || 8811;
 
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css' };

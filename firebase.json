@@ -4,18 +4,5 @@
   },
   "storage": {
     "rules": "storage.rules"
-  },
-  "hosting": {
-    "public": "conflict-swap",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/tests/**",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      { "source": "/conflict-swap", "destination": "/conflict-swap.html" },
-      { "source": "/conflict-swap/", "destination": "/conflict-swap.html" }
-    ]
   }
 }

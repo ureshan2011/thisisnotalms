@@ -1,48 +1,26 @@
 # Conflict Swap
 
-A single self-contained `conflict-swap.html` for the MBI804 Project
-Management classroom activity (Communication Management + Human
-Resource/Conflict Management). No login, no build step — see the setup
-comment at the top of `conflict-swap.html` for the one-time Firebase config
-steps and the Firestore rules snippet (already mirrored into the repo's
-root `firestore.rules` under `/conflictSwapSessions`).
+A single self-contained page for the MBI804 Project Management classroom
+activity (Communication Management + Human Resource/Conflict Management).
+No login, no build step. The page itself lives at
+[`public/conflict-swap.html`](../public/conflict-swap.html) — it ships as a
+static asset with every push to `main`, exactly like `public/security-lab.html`,
+via the existing "Build & Deploy to GitHub Pages" workflow. It's linked from
+the homepage's lesson list and live at:
 
-## Try it locally (no Firebase needed)
+**https://ureshan2011.github.io/thisisnotalms/conflict-swap.html**
 
-`conflict-swap.html` ships with placeholder Firebase config values, so it
-automatically runs in local demo mode (localStorage-backed fake backend).
-Serve the folder over HTTP and open a few tabs — one as teacher, a few as
-student:
-
-```bash
-cd conflict-swap
-python3 -m http.server 8000
-# then open http://localhost:8000/conflict-swap.html in multiple tabs
-```
-
-(Opening the file directly via `file://` also mostly works, but a real
-origin via a static server is more representative of how `localStorage`/the
-`storage` event behave across tabs.)
-
-## Deploy
-
-See the setup comment at the top of `conflict-swap.html` for the full
-walkthrough. Short version, once your Firebase config and `.firebaserc` are
-filled in:
-
-```bash
-firebase deploy --only hosting
-```
-
-The page is served at `/conflict-swap` on that Hosting site. This does not
-touch the existing `attendanceSessions`, `students`, `users`, etc.
-collections or rules — the Firestore rules addition is scoped only to
-`/conflictSwapSessions`.
+It already has YooBees' real Firebase project wired in (see the setup
+comment at the top of the file), so it's a working, cross-device tool as
+soon as it deploys — no manual Firebase CLI step needed. The Firestore rules
+addition (scoped only to `/conflictSwapSessions`, so it can't touch any
+other YooBees data) is mirrored into the repo's root `firestore.rules`.
 
 ## Tests
 
 `tests/` is a self-contained Playwright suite (its own `package.json`, not
-wired into the root YooBees app) proving:
+wired into the root YooBees build) that serves `public/conflict-swap.html`
+directly and proves:
 
 - **derangement.spec.js** — the shuffle/assign algorithm (Sattolo's
   algorithm, a random single-cycle permutation) never assigns a student
@@ -56,6 +34,11 @@ wired into the root YooBees app) proving:
   until "Reset called list" (or "Reset everything") is used, and alerts once
   the whole roster has been called.
 
+The suite always appends `?localDemo=1` when loading the page, which forces
+the local fake backend even though the real Firebase config is wired in —
+this keeps tests fast, deterministic, and offline, and guarantees they never
+write test data into the real production Firestore.
+
 Run them:
 
 ```bash
@@ -63,3 +46,15 @@ cd conflict-swap/tests
 npm install
 npm test
 ```
+
+## Try it locally without the test harness
+
+```bash
+cd public
+python3 -m http.server 8000
+# then open http://localhost:8000/conflict-swap.html?localDemo=1 in multiple tabs
+# (one as teacher, a few as student) to exercise local demo mode by hand
+```
+
+Drop the `?localDemo=1` and it talks to the real production Firestore
+instead — useful for a final end-to-end check, but treat it as real data.

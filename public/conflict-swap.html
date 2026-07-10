@@ -17,36 +17,27 @@
   conflict (root cause, conflict-handling mode used, mode that should have
   been used); the teacher then cold-calls names from a roster.
 
-  SETUP (one-time, ~5 minutes)
-  1. Reuse the SAME Firebase project that YooBees already uses (do not create
-     a new project) — this keeps everything under one billing/quota bucket.
-     Firebase Console → your existing YooBees project → Project settings →
-     General → "Your apps" → Web app → copy the config values below.
-  2. Enable Firestore for that project if it isn't already (Build → Firestore
-     Database → Create database). YooBees already uses Firestore, so this is
-     almost certainly already done.
-  3. Paste your config into the `firebaseConfig` object below, replacing every
-     PASTE_YOUR_* placeholder. Leaving any placeholder in place makes this
-     page automatically fall back to a local-only "demo mode" (see below) —
-     that's intentional and lets you test the whole flow before Firebase is
-     wired up.
-  4. Add the security rules snippet below to your project's firestore.rules
-     (the repo's root firestore.rules file already has a matching block
-     scoped only to /conflictSwapSessions — see that file). It deliberately
-     leaves every OTHER collection (attendance, quizzes, etc.) untouched.
-  5. Edit the repo's root .firebaserc, replacing PASTE_YOUR_FIREBASE_PROJECT_ID
-     with your project ID (the same one from step 1).
-  6. Deploy from the repo root:
-       firebase deploy --only hosting
-     This uses the "hosting" block already added to the root firebase.json
-     (public dir = conflict-swap/, rewritten so the page is served at
-     /conflict-swap). If your Firebase project already has MULTIPLE Hosting
-     sites configured, that plain command targets the project's *default*
-     site — either point the "hosting" block in firebase.json at a specific
-     one by adding "site": "<your-site-id>", or set up a named target
-     (`firebase target:apply hosting conflict-swap <your-site-id>`, then add
-     "target": "conflict-swap" to the hosting block instead of relying on
-     "public" alone) and deploy with `firebase deploy --only hosting:conflict-swap`.
+  DEPLOYMENT
+  This file lives in the Vite app's public/ folder, exactly like
+  public/security-lab.html — it's a static asset copied verbatim into dist/
+  on every build, so it ships automatically with the existing "Build &
+  Deploy to GitHub Pages" workflow (no separate `firebase deploy` step, no
+  Firebase Hosting config needed). It's linked from the homepage's LESSONS
+  list via `href: 'conflict-swap.html'`.
+
+  The `firebaseConfig` below is already filled in with YooBees' real,
+  existing Firebase project (project ID "yoobees") — the same one every
+  other Firestore-backed page on this site uses. A Firebase web app config
+  is not a secret (it's shipped in every client bundle already); access
+  control is entirely the job of firestore.rules. See the rules snippet
+  below — it's already mirrored into the repo's root firestore.rules,
+  scoped only to /conflictSwapSessions so it cannot touch any other
+  YooBees data (attendance, quizzes, etc.) in the same project.
+
+  If you ever need to point this at a DIFFERENT Firebase project (e.g. to
+  test in isolation), just replace the values below with PASTE_YOUR_* again
+  — leaving any of them blank or as a placeholder automatically falls back
+  to a local-only "demo mode" (see below), so it's always safe to break.
 
   FIRESTORE SECURITY RULES SNIPPET (already mirrored into /firestore.rules)
   ----------------------------------------------------------------------------
@@ -422,16 +413,17 @@
   // CONFIG
   // ==========================================================================
 
-  // ---- PASTE_YOUR_* placeholders: replace with your existing YooBees Firebase
-  // ---- web app config (Firebase Console → Project settings → Your apps).
-  // ---- Leaving any of these as PASTE_YOUR_* activates local demo mode.
+  // YooBees' existing Firebase project ("yoobees") — same one every other
+  // Firestore-backed page on this site uses. Not a secret (see DEPLOYMENT
+  // comment above); leaving any field blank or as PASTE_YOUR_* activates
+  // local demo mode instead.
   const firebaseConfig = {
-    apiKey: "PASTE_YOUR_API_KEY",
-    authDomain: "PASTE_YOUR_AUTH_DOMAIN",
-    projectId: "PASTE_YOUR_PROJECT_ID",
-    storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
-    messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
-    appId: "PASTE_YOUR_APP_ID"
+    apiKey: "AIzaSyDric9xjuKr7TgIa-7r-AHCgqYlR37PImI",
+    authDomain: "yoobees.firebaseapp.com",
+    projectId: "yoobees",
+    storageBucket: "yoobees.firebasestorage.app",
+    messagingSenderId: "423333451221",
+    appId: "1:423333451221:web:9e2f949f8cbf4d8574d95c"
   };
 
   const MIN_CONFLICT_LEN = 350;
@@ -454,7 +446,12 @@
   function isPlaceholder(v) {
     return typeof v !== 'string' || v.indexOf('PASTE_YOUR_') === 0 || v.trim() === '';
   }
-  const USE_LOCAL_DEMO = Object.values(firebaseConfig).some(isPlaceholder);
+  // ?localDemo=1 forces the local fake backend even with a real config wired
+  // in — used only by the automated test suite (see conflict-swap/tests) so
+  // it stays fast, deterministic, and never writes test data into the real
+  // production Firestore. Real classroom URLs never carry this param.
+  const FORCE_LOCAL_DEMO = new URLSearchParams(location.search).has('localDemo');
+  const USE_LOCAL_DEMO = FORCE_LOCAL_DEMO || Object.values(firebaseConfig).some(isPlaceholder);
 
   // ==========================================================================
   // UTILITIES

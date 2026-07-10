@@ -1,25 +1,33 @@
 // (b) Proves the character-count gating actually disables/enables submit
-// buttons correctly for both the conflict textarea (350 char minimum) and
-// the three post-shuffle analysis fields (50 char minimum each), and that
+// buttons correctly for both the conflict textarea (400 char minimum) and
+// the five post-shuffle analysis fields (80 char minimum each), and that
 // the shuffle phase change propagates to student tabs live (no reload).
 const { test, expect } = require('@playwright/test');
-const { gotoApp, randomCode } = require('./helpers');
+const { joinAsStudent, joinAsTeacher, randomCode } = require('./helpers');
 
-async function joinAs(page, code, role) {
-  await gotoApp(page);
-  await page.fill('#classCodeInput', code);
-  await page.click(role === 'teacher' ? '#btnTeacher' : '#btnStudent');
+const SHORT_TEXT = 'This conflict was too short to count.'; // < 400 chars
+const LONG_CONFLICT = 'A'.repeat(400) + ' — a conflict about missed deadlines on a group project, ' +
+  'where one teammate consistently under-communicated blockers until the night before the deadline.';
+const LONG_ANALYSIS = 'B'.repeat(80) + ' this is a sufficiently long analysis answer for gating.';
+
+const ANALYSIS_FIELDS = [
+  '#rootCauseInput',
+  '#stakeholdersInput',
+  '#modeUsedInput',
+  '#betterModeInput',
+  '#preventionInput',
+];
+
+async function fillAllAnalysisFields(page) {
+  for (const selector of ANALYSIS_FIELDS) {
+    await page.fill(selector, LONG_ANALYSIS);
+  }
 }
 
-const SHORT_TEXT = 'This conflict was too short to count.'; // < 350 chars
-const LONG_CONFLICT = 'A'.repeat(360) + ' — a conflict about missed deadlines on a group project, ' +
-  'where one teammate consistently under-communicated blockers until the night before the deadline.';
-const LONG_ANALYSIS = 'B'.repeat(60) + ' this is a sufficiently long analysis answer for gating.';
-
 test.describe('character-count gating', () => {
-  test('conflict textarea: submit stays disabled under 350 chars, enables at/above it, counter color flips', async ({ page }) => {
+  test('conflict textarea: submit stays disabled under 400 chars, enables at/above it, counter color flips', async ({ page }) => {
     const code = randomCode();
-    await joinAs(page, code, 'student');
+    await joinAsStudent(page, code);
 
     const textarea = page.locator('#conflictTextarea');
     const counter = page.locator('#conflictCounter');
@@ -42,15 +50,15 @@ test.describe('character-count gating', () => {
     await expect(submit).toBeDisabled();
   });
 
-  test('analysis fields: all three must independently clear 50 chars before submit enables', async ({ context }) => {
+  test('analysis fields: all five must independently clear 80 chars before submit enables', async ({ context }) => {
     const code = randomCode();
     const teacher = await context.newPage();
     const studentA = await context.newPage();
     const studentB = await context.newPage();
 
-    await joinAs(teacher, code, 'teacher');
-    await joinAs(studentA, code, 'student');
-    await joinAs(studentB, code, 'student');
+    await joinAsTeacher(teacher, code);
+    await joinAsStudent(studentA, code);
+    await joinAsStudent(studentB, code);
 
     await studentA.fill('#conflictTextarea', LONG_CONFLICT + ' from student A');
     await studentA.click('#btnSubmitConflict');
@@ -69,14 +77,15 @@ test.describe('character-count gating', () => {
     const submit = studentA.locator('#btnSubmitAnalysis');
     await expect(submit).toBeDisabled();
 
-    await studentA.fill('#rootCauseInput', LONG_ANALYSIS);
-    await expect(submit).toBeDisabled(); // only 1 of 3 fields filled
-
-    await studentA.fill('#modeUsedInput', LONG_ANALYSIS);
-    await expect(submit).toBeDisabled(); // only 2 of 3 fields filled
-
-    await studentA.fill('#betterModeInput', LONG_ANALYSIS);
-    await expect(submit).toBeEnabled(); // all 3 filled — now enabled
+    // Fill the fields one at a time — submit must stay disabled until the
+    // very last one clears the threshold.
+    for (let i = 0; i < ANALYSIS_FIELDS.length; i++) {
+      await studentA.fill(ANALYSIS_FIELDS[i], LONG_ANALYSIS);
+      if (i < ANALYSIS_FIELDS.length - 1) {
+        await expect(submit).toBeDisabled(); // only i+1 of 5 fields filled
+      }
+    }
+    await expect(submit).toBeEnabled(); // all 5 filled — now enabled
 
     // Clearing one field must re-disable it.
     await studentA.fill('#rootCauseInput', 'too short');
@@ -89,9 +98,9 @@ test.describe('character-count gating', () => {
     const studentA = await context.newPage();
     const studentB = await context.newPage();
 
-    await joinAs(teacher, code, 'teacher');
-    await joinAs(studentA, code, 'student');
-    await joinAs(studentB, code, 'student');
+    await joinAsTeacher(teacher, code);
+    await joinAsStudent(studentA, code);
+    await joinAsStudent(studentB, code);
 
     const textA = LONG_CONFLICT + ' — unique marker AAA123';
     const textB = LONG_CONFLICT + ' — unique marker BBB456';
@@ -119,9 +128,9 @@ test.describe('character-count gating', () => {
     const studentA = await context.newPage();
     const studentB = await context.newPage();
 
-    await joinAs(teacher, code, 'teacher');
-    await joinAs(studentA, code, 'student');
-    await joinAs(studentB, code, 'student');
+    await joinAsTeacher(teacher, code);
+    await joinAsStudent(studentA, code);
+    await joinAsStudent(studentB, code);
 
     // Before shuffling, the teacher sees the empty state, not a table.
     await expect(teacher.locator('#assignmentsEmpty')).toBeVisible();
@@ -151,9 +160,7 @@ test.describe('character-count gating', () => {
     // the pair), so once A submits their analysis, submission B's row —
     // keyed by conflict ticket B, not A — should flip to Done live.
     await expect(studentA.locator('#shuffledForm')).toBeVisible({ timeout: 5000 });
-    await studentA.fill('#rootCauseInput', LONG_ANALYSIS);
-    await studentA.fill('#modeUsedInput', LONG_ANALYSIS);
-    await studentA.fill('#betterModeInput', LONG_ANALYSIS);
+    await fillAllAnalysisFields(studentA);
     await studentA.click('#btnSubmitAnalysis');
 
     await expect(async () => {

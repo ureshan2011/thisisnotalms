@@ -2,14 +2,12 @@
 // the "Reset called list" button is used, and correctly alerts once the
 // whole roster has been called.
 const { test, expect } = require('@playwright/test');
-const { gotoApp, randomCode } = require('./helpers');
+const { joinAsTeacher, randomCode } = require('./helpers');
 
 test.describe('random name caller', () => {
   test('cycles through the whole roster with no repeats, then alerts, then resets cleanly', async ({ page }) => {
     const code = randomCode();
-    await gotoApp(page);
-    await page.fill('#classCodeInput', code);
-    await page.click('#btnTeacher');
+    await joinAsTeacher(page, code);
 
     const roster = ['Ama Owusu', 'Ben Silva', 'Chen Wei', 'Divya Rao'];
     await page.fill('#rosterTextarea', roster.join('\n'));
@@ -48,9 +46,7 @@ test.describe('random name caller', () => {
 
   test('"Reset everything" also clears the called list (and submissions/phase)', async ({ page }) => {
     const code = randomCode();
-    await gotoApp(page);
-    await page.fill('#classCodeInput', code);
-    await page.click('#btnTeacher');
+    await joinAsTeacher(page, code);
 
     await page.fill('#rosterTextarea', 'Solo Name');
     await page.click('#btnSaveRoster');

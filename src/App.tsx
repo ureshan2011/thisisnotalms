@@ -29,6 +29,7 @@ const SQLCertificationsPage = lazy(() => import('./pages/SQLCertificationsPage')
 const JiraCertificationsPage = lazy(() => import('./pages/JiraCertificationsPage'));
 const NormalizationVideosPage = lazy(() => import('./pages/NormalizationVideosPage'));
 const SecurityLabPage = lazy(() => import('./pages/SecurityLabPage'));
+const APAReferencingPage = lazy(() => import('./pages/APAReferencingPage'));
 const VotePage = lazy(() => import('./pages/VotePage'));
 const VoteAdminPage = lazy(() => import('./pages/VoteAdminPage'));
 
@@ -114,6 +115,7 @@ function AppRoutes() {
         <Route path="/jira-certifications" element={<Suspense fallback={null}><JiraCertificationsPage /></Suspense>} />
         <Route path="/normalisation-videos" element={<Suspense fallback={null}><NormalizationVideosPage /></Suspense>} />
         <Route path="/normalization-videos" element={<Navigate to="/normalisation-videos" replace />} />
+        <Route path="/apa-referencing" element={<Suspense fallback={null}><APAReferencingPage /></Suspense>} />
         <Route path="/vote"         element={<Suspense fallback={null}><VotePage /></Suspense>} />
         <Route path="/vote/admin"   element={<Suspense fallback={null}><VoteAdminPage /></Suspense>} />
         <Route path="/login"        element={<Suspense fallback={null}><Login /></Suspense>} />
@@ -195,6 +197,7 @@ function ShutdownRoutes() {
       <Route path="/jira-certifications" element={<Suspense fallback={null}><JiraCertificationsPage /></Suspense>} />
       <Route path="/normalisation-videos" element={<Suspense fallback={null}><NormalizationVideosPage /></Suspense>} />
       <Route path="/normalization-videos" element={<Navigate to="/normalisation-videos" replace />} />
+      <Route path="/apa-referencing" element={<Suspense fallback={null}><APAReferencingPage /></Suspense>} />
       <Route path="/vote"         element={<Suspense fallback={null}><VotePage /></Suspense>} />
       <Route path="/vote/admin"   element={<Suspense fallback={null}><VoteAdminPage /></Suspense>} />
       {/* All other routes show the shutdown notice */}

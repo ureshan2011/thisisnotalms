@@ -230,6 +230,15 @@ const LESSONS: {
     from: '#8b5cf6',
     to2: '#0071e3',
   },
+  {
+    to: '/apa-referencing',
+    eyebrow: 'General resources · Academic writing',
+    title: 'APA 7 Citations: The Crash Course',
+    body: 'Everything you need to cite correctly — from the first in-text citation to the last reference entry. 14 interactive slides with a practice quiz. (Password protected.)',
+    emoji: '📖',
+    from: '#4338ca',
+    to2: '#f59e0b',
+  },
 ];
 
 const stagger: Variants = {

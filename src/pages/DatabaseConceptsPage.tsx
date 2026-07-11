@@ -11,7 +11,7 @@ export default function DatabaseConceptsPage() {
       accent="#2563eb"
       orb2="#0d9488"
       orb3="#dc2626"
-      subtitle="One database, one table, built up step by step — creating it, shaping it, backing it up, sorting it, counting it — then a plain-English, hands-on look at SQL injection."
+      subtitle="One database, one table, built up step by step. We create it, shape it, back it up, sort it and count it, then take a plain-English, hands-on look at SQL injection."
       pills={[
         { emoji: '🗄️', name: 'Table design', color: '#2563eb' },
         { emoji: '💾', name: 'Backup & restore', color: '#b45309' },

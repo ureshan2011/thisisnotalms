@@ -162,7 +162,7 @@ const LESSONS: {
     to: '/database-concepts',
     eyebrow: 'MBI802 · Database design',
     title: "Let's make sense of Advanced Database Concepts",
-    body: 'One database, one table, built up step by step: create it, add a column, change a data type, set a primary key, auto-number it — then back it up, restore it, sort it with ORDER BY, count it, and finish with a safe, hands-on look at SQL injection.',
+    body: 'One database, one table, built up step by step. We create it, add a column, change a data type, set a primary key and auto-number it, then back it up, restore it, sort it with ORDER BY, count it, and finish with a safe, hands-on look at SQL injection.',
     emoji: '🧰',
     from: '#2563eb',
     to2: '#0d9488',

@@ -6,7 +6,7 @@ export default function DatabaseConceptsPage() {
     <PublicLessonShell
       eyebrow="MBI802 · Database Management"
       titleLead="Let's make sense of"
-      titleAccent="Advanced Database Concepts."
+      titleAccent="Advanced Database Concepts"
       gradient="linear-gradient(90deg, #2563eb, #0d9488, #7c3aed)"
       accent="#2563eb"
       orb2="#0d9488"

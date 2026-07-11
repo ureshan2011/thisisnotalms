@@ -11,7 +11,7 @@
 // SystemsSecurityLesson): white canvas, soft cards, reveal-on-scroll,
 // Apple-like type.
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Fragment } from 'react';
 import type { ReactNode, CSSProperties } from 'react';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
@@ -397,6 +397,95 @@ const SAMPLE_DATA_SQL =
 ('The Pragmatic Programmer', 'David Thomas',    42.00,  3),
 ('Educated',                 'Tara Westover',   18.75, 20),
 ('Deep Work',                'Cal Newport',     22.00,  9);`;
+
+// ── "What happens to the data when we change a type?" ──────────────────────────
+
+const WARN = '#d97706';
+
+interface Flow { b: string; a: string; lost: boolean; }
+
+const TYPE_SCENARIOS: { from: string; to: string; flows: Flow[]; note: string }[] = [
+  {
+    from: 'DECIMAL(6,2)', to: 'INT',
+    flows: [
+      { b: '24.99', a: '25', lost: true },
+      { b: '18.75', a: '19', lost: true },
+      { b: '42.00', a: '42', lost: false },
+    ],
+    note: 'Decimals are rounded to the nearest whole number, so the cents are lost for good. Values that were already whole survive unchanged.',
+  },
+  {
+    from: 'INT', to: 'VARCHAR(20)',
+    flows: [
+      { b: '25', a: "'25'", lost: false },
+      { b: '100', a: "'100'", lost: false },
+    ],
+    note: 'The value is kept, but it is now text. Sorting changes too, so "100" can come before "20".',
+  },
+  {
+    from: 'VARCHAR(20)', to: 'INT',
+    flows: [
+      { b: "'25'", a: '25', lost: false },
+      { b: "'sale'", a: '0', lost: true },
+    ],
+    note: 'Clean number text converts back fine. Anything that is not a number turns into 0.',
+  },
+];
+
+function Pill({ text, color }: { text: string; color?: string }) {
+  return (
+    <span style={{
+      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 12.5, fontWeight: 600,
+      padding: '3px 9px', borderRadius: 8, whiteSpace: 'nowrap',
+      background: color ? color + '18' : '#eef1f6',
+      color: color || '#334155',
+      border: `1px solid ${color ? color + '44' : 'rgba(0,0,0,0.08)'}`,
+    }}>
+      {text}
+    </span>
+  );
+}
+
+function TypeChangeCard() {
+  return (
+    <Card style={{ background: WARN + '09', borderColor: WARN + '2c' }}>
+      <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: WARN, marginBottom: 6 }}>
+        ⚠️ Watch out: changing a type can change the data
+      </div>
+      <p style={{ margin: '0 0 16px', fontSize: 14.5, lineHeight: 1.55, color: '#444' }}>
+        Changing a column type is not always free. Sometimes the values inside change too. Here is what happens in
+        three common cases. Green means the value is kept, red means it changes.
+      </p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 12 }}>
+        {TYPE_SCENARIOS.map((s) => (
+          <div key={s.from + s.to} style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 14, padding: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+              <Pill text={s.from} />
+              <span style={{ color: ACCENT, fontWeight: 800 }}>→</span>
+              <Pill text={s.to} color={ACCENT} />
+            </div>
+            <div style={{ display: 'grid', gap: 6, marginBottom: 12 }}>
+              {s.flows.map((f, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Pill text={f.b} />
+                  <span style={{ color: '#94a3b8' }}>→</span>
+                  <Pill text={f.a} color={f.lost ? DANGER : SAFE} />
+                </div>
+              ))}
+            </div>
+            <p style={{ margin: 0, fontSize: 12.5, lineHeight: 1.5, color: '#6e6e73' }}>{s.note}</p>
+          </div>
+        ))}
+      </div>
+
+      <p style={{ margin: '14px 0 0', fontSize: 13, lineHeight: 1.55, color: '#6e6e73' }}>
+        The lesson: <b style={{ color: '#444' }}>always back up before a big type change</b>, so we can restore if a
+        value is lost. That is exactly what Part 2 is for.
+      </p>
+    </Card>
+  );
+}
 
 // ════════════════════════════════════════════════════════════════════════════
 //  2 · BACKUP & RESTORE
@@ -794,17 +883,20 @@ export default function DatabaseConceptsLesson() {
         />
         <div style={{ display: 'grid', gap: 16 }}>
           {TABLE_STEPS.map((s) => (
-            <Reveal key={s.title}>
-              <StepCard
-                num={Number(s.title[0])}
-                color={s.color}
-                title={s.title}
-                explain={s.explain}
-                code={s.code}
-                activityTask={s.activityTask}
-                activityAnswer={s.activityAnswer}
-              />
-            </Reveal>
+            <Fragment key={s.title}>
+              <Reveal>
+                <StepCard
+                  num={Number(s.title[0])}
+                  color={s.color}
+                  title={s.title}
+                  explain={s.explain}
+                  code={s.code}
+                  activityTask={s.activityTask}
+                  activityAnswer={s.activityAnswer}
+                />
+              </Reveal>
+              {s.title.startsWith('4') && <Reveal><TypeChangeCard /></Reveal>}
+            </Fragment>
           ))}
         </div>
 

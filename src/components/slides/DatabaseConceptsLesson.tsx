@@ -17,6 +17,7 @@ import type { ReactNode, CSSProperties } from 'react';
 // ── Design tokens ─────────────────────────────────────────────────────────────
 
 const ACCENT  = '#2563eb'; // blue   — table design
+const LINK    = '#0891b2'; // cyan   — linking tables / foreign keys
 const BACKUP  = '#b45309'; // amber  — backup & restore
 const SORT    = '#0d9488'; // teal   — ORDER BY
 const COUNT   = '#7c3aed'; // purple — COUNT()
@@ -481,11 +482,199 @@ function TypeChangeCard() {
 
       <p style={{ margin: '14px 0 0', fontSize: 13, lineHeight: 1.55, color: '#6e6e73' }}>
         The lesson: <b style={{ color: '#444' }}>always back up before a big type change</b>, so we can restore if a
-        value is lost. That is exactly what Part 2 is for.
+        value is lost. That is exactly what the backup section is for.
       </p>
     </Card>
   );
 }
+
+// ── "Where does the new column go?" (AFTER / FIRST) ───────────────────────────
+
+const COL_POSITIONS = [
+  {
+    code: 'ALTER TABLE books ADD COLUMN stock_count INT;',
+    cols: ['id', 'title', 'author', 'price', 'stock_count'], hi: 'stock_count',
+    note: 'With no position given, the new column goes to the very end. This is the default.',
+  },
+  {
+    code: 'ALTER TABLE books ADD COLUMN pages INT AFTER title;',
+    cols: ['id', 'title', 'pages', 'author', 'price'], hi: 'pages',
+    note: 'AFTER title drops the new column in right after the title column.',
+  },
+  {
+    code: 'ALTER TABLE books ADD COLUMN sku INT FIRST;',
+    cols: ['sku', 'id', 'title', 'author', 'price'], hi: 'sku',
+    note: 'FIRST moves the new column to the very front of the table.',
+  },
+];
+
+function ColumnStrip({ cols, hi }: { cols: string[]; hi: string }) {
+  return (
+    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
+      {cols.map((c, i) => (
+        <Fragment key={c}>
+          {i > 0 && <span style={{ color: '#cbd5e1', fontSize: 12 }}>·</span>}
+          <span style={{
+            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 12, fontWeight: 600,
+            padding: '3px 9px', borderRadius: 7, whiteSpace: 'nowrap',
+            background: c === hi ? ACCENT : '#eef1f6', color: c === hi ? '#fff' : '#475569',
+          }}>
+            {c}
+          </span>
+        </Fragment>
+      ))}
+    </div>
+  );
+}
+
+function ColumnPositionCard() {
+  return (
+    <Card style={{ background: ACCENT + '06', borderColor: ACCENT + '22' }}>
+      <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: ACCENT, marginBottom: 6 }}>
+        📍 Where does the new column go?
+      </div>
+      <p style={{ margin: '0 0 16px', fontSize: 14.5, lineHeight: 1.55, color: '#444' }}>
+        By default a new column lands at the very end of the table. If we want it somewhere else, we add <code>AFTER</code>{' '}
+        a column name, or <code>FIRST</code> to put it at the front.
+      </p>
+      <div style={{ display: 'grid', gap: 16 }}>
+        {COL_POSITIONS.map((p) => (
+          <div key={p.code}>
+            <CodeBlock code={p.code} />
+            <div style={{ marginTop: 10 }}><ColumnStrip cols={p.cols} hi={p.hi} /></div>
+            <p style={{ margin: '8px 0 0', fontSize: 12.5, lineHeight: 1.5, color: '#6e6e73' }}>{p.note}</p>
+          </div>
+        ))}
+      </div>
+      <p style={{ margin: '14px 0 0', fontSize: 12.5, lineHeight: 1.5, color: '#6e6e73' }}>
+        Position is just about the order the columns are listed in. It does not change any of the data inside them.
+      </p>
+    </Card>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  LINKING TABLES — foreign keys & cascade (a tiny reviews table)
+// ════════════════════════════════════════════════════════════════════════════
+
+const REVIEWS_SQL =
+`CREATE TABLE reviews (
+  id      INT PRIMARY KEY,
+  book_id INT,
+  comment VARCHAR(200),
+  FOREIGN KEY (book_id) REFERENCES books(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);`;
+
+const CASCADE_BOOKS = [
+  { id: 1, title: 'Atomic Habits' },
+  { id: 2, title: 'Sapiens' },
+];
+const CASCADE_REVIEWS = [
+  { id: 101, book_id: 1, comment: 'Loved it' },
+  { id: 102, book_id: 2, comment: 'Great read' },
+  { id: 103, book_id: 2, comment: 'Life changing' },
+];
+
+function MiniTable({ head, rows, dimIds, idKey }: {
+  head: string[]; rows: Record<string, string | number>[]; dimIds: Set<number>; idKey: string;
+}) {
+  return (
+    <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid rgba(0,0,0,0.08)' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12.5, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>
+        <thead>
+          <tr>
+            {head.map((h) => (
+              <th key={h} style={{ textAlign: 'left', padding: '9px 12px', background: '#1e293b', color: '#fff', fontWeight: 700, fontSize: 11.5, whiteSpace: 'nowrap' }}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => {
+            const dim = dimIds.has(Number(r[idKey]));
+            return (
+              <tr key={i} style={{ background: i % 2 ? '#f6f8ff' : '#fff', opacity: dim ? 0.32 : 1, transition: 'opacity 0.3s ease' }}>
+                {head.map((h) => (
+                  <td key={h} style={{ padding: '8px 12px', borderTop: '1px solid rgba(0,0,0,0.06)', color: '#1d1d1f', whiteSpace: 'nowrap' }}>{r[h]}</td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function CascadeDemo() {
+  const [cascade, setCascade] = useState(true);
+  const [deleted, setDeleted] = useState(false);
+
+  const cascadedAway = deleted && cascade;
+  const books = cascadedAway ? CASCADE_BOOKS.filter((b) => b.id !== 2) : CASCADE_BOOKS;
+  const reviews = cascadedAway ? CASCADE_REVIEWS.filter((r) => r.book_id !== 2) : CASCADE_REVIEWS;
+
+  // Rows that reference book #2 are highlighted (dimmed here means "about to be affected").
+  const bookDim = new Set<number>();
+  const reviewDim = new Set<number>();
+
+  let banner: { ok: boolean; text: string } | null = null;
+  if (deleted) {
+    banner = cascade
+      ? { ok: true, text: 'Book #2 is deleted, and its two reviews were removed automatically. The delete cascaded from the book down to its reviews.' }
+      : { ok: false, text: 'MySQL blocks this. Two reviews still point to book #2, so with no cascade rule it refuses to delete the book and leave those reviews pointing at nothing.' };
+  }
+
+  const setRule = (v: boolean) => { setCascade(v); setDeleted(false); };
+
+  return (
+    <Card>
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#1d1d1f' }}>🔗 See CASCADE in action</div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button onClick={() => setRule(true)} style={{ ...navBtn(cascade, LINK), fontSize: 13 }}>ON DELETE CASCADE</button>
+          <button onClick={() => setRule(false)} style={{ ...navBtn(!cascade, DANGER), fontSize: 13 }}>No cascade rule</button>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: 6 }}>books</div>
+          <MiniTable head={['id', 'title']} rows={books} dimIds={bookDim} idKey="id" />
+        </div>
+        <div>
+          <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: 6 }}>reviews (book_id points to books.id)</div>
+          <MiniTable head={['id', 'book_id', 'comment']} rows={reviews} dimIds={reviewDim} idKey="id" />
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: banner ? 16 : 0 }}>
+        <button onClick={() => setDeleted(true)} disabled={deleted} style={{ ...navBtn(true, DANGER), fontSize: 13, opacity: deleted ? 0.5 : 1, cursor: deleted ? 'default' : 'pointer' }}>
+          🗑️ DELETE FROM books WHERE id = 2;
+        </button>
+        <button onClick={() => setDeleted(false)} style={{ ...navBtn(false), fontSize: 13 }}>↻ Reset</button>
+      </div>
+
+      {banner && (
+        <div style={{
+          padding: '14px 16px', borderRadius: 14, animation: 'dbcFade 0.3s ease',
+          display: 'flex', gap: 12, alignItems: 'flex-start',
+          background: (banner.ok ? SAFE : DANGER) + '0e', border: `1.5px solid ${(banner.ok ? SAFE : DANGER)}33`,
+        }}>
+          <span style={{ fontSize: 20, flexShrink: 0, lineHeight: 1.2 }}>{banner.ok ? '✅' : '🚫'}</span>
+          <div style={{ fontSize: 14, lineHeight: 1.55, color: '#444' }}>{banner.text}</div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+const CASCADE_RULES = [
+  { icon: '🗑️', color: DANGER, t: 'ON DELETE CASCADE', d: 'Delete a book, and all of its reviews are deleted with it, automatically. The delete cascades down to the linked rows.' },
+  { icon: '✏️', color: BACKUP, t: 'ON UPDATE CASCADE', d: 'Change a book\'s id, and every review that points to it updates to match, so no review is left pointing at the wrong book.' },
+  { icon: '🛑', color: '#64748b', t: 'With no rule', d: 'MySQL refuses to delete or renumber a book while reviews still point to it, to avoid leaving reviews pointing at nothing.' },
+];
 
 // ════════════════════════════════════════════════════════════════════════════
 //  2 · BACKUP & RESTORE
@@ -815,7 +1004,9 @@ const CHEAT_SHEET = [
   { label: 'Create a database', sql: 'CREATE DATABASE bookshop;' },
   { label: 'Create a table', sql: 'CREATE TABLE books (id INT, title VARCHAR(100), author VARCHAR(100), price INT);' },
   { label: 'Add a column', sql: 'ALTER TABLE books ADD COLUMN stock_count INT;' },
+  { label: 'Add a column in a position', sql: 'ALTER TABLE books ADD COLUMN pages INT AFTER title;' },
   { label: 'Change a column type', sql: 'ALTER TABLE books MODIFY COLUMN price DECIMAL(6,2);' },
+  { label: 'Link tables, cascade on delete', sql: 'FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE' },
   { label: 'Add a primary key', sql: 'ALTER TABLE books ADD PRIMARY KEY (id);' },
   { label: 'Make a column auto-increment', sql: 'ALTER TABLE books MODIFY COLUMN id INT AUTO_INCREMENT;' },
   { label: 'Sort results', sql: 'SELECT * FROM books ORDER BY price ASC;' },
@@ -863,9 +1054,9 @@ export default function DatabaseConceptsLesson() {
             backups, and ask it questions by sorting and counting. We finish with one important safety idea called SQL injection.
           </p>
           <NoteStrip color={ACCENT}>
-            For all the activities below, we use just <b>one</b> database called <code>bookshop</code> and <b>one</b> table
-            called <code>books</code>. We build them up together, one step at a time, so we are always working with something
-            familiar. Everything runs in <b>MySQL Workbench</b>.
+            For the activities below, we use one database called <code>bookshop</code> and one main table called{' '}
+            <code>books</code>. We build it up together, one step at a time, so we are always working with something familiar.
+            Later we add one small partner table so we can see how two tables link. Everything runs in <b>MySQL Workbench</b>.
           </NoteStrip>
           <p style={{ fontSize: 16, lineHeight: 1.7, color: '#6e6e73', maxWidth: 720 }}>
             Each idea comes with a short explanation, the SQL we run, and a small activity to try before moving on. Take
@@ -895,6 +1086,7 @@ export default function DatabaseConceptsLesson() {
                   activityAnswer={s.activityAnswer}
                 />
               </Reveal>
+              {s.title.startsWith('3') && <Reveal><ColumnPositionCard /></Reveal>}
               {s.title.startsWith('4') && <Reveal><TypeChangeCard /></Reveal>}
             </Fragment>
           ))}
@@ -918,10 +1110,52 @@ export default function DatabaseConceptsLesson() {
         </Reveal>
       </Section>
 
-      {/* 2 — backup & restore */}
+      {/* 2 — linking tables (foreign keys & cascade) */}
       <Section>
         <SectionHeader
-          kicker="Part 2 · Backup & restore" color={BACKUP}
+          kicker="Part 2 · Linking tables" color={LINK}
+          title="Foreign keys, and what CASCADE does"
+          blurb="Real databases have many tables, and they point at each other. A foreign key is how one table points to a row in another. CASCADE decides what happens to those links when a row is deleted or changed."
+        />
+        <NoteStrip color={LINK}>
+          Here we add one small partner table called <code>reviews</code>, where each review points to a book. This is the
+          only place in the lesson we use a second table.
+        </NoteStrip>
+
+        <div style={{ display: 'grid', gap: 16 }}>
+          <Reveal>
+            <Card>
+              <p style={{ margin: '0 0 14px', fontSize: 15, lineHeight: 1.6, color: '#444' }}>
+                A <b>foreign key</b> is a column that points to a row in another table. Here each review has a{' '}
+                <code>book_id</code> that points to a book in <code>books</code>. That link is what lets the database keep
+                the two tables in step. We set the CASCADE rules when we create the table.
+              </p>
+              <CodeBlock code={REVIEWS_SQL} />
+            </Card>
+          </Reveal>
+
+          <Reveal>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 10 }}>
+              {CASCADE_RULES.map((r) => (
+                <div key={r.t} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: '#fafafa', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 14, padding: '14px 16px' }}>
+                  <span style={{ fontSize: 22, flexShrink: 0 }}>{r.icon}</span>
+                  <div>
+                    <div style={{ fontSize: 13.5, fontWeight: 700, color: r.color, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>{r.t}</div>
+                    <div style={{ fontSize: 13, lineHeight: 1.5, color: '#6e6e73', marginTop: 3 }}>{r.d}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+
+          <Reveal><CascadeDemo /></Reveal>
+        </div>
+      </Section>
+
+      {/* 3 — backup & restore */}
+      <Section>
+        <SectionHeader
+          kicker="Part 3 · Backup & restore" color={BACKUP}
           title="Never lose a database again"
           blurb="A backup is a safety net. We learn to make one, and prove it works by restoring from it."
         />
@@ -931,7 +1165,7 @@ export default function DatabaseConceptsLesson() {
       {/* 3 — ORDER BY */}
       <Section>
         <SectionHeader
-          kicker="Part 3 · Sorting results" color={SORT}
+          kicker="Part 4 · Sorting results" color={SORT}
           title="ORDER BY: putting rows in the order we want"
           blurb="We keep the same books table and the same data. ORDER BY only changes the order the rows come back in. We add ASC to go low to high, or DESC to go high to low, after the column name."
         />
@@ -952,7 +1186,7 @@ export default function DatabaseConceptsLesson() {
       {/* 4 — COUNT */}
       <Section>
         <SectionHeader
-          kicker="Part 4 · Counting rows" color={COUNT}
+          kicker="Part 5 · Counting rows" color={COUNT}
           title="COUNT: answering how many"
           blurb="COUNT tells us how many rows match, and nothing more. On its own, COUNT(*) counts every row. Add a WHERE and it counts only the rows we care about."
         />
@@ -977,7 +1211,7 @@ export default function DatabaseConceptsLesson() {
       {/* 5 — SQL injection */}
       <Section>
         <SectionHeader
-          kicker="Part 5 · A safety topic" color={DANGER}
+          kicker="Part 6 · A safety topic" color={DANGER}
           title="SQL injection, in plain English"
           blurb="We do not need to write any code to understand this. We just need to see it happen once."
         />

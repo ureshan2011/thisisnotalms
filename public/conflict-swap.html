@@ -446,6 +446,13 @@
     </div>
 
     <div class="card">
+      <h3>Export session data</h3>
+      <p class="muted">Downloads every submitted conflict, who it was swapped to, all five analysis answers, and any feedback you've sent — one row per conflict. Handy for handing the whole session to an LLM for further analysis.</p>
+      <button class="ghost" id="btnExportCsv" style="width:100%;">Download CSV</button>
+      <p class="muted" id="exportEmptyNote" style="margin-top:8px;"></p>
+    </div>
+
+    <div class="card">
       <h3>Review analyses &amp; give feedback</h3>
       <p class="muted" id="reviewEmpty">Submitted analyses appear here as students finish. Open one to read the full conflict and all five answers, then send written feedback — it appears on that student's screen immediately.</p>
       <div id="reviewList"></div>
@@ -730,6 +737,60 @@
     const remaining = roster.filter(function (name) { return calledNames.indexOf(name) === -1; });
     if (remaining.length === 0) return null;
     return remaining[Math.floor(Math.random() * remaining.length)];
+  }
+
+  // RFC 4180 field escaping: wrap in quotes and double up any embedded quotes
+  // whenever a field contains a comma, quote, or newline — all of which are
+  // routine in free-text conflict/analysis submissions.
+  function csvField(value) {
+    const s = (value === null || value === undefined) ? '' : String(value);
+    if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  }
+
+  function toCsvTimestamp(ms) {
+    return ms ? new Date(ms).toISOString() : '';
+  }
+
+  // One row per submitted conflict: the swap pattern (which ticket reviewed
+  // which), the full text, all five analysis answers, and any feedback —
+  // everything a teacher would want to hand to an LLM for further analysis.
+  function buildSessionCsv(code, subs) {
+    const headers = [
+      'class_code', 'conflict_ticket', 'submitted_at', 'conflict_text',
+      'reviewer_ticket', 'analyzed_at',
+      'root_cause', 'stakeholders', 'mode_used', 'better_mode', 'prevention',
+      'feedback', 'feedback_at'
+    ];
+    const rows = subs.map(function (s) {
+      const reviewer = subs.find(function (r) { return r.anonId === s.assignedTo; });
+      const a = s.analysis || {};
+      return [
+        code,
+        s.ticket,
+        toCsvTimestamp(s.createdAt),
+        s.text,
+        reviewer ? reviewer.ticket : '',
+        toCsvTimestamp(a.analyzedAt),
+        a.rootCause, a.stakeholders, a.modeUsed, a.betterMode, a.prevention,
+        s.feedback, toCsvTimestamp(s.feedbackAt)
+      ].map(csvField).join(',');
+    });
+    return headers.map(csvField).join(',') + '\r\n' + rows.join('\r\n');
+  }
+
+  function downloadCsv(filename, csvText) {
+    // Leading BOM so Excel opens the UTF-8 file correctly instead of mangling
+    // any non-ASCII characters students wrote.
+    const blob = new Blob(['﻿' + csvText], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
   function formatMMSS(ms) {
@@ -1078,6 +1139,17 @@
     };
     document.getElementById('btnOpenBoardFromTeacher').onclick = function () {
       window.open(boardLink, '_blank');
+    };
+
+    document.getElementById('btnExportCsv').onclick = function () {
+      if (!latestSubs.length) {
+        const note = document.getElementById('exportEmptyNote');
+        note.textContent = 'No submissions yet — there\'s nothing to export.';
+        return;
+      }
+      const csv = buildSessionCsv(code, latestSubs);
+      const stamp = new Date().toISOString().slice(0, 10);
+      downloadCsv('conflict-swap-' + code + '-' + stamp + '.csv', csv);
     };
 
     // Ticket-to-ticket view for the teacher: which conflict went to which
@@ -1525,6 +1597,8 @@
     assignSubmissions: assignSubmissions,
     pickRandomUncalled: pickRandomUncalled,
     parseRoster: parseRoster,
+    buildSessionCsv: buildSessionCsv,
+    csvField: csvField,
     MIN_CONFLICT_LEN: MIN_CONFLICT_LEN,
     MIN_ANALYSIS_LEN: MIN_ANALYSIS_LEN,
     USE_LOCAL_DEMO: USE_LOCAL_DEMO,

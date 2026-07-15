@@ -46,7 +46,12 @@ other YooBees data) is mirrored into the repo's root `firestore.rules`.
 8. **Cold-call the discussion.** Paste your roster, then "Call someone" picks
    a random name with no repeats until you reset. The name also appears big
    on the shared dashboard ("Now presenting").
-9. **Reset everything** (Danger zone) between class sections to reuse the code.
+9. **Export the session as CSV.** The "Export session data" card downloads
+   one row per conflict: class code, conflict ticket, submission time, the
+   full conflict text, the reviewer's ticket (the swap pattern), all five
+   analysis answers, and any feedback you sent — everything needed to hand
+   the whole session to an LLM for further analysis.
+10. **Reset everything** (Danger zone) between class sections to reuse the code.
 
 ## Tests
 
@@ -70,6 +75,10 @@ directly and proves:
   read-only class dashboard (`?board=CODE`) mirrors submissions, analyses,
   phase, and cold calls live; and instructor feedback written in the review
   card reaches the analyzing student's done screen without a reload.
+- **export.spec.js** — the CSV export produces one row per conflict with the
+  swap pattern (which ticket reviewed which), all five analysis answers, and
+  any feedback sent, correctly quoted per RFC 4180 for free text containing
+  commas/quotes.
 
 The suite always appends `?localDemo=1` when loading the page, which forces
 the local fake backend even though the real Firebase config is wired in —

@@ -607,45 +607,52 @@ function MiniTable({ head, rows, dimIds, idKey }: {
   );
 }
 
-function CascadeDemo() {
-  const [cascade, setCascade] = useState(true);
+// "What happens when you DELETE a book?" — the three ways MySQL can react.
+function DeleteCascadeDemo() {
+  const [rule, setRule] = useState<'cascade' | 'setnull' | 'restrict'>('cascade');
   const [deleted, setDeleted] = useState(false);
 
-  const cascadedAway = deleted && cascade;
-  const books = cascadedAway ? CASCADE_BOOKS.filter((b) => b.id !== 2) : CASCADE_BOOKS;
-  const reviews = cascadedAway ? CASCADE_REVIEWS.filter((r) => r.book_id !== 2) : CASCADE_REVIEWS;
-
-  // Rows that reference book #2 are highlighted (dimmed here means "about to be affected").
-  const bookDim = new Set<number>();
-  const reviewDim = new Set<number>();
+  const books = deleted && rule !== 'restrict' ? CASCADE_BOOKS.filter((b) => b.id !== 2) : CASCADE_BOOKS;
+  const reviews = !deleted
+    ? CASCADE_REVIEWS
+    : rule === 'cascade'
+    ? CASCADE_REVIEWS.filter((r) => r.book_id !== 2)
+    : rule === 'setnull'
+    ? CASCADE_REVIEWS.map((r) => (r.book_id === 2 ? { ...r, book_id: 'NULL' } : r))
+    : CASCADE_REVIEWS;
 
   let banner: { ok: boolean; text: string } | null = null;
   if (deleted) {
-    banner = cascade
-      ? { ok: true, text: 'Book #2 is deleted, and its two reviews were removed automatically. The delete cascaded from the book down to its reviews.' }
-      : { ok: false, text: 'MySQL blocks this. Two reviews still point to book #2, so with no cascade rule it refuses to delete the book and leave those reviews pointing at nothing.' };
+    if (rule === 'cascade') {
+      banner = { ok: true, text: 'Book #2 is deleted, and its two reviews were deleted right along with it, automatically. The delete cascaded down from the book to its reviews.' };
+    } else if (rule === 'setnull') {
+      banner = { ok: true, text: 'Book #2 is deleted, but its two reviews are kept. Their book_id is reset to NULL — "this review no longer points at any book."' };
+    } else {
+      banner = { ok: false, text: 'MySQL blocks this. Two reviews still point to book #2, so with no rule it refuses to delete the book and leave those reviews pointing at nothing.' };
+    }
   }
 
-  const setRule = (v: boolean) => { setCascade(v); setDeleted(false); };
+  const setRuleAndReset = (v: typeof rule) => { setRule(v); setDeleted(false); };
 
   return (
     <Card>
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#1d1d1f' }}>🔗 See CASCADE in action</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#1d1d1f' }}>🗑️ Scenario 1 — what happens when you delete a book?</div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button onClick={() => setRule(true)} style={{ ...navBtn(cascade, LINK), fontSize: 13 }}>ON DELETE CASCADE</button>
-          <button onClick={() => setRule(false)} style={{ ...navBtn(!cascade, DANGER), fontSize: 13 }}>No cascade rule</button>
+          <button onClick={() => setRuleAndReset('cascade')} style={{ ...navBtn(rule === 'cascade', LINK), fontSize: 13 }}>ON DELETE CASCADE</button>
+          <button onClick={() => setRuleAndReset('setnull')} style={{ ...navBtn(rule === 'setnull', BACKUP), fontSize: 13 }}>ON DELETE SET NULL</button>
+          <button onClick={() => setRuleAndReset('restrict')} style={{ ...navBtn(rule === 'restrict', DANGER), fontSize: 13 }}>No rule</button>
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 16 }}>
         <div>
           <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: 6 }}>books</div>
-          <MiniTable head={['id', 'title']} rows={books} dimIds={bookDim} idKey="id" />
+          <MiniTable head={['id', 'title']} rows={books} dimIds={new Set()} idKey="id" />
         </div>
         <div>
           <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: 6 }}>reviews (book_id points to books.id)</div>
-          <MiniTable head={['id', 'book_id', 'comment']} rows={reviews} dimIds={reviewDim} idKey="id" />
+          <MiniTable head={['id', 'book_id', 'comment']} rows={reviews} dimIds={new Set()} idKey="id" />
         </div>
       </div>
 
@@ -670,10 +677,118 @@ function CascadeDemo() {
   );
 }
 
+// "What happens when a book's id changes?" — the update side of the same coin.
+function UpdateCascadeDemo() {
+  const [cascade, setCascade] = useState(true);
+  const [renamed, setRenamed] = useState(false);
+
+  const applied = renamed && cascade;
+
+  const books = applied ? CASCADE_BOOKS.map((b) => (b.id === 2 ? { ...b, id: 9 } : b)) : CASCADE_BOOKS;
+  const reviews = applied ? CASCADE_REVIEWS.map((r) => (r.book_id === 2 ? { ...r, book_id: 9 } : r)) : CASCADE_REVIEWS;
+
+  let banner: { ok: boolean; text: string } | null = null;
+  if (renamed) {
+    banner = cascade
+      ? { ok: true, text: 'Book #2 becomes book #9, and both of its reviews were updated automatically to book_id 9. The rename cascaded down from the book to its reviews.' }
+      : { ok: false, text: 'MySQL blocks this. Two reviews still point to book_id 2, so with no rule it refuses to renumber the book and leave those reviews pointing at a book_id that no longer exists.' };
+  }
+
+  const setRule = (v: boolean) => { setCascade(v); setRenamed(false); };
+
+  return (
+    <Card>
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#1d1d1f' }}>✏️ Scenario 2 — what happens when a book's id changes?</div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <button onClick={() => setRule(true)} style={{ ...navBtn(cascade, SORT), fontSize: 13 }}>ON UPDATE CASCADE</button>
+          <button onClick={() => setRule(false)} style={{ ...navBtn(!cascade, DANGER), fontSize: 13 }}>No rule</button>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: 6 }}>books</div>
+          <MiniTable head={['id', 'title']} rows={books} dimIds={new Set()} idKey="id" />
+        </div>
+        <div>
+          <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: 6 }}>reviews (book_id points to books.id)</div>
+          <MiniTable head={['id', 'book_id', 'comment']} rows={reviews} dimIds={new Set()} idKey="id" />
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: banner ? 16 : 0 }}>
+        <button onClick={() => setRenamed(true)} disabled={renamed} style={{ ...navBtn(true, SORT), fontSize: 13, opacity: renamed ? 0.5 : 1, cursor: renamed ? 'default' : 'pointer' }}>
+          ✏️ UPDATE books SET id = 9 WHERE id = 2;
+        </button>
+        <button onClick={() => setRenamed(false)} style={{ ...navBtn(false), fontSize: 13 }}>↻ Reset</button>
+      </div>
+
+      {banner && (
+        <div style={{
+          padding: '14px 16px', borderRadius: 14, animation: 'dbcFade 0.3s ease',
+          display: 'flex', gap: 12, alignItems: 'flex-start',
+          background: (banner.ok ? SAFE : DANGER) + '0e', border: `1.5px solid ${(banner.ok ? SAFE : DANGER)}33`,
+        }}>
+          <span style={{ fontSize: 20, flexShrink: 0, lineHeight: 1.2 }}>{banner.ok ? '✅' : '🚫'}</span>
+          <div style={{ fontSize: 14, lineHeight: 1.55, color: '#444' }}>{banner.text}</div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// "Populating a default value instead" — SET DEFAULT, illustrated. MySQL's InnoDB
+// refuses to even create a table with this clause, so this is a concept-only,
+// non-interactive before/after rather than a live demo like the two above.
+const DEFAULT_PLACEHOLDER_BOOK = { id: 0, title: '(Unknown book)' };
+const DEFAULT_BOOKS_AFTER = [DEFAULT_PLACEHOLDER_BOOK, CASCADE_BOOKS[0]];
+const DEFAULT_REVIEWS_AFTER = CASCADE_REVIEWS.map((r) => (r.book_id === 2 ? { ...r, book_id: 0 } : r));
+
+function DefaultValueDemo() {
+  const [after, setAfter] = useState(false);
+  const books = after ? DEFAULT_BOOKS_AFTER : [DEFAULT_PLACEHOLDER_BOOK, ...CASCADE_BOOKS];
+  const reviews = after ? DEFAULT_REVIEWS_AFTER : CASCADE_REVIEWS;
+
+  return (
+    <Card>
+      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
+        <div style={{ fontSize: 15, fontWeight: 700, color: '#1d1d1f' }}>🧩 Scenario 3 — populating a default value instead</div>
+        <span style={{ fontSize: 11.5, fontWeight: 700, padding: '4px 10px', borderRadius: 999, background: BACKUP + '15', color: BACKUP, whiteSpace: 'nowrap' }}>
+          Concept only — not in MySQL
+        </span>
+      </div>
+      <p style={{ margin: '0 0 14px', fontSize: 14, lineHeight: 1.6, color: '#444' }}>
+        Some databases (PostgreSQL, SQL Server) offer a third reaction: <code>ON DELETE SET DEFAULT</code>. Instead of
+        deleting the reviews (CASCADE) or blanking them out (SET NULL), the <code>book_id</code> resets to a default value
+        chosen up front — here, a placeholder book with <code>id = 0</code> called "(Unknown book)" that already sits in
+        the table. Delete book #2, and its reviews quietly re-point at that placeholder instead of disappearing or breaking.
+        MySQL's InnoDB does not support this: if you write <code>ON DELETE SET DEFAULT</code>, MySQL refuses to create the
+        table at all. <b>SET NULL is the closest MySQL gets to this idea.</b>
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: 6 }}>books</div>
+          <MiniTable head={['id', 'title']} rows={books} dimIds={new Set()} idKey="id" />
+        </div>
+        <div>
+          <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6e6e73', marginBottom: 6 }}>reviews</div>
+          <MiniTable head={['id', 'book_id', 'comment']} rows={reviews} dimIds={new Set()} idKey="id" />
+        </div>
+      </div>
+      <button onClick={() => setAfter((v) => !v)} style={{ ...navBtn(after, BACKUP), fontSize: 13 }}>
+        {after ? '↻ Reset' : '🗑️ Delete book #2 (Sapiens)'}
+      </button>
+    </Card>
+  );
+}
+
 const CASCADE_RULES = [
   { icon: '🗑️', color: DANGER, t: 'ON DELETE CASCADE', d: 'Delete a book, and all of its reviews are deleted with it, automatically. The delete cascades down to the linked rows.' },
-  { icon: '✏️', color: BACKUP, t: 'ON UPDATE CASCADE', d: 'Change a book\'s id, and every review that points to it updates to match, so no review is left pointing at the wrong book.' },
-  { icon: '🛑', color: '#64748b', t: 'With no rule', d: 'MySQL refuses to delete or renumber a book while reviews still point to it, to avoid leaving reviews pointing at nothing.' },
+  { icon: '🈳', color: LINK, t: 'ON DELETE SET NULL', d: 'Delete a book, and its reviews are kept — but their book_id resets to NULL, meaning "we no longer know which book this was."' },
+  { icon: '🧩', color: BACKUP, t: 'ON DELETE / UPDATE SET DEFAULT', d: 'Reset the foreign key to a default value chosen up front, like a placeholder book_id. Not supported by MySQL.' },
+  { icon: '✏️', color: SORT, t: 'ON UPDATE CASCADE', d: 'Change a book\'s id, and every review that points to it updates to match, so no review is left pointing at the wrong book.' },
+  { icon: '🛑', color: '#64748b', t: 'No rule (RESTRICT)', d: 'MySQL refuses to delete or renumber a book while reviews still point to it, to avoid leaving broken links.' },
 ];
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1115,20 +1230,21 @@ export default function DatabaseConceptsLesson() {
         <SectionHeader
           kicker="Part 2 · Linking tables" color={LINK}
           title="Foreign keys, and what CASCADE does"
-          blurb="Real databases have many tables, and they point at each other. A foreign key is how one table points to a row in another. CASCADE decides what happens to those links when a row is deleted or changed."
+          blurb="Real databases have many tables, and they point at each other. A foreign key is a column that points to a row in another table. CASCADE (and its relatives) decide what happens to that link when the row it points to is deleted or changed."
         />
         <NoteStrip color={LINK}>
-          Here we add one small partner table called <code>reviews</code>, where each review points to a book. This is the
-          only place in the lesson we use a second table.
+          We add one small partner table called <code>reviews</code>, where each review points to a book. Every demo
+          below reuses these exact same two tables — only the rule changes, so it is easier to see what each one does.
         </NoteStrip>
 
         <div style={{ display: 'grid', gap: 16 }}>
           <Reveal>
             <Card>
               <p style={{ margin: '0 0 14px', fontSize: 15, lineHeight: 1.6, color: '#444' }}>
-                A <b>foreign key</b> is a column that points to a row in another table. Here each review has a{' '}
-                <code>book_id</code> that points to a book in <code>books</code>. That link is what lets the database keep
-                the two tables in step. We set the CASCADE rules when we create the table.
+                Here each review has a <code>book_id</code> that points to a book in <code>books</code> — in plain
+                English, "this review belongs to that book." The one tricky question is: what should happen to a review
+                if the book it belongs to gets deleted, or gets a new id? We answer that question with a rule, set right
+                when we create the table.
               </p>
               <CodeBlock code={REVIEWS_SQL} />
             </Card>
@@ -1148,7 +1264,14 @@ export default function DatabaseConceptsLesson() {
             </div>
           </Reveal>
 
-          <Reveal><CascadeDemo /></Reveal>
+          <NoteStrip color={LINK}>
+            Three small scenarios below, each with the same click-and-see setup: pick a rule, then try the action, and
+            watch the two tables react.
+          </NoteStrip>
+
+          <Reveal><DeleteCascadeDemo /></Reveal>
+          <Reveal><UpdateCascadeDemo /></Reveal>
+          <Reveal><DefaultValueDemo /></Reveal>
         </div>
       </Section>
 

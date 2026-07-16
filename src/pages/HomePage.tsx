@@ -69,6 +69,15 @@ const LESSONS: {
     to2: '#FF5A5F',
   },
   {
+    to: '/bonus-lecture',
+    eyebrow: 'MBI800 · Capstone Bonus Lecture',
+    title: "Let's make sense of shipping your own site",
+    body: 'The final lecture: design a layout in Google Stitch, turn it into real code with Claude Code, and ship it live on GitHub Pages. Includes a prompt generator for your own portfolio.',
+    emoji: '🚀',
+    from: '#7c3aed',
+    to2: '#059669',
+  },
+  {
     to: '/platform-strategy',
     eyebrow: 'Strategic Information Systems',
     title: 'Platform Strategy',

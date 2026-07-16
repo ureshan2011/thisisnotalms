@@ -328,6 +328,16 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // ── MBI800 Bonus Lecture — email capture (see /bonus-lecture) ───────────
+    // No-login public form; anyone can submit an email, but only staff can
+    // read the list back (it's PII, unlike the disposable classroom tools
+    // above).
+    match /bonusLectureSignups/{signupId} {
+      allow create: if true;
+      allow read: if request.auth != null && isStaff();
+      allow update, delete: if false;
+    }
+
     function isStaff() {
       return isLecturer() || isTeachingAssistant();
     }

@@ -10,6 +10,8 @@ import {
   Sparkles,
   ExternalLink,
 } from 'lucide-react';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../lib/firebase';
 
 // ─── MBI800 Bonus Lecture — "From Vibe to Production" ───────────────────────
 // The capstone pipeline: Google Stitch 2.0 → Claude Code on the Web →
@@ -267,10 +269,11 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 function VaultGateway() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const value = email.trim();
     if (!emailPattern.test(value)) {
@@ -278,20 +281,23 @@ function VaultGateway() {
       return;
     }
     setError(false);
+    setSubmitError(false);
     setLoading(true);
 
-    const entry = { email: value, submittedAt: new Date().toISOString() };
-
-    window.setTimeout(() => {
-      try {
-        const store = JSON.parse(localStorage.getItem('mbi800_vault_signups') || '[]');
-        store.push(entry);
-        localStorage.setItem('mbi800_vault_signups', JSON.stringify(store));
-      } catch { /* localStorage unavailable — non-fatal */ }
-      console.log('[MBI800 Vault] New signup captured:', entry);
-      setLoading(false);
+    try {
+      if (!db) throw new Error('Firestore is not configured');
+      await addDoc(collection(db, 'bonusLectureSignups'), {
+        email: value,
+        submittedAt: serverTimestamp(),
+        source: 'bonus-lecture',
+      });
       setSubmitted(true);
-    }, 900);
+    } catch (err) {
+      console.error('[MBI800 Bonus Lecture] Signup failed:', err);
+      setSubmitError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -308,11 +314,12 @@ function VaultGateway() {
         </p>
 
         <h3 className="mt-4 text-2xl sm:text-3xl font-semibold text-white tracking-tight">
-          More resources, after the course
+          Want more, after the course?
         </h3>
         <p className="mt-3 text-sm sm:text-[15px] leading-relaxed max-w-xl" style={{ color: 'rgba(224,231,255,0.85)' }}>
-          Drop your Gmail and I'll send a system-prompt library, a deployment checklist, and an
-          invite to future alumni build sessions. No spam.
+          Leave your email if you're interested in a system-prompt library, a deployment
+          checklist, and future alumni build sessions. No spam, and no fixed schedule — just
+          added to the list.
         </p>
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -347,7 +354,7 @@ function VaultGateway() {
                 style={{ background: '#fff', color: '#312e81' }}
               >
                 <Mail size={15} />
-                {loading ? 'Sending…' : 'Unlock Bonus AI Resources'}
+                {loading ? 'Adding…' : 'Add my email'}
               </button>
             </div>
             {error && (
@@ -355,9 +362,11 @@ function VaultGateway() {
                 That doesn't look like a valid email yet — check for typos and try again.
               </p>
             )}
-            <p className="mt-2 text-xs" style={{ color: 'rgba(199,210,254,0.7)' }}>
-              Unsubscribe whenever.
-            </p>
+            {submitError && (
+              <p className="mt-2 text-xs" style={{ color: '#fecaca' }}>
+                Something went wrong saving that — mind trying again?
+              </p>
+            )}
           </form>
         ) : (
           <div className="mbc-rise mt-6 flex items-start gap-3 rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
@@ -365,9 +374,9 @@ function VaultGateway() {
               <Check size={16} />
             </span>
             <div>
-              <p className="text-white font-semibold text-sm">✨ Verification sent!</p>
+              <p className="text-white font-semibold text-sm">You're on the list.</p>
               <p className="text-sm mt-0.5" style={{ color: 'rgba(224,231,255,0.85)' }}>
-                Check your email for the MBI800 Ultimate Vault link.
+                No promises on timing — I'll reach out when there's something worth sharing.
               </p>
             </div>
           </div>

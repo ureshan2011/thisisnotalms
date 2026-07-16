@@ -16,6 +16,7 @@ const NormalizationActivitiesPage = lazy(() => import('./pages/NormalizationActi
 const ERMappingExplorerPage = lazy(() => import('./pages/ERMappingExplorerPage'));
 const CostManagementPage = lazy(() => import('./pages/CostManagementPage'));
 const FiveStoriesPage = lazy(() => import('./pages/FiveStoriesPage'));
+const MBI800BonusLecturePage = lazy(() => import('./pages/MBI800BonusLecturePage'));
 const PlatformStrategyPage = lazy(() => import('./pages/PlatformStrategyPage'));
 const SystemsSecurityPage = lazy(() => import('./pages/SystemsSecurityPage'));
 const StudyPacksPage = lazy(() => import('./pages/StudyPacksPage'));
@@ -102,6 +103,7 @@ function AppRoutes() {
         <Route path="/sql-reels"    element={<Suspense fallback={null}><SQLReelsPage /></Suspense>} />
         <Route path="/pre-class"    element={<Suspense fallback={null}><PreClassSwarmPage /></Suspense>} />
         <Route path="/five-stories" element={<Suspense fallback={null}><FiveStoriesPage /></Suspense>} />
+        <Route path="/bonus-lecture" element={<Suspense fallback={null}><MBI800BonusLecturePage /></Suspense>} />
         <Route path="/study-packs" element={<Suspense fallback={null}><StudyPacksPage /></Suspense>} />
         <Route path="/platform-strategy" element={<Suspense fallback={null}><PlatformStrategyPage /></Suspense>} />
         <Route path="/systems-security" element={<Suspense fallback={null}><SystemsSecurityPage /></Suspense>} />
@@ -185,6 +187,7 @@ function ShutdownRoutes() {
       <Route path="/sql-reels" element={<Suspense fallback={null}><SQLReelsPage /></Suspense>} />
       <Route path="/pre-class" element={<Suspense fallback={null}><PreClassSwarmPage /></Suspense>} />
       <Route path="/five-stories" element={<Suspense fallback={null}><FiveStoriesPage /></Suspense>} />
+      <Route path="/bonus-lecture" element={<Suspense fallback={null}><MBI800BonusLecturePage /></Suspense>} />
       <Route path="/study-packs" element={<Suspense fallback={null}><StudyPacksPage /></Suspense>} />
       <Route path="/platform-strategy" element={<Suspense fallback={null}><PlatformStrategyPage /></Suspense>} />
       <Route path="/systems-security" element={<Suspense fallback={null}><SystemsSecurityPage /></Suspense>} />

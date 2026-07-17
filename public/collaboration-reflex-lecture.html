@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Collaboration Reflex — Lecture</title>
+<style>
+  :root{
+    --navy:#1E2761; --navy2:#2A3575; --coral:#F96167; --ice:#CADCFC;
+    --paper:#F7F4ED; --ink:#26282F; --gray:#6B7280; --green:#2E9E6B; --amber:#E8A13A;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden;background:var(--paper)}
+  body{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;color:var(--ink)}
+  .slide{position:absolute;inset:0;display:none;padding:7vh 8vw;flex-direction:column;justify-content:center}
+  .slide.active{display:flex}
+  .kicker{font-size:.92rem;font-weight:700;letter-spacing:.35em;color:var(--coral);text-transform:uppercase;margin-bottom:1.4rem}
+  h1{font-family:Georgia,"Times New Roman",serif;font-size:3.5rem;line-height:1.08;color:var(--navy);font-weight:700;margin-bottom:1.6rem}
+  h2{font-family:Georgia,serif;font-size:2.6rem;line-height:1.12;color:var(--navy);font-weight:700;margin-bottom:1.4rem}
+  p,li{font-size:1.3rem;line-height:1.65;max-width:62rem}
+  p+p{margin-top:.9rem}
+  .story p{font-family:Georgia,serif;font-size:1.36rem}
+  .lead{font-size:1.5rem;color:var(--navy)}
+  .muted{color:var(--gray)}
+  em{color:var(--navy)}
+  .accent{color:var(--coral)}
+  .hook{font-family:Georgia,serif;font-style:italic;font-size:1.4rem;color:var(--coral);margin-top:1.6rem}
+  /* dark moment slides */
+  .dark{background:var(--navy);color:#fff}
+  .dark .bigline{font-family:Georgia,serif;font-size:3.7rem;line-height:1.2;font-weight:700;max-width:60rem}
+  .dark .bigline .accent{color:var(--coral)}
+  .dark .sub{margin-top:2rem;color:var(--ice);font-size:1.26rem;font-style:italic}
+  .dark .kicker{color:var(--ice)}
+  /* quote card */
+  .qcard{border-left:6px solid var(--coral);padding:1rem 1.8rem;margin:1.6rem 0;background:rgba(30,39,97,.045)}
+  .qcard p{font-family:Georgia,serif;font-style:italic;font-size:1.55rem;color:var(--navy)}
+  /* columns */
+  .cols{display:flex;gap:4vw;align-items:center}
+  .cols>div{flex:1}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-top:1rem}
+  .card{background:#fff;border:1px solid #E5E0D3;border-radius:14px;padding:1.4rem 1.6rem;box-shadow:0 2px 10px rgba(30,39,97,.06)}
+  .card h3{font-size:1.1rem;color:var(--navy);margin-bottom:.5rem;font-weight:700}
+  .card p{font-size:1.08rem;line-height:1.5}
+  .card .num{font-family:Georgia,serif;font-size:1.95rem;font-weight:700;color:var(--coral);margin-bottom:.3rem}
+  ul{list-style:none;margin-top:.6rem}
+  ul li{padding-left:1.6rem;position:relative;margin-bottom:.85rem}
+  ul li::before{content:"◆";position:absolute;left:0;color:var(--coral);font-size:.8rem;top:.42rem}
+  .tag{display:inline-block;background:var(--navy);color:#fff;font-size:.85rem;font-weight:700;letter-spacing:.12em;padding:.34rem .9rem;border-radius:999px;margin-right:.5rem;margin-bottom:.9rem}
+  .tag.c{background:var(--coral)} .tag.g{background:var(--green)} .tag.a{background:var(--amber)} .tag.gr{background:#8A93A8}
+  .figure{display:flex;justify-content:center;margin-top:1rem}
+  .figure svg{max-width:100%;height:auto}
+  .caption{text-align:center;font-size:.9rem;letter-spacing:.15em;color:var(--gray);margin-top:.8rem;text-transform:uppercase}
+  /* citations */
+  .citation{font-size:.92rem;color:var(--gray);font-style:italic;line-height:1.55;max-width:58rem;margin-top:1.1rem}
+  .citation strong{font-style:normal;color:var(--navy)}
+  /* references slide */
+  .refs-list{margin-top:.6rem}
+  .refs-list li{font-size:1.08rem;line-height:1.6;padding-left:2.1rem;text-indent:-2.1rem;margin-bottom:1.1rem;max-width:58rem}
+  .refs-list li::before{content:none}
+  /* closing brand slide */
+  .brand-slide{align-items:center;text-align:center}
+  .brand-mark{display:flex;align-items:center;gap:16px;justify-content:center;margin:.4rem 0 1.6rem}
+  .brand-name{font-family:Georgia,serif;font-size:2.1rem;font-weight:700;color:#fff;text-align:left}
+  .brand-name .accent2{color:#93c5fd;font-weight:800}
+  .brand-by{font-size:1.05rem;color:var(--ice);margin-top:.15rem;text-align:left}
+  #home-link{position:fixed;top:1.1rem;left:1.4rem;font-size:.82rem;color:var(--gray);z-index:15;text-decoration:none;opacity:.75}
+  #home-link:hover{opacity:1;text-decoration:underline}
+  .dark #home-link{color:var(--ice)}
+  /* chrome */
+  #bar{position:fixed;top:0;left:0;height:4px;background:var(--coral);width:0;z-index:10;transition:width .25s}
+  #count{position:fixed;bottom:1.1rem;right:1.4rem;font-size:.85rem;color:var(--gray);z-index:10}
+  #hint{position:fixed;bottom:1.1rem;left:1.4rem;font-size:.8rem;color:var(--gray);z-index:10;opacity:.75}
+  #notes{position:fixed;left:0;right:0;bottom:0;background:rgba(20,26,64,.96);color:#fff;padding:1.2rem 2rem;font-size:1rem;line-height:1.5;display:none;z-index:20;max-height:38vh;overflow:auto}
+  #notes strong{color:var(--ice)}
+  .dark #count,.dark~#count{color:var(--ice)}
+  .footer-note{position:absolute;bottom:5vh;left:8vw;font-size:.95rem;color:var(--gray);font-style:italic}
+  .dark .footer-note{color:var(--ice)}
+  .titlebig{font-family:Georgia,serif;font-weight:700;color:var(--navy);font-size:4.7rem;line-height:1.05}
+  .titlebig .accent{color:var(--coral)}
+  .dots{display:flex;gap:.9rem;margin-bottom:2.4rem}
+  .dots span{width:22px;height:22px;border-radius:50%;background:var(--coral);display:inline-block}
+  .dots span.diff{background:var(--navy);outline:2px solid var(--navy);outline-offset:3px}
+  @media (max-width:900px){h1{font-size:2.5rem}h2{font-size:2rem}.dark .bigline{font-size:2.5rem}.titlebig{font-size:3.1rem}p,li{font-size:1.12rem}.cols{flex-direction:column}.brand-mark{flex-direction:column}.brand-name,.brand-by{text-align:center}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="count"></div>
+<div id="hint">→ advance &nbsp;·&nbsp; ← back &nbsp;·&nbsp; N notes</div>
+<a id="home-link" href="./">← Not a LMS</a>
+<div id="notes"></div>
+
+<!-- 1 · TITLE -->
+<section class="slide active" data-notes="Welcome. Tell them: nothing in today's session is hypothetical. Every story happened to someone — possibly someone in this room's shoes.">
+  <div class="dots"><span></span><span></span><span></span><span class="diff"></span><span></span><span></span></div>
+  <div class="titlebig">The Collaboration <span class="accent">Reflex</span></div>
+  <p class="lead" style="margin-top:1.6rem">Conflict &amp; communication management — taught through forty-five real conflicts.</p>
+  <p class="muted" style="margin-top:1rem">Every story in this lecture actually happened. All names are invented.</p>
+</section>
+
+<!-- 2 · HOOK -->
+<section class="slide story" data-notes="Slow down here. This is the origin story of the whole session. Pause after 'forty-five stories came back.'">
+  <div class="kicker">How this lecture was made</div>
+  <h2>Once, I asked a class like this one to do something unusual.</h2>
+  <p>Write down a <em>real conflict</em> you lived through. Not a case study. Not "Company X." A real one, with real stakes — told anonymously, so you could be honest.</p>
+  <p>Then each story went to a stranger in the class, who had to analyse it cold: what really caused this? Who stood to lose what? How was it handled — and how should it have been?</p>
+  <p class="hook">Forty-five stories came back. Today you get the best of what they taught us.</p>
+</section>
+
+<!-- 3 · THE RANGE -->
+<section class="slide" data-notes="Read the list with energy. The point: conflict skills are not 'group work skills' — they travel everywhere.">
+  <div class="kicker">What came back</div>
+  <h2>Not just group assignments.</h2>
+  <p class="lead">An audit room where a CEO shouted "false allegations." A warehouse roster war. A fried-chicken kitchen at peak hour. A bank days before a risky release. A construction site with an idle crew. A German supplier refusing to show evidence. Two couples sharing a flat. One family ultimatum.</p>
+  <p class="hook">Same patterns. Every time. That's why this matters beyond any classroom.</p>
+</section>
+
+<!-- 4 · ROADMAP -->
+<section class="slide" data-notes="Set the contract for the session: 6 stories, 4 theories, 1 reflex to unlearn. Total ~2.5 hours with the activity.">
+  <div class="kicker">Today</div>
+  <h2>Six stories. Four theories. One reflex to unlearn.</h2>
+  <div class="cards">
+    <div class="card"><h3>The theories</h3><p>Why projects breed conflict · The five conflict modes · Positions vs. interests · Communication as a system</p></div>
+    <div class="card"><h3>The stories</h3><p>The silent rescuer · the deleted group chat · "voluntary" overtime · the intern and the gatekeeper · the receptionist's log · the bank release</p></div>
+    <div class="card"><h3>The reflex</h3><p>When my students analysed each other's conflicts, 75% prescribed the same answer — whatever the question. We'll unlearn that today.</p></div>
+    <div class="card"><h3>The goal</h3><p>You leave with two questions that tell you whether any conflict is truly over — and eight habits that prevent most of them.</p></div>
+  </div>
+</section>
+
+<!-- 5 · STORY 1 -->
+<section class="slide story" data-notes="Tell it slowly. Wei = experienced professional, marketing + PM background. The class expected him to coordinate. Ask them to notice the exact moment the fork appears.">
+  <div class="kicker">Story one</div>
+  <h2>The Silent Rescuer</h2>
+  <p>Wei was the experienced professional in a four-person postgraduate group project — years of marketing and project management behind him — so the others naturally expected him to coordinate. Week one: everyone agrees to split the work equally.</p>
+  <p>Week two: two teammates miss their commitments. A third goes quiet in the group chat. The deadline creeps closer, and Wei watches the quality of the assignment sinking.</p>
+  <p>So he makes the decision so many capable people make: <em>rather than wait, he quietly starts doing their work himself.</em></p>
+</section>
+
+<!-- 6 · STORY 1b -->
+<section class="slide story" data-notes="The flare of open conflict lasted one moment — and Wei chose silence. Emphasize: he even kept records of contributions 'as insurance'. Then the verdict quote.">
+  <div class="kicker">Story one · how it ended</div>
+  <p>When Wei reminded the group about deadlines, one member pushed back: <em>you're pressuring us — people have different schedules.</em> A real disagreement, in the open, for one moment.</p>
+  <p>Wei looked at that tension and chose: <em>stop arguing.</em> He put his head down, finished everyone's work, and quietly logged who contributed what — insurance, in case the lecturer asked.</p>
+  <p>The project was submitted on time. It got a good grade. And months later, Wei wrote this about his team:</p>
+  <div class="qcard"><p>"Everyone remained polite, but there was little trust or collaboration afterwards."</p></div>
+</section>
+
+<!-- 7 · DISCUSSION -->
+<section class="slide" data-notes="2-3 minutes, pairs. Common answers: 'talk earlier', 'tell the lecturer'. Push: WHAT exactly would you say, in week one, and to whom? Most people discover they'd also have gone silent.">
+  <div class="kicker">Talk to your neighbour · 2 minutes</div>
+  <h2>Wei got the grade.<br>Was he right?</h2>
+  <p class="lead">What would <em>you</em> have done — specifically — in week one?</p>
+  <p class="muted" style="margin-top:1.2rem">Be honest. "I'd communicate better" is not an answer. What would you say, to whom, and when?</p>
+</section>
+
+<!-- 8 · THEORY 1 -->
+<section class="slide" data-notes="Thamhain & Wilemon (1975): conflict peaks over schedules, priorities, resources — NOT personality. Tuckman (1965): storming is a stage, not a failure. Our 45 stories matched: deadlines were the #1 trigger.">
+  <div class="kicker">Theory 1 · The nature of project conflict</div>
+  <h2>Conflict is a feature, not a malfunction.</h2>
+  <div class="cols">
+    <div>
+      <p>Projects force people with <em>different goals, calendars and KPIs</em> to share one deadline. Research since the 1970s (Thamhain &amp; Wilemon) says conflict peaks over <em>schedules, priorities and resources</em> — personality sits far down the list.</p>
+      <p>And Tuckman's team stages remind us: <em>storming</em> is a phase every real team passes through. Teams that never push back on each other aren't peaceful. They just haven't started being honest.</p>
+    </div>
+    <div>
+      <div class="card"><h3>In our 45 stories</h3><p>Deadlines &amp; delays — trigger #1.<br>Whose goal wins — trigger #2.<br>Pure personality clashes — rare.</p></div>
+    </div>
+  </div>
+  <p class="citation"><strong>Thamhain, H. J., &amp; Wilemon, D. L. (1975).</strong> Conflict management in project life cycles. <em>Sloan Management Review, 16</em>(3), 31–50. &nbsp;·&nbsp; <strong>Tuckman, B. W. (1965).</strong> Developmental sequence in small groups. <em>Psychological Bulletin, 63</em>(6), 384–399.</p>
+</section>
+
+<!-- 9 · FUNCTIONAL VS DYSFUNCTIONAL -->
+<section class="slide" data-notes="Priya: planner, manufacturing, materials shortage; each dept right by its own KPI; ops manager changed the question from WHO to WHAT NOW; conflict improved the process. Marcus: sleeping employee, quiet word, relapse, PIP, resignation — nobody ever learned WHY he was sleeping.">
+  <div class="kicker">Two kinds of conflict</div>
+  <h2>The same fight can build the system — or burn it.</h2>
+  <div class="cards">
+    <div class="card" style="border-top:4px solid var(--green)"><h3 style="color:var(--green)">Functional — Priya's factory</h3><p>A materials shortage put orders at risk. Planning, procurement, production, sales — each defending its own KPI, each <em>right by its own scoreboard</em>. The ops manager stopped the blame hunt and asked: given where we are, what do we do? Urgent order, re-sequenced schedule, honest calls to customers — then they fixed the forecasting system itself. The conflict left the company running <em>better</em>.</p></div>
+    <div class="card" style="border-top:4px solid var(--coral)"><h3 style="color:var(--coral)">Dysfunctional — Marcus's report</h3><p>An employee kept falling asleep at his desk. Quiet word. Brief improvement. Relapse. Then the formal performance plan — which the employee read as <em>the exit door</em>, and resigned. Task closed. Person, knowledge and trust: gone. Nobody ever found out what the sleeping was about.</p></div>
+  </div>
+  <p class="hook" style="margin-top:1.4rem">Functional conflict surfaces information. Dysfunctional conflict destroys it.</p>
+</section>
+
+<!-- 10 · MOMENT -->
+<section class="slide dark" data-notes="Let this sit for 5 seconds of silence. It reframes everything: the collision is structural; only the ending is chosen.">
+  <div class="kicker">Remember this</div>
+  <div class="bigline">"The conflict was scheduled <span class="accent">before we ever met</span>."</div>
+  <p class="sub">— one of the forty-five students. The deadline, the KPIs, the unwritten ownership: the collision was on the calendar. Only the ending was still open.</p>
+</section>
+
+<!-- 11 · THEORY 2: TKI -->
+<section class="slide" data-notes="Thomas & Kilmann 1974; PMI bakes it into PM training. Two axes: assertiveness (my goal), cooperativeness (your goal). Five strategies. THE key line: menu, not ladder.">
+  <div class="kicker">Theory 2 · Thomas–Kilmann conflict modes</div>
+  <h2>Five ways humans handle a clash.</h2>
+  <div class="figure">
+  <svg viewBox="0 0 760 400" xmlns="http://www.w3.org/2000/svg">
+    <line x1="80" y1="360" x2="80" y2="30" stroke="#6B7280" stroke-width="2"/>
+    <line x1="80" y1="360" x2="700" y2="360" stroke="#6B7280" stroke-width="2"/>
+    <text x="40" y="200" font-size="13" fill="#6B7280" transform="rotate(-90 40 200)" text-anchor="middle" letter-spacing="2">ASSERTIVENESS — my goal</text>
+    <text x="390" y="392" font-size="13" fill="#6B7280" text-anchor="middle" letter-spacing="2">COOPERATIVENESS — your goal</text>
+    <g font-family="Segoe UI,Arial" text-anchor="middle">
+      <rect x="100" y="40" width="180" height="70" rx="10" fill="#F96167"/><text x="190" y="70" fill="#fff" font-size="17" font-weight="bold">COMPETING</text><text x="190" y="93" fill="#fff" font-size="13">I win, you lose</text>
+      <rect x="490" y="40" width="190" height="70" rx="10" fill="#2E9E6B"/><text x="585" y="70" fill="#fff" font-size="17" font-weight="bold">COLLABORATING</text><text x="585" y="93" fill="#fff" font-size="13">we both win — slow, powerful</text>
+      <rect x="295" y="160" width="190" height="70" rx="10" fill="#1E2761"/><text x="390" y="190" fill="#fff" font-size="17" font-weight="bold">COMPROMISING</text><text x="390" y="213" fill="#fff" font-size="13">we both give a little</text>
+      <rect x="100" y="275" width="180" height="70" rx="10" fill="#8A93A8"/><text x="190" y="305" fill="#fff" font-size="17" font-weight="bold">AVOIDING</text><text x="190" y="328" fill="#fff" font-size="13">nobody engages</text>
+      <rect x="490" y="275" width="190" height="70" rx="10" fill="#E8A13A"/><text x="585" y="305" fill="#fff" font-size="17" font-weight="bold">ACCOMMODATING</text><text x="585" y="328" fill="#fff" font-size="13">you win, I yield</text>
+    </g>
+  </svg>
+  </div>
+  <p class="citation"><strong>Thomas, K. W., &amp; Kilmann, R. H. (1974).</strong> <em>Thomas-Kilmann Conflict Mode Instrument.</em> Xicom.</p>
+</section>
+
+<!-- 12 · COMPETING STORY -->
+<section class="slide story" data-notes="Sanjay: internal auditor. CEO called findings 'false allegations' in front of both teams. Sanjay didn't soften or split the difference — walked the room through evidence built from management's OWN reports. Ask: why did competing work HERE?">
+  <div class="kicker">The modes, as real people lived them</div>
+  <span class="tag c">COMPETING</span>
+  <h2>The auditor and the furious CEO</h2>
+  <p>Sanjay's job as an internal auditor was to find control weaknesses. He found them. In the review meeting, the CEO's response was to call every finding a <em>"false allegation"</em> — in front of both teams.</p>
+  <p>Sanjay didn't soften the report. He didn't offer to meet in the middle. He walked the room through the analysis — built entirely from <em>the management's own reports</em> — and let the documents speak. The CEO conceded. The controls got fixed.</p>
+  <p class="hook">Splitting the difference on the truth is not a virtue. Some things you stand on — if you hold the evidence.</p>
+</section>
+
+<!-- 13 · COLLABORATING STORY -->
+<section class="slide story" data-notes="Maya & Josh: 5-person marketing project. Josh rewrote the shared deck overnight, no warning, night before deadline. Text war → call → Maya's reveal: 'it was never about the design.' Blend beat both originals. Only collaborating can produce an outcome better than either side's position.">
+  <div class="kicker">The modes, as real people lived them</div>
+  <span class="tag g">COLLABORATING</span>
+  <h2>The midnight slide swap</h2>
+  <p>The night before a draft deadline, Maya opened the team's deck and found her work <em>replaced</em> — Josh had rewritten it in his own bolder style, without asking anyone. Messages flew. Josh got defensive. Two teammates kept their heads down.</p>
+  <p>Then someone suggested a call instead of a text war. On the call, Maya said the thing that ended the fight in minutes: her issue was never the design. It was <em>being cut out of a decision that affected her work.</em> Josh admitted he should have asked.</p>
+  <p>They blended the two designs — and the blend was better than either original.</p>
+</section>
+
+<!-- 14 · COMPROMISING STORY -->
+<section class="slide story" data-notes="Chen: trade manager, long-term German supplier, defective shipment, supplier refuses all evidence requests, 3 weeks of argument, 50/50 split, business restored. Compromise ≠ failed collaboration — it bought back the relationship. But note what it DIDN'T do: establish facts. Same fight waits in the next shipment.">
+  <div class="kicker">The modes, as real people lived them</div>
+  <span class="tag">COMPROMISING</span>
+  <h2>Fifty-fifty with the German supplier</h2>
+  <p>Chen's company received goods from a two-year supplier with contract-violating defects. He asked for inspection reports. The supplier refused everything — <em>our products are flawless, your warehouse damaged them, pay us compensation.</em></p>
+  <p>Three weeks of argument by email and video call went nowhere, because there was no agreed way to establish the facts. In the end: split all costs fifty-fifty, resume business. Nobody proved anything. The relationship survived.</p>
+  <p class="hook">Good enough, on time, is a legitimate outcome. But notice — the real question was never answered. It waits in the next shipment.</p>
+</section>
+
+<!-- 15 · AVOIDING + ACCOMMODATING -->
+<section class="slide" data-notes="Avoiding: Wei, already told. The test: avoiding is strategy only WITH A RETURN DATE. Accommodating: Lin — wanted to leave her degree, family threatened to cut ties, she yielded, graduated, grateful — AND 'it still feels unresolved.' Both legit modes; both dangerous as habits.">
+  <div class="kicker">The modes, as real people lived them</div>
+  <div class="cards">
+    <div class="card" style="border-top:4px solid #8A93A8"><span class="tag gr">AVOIDING</span><p>You've met it: Wei, the silent rescuer. Avoiding is right when the issue is trivial — or as a deliberate cooling-off. The test: <em>avoiding is a strategy when it has a return date.</em> "Not now, but Thursday" is timing. "Not now," forever, is a slow goodbye.</p></div>
+    <div class="card" style="border-top:4px solid var(--amber)"><span class="tag a">ACCOMMODATING</span><p>Lin wanted to leave her degree — she'd lost all interest. Someone she loved threatened to end their relationship over it. Lin yielded, finished, graduated. Years later she's genuinely grateful for the doors it opened… <em>and calls it "an unresolved emotional issue" in the same breath.</em> Yielding is right when you're wrong, or the person matters more than the issue. It is never free.</p></div>
+  </div>
+</section>
+
+<!-- 16 · MOMENT: MENU -->
+<section class="slide dark" data-notes="THE core theory point of the session. No mode is morally superior. Choosing fit is the skill. 3 questions: stakes for task AND relationship? incentive on both sides? what does the clock say?">
+  <div class="kicker">The point most people miss</div>
+  <div class="bigline">The five modes are a <span class="accent">menu</span>, not a ladder.</div>
+  <p class="sub">No mode is "best." Ask three questions: What are the stakes — for the task and the relationship? Does the other side have any reason to engage? How much time do we really have?</p>
+</section>
+
+<!-- 17 · SCOREBOARD -->
+<section class="slide" data-notes="Coded all 45 endings. Caveat honestly: small sample, self-reported, one coder. But the pattern is stark: every damaged/failed ending sits in competing or avoiding. Collaborating (often via a mediator) never produced a damaged relationship here.">
+  <div class="kicker">What actually worked — 45 stories, honestly coded</div>
+  <h2>The scoreboard.</h2>
+  <div class="figure">
+  <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial">
+    <g font-size="15" fill="#26282F">
+      <text x="235" y="52" text-anchor="end">Collaborating</text>
+      <text x="235" y="112" text-anchor="end">Compromising</text>
+      <text x="235" y="172" text-anchor="end">Competing</text>
+      <text x="235" y="232" text-anchor="end">Avoiding / Accommodating</text>
+    </g>
+    <rect x="250" y="32" width="416" height="30" fill="#2E9E6B"/><text x="458" y="53" fill="#fff" font-size="15" font-weight="bold" text-anchor="middle">16 intact</text>
+    <rect x="250" y="92" width="130" height="30" fill="#2E9E6B"/><text x="315" y="113" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">5</text>
+    <rect x="380" y="92" width="26" height="30" fill="#E8A13A"/>
+    <rect x="250" y="152" width="26" height="30" fill="#2E9E6B"/>
+    <rect x="276" y="152" width="26" height="30" fill="#E8A13A"/>
+    <rect x="302" y="152" width="104" height="30" fill="#F96167"/><text x="354" y="173" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">4 failed</text>
+    <rect x="250" y="212" width="104" height="30" fill="#E8A13A"/><text x="302" y="233" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">4 damaged</text>
+    <rect x="354" y="212" width="52" height="30" fill="#F96167"/><text x="380" y="233" fill="#fff" font-size="14" font-weight="bold" text-anchor="middle">2</text>
+    <g font-size="13" fill="#6B7280">
+      <rect x="250" y="272" width="14" height="14" fill="#2E9E6B"/><text x="272" y="284">resolved, relationship intact</text>
+      <rect x="470" y="272" width="14" height="14" fill="#E8A13A"/><text x="492" y="284">resolved, relationship damaged</text>
+      <rect x="640" y="272" width="14" height="14" fill="#F96167"/><text x="662" y="284">failed / open</text>
+    </g>
+  </svg>
+  </div>
+  <p class="hook">Every damaged or broken ending sits in the competing or avoiding rows. Small sample, self-reported — but that pattern is hard to ignore.</p>
+</section>
+
+<!-- 18 · STORY 2 -->
+<section class="slide story" data-notes="Dev: retail team leader, generous by his own account (covered shifts, wrote unasked reports). Cut an underperformer's hours based on CCTV the team never saw. Group chat turned hostile. Dev stayed 'completely silent'... then deleted the chat. Sales held. His confession is the punchline.">
+  <div class="kicker">Story two</div>
+  <h2>The Deleted Group Chat</h2>
+  <p>Dev led a retail team, and by his own account he was a generous boss — approved leave freely, covered a sick teammate's early shift himself, even wrote performance reports nobody asked for.</p>
+  <p>One of his staff was underperforming: customer complaints, mistakes he wouldn't own, CCTV showing he wasn't greeting customers. Dev cut the man's paid hours. The team's group chat lit up with anger.</p>
+  <p>Dev's response, in his own written words: <em>"I was completely silent, because the team was not in good shape to understand my efforts."</em> Then — advised from above — he <em>deleted the group chat entirely</em>, leaving only the official channel where senior management sat, and nobody dared complain.</p>
+</section>
+
+<!-- 19 · STORY 2b -->
+<section class="slide" data-notes="The quiet held. Sales held. Then the confession — read it twice. The peer reviewer's line 'silence was mistaken for resolution' is the moment slide next. Ask: how would you even KNOW if your team had gone polite-but-dead?">
+  <div class="kicker">Story two · how it "ended"</div>
+  <h2>The numbers held. The room went quiet.</h2>
+  <p class="lead">Hours were now set by performance. Sales stayed strong. The noise stopped. In Dev's telling, the conflict "ended smoothly." And then, at the very end of his story, one sentence of stunning honesty:</p>
+  <div class="qcard"><p>"One thing I have ignored — whether they are working with satisfaction or not."</p></div>
+  <p class="muted">The anonymous classmate who analysed his story needed five words for the diagnosis. You're about to see them.</p>
+</section>
+
+<!-- 20 · MOMENT -->
+<section class="slide dark" data-notes="Five seconds of silence. This is the single most quotable line a student produced in the whole exercise.">
+  <div class="kicker">A classmate's five-word diagnosis</div>
+  <div class="bigline">"Silence was mistaken <span class="accent">for resolution</span>."</div>
+  <p class="sub">Avoiding doesn't resolve conflict. It hides the evidence of it. People who can no longer complain to you don't stop complaining — they relocate.</p>
+</section>
+
+<!-- 21 · STORY 3 -->
+<section class="slide story" data-notes="Nadia: large IT company, delivery team. Policy: overtime voluntary. Boss under deadline pressure treats it as mandatory — late tasks + hints + public digs after Nadia said no once. She did it RIGHT: direct conversation first, then HR with dates and examples. Boss's defense was smooth — 'I never ordered anyone.' HR acted anyway: written reminder to all.">
+  <div class="kicker">Story three</div>
+  <h2>"Voluntary" Overtime</h2>
+  <p>Nadia worked on a delivery team at a large IT company. Written policy: overtime is voluntary. Her team leader — under heavy deadline pressure from above — began treating it as anything but: extra tasks late in the day, hints that staying was expected.</p>
+  <p>The evening Nadia said no — she had a personal commitment, and the policy was on her side — the digs began. Comments in meetings, in front of colleagues, questioning how serious she was about her work.</p>
+  <p>Nadia tried the direct conversation first, one on one. The boss reframed it: <em>everyone else stays. Deadlines will slip. Are you a team player or not?</em> A policy question, converted into a loyalty test.</p>
+</section>
+
+<!-- 22 · STORY 3b -->
+<section class="slide" data-notes="She escalated with dates and specifics. HR couldn't prove much on paper — but acted: written reminder to the whole team that overtime is voluntary. Victory. AND: 'never the same again... until I left that team.' Lesson: escalation was RIGHT. But competing spends relationship capital, win or lose. Know the price going in.">
+  <div class="kicker">Story three · the win and the bill</div>
+  <h2>She won. Read the ending anyway.</h2>
+  <p>Nadia went to HR with dates and specific examples. The boss defended herself smoothly — <em>I never ordered anyone to stay; my words were meant to motivate.</em> Hard to prove on paper. HR acted anyway: a written reminder to the whole team. The pressure stopped.</p>
+  <div class="qcard"><p>"It was never the same as before. More formal, less friendly… a quieter, more distant working relationship that continued until I left that team."</p></div>
+  <p class="hook">Escalating was right — you cannot collaborate someone into obeying policy. But competing spends relationship capital, win or lose. Expect the invoice.</p>
+</section>
+
+<!-- 23 · THE REFLEX -->
+<section class="slide" data-notes="THE central finding. 40 peer analyses; ~30 prescribed collaborating regardless of situation; ZERO competing; one avoiding. These were experienced professionals with no stake in the stories. 'Collaborate' has become what 'synergy' was in the 90s.">
+  <div class="kicker">Now — the finding this lecture is named after</div>
+  <h2>Forty strangers analysed forty conflicts.<br>Then they all gave the same answer.</h2>
+  <div class="cols">
+    <div>
+      <div style="font-family:Georgia,serif;font-size:5.4rem;font-weight:700;color:var(--coral);line-height:1">75%</div>
+      <p style="margin-top:.6rem">prescribed <em>collaborating</em> as the better mode — whatever the conflict was.</p>
+      <p class="muted" style="margin-top:.8rem">Recommended competing: <strong style="color:var(--coral)">zero</strong>. Recommended avoiding: one.</p>
+    </div>
+    <div>
+      <p>A boss violating written policy? <em>Collaborate.</em></p>
+      <p>A department with zero incentive to bend? <em>Collaborate.</em></p>
+      <p>A dispute already settled sensibly at 50/50? <em>Should have collaborated.</em></p>
+      <p class="hook" style="margin-top:1.2rem">These were experienced professionals. The reflex lives in all of us.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 24 · WHEN COLLABORATION IS WRONG -->
+<section class="slide" data-notes="Four traps, each anchored to a story they now know. Entry conditions for collaboration: overlapping interests + willingness on both sides + time. Missing one? Name it out loud and pick the mode that fits.">
+  <div class="kicker">Unlearning the reflex</div>
+  <h2>Four situations where "let's collaborate" is bad advice.</h2>
+  <div class="cards">
+    <div class="card"><h3>No shared incentive</h3><p>Finance blocks deliveries over unpaid invoices; sales fumes. Finance <em>wins by ignoring you</em>. The fix was rules — credit thresholds, a shared dashboard — not a workshop.</p></div>
+    <div class="card"><h3>A rule is being broken</h3><p>Nadia's overtime. Collaborating over a violation converts compliance into a negotiation — and hands the powerful party a discount. Escalate, with evidence.</p></div>
+    <div class="card"><h3>The other side refuses the table</h3><p>Sanjay's CEO opened with "false allegations." Collaboration is an offer the other side can decline. Know your next move when the table gets flipped.</p></div>
+    <div class="card"><h3>Good enough already happened</h3><p>Chen's 50/50 saved a two-year relationship in one meeting. A perfect joint investigation would have cost weeks and maybe the partnership. Perfection has a price.</p></div>
+  </div>
+</section>
+
+<!-- 25 · MOMENT -->
+<section class="slide dark" data-notes="Pause. This is the sentence to write in their notes. Then transition: so how do we know when a conflict is actually OVER? Next section.">
+  <div class="kicker">Write this one down</div>
+  <div class="bigline">An answer that fits every question has <span class="accent">stopped being an answer</span>.</div>
+  <p class="sub">Collaboration has entry conditions: overlapping interests, willingness on both sides, and time. All three present? Nothing beats it. Missing one? Say which — and choose the mode that fits.</p>
+</section>
+
+<!-- 26 · RESOLVED VS REPAIRED -->
+<section class="slide" data-notes="Two axes: task sorted? + would they willingly work together again? Lin's reviewer graded her family conflict 'resolved perfectly' while Lin wrote 'still feels unresolved.' 24 real wins / 6 polite-but-dead / 4+ open in our set. Polite-but-dead is invisible on every dashboard.">
+  <div class="kicker">Measuring the ending</div>
+  <h2>"Resolved" is not the same as "repaired."</h2>
+  <div class="figure">
+  <svg viewBox="0 0 760 330" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial">
+    <rect x="170" y="20" width="270" height="130" fill="#EAF1FC"/><text x="305" y="75" font-size="15" font-weight="bold" fill="#1E2761" text-anchor="middle">Still friends, still stuck</text><text x="305" y="98" font-size="13" fill="#6B7280" text-anchor="middle">rare — goodwill without progress</text>
+    <rect x="446" y="20" width="270" height="130" fill="#E2F3EA"/><text x="581" y="75" font-size="15" font-weight="bold" fill="#2E9E6B" text-anchor="middle">THE REAL WINS — 24</text><text x="581" y="98" font-size="13" fill="#26282F" text-anchor="middle">task done, team intact</text>
+    <rect x="170" y="156" width="270" height="130" fill="#FDE3E4"/><text x="305" y="211" font-size="15" font-weight="bold" fill="#F96167" text-anchor="middle">OPEN WOUNDS — 4+</text><text x="305" y="234" font-size="13" fill="#26282F" text-anchor="middle">splits, resignations, standoffs</text>
+    <rect x="446" y="156" width="270" height="130" fill="#FBF0DC"/><text x="581" y="211" font-size="15" font-weight="bold" fill="#E8A13A" text-anchor="middle">POLITE BUT DEAD — 6</text><text x="581" y="234" font-size="13" fill="#26282F" text-anchor="middle">task done, trust gone</text>
+    <text x="305" y="312" font-size="13" fill="#6B7280" text-anchor="middle">task not sorted</text>
+    <text x="581" y="312" font-size="13" fill="#6B7280" text-anchor="middle">task sorted</text>
+    <text x="140" y="90" font-size="13" fill="#6B7280" text-anchor="middle" transform="rotate(-90 140 90)">would work together</text>
+    <text x="140" y="225" font-size="13" fill="#6B7280" text-anchor="middle" transform="rotate(-90 140 225)">would not</text>
+  </svg>
+  </div>
+  <p class="hook">One student's painful family compromise was graded "resolved perfectly" by her reviewer — while she called it "still unresolved inside me." Score both axes. Always.</p>
+</section>
+
+<!-- 27 · MOMENT -->
+<section class="slide dark" data-notes="Short beat. Then the repair story — Tan — as the counterweight.">
+  <div class="kicker">The second axis</div>
+  <div class="bigline">A ceasefire is <span class="accent">not a peace</span>.</div>
+  <p class="sub">Ask two questions after every conflict: Is the task truly sorted? And would these people willingly work together again? "Resolved" means both.</p>
+</section>
+
+<!-- 28 · REPAIR STORY -->
+<section class="slide story" data-notes="Tan: 3-person analytics team, teammate delivered half a dataset and went silent (2 hidden deadlines), 48h left. Tan blew up PUBLICLY in the chat → defensive shutdown. THEN: private apology for tone (not substance). Truth surfaced. All-night rescue. THEN the rarest move: post-submission meeting → check-ins every 2 days. Zero conflicts afterwards.">
+  <div class="kicker">What repair looks like</div>
+  <h2>The apology that saved a team</h2>
+  <p>Forty-eight hours to a major deadline. Tan's teammate had delivered half a dataset and gone silent. Tan did what stressed people do: called her out in the group chat — publicly, sharply. She went defensive, refused all help, then stopped replying entirely.</p>
+  <p>A few hours later Tan did what almost nobody in our forty-five stories did: he cooled down and sent a <em>private</em> message — apologising for his tone. Not for the concern. For the tone, and the venue.</p>
+  <p>Everything turned on that message. Out came the truth: two hidden deadlines. They split the remaining work, stayed online all night, and submitted with an hour to spare. Then — after the adrenaline — they rebuilt their working agreement: check-ins every two days, problems reported the moment they're visible. <em>No conflicts on any project after that.</em></p>
+</section>
+
+<!-- 29 · THEORY 3 -->
+<section class="slide" data-notes="Fisher & Ury 1981, Getting to Yes. Position = what they demand. Interest = why. Positions usually incompatible by construction; interests often compatible. Maya's real issue was inclusion, not design. The iceberg.">
+  <div class="kicker">Theory 3 · Fisher &amp; Ury, Getting to Yes</div>
+  <h2>Argue interests, not positions.</h2>
+  <div class="cols">
+    <div>
+      <p><em>A position</em> is what someone says they want: "put my design back."</p>
+      <p><em>An interest</em> is why they want it: respected, consulted, not blindsided at midnight.</p>
+      <p style="margin-top:1rem">Positions are usually incompatible by construction — my design <em>or</em> yours. Interests are very often compatible even when positions are not. Maya's interest (be consulted) and Josh's (contribute boldly) were both fully satisfiable. And were.</p>
+    </div>
+    <div class="figure">
+    <svg viewBox="0 0 360 320" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial">
+      <rect x="60" y="16" width="240" height="58" rx="9" fill="#CADCFC"/>
+      <text x="180" y="41" font-size="15" font-weight="bold" fill="#1E2761" text-anchor="middle">THE POSITION</text>
+      <text x="180" y="61" font-size="12" fill="#1E2761" text-anchor="middle" font-style="italic">what they say they want</text>
+      <line x1="10" y1="95" x2="350" y2="95" stroke="#6B7280" stroke-width="1.6" stroke-dasharray="7 6"/>
+      <polygon points="40,112 320,112 265,300 95,300" fill="#1E2761"/>
+      <text x="180" y="150" font-size="15" font-weight="bold" fill="#fff" text-anchor="middle">THE INTERESTS</text>
+      <text x="180" y="181" font-size="12.5" fill="#CADCFC" text-anchor="middle">respect · certainty · inclusion</text>
+      <text x="180" y="203" font-size="12.5" fill="#CADCFC" text-anchor="middle">money · time · credit</text>
+      <text x="180" y="225" font-size="12.5" fill="#CADCFC" text-anchor="middle">fear of looking replaceable</text>
+    </svg>
+    </div>
+  </div>
+  <p class="citation"><strong>Fisher, R., &amp; Ury, W. (1981).</strong> <em>Getting to yes: Negotiating agreement without giving in.</em> Houghton Mifflin.</p>
+</section>
+
+<!-- 30 · STORY 4 -->
+<section class="slide story" data-notes="Ravi: developer intern. Senior intern (3-month head start = informal authority) kept rejecting his working code for unwritten style preferences. Breaking point: same block rejected twice for OPPOSITE reasons. Position-level: unwinnable. Ravi read the interests: his = predictability; the senior's = status. So: ten minutes OFFLINE, pattern without accusation.">
+  <div class="kicker">Story four</div>
+  <h2>The Intern and the Gatekeeper</h2>
+  <p>Ravi joined a product team as a developer intern. Another intern — three months his senior, which made him the unofficial code reviewer — kept sending Ravi's working code back over things written in no team standard: variable names, where to split a function. A one-day task stretched across a week.</p>
+  <p>The breaking point was almost comic: the same block of code, rejected twice, <em>for opposite reasons</em>.</p>
+  <p>Read this fight at position level and it's unwinnable — "your code needs changing" vs "my code is fine." Ravi went underneath instead. His interest: predictable rules. The senior intern's interest: his standing, which rested entirely on that three-month head start. Attack the comments publicly and you attack the standing — defensiveness guaranteed.</p>
+</section>
+
+<!-- 31 · STORY 4b -->
+<section class="slide story" data-notes="Ten minutes offline, no accusation → admission: 'it's how I was taught, not team rules.' Then the masterstroke: went to the supervisor TOGETHER asking for a style guide — process request, not accusation. Gatekeeper → mentor. This is 'escalate the problem, not the person.'">
+  <div class="kicker">Story four · two masterstrokes</div>
+  <p><strong style="color:var(--navy)">Masterstroke one.</strong> Ravi asked for ten minutes offline and laid out the pattern without accusing anyone: the requests were inconsistent, and he couldn't tell which rules were real. Defensiveness first — then the admission: most of it was personal habit, not team standard.</p>
+  <p><strong style="color:var(--navy)">Masterstroke two.</strong> They still needed a real standard. So they went to the supervisor <em>together</em>, and asked: <em>"Can we get a written style guide?"</em> Not "he's blocking my work" — a request that would have produced a referee, a winner, a loser, and a grudge. A process request. It produced a document.</p>
+  <div class="qcard"><p>Reviews stopped feeling personal. The gatekeeper became something closer to a mentor.</p></div>
+</section>
+
+<!-- 32 · MOMENT -->
+<section class="slide dark" data-notes="The escalation principle in four words. An astonishing share of 'person problems' are process gaps wearing a face.">
+  <div class="kicker">Escalating without burning</div>
+  <div class="bigline">Escalate the problem, <span class="accent">not the person</span>.</div>
+  <p class="sub">Same facts, different container. Before you escalate, rewrite the complaint once — as a missing rule instead of a guilty colleague. If the rewrite is honest, send that version.</p>
+</section>
+
+<!-- 33 · STORY 5 -->
+<section class="slide story" data-notes="Sofia: receptionist, schedules appointments + passes messages. Coworker missing client calls went looking for a culprit — loudly, in the open office. Reality: he was ignoring his own message queue. Her options all look losing: argue publicly / absorb / escalate with no proof. She built a SYSTEM instead.">
+  <div class="kicker">Story five</div>
+  <h2>The Receptionist's Log</h2>
+  <p>Sofia's job included passing phone messages to staff. A coworker from another department began accusing her — increasingly loudly, in an open office — of failing to forward his messages. He'd missed client calls and wanted a culprit. In reality, the messages were sitting ignored in his own queue.</p>
+  <p>Feel how losing every obvious move is from her chair: argue back publicly, and onlookers remember heat, not facts. Absorb it quietly, and the accusation stands. Escalate with no proof — her word against his.</p>
+  <p>Sofia did something better. She proposed, calmly, to his face: a <em>shared message log</em> — every message she forwarded, written down with the time. Framed not as a weapon but as a system that protects everyone.</p>
+</section>
+
+<!-- 34 · STORY 5b + RECEIPTS -->
+<section class="slide" data-notes="Days of awkward distance, log runs quietly. Supervisor reviews timestamps: every message forwarded on time. He apologised PRIVATELY, BY HIS OWN CHOICE — that's the mechanism: a record lets the other side lose gracefully, surrendering to a spreadsheet, not to you. Log stayed permanently. Also mention: shuttle data story + saved WhatsApp warning — 6 of 45 conflicts ended by records.">
+  <div class="kicker">Story five · how paper beats argument</div>
+  <h2>She never once argued her innocence.</h2>
+  <p>The log ran quietly through days of awkward distance. Then the supervisor reviewed it — timestamps against outcomes — and the question answered itself. The coworker apologised <em>privately, by his own choice</em>, and admitted the pressure he'd been under had gone looking for a target.</p>
+  <p class="lead" style="margin-top:1rem">Six of our forty-five conflicts ended exactly this way — a message log, shuttle-timing data that stopped unfair warnings, a saved two-day-old delay warning that ended a blame meeting in seconds.</p>
+  <p class="hook">A record doesn't accuse anyone. It just sits there being true — so the other side can back down without surrendering to <em>you</em>.</p>
+</section>
+
+<!-- 35 · MOMENT -->
+<section class="slide dark" data-notes="The most practical unforgettable line of the session. Corollary: keep receipts to DEFEND and REDIRECT, never to humiliate — a public gotcha converts your vindication into their grievance.">
+  <div class="kicker">Keep receipts, kindly</div>
+  <div class="bigline">The person with timestamps wins <span class="accent">without raising their voice</span>.</div>
+  <p class="sub">Log decisions where they can be found. Confirm verbal agreements in writing that day. And deliver receipts to fix the process — never to humiliate the person.</p>
+</section>
+
+<!-- 36 · THEORY 4 -->
+<section class="slide" data-notes="PMBOK communications management, stripped of jargon: PLAN who needs what/when/how · MANAGE actually produce it · MONITOR check it landed. 'Sent' ≠ understood; silence is a signal to investigate. Channels math: n(n-1)/2. Most of our 45 were communication failures BEFORE they were conflicts (the air-promise, the two sales rules, the chat-app schedule).">
+  <div class="kicker">Theory 4 · Communication management (PMBOK)</div>
+  <h2>Communication is a system, not a talent.</h2>
+  <div class="cols">
+    <div>
+      <p>Most of our forty-five conflicts were <em>communication failures first</em>: a transfer promise that lived only in the air. Two client-ownership rules nobody reconciled. A construction schedule confirmed over a chat app, against a written warning.</p>
+      <ul>
+        <li><strong>Plan</strong> — who needs what information, when, in what form, from whom. Decided <em>before</em> work starts.</li>
+        <li><strong>Manage</strong> — actually produce and distribute it, in the agreed channel, at the agreed rhythm.</li>
+        <li><strong>Monitor</strong> — check it landed. Sent is not understood. Silence is never consent.</li>
+      </ul>
+    </div>
+    <div class="figure">
+    <svg viewBox="0 0 340 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial">
+      <g stroke="#CADCFC" stroke-width="1.3">
+        <line x1="170" y1="40" x2="70" y2="120"/><line x1="170" y1="40" x2="270" y2="120"/><line x1="170" y1="40" x2="110" y2="230"/><line x1="170" y1="40" x2="230" y2="230"/>
+        <line x1="70" y1="120" x2="270" y2="120"/><line x1="70" y1="120" x2="110" y2="230"/><line x1="70" y1="120" x2="230" y2="230"/>
+        <line x1="270" y1="120" x2="110" y2="230"/><line x1="270" y1="120" x2="230" y2="230"/>
+        <line x1="110" y1="230" x2="230" y2="230"/>
+      </g>
+      <g fill="#1E2761">
+        <circle cx="170" cy="40" r="11"/><circle cx="70" cy="120" r="11"/><circle cx="270" cy="120" r="11"/><circle cx="110" cy="230" r="11"/><circle cx="230" cy="230" r="11"/>
+      </g>
+      <text x="170" y="278" font-size="14" fill="#26282F" text-anchor="middle" font-weight="bold">5 people = 10 channels</text>
+      <text x="170" y="296" font-size="12.5" fill="#6B7280" text-anchor="middle" font-style="italic">10 people = 45. Every unmanaged channel breeds "I assumed you knew."</text>
+    </svg>
+    </div>
+  </div>
+  <p class="citation"><strong>Project Management Institute. (2021).</strong> <em>A guide to the project management body of knowledge (PMBOK® guide)</em> (7th ed.). Project Management Institute.</p>
+</section>
+
+<!-- 37 · STORY 6 -->
+<section class="slide story" data-notes="Dilshan: bank, days before core-system release. Digital banking wants it shipped (customer commitments); IT support wants delay (unresolved UAT defects — they field the 2am disaster); vendor says stable; ops in the middle. Usual resolution: volume or rank + the losers rooting for disaster. This team CHANGED THE QUESTION.">
+  <div class="kicker">Story six</div>
+  <h2>The Bank Release</h2>
+  <p>Days before a major core-system release at a bank. The digital banking team needs it shipped — customer commitments hang on the date. IT support wants it postponed — user-acceptance testing has surfaced defects, and they're the ones who'll field a production disaster at 2 a.m. The vendor insists it's stable. Business operations stands in the middle.</p>
+  <p>Four parties. Four legitimate scoreboards. One binary decision. In most organisations this resolves by volume or by rank — and the losing team quietly roots for disaster, so they can say <em>told you</em>.</p>
+  <p>This group did something almost boring. They changed the question — from <em>"should we release?"</em> to <em>"what exactly is unresolved, and how bad is each item, really?"</em></p>
+</section>
+
+<!-- 38 · STORY 6b -->
+<section class="slide" data-notes="Defect-by-defect scoring of business impact + technical risk. The binary dissolved: fix high-risk before release, document low-risk for next update, regression-test, write a rollback plan. Released, no major incidents. This is positions→interests INDUSTRIALISED. Prevention list = pure communication design: release criteria agreed early, shared risk register, staged reviews.">
+  <div class="kicker">Story six · the binary dissolves</div>
+  <h2>Everyone was right. It still almost went wrong.</h2>
+  <p>They walked the defect list one item at a time, scoring business impact and technical risk together. High-risk defects: fixed before release. Low-risk: documented into the next update. Regression tests on the fixes. And a rollback plan — humility, written down.</p>
+  <p>The release shipped. No major incidents. Deadline credibility <em>and</em> operational safety — both interests served, because the machinery for talking about risk existed before the crisis did.</p>
+  <p class="hook">When a binary decision splits two legitimate interests, don't fight the binary. Itemise it, score it together, and the either/or usually dissolves into "both."</p>
+</section>
+
+<!-- 39 · PLAYBOOK -->
+<section class="slide" data-notes="When asked 'what would have prevented this?' — 40 reviewers converged on the same machinery. Nothing needs budget or permission. The two fastest starters: a 15-min check-in rhythm + one page of written agreements at kickoff. Those two quietly install the rest.">
+  <div class="kicker">The prevention playbook — written by the people who lived it</div>
+  <h2>Eight habits that prevent most conflicts.</h2>
+  <div class="cards" style="grid-template-columns:1fr 1fr 1fr 1fr;gap:.9rem">
+    <div class="card"><div class="num">1</div><h3>Scheduled check-ins</h3><p>Problems found early cost hours, not relationships.</p></div>
+    <div class="card"><div class="num">2</div><h3>A shared, visible tracker</h3><p>Visible progress needs no accusations.</p></div>
+    <div class="card"><div class="num">3</div><h3>Written agreements first</h3><p>A verbal agreement is a future conflict with a start date.</p></div>
+    <div class="card"><div class="num">4</div><h3>Timestamped records</h3><p>Receipts end blame disputes quietly.</p></div>
+    <div class="card"><div class="num">5</div><h3>Private before public</h3><p>Audiences turn corrections into combat.</p></div>
+    <div class="card"><div class="num">6</div><h3>Escalate the problem</h3><p>Same facts, different container.</p></div>
+    <div class="card"><div class="num">7</div><h3>Early-warning norms</h3><p>"I'm going to be late" is the cheapest sentence.</p></div>
+    <div class="card"><div class="num">8</div><h3>Change control</h3><p>If changing the plan is free, the plan is fiction.</p></div>
+  </div>
+  <p class="hook" style="margin-top:1.3rem">Start with 1 and 3 this week. They quietly install the other six.</p>
+</section>
+
+<!-- 40 · ACTIVITY -->
+<section class="slide" data-notes="20-25 min. Pairs. Enforce the rule ruthlessly — that rule IS the lesson. Debrief: ask who chose competing or accommodating and make them defend it; applaud good defenses of unfashionable modes.">
+  <div class="kicker">Your turn · 20 minutes, in pairs</div>
+  <h2>Defend an unpopular mode.</h2>
+  <ul>
+    <li>Pick one story from today — or a real conflict of your own.</li>
+    <li>Name the <em>position</em> each side stated. Then the <em>interest</em> hiding under it.</li>
+    <li>Choose the best-fit conflict mode. <strong style="color:var(--coral)">Rule: you may not choose collaborating unless you can show both sides had incentive, willingness, and time.</strong></li>
+    <li>Design one habit from the playbook that would have prevented the conflict entirely.</li>
+  </ul>
+</section>
+
+<!-- 41 · TWO QUESTIONS -->
+<section class="slide" data-notes="Closing sequence begins. These two questions are the portable version of the whole session.">
+  <div class="kicker">After every conflict you touch — including the ones you only witness</div>
+  <h2>Ask two questions.</h2>
+  <p class="lead" style="font-family:Georgia,serif;margin-top:.6rem"><strong style="color:var(--coral)">1.</strong> Is the task truly sorted — or just quiet?</p>
+  <p class="lead" style="font-family:Georgia,serif;margin-top:1rem"><strong style="color:var(--coral)">2.</strong> Would these people willingly work together again?</p>
+  <p class="muted" style="margin-top:1.6rem">If either answer is no, the conflict is still open — whatever the paperwork says. The gap between "the fighting stopped" and "it's over" is where people keep their resignation letters.</p>
+</section>
+
+<!-- 42 · FINAL MOMENT -->
+<section class="slide dark" data-notes="End on this. The 45 stories rarely demanded brilliance — they demanded one honest conversation, held about two weeks earlier than anyone wanted. Thank them. Q&A.">
+  <div class="kicker">If you remember one thing</div>
+  <div class="bigline">Choose <span class="accent">earlier</span>.</div>
+  <p class="sub">Almost none of the forty-five conflicts demanded brilliance. They demanded a tracker, a page, a rhythm — and one honest conversation, held about two weeks earlier than anyone wanted to have it. That's nearly always the whole trick.</p>
+  <p class="sub" style="margin-top:2.5rem;font-style:normal;font-size:.95rem;opacity:.8">Frameworks: Thomas &amp; Kilmann (1974) · Fisher &amp; Ury, Getting to Yes (1981) · Tuckman (1965) · Thamhain &amp; Wilemon (1975) · PMI, PMBOK® Guide — Communications Management. All stories real; all names invented.</p>
+</section>
+
+<!-- 43 · REFERENCES -->
+<section class="slide" data-notes="Full reference list for every framework cited in this lecture, in APA style, for anyone who wants to read the original sources.">
+  <div class="kicker">References</div>
+  <h2>Frameworks cited in this lecture.</h2>
+  <ul class="refs-list">
+    <li>Fisher, R., &amp; Ury, W. (1981). <em>Getting to yes: Negotiating agreement without giving in.</em> Houghton Mifflin.</li>
+    <li>Project Management Institute. (2021). <em>A guide to the project management body of knowledge (PMBOK® guide)</em> (7th ed.). Project Management Institute.</li>
+    <li>Thamhain, H. J., &amp; Wilemon, D. L. (1975). Conflict management in project life cycles. <em>Sloan Management Review, 16</em>(3), 31–50.</li>
+    <li>Thomas, K. W., &amp; Kilmann, R. H. (1974). <em>Thomas-Kilmann Conflict Mode Instrument.</em> Xicom.</li>
+    <li>Tuckman, B. W. (1965). Developmental sequence in small groups. <em>Psychological Bulletin, 63</em>(6), 384–399.</li>
+  </ul>
+  <p class="muted" style="margin-top:1.6rem">All forty-five conflict stories are real, anonymised classroom submissions. All names used in this lecture are invented.</p>
+</section>
+
+<!-- 44 · CLOSING / BRAND -->
+<section class="slide dark brand-slide" data-notes="Closing credit slide — end of lecture.">
+  <div class="kicker">Thank you</div>
+  <div class="brand-mark">
+    <svg width="48" height="48" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+      <rect x="7" y="7" width="35" height="35" rx="10" fill="#4338CA"/>
+      <rect x="22" y="22" width="35" height="35" rx="10" fill="#0891B2"/>
+      <rect x="22" y="22" width="20" height="20" rx="9" fill="#1D4ED8"/>
+    </svg>
+    <div>
+      <div class="brand-name">Blended <span class="accent2">Teaching</span> Content</div>
+      <div class="brand-by">by Yasas Sri Wickramasinghe</div>
+    </div>
+  </div>
+  <p class="sub">The Collaboration Reflex — a lecture built from forty-five real conflicts.</p>
+</section>
+
+<script>
+  const slides=[...document.querySelectorAll(".slide")];
+  const bar=document.getElementById("bar"), count=document.getElementById("count"), notes=document.getElementById("notes");
+  let cur=0, showNotes=false;
+  function go(n){
+    cur=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,i)=>s.classList.toggle("active",i===cur));
+    bar.style.width=((cur+1)/slides.length*100)+"%";
+    count.textContent=(cur+1)+" / "+slides.length;
+    location.hash=cur+1;
+    renderNotes();
+  }
+  function renderNotes(){
+    const t=slides[cur].dataset.notes||"";
+    notes.innerHTML="<strong>Speaker notes — slide "+(cur+1)+":</strong> "+t;
+    notes.style.display=showNotes&&t?"block":"none";
+  }
+  addEventListener("keydown",e=>{
+    if(["ArrowRight","PageDown"," "].includes(e.key)){e.preventDefault();go(cur+1);}
+    else if(["ArrowLeft","PageUp"].includes(e.key)){e.preventDefault();go(cur-1);}
+    else if(e.key==="Home")go(0);
+    else if(e.key==="End")go(slides.length-1);
+    else if(e.key.toLowerCase()==="n"){showNotes=!showNotes;renderNotes();}
+  });
+  addEventListener("click",e=>{
+    if(notes.contains(e.target)||e.target.closest("#home-link"))return;
+    (e.clientX>innerWidth/3)?go(cur+1):go(cur-1);
+  });
+  const h=parseInt(location.hash.slice(1));
+  go(isNaN(h)?0:h-1);
+</script>
+</body>
+</html>

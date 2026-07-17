@@ -60,6 +60,15 @@ const LESSONS: {
     to2: '#8B2E3B',
   },
   {
+    href: 'collaboration-reflex-lecture.html',
+    eyebrow: 'MBI804 · Conflict & Communication Management',
+    title: 'The Collaboration Reflex',
+    body: 'Conflict and communication management taught through forty-five real, anonymised classroom conflicts — six full stories, four frameworks (Thomas–Kilmann, Fisher & Ury, Tuckman, PMBOK), and the one reflex ("just collaborate") that experienced professionals reach for even when it is the wrong answer.',
+    emoji: '🧭',
+    from: '#1E2761',
+    to2: '#F96167',
+  },
+  {
     to: '/five-stories',
     eyebrow: 'Strategic Information Systems',
     title: 'Five Stories That Changed Everything',

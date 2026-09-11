@@ -10,6 +10,7 @@ import ShutdownPage from './pages/ShutdownPage';
 import XRExplorerPage from './pages/XRExplorerPage';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
+const IntroToDBMSPage = lazy(() => import('./pages/IntroToDBMSPage'));
 const PreClassSwarmPage = lazy(() => import('./pages/PreClassSwarmPage'));
 const SQLReelsPage = lazy(() => import('./pages/SQLReelsPage'));
 const NormalizationExplorerPage = lazy(() => import('./pages/NormalizationExplorerPage'));
@@ -93,6 +94,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/"             element={<RootRedirect />} />
         <Route path="/home"         element={<Suspense fallback={null}><HomePage /></Suspense>} />
+        <Route path="/intro-to-dbms" element={<Suspense fallback={null}><IntroToDBMSPage /></Suspense>} />
         <Route path="/xr-explorer"  element={<XRExplorerPage />} />
         <Route path="/normalisation" element={<Suspense fallback={null}><NormalizationExplorerPage /></Suspense>} />
         <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />
@@ -178,6 +180,7 @@ function ShutdownRoutes() {
       {/* Home is the public entry point */}
       <Route path="/" element={<Suspense fallback={null}><HomePage /></Suspense>} />
       <Route path="/home" element={<Suspense fallback={null}><HomePage /></Suspense>} />
+      <Route path="/intro-to-dbms" element={<Suspense fallback={null}><IntroToDBMSPage /></Suspense>} />
       <Route path="/xr-explorer" element={<XRExplorerPage />} />
       <Route path="/normalisation" element={<Suspense fallback={null}><NormalizationExplorerPage /></Suspense>} />
       <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />

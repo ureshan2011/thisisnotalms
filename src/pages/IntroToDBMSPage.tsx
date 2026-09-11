@@ -35,19 +35,8 @@ export default function IntroToDBMSPage() {
           </p>
           <div className="mt-6 max-w-2xl space-y-4 text-[16px] sm:text-[17px] leading-relaxed text-[#374151]">
             <p>
-              I'm Yasas. I teach MBI802, and I put this page together myself so you know what you are
-              walking into before the first class starts.
-            </p>
-            <p>
-              This is not a marketing page for the course. It is closer to a syllabus, but with the
-              actual examples, diagrams and SQL you will be working with, instead of a list of topics
-              with no context.
-            </p>
-            <p>
-              If you scroll down, you will see real material from the lessons: the diagrams I draw in
-              class, real SQL you will type yourself, and a few of the recorded walkthroughs that are
-              waiting for you once the course starts properly. There is a lot more inside than what is
-              shown here. This is just enough to give you an idea of what is coming.
+              MBI802 is an introduction to database management systems. This page covers the course
+              outline, the learning objectives, and examples from the lessons.
             </p>
           </div>
         </div>
@@ -61,7 +50,7 @@ export default function IntroToDBMSPage() {
         <div className="mx-auto max-w-3xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <BrandLogo iconSize={22} variant="on-light" />
           <p className="text-[12px] text-[#9ca3af]">
-            This page collects a first name, a map pin and a short intro for the class icebreaker. Nothing else, no login.
+            No login required.
           </p>
         </div>
       </footer>

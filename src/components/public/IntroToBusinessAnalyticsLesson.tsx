@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
+import CourseSection from './CourseSection';
+import Reveal from './Reveal';
 
 // ─── MBI806B, Session 1: Business Decision-Making with AI and ML ──────────
 // A public, ungated course page, built the same way as /intro-to-dbms: real
@@ -11,21 +13,6 @@ import { ExternalLink } from 'lucide-react';
 // quotes from the slides. This page intentionally does not map any content
 // to "today" or a specific calendar day, since when someone reads it does
 // not line up with when a session actually runs.
-
-function Section({ eyebrow, title, lead, children }: { eyebrow?: string; title: string; lead?: string; children?: React.ReactNode }) {
-  return (
-    <section className="border-t border-black/[0.08] py-14">
-      {eyebrow && (
-        <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#8e8e93]">{eyebrow}</p>
-      )}
-      <h2 className={`font-semibold tracking-[-0.01em] text-[#111827] text-[24px] sm:text-[28px] ${eyebrow ? 'mt-2' : ''}`}>
-        {title}
-      </h2>
-      {lead && <p className="mt-3 max-w-2xl text-[15px] sm:text-[16px] leading-relaxed text-[#4b5563]">{lead}</p>}
-      {children && <div className="mt-8">{children}</div>}
-    </section>
-  );
-}
 
 const INDICATIVE_CONTENT = [
   'Business decision-making with AI and ML',
@@ -65,7 +52,7 @@ function CoursePath() {
         return (
           <div key={step.code} className="flex sm:flex-1 items-center">
             <div
-              className="w-full p-4 border"
+              className="w-full p-4 border transition-all duration-300 hover:shadow-[0_8px_20px_-12px_rgba(15,118,110,0.3)] hover:-translate-y-0.5"
               style={{
                 borderColor: active ? '#0f766e' : 'rgba(0,0,0,0.12)',
                 background: active ? '#f0fdfa' : '#fff',
@@ -198,7 +185,7 @@ function SpotTheAICard({ prompt, reveal }: { prompt: string; reveal: string }) {
     <button
       type="button"
       onClick={() => setFlipped(f => !f)}
-      className="text-left p-4 border transition-colors w-full h-full"
+      className="text-left p-4 border transition-all duration-300 w-full h-full hover:-translate-y-0.5 hover:shadow-[0_10px_24px_-14px_rgba(15,23,42,0.35)]"
       style={{ background: flipped ? '#0f172a' : '#fff', borderColor: flipped ? '#0f172a' : 'rgba(0,0,0,0.15)' }}
     >
       <p className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: flipped ? '#5eead4' : '#0d9488' }}>
@@ -261,25 +248,27 @@ export default function IntroToBusinessAnalyticsLesson() {
   return (
     <div>
       {/* ── What MBI806B covers ── */}
-      <section className="py-14">
-        <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#8e8e93]">What this course is</p>
-        <h2 className="mt-2 font-semibold tracking-[-0.01em] text-[#111827] text-[24px] sm:text-[28px]">
-          Turning data into a decision.
-        </h2>
-        <p className="mt-3 max-w-2xl text-[15px] sm:text-[16px] leading-relaxed text-[#4b5563]">
-          MBI806B is a 15 credit, Level 8 course. It builds on MBI805B, which you take alongside it, and it
-          needs MBI801 as a foundation. It is 150 learning hours in total: 36 in class, 114 on your own. You
-          will learn to pull insight out of business data using AI and ML, turn that insight into a visual
-          that communicates something, and use it to make a decision, including on ethical and privacy
-          grounds.
-        </p>
-        <div className="mt-6">
-          <CoursePath />
-        </div>
+      <section id="course" className="py-14 scroll-mt-16">
+        <Reveal>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#8e8e93]">What this course is</p>
+          <h2 className="mt-2 font-semibold tracking-[-0.01em] text-[#111827] text-[24px] sm:text-[28px]">
+            Turning data into a decision.
+          </h2>
+          <p className="mt-3 max-w-2xl text-[15px] sm:text-[16px] leading-relaxed text-[#4b5563]">
+            MBI806B is a 15 credit, Level 8 course. It builds on MBI805B, which you take alongside it, and it
+            needs MBI801 as a foundation. It is 150 learning hours in total: 36 in class, 114 on your own. You
+            will learn to pull insight out of business data using AI and ML, turn that insight into a visual
+            that communicates something, and use it to make a decision, including on ethical and privacy
+            grounds.
+          </p>
+          <div className="mt-6">
+            <CoursePath />
+          </div>
+        </Reveal>
       </section>
 
       {/* ── Learning outcomes ── */}
-      <Section eyebrow="By the end of the course" title="Four things you'll be able to do.">
+      <CourseSection id="outcomes" eyebrow="By the end of the course" title="Four things you'll be able to do.">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
           {LEARNING_OUTCOMES.map(lo => (
             <div key={lo.n}>
@@ -290,10 +279,10 @@ export default function IntroToBusinessAnalyticsLesson() {
             </div>
           ))}
         </div>
-      </Section>
+      </CourseSection>
 
       {/* ── Indicative content ── */}
-      <Section
+      <CourseSection
         eyebrow="Across the whole course"
         title="What the course covers."
         lead="This is the real topic list for MBI806B."
@@ -306,10 +295,11 @@ export default function IntroToBusinessAnalyticsLesson() {
             </div>
           ))}
         </div>
-      </Section>
+      </CourseSection>
 
       {/* ── Preview walkthrough ── */}
-      <Section
+      <CourseSection
+        id="preview"
         eyebrow="A small preview"
         title="Here is some of what this covers."
         lead="A few examples, pulled from the course material. There is more than fits on this page."
@@ -425,19 +415,20 @@ export default function IntroToBusinessAnalyticsLesson() {
             </p>
           </div>
         </div>
-      </Section>
+      </CourseSection>
 
       {/* ── Decision-making frameworks ── */}
-      <Section
+      <CourseSection
+        id="decisions"
         eyebrow="A structured approach"
         title="How do we actually make a decision?"
         lead="Before any AI enters the picture, it helps to be clear about how decisions actually get made. A decision-making framework is a structured way to get from a problem to a choice you can stand behind. Click through the steps below."
       >
         <DecisionFrameworkExplorer items={DECISION_STEPS} />
-      </Section>
+      </CourseSection>
 
       {/* ── AI in decisions ── */}
-      <Section
+      <CourseSection
         eyebrow="Then we bring AI back in"
         title="Where AI actually helps a decision."
         lead="Data-driven decision-making means using data analysis to find patterns and insight, instead of relying purely on gut feeling. It does not remove the human from the decision. It gives them better information to decide with."
@@ -458,10 +449,11 @@ export default function IntroToBusinessAnalyticsLesson() {
             course comes back to this properly later.
           </p>
         </div>
-      </Section>
+      </CourseSection>
 
       {/* ── Power BI setup ── */}
-      <Section
+      <CourseSection
+        id="setup"
         eyebrow="Our first tool"
         title="Setting up Power BI."
         lead="Power BI is a business intelligence tool. You connect it to your data, build reports and dashboards out of it, and share those with the people who need to see them."
@@ -558,10 +550,10 @@ export default function IntroToBusinessAnalyticsLesson() {
             same idea, with real data instead.
           </p>
         </div>
-      </Section>
+      </CourseSection>
 
       {/* ── Benefits ── */}
-      <Section eyebrow="Why this is worth learning" title="What this is actually good for.">
+      <CourseSection eyebrow="Why this is worth learning" title="What this is actually good for.">
         <ul className="space-y-3 max-w-2xl">
           {BENEFITS.map(([title, body]) => (
             <li key={title} className="border-l-2 pl-4" style={{ borderColor: 'rgba(15,118,110,0.3)' }}>
@@ -570,10 +562,10 @@ export default function IntroToBusinessAnalyticsLesson() {
             </li>
           ))}
         </ul>
-      </Section>
+      </CourseSection>
 
       {/* ── Come prepared ── */}
-      <Section eyebrow="Before class" title="Come prepared.">
+      <CourseSection eyebrow="Before class" title="Come prepared.">
         <ul className="space-y-2.5 text-[14.5px] text-[#4b5563] max-w-2xl">
           <li className="flex gap-2">
             <span className="mt-2 flex-none w-1 h-1 rounded-full bg-[#0f766e]" />
@@ -590,16 +582,18 @@ export default function IntroToBusinessAnalyticsLesson() {
             Think of one place you have noticed AI in your own life recently. It gets used in class.
           </li>
         </ul>
-      </Section>
+      </CourseSection>
 
       {/* ── Sign off ── */}
       <section className="border-t border-black/[0.08] py-14">
-        <p className="text-[13px] font-medium text-[#6b7280] inline-flex items-center gap-1.5">
-          Yasas Sri Wickramasinghe
-          <a href="https://www.linkedin.com/in/yasassri/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#0d9488] hover:underline">
-            MBI806B lecturer <ExternalLink size={11} />
-          </a>
-        </p>
+        <Reveal>
+          <p className="text-[13px] font-medium text-[#6b7280] inline-flex items-center gap-1.5">
+            Yasas Sri Wickramasinghe
+            <a href="https://www.linkedin.com/in/yasassri/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#0d9488] hover:underline">
+              MBI806B lecturer <ExternalLink size={11} />
+            </a>
+          </p>
+        </Reveal>
       </section>
     </div>
   );

@@ -1,4 +1,6 @@
 import { ExternalLink } from 'lucide-react';
+import CourseSection from './CourseSection';
+import Reveal from './Reveal';
 
 // ─── MBI802, Class 1: Introduction to Database Management Systems ─────────
 // A public, ungated "Day 1" course page. Every example, SQL snippet, diagram
@@ -90,25 +92,10 @@ const OUTLINE: OutlineLesson[] = [
   },
 ];
 
-function Section({ eyebrow, title, lead, children }: { eyebrow?: string; title: string; lead?: string; children?: React.ReactNode }) {
-  return (
-    <section className="border-t border-black/[0.08] py-14">
-      {eyebrow && (
-        <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#8e8e93]">{eyebrow}</p>
-      )}
-      <h2 className={`font-semibold tracking-[-0.01em] text-[#111827] text-[24px] sm:text-[28px] ${eyebrow ? 'mt-2' : ''}`}>
-        {title}
-      </h2>
-      {lead && <p className="mt-3 max-w-2xl text-[15px] sm:text-[16px] leading-relaxed text-[#4b5563]">{lead}</p>}
-      {children && <div className="mt-8">{children}</div>}
-    </section>
-  );
-}
-
 function Figure({ src, caption, maxWidth = 560 }: { src: string; caption: string; maxWidth?: number }) {
   return (
     <figure className="my-6">
-      <div className="border border-black/[0.08] bg-[#fafafa] p-4 sm:p-5 overflow-x-auto">
+      <div className="border border-black/[0.08] bg-[#fafafa] p-4 sm:p-5 overflow-x-auto transition-all duration-300 hover:border-[#6d28d9]/30 hover:shadow-[0_8px_24px_-12px_rgba(109,40,217,0.25)]">
         <img src={src} alt={caption} style={{ maxWidth, width: '100%', height: 'auto', display: 'block', margin: '0 auto' }} />
       </div>
       <figcaption className="mt-2 text-[12.5px] text-[#8e8e93]">{caption}</figcaption>
@@ -118,7 +105,7 @@ function Figure({ src, caption, maxWidth = 560 }: { src: string; caption: string
 
 function Code({ children, title }: { children: string; title?: string }) {
   return (
-    <div className="my-6 border border-black/[0.08] overflow-hidden">
+    <div className="my-6 border border-black/[0.08] overflow-hidden transition-all duration-300 hover:border-[#6d28d9]/40 hover:shadow-[0_10px_28px_-14px_rgba(109,40,217,0.35)]">
       {title && (
         <div className="px-4 py-2 text-[11px] font-mono text-[#9ca3af] border-b border-white/10 bg-[#1c1c1e]">{title}</div>
       )}
@@ -140,28 +127,31 @@ export default function IntroToDBMSLesson() {
   return (
     <div>
       {/* ── What MBI802 covers ── */}
-      <section className="py-14">
-        <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#8e8e93]">What this course is</p>
-        <h2 className="mt-2 font-semibold tracking-[-0.01em] text-[#111827] text-[24px] sm:text-[28px]">
-          Database Management Systems, plainly.
-        </h2>
-        <p className="mt-3 max-w-2xl text-[15px] sm:text-[16px] leading-relaxed text-[#4b5563]">
-          MBI802 is a 15 credit, Level 8 core course. No prerequisites, so everyone starts from the same
-          place. Over the trimester you will design relational databases, query them with SQL, and think
-          about who owns the data you are storing and why that matters. It is 150 learning hours in total.
-          36 of those are in class, and 114 are yours, spent building and fixing things on your own.
-        </p>
-        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[#4b5563]">
-          By the end of the course, you should be able to do three things: make good decisions about who
-          gets access to data and why, judge whether a database design will actually hold up under real use,
-          and look at someone else's database and say what is wrong with it and how to fix it. Most of your
-          career will be spent working with databases other people built, not ones you designed from
-          scratch.
-        </p>
+      <section id="course" className="py-14 scroll-mt-16">
+        <Reveal>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#8e8e93]">What this course is</p>
+          <h2 className="mt-2 font-semibold tracking-[-0.01em] text-[#111827] text-[24px] sm:text-[28px]">
+            Database Management Systems, plainly.
+          </h2>
+          <p className="mt-3 max-w-2xl text-[15px] sm:text-[16px] leading-relaxed text-[#4b5563]">
+            MBI802 is a 15 credit, Level 8 core course. No prerequisites, so everyone starts from the same
+            place. Over the trimester you will design relational databases, query them with SQL, and think
+            about who owns the data you are storing and why that matters. It is 150 learning hours in total.
+            36 of those are in class, and 114 are yours, spent building and fixing things on your own.
+          </p>
+          <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[#4b5563]">
+            By the end of the course, you should be able to do three things: make good decisions about who
+            gets access to data and why, judge whether a database design will actually hold up under real use,
+            and look at someone else's database and say what is wrong with it and how to fix it. Most of your
+            career will be spent working with databases other people built, not ones you designed from
+            scratch.
+          </p>
+        </Reveal>
       </section>
 
       {/* ── Lesson outline ── */}
-      <Section
+      <CourseSection
+        id="outline"
         eyebrow="The lesson outline"
         title="Eight lessons, in order."
         lead="This is the real structure of the course, the same one the study pack and the lesson plans follow. A few of these are already live as interactive lessons you can open right now. The rest, you will meet as we get there."
@@ -170,9 +160,9 @@ export default function IntroToDBMSLesson() {
           {OUTLINE.map((lesson, i) => (
             <div
               key={lesson.n}
-              className={`grid grid-cols-[52px_1fr] sm:grid-cols-[64px_1fr] gap-4 sm:gap-6 py-6 ${i > 0 ? 'border-t border-black/[0.07]' : ''}`}
+              className={`group grid grid-cols-[52px_1fr] sm:grid-cols-[64px_1fr] gap-4 sm:gap-6 py-6 px-3 -mx-3 rounded-sm transition-colors duration-300 hover:bg-[#6d28d9]/[0.03] ${i > 0 ? 'border-t border-black/[0.07]' : ''}`}
             >
-              <div className="text-[28px] sm:text-[32px] font-bold tabular-nums text-[#d1d5db]">{lesson.n}</div>
+              <div className="text-[28px] sm:text-[32px] font-bold tabular-nums text-[#d1d5db] transition-colors duration-300 group-hover:text-[#6d28d9]/60">{lesson.n}</div>
               <div>
                 <h3 className="text-[16px] sm:text-[17px] font-semibold text-[#111827]">{lesson.title}</h3>
                 <p className="mt-1 text-[13.5px] sm:text-[14px] leading-relaxed text-[#6b7280] max-w-xl">{lesson.subtitle}</p>
@@ -194,10 +184,11 @@ export default function IntroToDBMSLesson() {
             </div>
           ))}
         </div>
-      </Section>
+      </CourseSection>
 
       {/* ── Preview walkthrough ── */}
-      <Section
+      <CourseSection
+        id="preview"
         eyebrow="A small preview"
         title="Here is some of what is coming."
         lead="These are only a few examples, pulled straight from the actual lessons. There is a lot more inside once we get going. I am showing you these so you have some idea what the course will actually feel like, not just what it is called."
@@ -317,8 +308,8 @@ FROM   students;`}</Code>
               {VIDEO_PREVIEWS.map(v => {
                 const inner = (
                   <>
-                    <div className="border border-black/[0.08] overflow-hidden">
-                      <img src={`${BASE}${v.file}`} alt={v.title} className="w-full h-auto block" loading="lazy" />
+                    <div className="border border-black/[0.08] overflow-hidden transition-all duration-300 group-hover:border-[#6d28d9]/40 group-hover:shadow-[0_10px_28px_-14px_rgba(109,40,217,0.4)] group-hover:-translate-y-0.5">
+                      <img src={`${BASE}${v.file}`} alt={v.title} className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.04]" loading="lazy" />
                     </div>
                     <p className="mt-1.5 text-[12px] leading-snug text-[#6b7280]">{v.title}</p>
                   </>
@@ -326,16 +317,17 @@ FROM   students;`}</Code>
                 return v.href ? (
                   <a key={v.file} href={`${BASE}#${v.href}`} className="block group">{inner}</a>
                 ) : (
-                  <div key={v.file}>{inner}</div>
+                  <div key={v.file} className="group">{inner}</div>
                 );
               })}
             </div>
           </div>
         </div>
-      </Section>
+      </CourseSection>
 
       {/* ── Things you'll build ── */}
-      <Section
+      <CourseSection
+        id="practice"
         eyebrow="What you'll actually do"
         title="Things you will build or practise."
         lead="Not hypothetical exercises. These are the real activities from the course."
@@ -354,10 +346,11 @@ FROM   students;`}</Code>
             </li>
           ))}
         </ul>
-      </Section>
+      </CourseSection>
 
       {/* ── More resources ── */}
-      <Section
+      <CourseSection
+        id="resources"
         eyebrow="Beyond this page"
         title="There is more waiting through the course."
         lead="A few things you will get access to as we go, not all of it visible from here."
@@ -388,16 +381,18 @@ FROM   students;`}</Code>
             .
           </li>
         </ul>
-      </Section>
+      </CourseSection>
 
       {/* ── Sign off ── */}
       <section className="border-t border-black/[0.08] py-14">
-        <p className="text-[13px] font-medium text-[#6b7280] inline-flex items-center gap-1.5">
-          Yasas Sri Wickramasinghe
-          <a href="https://www.linkedin.com/in/yasassri/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#6d28d9] hover:underline">
-            MBI802 lecturer <ExternalLink size={11} />
-          </a>
-        </p>
+        <Reveal>
+          <p className="text-[13px] font-medium text-[#6b7280] inline-flex items-center gap-1.5">
+            Yasas Sri Wickramasinghe
+            <a href="https://www.linkedin.com/in/yasassri/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#6d28d9] hover:underline">
+              MBI802 lecturer <ExternalLink size={11} />
+            </a>
+          </p>
+        </Reveal>
       </section>
     </div>
   );

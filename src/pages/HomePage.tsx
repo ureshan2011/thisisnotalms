@@ -114,6 +114,15 @@ const LESSONS: {
     to2: '#d97706',
   },
   {
+    to: '/intro-to-dbms',
+    eyebrow: 'MBI802 · Class 1 of 8',
+    title: 'Welcome to Database Management Systems',
+    body: "Day 1: who's in the room (drop your pin on a live world map, tell us your background), what a database actually is, today's objectives, and the full class outline — before you even sit down.",
+    emoji: '🗄️',
+    from: '#8b5cf6',
+    to2: '#059669',
+  },
+  {
     to: '/web-architecture',
     eyebrow: 'MBI802 · Database & Web Systems',
     title: 'Client, Server & Databases',

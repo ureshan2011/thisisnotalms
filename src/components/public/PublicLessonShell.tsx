@@ -39,6 +39,8 @@ interface PublicLessonShellProps {
   subtitle: string;
   /** Topic chips shown under the subtitle. */
   pills: LessonPill[];
+  /** Footer disclaimer line. Defaults to the standard "no data collected" note. */
+  footerNote?: string;
   /** The interactive lesson body. */
   children: ReactNode;
 }
@@ -53,6 +55,7 @@ export default function PublicLessonShell({
   orb3,
   subtitle,
   pills,
+  footerNote,
   children,
 }: PublicLessonShellProps) {
   return (
@@ -160,7 +163,7 @@ export default function PublicLessonShell({
           <BrandLogo iconSize={28} variant="on-light" />
         </div>
         <p className="text-[12px] text-[#aeaeb2]">
-          Everything here runs in your own browser. No login, no personal data collected.
+          {footerNote ?? 'Everything here runs in your own browser. No login, no personal data collected.'}
         </p>
       </footer>
     </div>

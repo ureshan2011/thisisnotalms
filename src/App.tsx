@@ -3,12 +3,14 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { FullPageSpinner } from './components/ui/LoadingSpinner';
 import ProtectedRoute from './components/layout/ProtectedRoute';
+import LessonPasswordGate from './components/layout/LessonPasswordGate';
 import { ToastProvider } from './components/ui/ToastProvider';
 import { PLATFORM_ACTIVE } from './config/platform';
 import ShutdownPage from './pages/ShutdownPage';
 import XRExplorerPage from './pages/XRExplorerPage';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
+const IntroToDBMSPage = lazy(() => import('./pages/IntroToDBMSPage'));
 const PreClassSwarmPage = lazy(() => import('./pages/PreClassSwarmPage'));
 const SQLReelsPage = lazy(() => import('./pages/SQLReelsPage'));
 const NormalizationExplorerPage = lazy(() => import('./pages/NormalizationExplorerPage'));
@@ -92,6 +94,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/"             element={<RootRedirect />} />
         <Route path="/home"         element={<Suspense fallback={null}><HomePage /></Suspense>} />
+        <Route path="/intro-to-dbms" element={<Suspense fallback={null}><IntroToDBMSPage /></Suspense>} />
         <Route path="/xr-explorer"  element={<XRExplorerPage />} />
         <Route path="/normalisation" element={<Suspense fallback={null}><NormalizationExplorerPage /></Suspense>} />
         <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />
@@ -177,6 +180,7 @@ function ShutdownRoutes() {
       {/* Home is the public entry point */}
       <Route path="/" element={<Suspense fallback={null}><HomePage /></Suspense>} />
       <Route path="/home" element={<Suspense fallback={null}><HomePage /></Suspense>} />
+      <Route path="/intro-to-dbms" element={<Suspense fallback={null}><IntroToDBMSPage /></Suspense>} />
       <Route path="/xr-explorer" element={<XRExplorerPage />} />
       <Route path="/normalisation" element={<Suspense fallback={null}><NormalizationExplorerPage /></Suspense>} />
       <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />
@@ -216,7 +220,9 @@ export default function App() {
   if (!PLATFORM_ACTIVE) {
     return (
       <HashRouter>
-        <ShutdownRoutes />
+        <LessonPasswordGate>
+          <ShutdownRoutes />
+        </LessonPasswordGate>
       </HashRouter>
     );
   }
@@ -224,7 +230,9 @@ export default function App() {
     <AuthProvider>
       <ToastProvider>
         <HashRouter>
-          <AppRoutes />
+          <LessonPasswordGate>
+            <AppRoutes />
+          </LessonPasswordGate>
         </HashRouter>
       </ToastProvider>
     </AuthProvider>

@@ -1,6 +1,4 @@
-import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
-import ClassMapIcebreaker from './ClassMapIcebreaker';
 
 // ─── MBI802, Class 1: Introduction to Database Management Systems ─────────
 // A public, ungated "Day 1" course page. Every example, SQL snippet, diagram
@@ -92,17 +90,6 @@ const OUTLINE: OutlineLesson[] = [
   },
 ];
 
-const SCHEDULE = [
-  { time: '10:40', title: 'Welcome and the icebreaker', body: "Where you're joining from, and what a database is, in your own words, before I tell you the textbook answer." },
-  { time: '10:50', title: 'Data, information and DBMS', body: 'The difference between data and information, and why file-based systems (yes, a shared spreadsheet) eventually break down.' },
-  { time: '11:10', title: 'Think, pair, share', body: 'A hospital keeps patient records in spreadsheets. What goes wrong. Two minutes alone, five with a neighbour, then we compare notes.' },
-  { time: '11:25', title: 'Quick knowledge check', body: 'A short, low-stakes quiz on everything so far. Right or wrong, you get the explanation straight after.' },
-  { time: '11:40', title: 'Break', body: 'Twenty minutes. Good time to start the MySQL download if you have not already.' },
-  { time: '12:00', title: 'Live demo, installing MySQL', body: 'Windows and macOS, side by side, including the parts that usually go wrong.' },
-  { time: '12:20', title: 'Your first connection', body: "Install it yourself, run SHOW DATABASES;, and show me it worked. No admin rights? I'll have a VM ready." },
-  { time: '12:45', title: 'Reflection and exit ticket', body: 'One thing you learned, one question you still have, and a look ahead to Lesson 2.' },
-];
-
 function Section({ eyebrow, title, lead, children }: { eyebrow?: string; title: string; lead?: string; children?: React.ReactNode }) {
   return (
     <section className="border-t border-black/[0.08] py-14">
@@ -152,36 +139,26 @@ const VIDEO_PREVIEWS = [
 export default function IntroToDBMSLesson() {
   return (
     <div>
-      {/* ── Icebreaker ── */}
+      {/* ── What MBI802 covers ── */}
       <section className="py-14">
-        <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#8e8e93]">Before we start</p>
+        <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#8e8e93]">What this course is</p>
         <h2 className="mt-2 font-semibold tracking-[-0.01em] text-[#111827] text-[24px] sm:text-[28px]">
-          Where are you joining from?
+          Database Management Systems, plainly.
         </h2>
         <p className="mt-3 max-w-2xl text-[15px] sm:text-[16px] leading-relaxed text-[#4b5563]">
-          Click the map, tell me your name and a little about yourself, and pick the emoji that matches how you feel
-          about databases right now. Everyone's pin lands on the same map. I'll have it open at the front of the
-          room, so keep this tab up and watch it fill in as the rest of the class joins.
+          MBI802 is a 15 credit, Level 8 core course. No prerequisites, so everyone starts from the same
+          place. Over the trimester you will design relational databases, query them with SQL, and think
+          about who owns the data you are storing and why that matters. It is 150 learning hours in total.
+          36 of those are in class, and 114 are yours, spent building and fixing things on your own.
         </p>
-        <div className="mt-8">
-          <ClassMapIcebreaker />
-        </div>
-      </section>
-
-      {/* ── What MBI802 covers ── */}
-      <Section
-        eyebrow="What this course is"
-        title="Database Management Systems, plainly."
-        lead="MBI802 is a 15 credit, Level 8 core course. No prerequisites, so everyone starts from the same place. Over the trimester you will design relational databases, query them with SQL, and think seriously about who owns the data you are storing and why that matters. It is 150 learning hours in total. 36 of those are in class with me, and 114 are yours, spent building and fixing things on your own."
-      >
-        <p className="max-w-2xl text-[15px] leading-relaxed text-[#4b5563]">
+        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[#4b5563]">
           By the end of the course, you should be able to do three things: make good decisions about who
           gets access to data and why, judge whether a database design will actually hold up under real use,
-          and look at someone else's database and say honestly what is wrong with it and how to fix it. That
-          last one matters more than people expect. Most of your career will be spent working with databases
-          other people built, not ones you designed from scratch.
+          and look at someone else's database and say what is wrong with it and how to fix it. Most of your
+          career will be spent working with databases other people built, not ones you designed from
+          scratch.
         </p>
-      </Section>
+      </section>
 
       {/* ── Lesson outline ── */}
       <Section
@@ -413,58 +390,9 @@ FROM   students;`}</Code>
         </ul>
       </Section>
 
-      {/* ── Today's schedule ── */}
-      <Section
-        eyebrow="Today, specifically"
-        title="How Class 1 unfolds."
-        lead="10:40am to 1:00pm. 120 minutes of teaching, one 20 minute break."
-      >
-        <div>
-          {SCHEDULE.map((step, i) => (
-            <div key={step.time} className={`flex gap-4 sm:gap-6 py-4 ${i > 0 ? 'border-t border-black/[0.06]' : ''}`}>
-              <div className="w-14 flex-none text-[13px] font-mono font-medium text-[#8e8e93] pt-0.5">{step.time}</div>
-              <div>
-                <p className="text-[14.5px] font-semibold text-[#111827]">{step.title}</p>
-                <p className="mt-0.5 text-[13.5px] leading-relaxed text-[#6b7280]">{step.body}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Section>
-
-      {/* ── Come prepared ── */}
-      <Section eyebrow="Before class" title="Come prepared.">
-        <ul className="space-y-2.5 text-[14.5px] text-[#4b5563] max-w-2xl">
-          <li className="flex gap-2">
-            <span className="mt-2 flex-none w-1 h-1 rounded-full bg-[#6d28d9]" />
-            Bring a laptop. No admin rights on it? Tell me at the break and I will have a VM ready for you.
-          </li>
-          <li className="flex gap-2">
-            <span className="mt-2 flex-none w-1 h-1 rounded-full bg-[#6d28d9]" />
-            <span>
-              Download{' '}
-              <a href="https://dev.mysql.com/downloads/mysql/" target="_blank" rel="noreferrer" className="font-medium text-[#6d28d9] hover:underline inline-flex items-center gap-1">
-                MySQL Community Server <ExternalLink size={11} />
-              </a>{' '}
-              during the break if you have not already. Windows and macOS are both covered in the demo.
-            </span>
-          </li>
-          <li className="flex gap-2">
-            <span className="mt-2 flex-none w-1 h-1 rounded-full bg-[#6d28d9]" />
-            Have you used Excel a lot? Good. That experience is the bridge to databases, not something you
-            need to unlearn.
-          </li>
-        </ul>
-      </Section>
-
       {/* ── Sign off ── */}
       <section className="border-t border-black/[0.08] py-14">
-        <p className="max-w-xl text-[15px] leading-relaxed text-[#374151]">
-          That's the course. Eight lessons, real SQL, real diagrams, and a lot of practice in between. I will
-          see you in the room shortly. If you scrolled all the way down here, drop your pin above if you
-          have not already, and say hello to the person next to you.
-        </p>
-        <p className="mt-6 text-[13px] font-medium text-[#6b7280] inline-flex items-center gap-1.5">
+        <p className="text-[13px] font-medium text-[#6b7280] inline-flex items-center gap-1.5">
           Yasas Sri Wickramasinghe
           <a href="https://www.linkedin.com/in/yasassri/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#6d28d9] hover:underline">
             MBI802 lecturer <ExternalLink size={11} />

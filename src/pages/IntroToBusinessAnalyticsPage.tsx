@@ -33,20 +33,10 @@ export default function IntroToBusinessAnalyticsPage() {
           </p>
           <div className="mt-6 max-w-2xl space-y-4 text-[16px] sm:text-[17px] leading-relaxed text-[#374151]">
             <p>
-              I'm Yasas. This page covers our first session together: an introduction to AI and Machine
-              Learning in a business setting, and how they connect to the decisions organisations make
-              every day.
-            </p>
-            <p>
-              If the words "AI" and "Machine Learning" sound a bit intimidating, that is completely
-              normal, and it is exactly why we start here. You do not need any background in statistics,
-              programming or data science for this course. By the end of today, those two terms will
-              feel a lot more ordinary, and you will notice how often you already use them without
-              realising it.
-            </p>
-            <p>
-              Below is a real look at what today covers, in the same order we will actually go through it
-              in class, plus what the whole course builds towards.
+              MBI806B is an introduction to business data analytics, using AI and machine learning to
+              support business decisions. This page covers the course outline, the learning outcomes, and
+              examples from the material. No background in statistics, programming or data science is
+              required.
             </p>
           </div>
         </div>

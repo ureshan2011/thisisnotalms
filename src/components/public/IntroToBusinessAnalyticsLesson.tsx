@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 
 // ─── MBI806B, Session 1: Business Decision-Making with AI and ML ──────────
-// A public, ungated "Day 1" course page, built the same way as
-// /intro-to-dbms: real content, plain language, no invented material.
-// Everything below is drawn from the actual Session 1 slides (Week 1,
-// Business Decision-Making with AI and ML) and the official MBI806B course
-// descriptor. The four learning-style explanations near the middle of the
-// page are standard, general definitions written in my own words to keep
-// them beginner-friendly, not quotes from the slides.
+// A public, ungated course page, built the same way as /intro-to-dbms: real
+// content, plain language, no invented material. Everything below is drawn
+// from the actual Session 1 slides (Week 1, Business Decision-Making with AI
+// and ML) and the official MBI806B course descriptor. The four
+// learning-style explanations partway down the page are standard, general
+// definitions written in my own words to keep them beginner-friendly, not
+// quotes from the slides. This page intentionally does not map any content
+// to "today" or a specific calendar day, since when someone reads it does
+// not line up with when a session actually runs.
 
 function Section({ eyebrow, title, lead, children }: { eyebrow?: string; title: string; lead?: string; children?: React.ReactNode }) {
   return (
@@ -25,16 +27,6 @@ function Section({ eyebrow, title, lead, children }: { eyebrow?: string; title: 
   );
 }
 
-const SESSION_FLOW = [
-  { title: 'Introduction to AI and ML in business context', body: 'What these words actually mean, and why they matter to a business, not just to engineers.' },
-  { title: 'Ice-breaking: "AI in My Life"', body: 'Before any theory, we talk about the AI you already use without thinking about it.' },
-  { title: 'Break', body: '10 minutes.' },
-  { title: 'Overview of decision-making frameworks', body: 'How people and organisations make decisions properly, step by step, before AI ever enters the picture.' },
-  { title: 'Discussion: AI and ML use cases in business', body: 'Real examples, across different industries, of these ideas actually being used.' },
-  { title: 'Hands-on: exploring Power BI', body: 'Our first look at the tool we will keep coming back to all trimester.' },
-  { title: 'Wrap-up and Q&A', body: 'Whatever is still unclear, we sort out before you leave.' },
-];
-
 const INDICATIVE_CONTENT = [
   'Business decision-making with AI and ML',
   'Data visualisation for business communication',
@@ -50,12 +42,47 @@ const INDICATIVE_CONTENT = [
   'Future trends in business data analytics',
 ];
 
+// Verbatim from the MBI806B course descriptor.
 const LEARNING_OUTCOMES = [
-  { n: 1, title: 'Evaluate, don’t just apply', body: 'Judge advanced business analytics techniques, including AI and ML algorithms, well enough to use them to inform a real business decision.' },
-  { n: 2, title: 'Use the industry tools properly', body: 'Apply industry-standard business analytics tools to make decision-making genuinely more efficient and effective.' },
-  { n: 3, title: 'Choose the right visual for the message', body: 'Assess and apply different data visualisation techniques to convey specific types of business information clearly.' },
-  { n: 4, title: 'Think about it ethically', body: 'Critically evaluate business analytics practices from an ethical and data privacy perspective.' },
+  { n: 'LO1', body: 'Evaluate advanced business data analytics techniques, including AI and ML algorithms, to make informed decisions within a business organization.' },
+  { n: 'LO2', body: 'Apply industry-standard business analytics tools to improve the efficiency and effectiveness of decision-making processes in a business context.' },
+  { n: 'LO3', body: 'Assess and apply different data visualization techniques to convey specific types of business information for an organization.' },
+  { n: 'LO4', body: 'Critically evaluate business analytics practices from an ethical and data privacy perspective within a business context.' },
 ];
+
+const COURSE_PATH = [
+  { code: 'MBI801', label: 'Pre-requisite' },
+  { code: 'MBI805B', label: 'Co-requisite, this trimester' },
+  { code: 'MBI806B', label: 'You are here' },
+  { code: 'MBI807B', label: 'Business Intelligence and Data Warehousing' },
+];
+
+function CoursePath() {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-stretch gap-0">
+      {COURSE_PATH.map((step, i) => {
+        const active = step.code === 'MBI806B';
+        return (
+          <div key={step.code} className="flex sm:flex-1 items-center">
+            <div
+              className="w-full p-4 border"
+              style={{
+                borderColor: active ? '#0f766e' : 'rgba(0,0,0,0.12)',
+                background: active ? '#f0fdfa' : '#fff',
+              }}
+            >
+              <p className="text-[13.5px] font-semibold" style={{ color: active ? '#0f766e' : '#111827' }}>{step.code}</p>
+              <p className="mt-0.5 text-[12px] leading-snug text-[#6b7280]">{step.label}</p>
+            </div>
+            {i < COURSE_PATH.length - 1 && (
+              <div className="hidden sm:flex items-center justify-center flex-none w-8 text-[#c4c4c9]">→</div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 const APPLICATIONS = [
   { title: 'Customer experience', body: 'Chatbots and virtual assistants answer routine questions any time of day. Machine learning looks at what a customer has done before to recommend what they might want next.' },
@@ -66,7 +93,7 @@ const APPLICATIONS = [
 ];
 
 const BENEFITS = [
-  ['Increased efficiency', 'Automating routine work saves real time and real money.'],
+  ['Increased efficiency', 'Automating routine work saves time and money.'],
   ['Better customer experience', 'Personalised, faster support keeps people satisfied and loyal.'],
   ['Better insights', 'You understand your own operations and customers more deeply.'],
   ['A real advantage', 'Businesses that adopt this early tend to out-innovate the ones that wait.'],
@@ -77,11 +104,78 @@ const DECISION_STEPS = [
   { title: 'Define the problem', body: 'Say clearly what the issue or opportunity actually is, and understand its context.' },
   { title: 'Gather information', body: 'Work out what data and facts you actually need, then go get them.' },
   { title: 'Generate alternatives', body: 'Brainstorm more than one option, including ones that are not immediately obvious.' },
-  { title: 'Evaluate alternatives', body: 'Weigh up each option’s risk, cost and likely outcome, honestly.' },
+  { title: 'Evaluate alternatives', body: 'Weigh up each option’s risk, cost and likely outcome.' },
   { title: 'Choose one', body: 'Pick the option that best fits your goals and is actually achievable.' },
   { title: 'Implement it', body: 'Turn the choice into real actions, with someone responsible for each one.' },
   { title: 'Review and learn', body: 'Check what actually happened, and be honest about what you would do differently.' },
 ];
+
+function DecisionFrameworkExplorer({ items }: { items: { title: string; body: string }[] }) {
+  const [active, setActive] = useState(0);
+  return (
+    <div>
+      <div className="relative">
+        <div className="absolute left-0 right-0 top-4 h-px bg-black/[0.1]" />
+        <div className="relative flex justify-between">
+          {items.map((step, i) => (
+            <button
+              key={step.title}
+              type="button"
+              onClick={() => setActive(i)}
+              className="flex flex-col items-center gap-2 px-1"
+              aria-label={step.title}
+            >
+              <span
+                className="flex-none w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold transition-colors"
+                style={{
+                  background: i === active ? '#0f766e' : '#fff',
+                  color: i === active ? '#fff' : '#9ca3af',
+                  border: `2px solid ${i === active ? '#0f766e' : 'rgba(0,0,0,0.15)'}`,
+                }}
+              >
+                {i + 1}
+              </span>
+              <span
+                className="hidden sm:block text-[10.5px] font-medium text-center leading-tight max-w-[64px]"
+                style={{ color: i === active ? '#0f766e' : '#9ca3af' }}
+              >
+                {step.title}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-8 p-5 border" style={{ borderColor: '#0f766e', background: '#f0fdfa' }}>
+        <p className="text-[12px] font-semibold uppercase tracking-wide" style={{ color: '#0f766e' }}>
+          Step {active + 1} of {items.length}
+        </p>
+        <p className="mt-1.5 text-[16px] font-semibold text-[#111827]">{items[active].title}</p>
+        <p className="mt-1.5 text-[14px] leading-relaxed text-[#4b5563]">{items[active].body}</p>
+        <div className="mt-4 flex gap-3">
+          <button
+            type="button"
+            onClick={() => setActive(a => Math.max(0, a - 1))}
+            disabled={active === 0}
+            className="text-[12.5px] font-medium px-3 py-1.5 border disabled:opacity-40"
+            style={{ borderColor: '#0f766e', color: '#0f766e' }}
+          >
+            Back
+          </button>
+          <button
+            type="button"
+            onClick={() => setActive(a => Math.min(items.length - 1, a + 1))}
+            disabled={active === items.length - 1}
+            className="text-[12.5px] font-medium px-3 py-1.5 disabled:opacity-40"
+            style={{ background: '#0f766e', color: '#fff' }}
+          >
+            Next step
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const AI_DECISION_ROLES = [
   { title: 'Predictive analysis', body: 'AI studies large datasets for patterns a person would take far too long to find, and forecasts what customers or markets are likely to do next.' },
@@ -141,6 +235,28 @@ function NumberedFlow({ items }: { items: { title: string; body: string }[] }) {
   );
 }
 
+function StepList({ items }: { items: { title: string; body: string; note?: string }[] }) {
+  return (
+    <ol className="space-y-4">
+      {items.map((step, i) => (
+        <li key={step.title} className="flex gap-3">
+          <span
+            className="flex-none w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold mt-0.5"
+            style={{ background: '#111827', color: '#fff' }}
+          >
+            {i + 1}
+          </span>
+          <div>
+            <p className="text-[14px] font-semibold text-[#111827]">{step.title}</p>
+            <p className="mt-0.5 text-[13.5px] leading-relaxed text-[#6b7280]">{step.body}</p>
+            {step.note && <p className="mt-1 text-[12.5px] leading-relaxed text-[#9ca3af] italic">{step.note}</p>}
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export default function IntroToBusinessAnalyticsLesson() {
   return (
     <div>
@@ -148,19 +264,18 @@ export default function IntroToBusinessAnalyticsLesson() {
       <section className="py-14">
         <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#8e8e93]">What this course is</p>
         <h2 className="mt-2 font-semibold tracking-[-0.01em] text-[#111827] text-[24px] sm:text-[28px]">
-          Turning data into a decision, properly.
+          Turning data into a decision.
         </h2>
         <p className="mt-3 max-w-2xl text-[15px] sm:text-[16px] leading-relaxed text-[#4b5563]">
-          MBI806B is a 15 credit, Level 8 course. It builds on MBI805B, which you are taking alongside it,
-          and it needs MBI801 as a foundation. It is 150 learning hours in total: 36 in class, 114 on your
-          own. The short version: you will learn to pull real insight out of messy business data using AI
-          and ML, turn that insight into a visual that actually communicates something, and use it to make
-          a decision you can defend, including on ethical and privacy grounds.
+          MBI806B is a 15 credit, Level 8 course. It builds on MBI805B, which you take alongside it, and it
+          needs MBI801 as a foundation. It is 150 learning hours in total: 36 in class, 114 on your own. You
+          will learn to pull insight out of business data using AI and ML, turn that insight into a visual
+          that communicates something, and use it to make a decision, including on ethical and privacy
+          grounds.
         </p>
-        <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-[#4b5563]">
-          MBI801 <span className="text-[#9ca3af]">→</span> MBI805B, this trimester <span className="text-[#9ca3af]">→</span>{' '}
-          <strong className="text-[#111827]">MBI806B, you are here</strong> <span className="text-[#9ca3af]">→</span> MBI807B, Business Intelligence and Data Warehousing
-        </p>
+        <div className="mt-6">
+          <CoursePath />
+        </div>
       </section>
 
       {/* ── Learning outcomes ── */}
@@ -168,11 +283,10 @@ export default function IntroToBusinessAnalyticsLesson() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
           {LEARNING_OUTCOMES.map(lo => (
             <div key={lo.n}>
-              <span className="inline-flex items-center justify-center w-6 h-6 text-[11px] font-bold" style={{ background: '#0f766e', color: '#fff' }}>
+              <span className="inline-flex items-center justify-center h-6 px-2 text-[11px] font-bold" style={{ background: '#0f766e', color: '#fff' }}>
                 {lo.n}
               </span>
-              <p className="mt-2 text-[14.5px] font-semibold text-[#111827]">{lo.title}</p>
-              <p className="mt-1 text-[13.5px] leading-relaxed text-[#6b7280]">{lo.body}</p>
+              <p className="mt-2 text-[13.5px] leading-relaxed text-[#374151]">{lo.body}</p>
             </div>
           ))}
         </div>
@@ -180,9 +294,9 @@ export default function IntroToBusinessAnalyticsLesson() {
 
       {/* ── Indicative content ── */}
       <Section
-        eyebrow="Across the whole trimester"
+        eyebrow="Across the whole course"
         title="What the course covers."
-        lead="This is the real topic list for MBI806B. We will not get through all of it today, this is the whole course, not just Session 1."
+        lead="This is the real topic list for MBI806B."
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2.5">
           {INDICATIVE_CONTENT.map((item, i) => (
@@ -194,30 +308,21 @@ export default function IntroToBusinessAnalyticsLesson() {
         </div>
       </Section>
 
-      {/* ── Session flow ── */}
-      <Section
-        eyebrow="Today, specifically"
-        title="How Session 1 unfolds."
-        lead="This is the real running order for today, the same one on my own slides."
-      >
-        <NumberedFlow items={SESSION_FLOW} />
-      </Section>
-
       {/* ── Preview walkthrough ── */}
       <Section
         eyebrow="A small preview"
-        title="Here is some of what today covers."
-        lead="A few examples, pulled straight from today's material. There is more in class than what fits on this page, this is just enough to get you thinking before you arrive."
+        title="Here is some of what this covers."
+        lead="A few examples, pulled from the course material. There is more than fits on this page."
       >
         <div className="space-y-14">
           <div>
             <p className="text-[15px] sm:text-[16px] leading-relaxed text-[#374151]">
-              <strong>First, what actually is AI?</strong> Here is a definition I like, because it does
-              not require a computer science degree to understand: if you are interacting with a machine,
-              by typing or talking, and it feels enough like talking to a person that you cannot easily
-              tell the difference, that machine is behaving intelligently. AI is not about building an
-              all-powerful machine. It is about building systems that behave in a human-like way, either
-              by communicating with us, or, in the case of robotics, by physically doing something in the
+              <strong>First, what actually is AI?</strong> Here is a definition that does not require a
+              computer science degree to understand: if you are interacting with a machine, by typing or
+              talking, and it feels enough like talking to a person that you cannot easily tell the
+              difference, that machine is behaving intelligently. AI is not about building an all-powerful
+              machine. It is about building systems that behave in a human-like way, either by
+              communicating with us, or, in the case of robotics, by physically doing something in the
               world.
             </p>
           </div>
@@ -235,9 +340,9 @@ export default function IntroToBusinessAnalyticsLesson() {
 
           <div>
             <p className="text-[15px] sm:text-[16px] leading-relaxed text-[#374151]">
-              <strong>So are AI and ML the same thing?</strong> No, and this trips people up constantly.
-              ML is one specific way of building AI: training a model on data until it can perform a task.
-              Every machine learning system is a form of AI. Not every AI system uses machine learning.
+              <strong>So are AI and ML the same thing?</strong> No. ML is one specific way of building AI:
+              training a model on data until it can perform a task. Every machine learning system is a
+              form of AI. Not every AI system uses machine learning.
             </p>
             <div className="my-6 flex justify-center">
               <div className="relative" style={{ width: 320, height: 200 }}>
@@ -271,7 +376,7 @@ export default function IntroToBusinessAnalyticsLesson() {
           <div>
             <p className="text-[15px] sm:text-[16px] leading-relaxed text-[#374151]">
               <strong>There are also four different ways a machine can learn</strong>, and you will hear
-              these terms constantly through the trimester.
+              these terms constantly through the course.
             </p>
             <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
@@ -305,9 +410,9 @@ export default function IntroToBusinessAnalyticsLesson() {
 
           <div>
             <p className="text-[15px] sm:text-[16px] leading-relaxed text-[#374151]">
-              <strong>Now, today's ice-breaker, early.</strong> Before we get to any of the theory in
-              class, we spend a few minutes on an activity called "AI in My Life." The honest answer for
-              most people is: more than you think. Try a few of these yourself.
+              <strong>The ice-breaker: "AI in My Life."</strong> Before any of the theory, this course
+              starts with a simple activity: noticing the AI you already use without thinking about it.
+              Try a few of these yourself.
             </p>
             <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
               {SPOT_THE_AI.map(item => (
@@ -315,8 +420,8 @@ export default function IntroToBusinessAnalyticsLesson() {
               ))}
             </div>
             <p className="mt-4 text-[13px] text-[#9ca3af]">
-              In class, we will do this properly as a group discussion: "Where do YOU see AI?" Come with
-              your own example, not just these ones.
+              In class, this becomes a group discussion: "Where do YOU see AI?" Come with your own
+              example, not just these ones.
             </p>
           </div>
         </div>
@@ -324,11 +429,11 @@ export default function IntroToBusinessAnalyticsLesson() {
 
       {/* ── Decision-making frameworks ── */}
       <Section
-        eyebrow="After the break"
+        eyebrow="A structured approach"
         title="How do we actually make a decision?"
-        lead="Before any AI enters the picture, it helps to be honest about how decisions actually get made. A decision-making framework is just a structured way to get from a problem to a choice you can stand behind."
+        lead="Before any AI enters the picture, it helps to be clear about how decisions actually get made. A decision-making framework is a structured way to get from a problem to a choice you can stand behind. Click through the steps below."
       >
-        <NumberedFlow items={DECISION_STEPS} />
+        <DecisionFrameworkExplorer items={DECISION_STEPS} />
       </Section>
 
       {/* ── AI in decisions ── */}
@@ -348,24 +453,23 @@ export default function IntroToBusinessAnalyticsLesson() {
         <div className="mt-6 p-4 border-l-2" style={{ borderColor: '#0f766e' }}>
           <p className="text-[13.5px] leading-relaxed text-[#4b5563]">
             None of this is automatically safe to trust. The data has to actually be accurate. Someone
-            still has to interpret what the algorithm says. And as AI gets more involved in decisions that
-            affect real people, we have to take bias, transparency and accountability seriously, not as an
-            afterthought. We come back to this properly later in the course, this is worth knowing from day
-            one.
+            still has to interpret what the algorithm says. As AI gets more involved in decisions that
+            affect real people, bias, transparency and accountability need to be taken seriously. This
+            course comes back to this properly later.
           </p>
         </div>
       </Section>
 
-      {/* ── Power BI ── */}
+      {/* ── Power BI setup ── */}
       <Section
         eyebrow="Our first tool"
-        title="Meeting Power BI."
-        lead="Power BI is a business intelligence tool. You connect it to your data, build reports and dashboards out of it, and share those with the people who need to see them. Today, we just open it and look around. Nothing needs to be perfect yet."
+        title="Setting up Power BI."
+        lead="Power BI is a business intelligence tool. You connect it to your data, build reports and dashboards out of it, and share those with the people who need to see them."
       >
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
-            ['Power BI Desktop', 'A free application for actually building and designing reports.'],
-            ['Power BI Service', 'The online side, for publishing and sharing what you built.'],
+            ['Power BI Desktop', 'A free application for building and designing reports. Windows only.'],
+            ['Power BI Service', 'The online side, at app.powerbi.com, for publishing, sharing, and viewing reports in a browser.'],
             ['Power BI mobile', 'For checking your reports and dashboards on the go.'],
           ].map(([title, body]) => (
             <div key={title} className="p-4 border border-black/[0.1]">
@@ -374,24 +478,86 @@ export default function IntroToBusinessAnalyticsLesson() {
             </div>
           ))}
         </div>
-        <ul className="mt-5 space-y-2 text-[14px] text-[#4b5563]">
+
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-8">
+          <div>
+            <p className="text-[13px] font-semibold uppercase tracking-wide text-[#0f766e]">Windows</p>
+            <p className="mt-2 text-[13.5px] leading-relaxed text-[#6b7280]">
+              Power BI Desktop installs directly and is completely free.
+            </p>
+            <div className="mt-4">
+              <StepList items={[
+                { title: 'Open the Microsoft Store', body: 'Search for "Power BI Desktop" and click Get, or Install.' },
+                { title: 'No Microsoft Store access?', body: 'Download the installer directly from Microsoft instead.', note: 'Link below.' },
+                { title: 'Open Power BI Desktop', body: 'You can close the sign-in prompt and use it without an account for now.' },
+              ]} />
+            </div>
+          </div>
+
+          <div>
+            <p className="text-[13px] font-semibold uppercase tracking-wide text-[#0f766e]">macOS</p>
+            <p className="mt-2 text-[13.5px] leading-relaxed text-[#6b7280]">
+              Power BI Desktop only runs on Windows. There is no Mac version, so a Mac needs one of these
+              instead.
+            </p>
+            <div className="mt-4">
+              <StepList items={[
+                { title: 'Use Power BI Service in a browser', body: 'Go to app.powerbi.com and sign in with a Microsoft account. This covers viewing and basic report building, free.' },
+                { title: 'Or run Windows', body: 'Through Boot Camp or a virtual machine, then install Power BI Desktop as above.', note: 'Only needed for the full desktop feature set.' },
+              ]} />
+            </div>
+          </div>
+        </div>
+
+        <ul className="mt-6 space-y-2 text-[14px] text-[#4b5563]">
           <li className="flex gap-2">
             <span className="mt-2 flex-none w-1 h-1 rounded-full bg-[#0f766e]" />
-            <span>
-              <a href="https://learn.microsoft.com/en-us/power-bi/fundamentals/desktop-getting-started" target="_blank" rel="noreferrer" className="font-medium text-[#0d9488] hover:underline inline-flex items-center gap-1">
-                Getting started with Power BI Desktop, official Microsoft guide <ExternalLink size={11} />
-              </a>
-            </span>
+            <a href="https://www.microsoft.com/en-us/download/details.aspx?id=58494" target="_blank" rel="noreferrer" className="font-medium text-[#0d9488] hover:underline inline-flex items-center gap-1">
+              Power BI Desktop, direct download from Microsoft <ExternalLink size={11} />
+            </a>
           </li>
           <li className="flex gap-2">
             <span className="mt-2 flex-none w-1 h-1 rounded-full bg-[#0f766e]" />
-            <span>
-              <a href="https://www.linkedin.com/learning/power-bi-essential-training-2024/overview-power-bi-concepts" target="_blank" rel="noreferrer" className="font-medium text-[#0d9488] hover:underline inline-flex items-center gap-1">
-                Power BI Essential Training, LinkedIn Learning <ExternalLink size={11} />
-              </a>
-            </span>
+            <a href="https://app.powerbi.com" target="_blank" rel="noreferrer" className="font-medium text-[#0d9488] hover:underline inline-flex items-center gap-1">
+              Power BI Service, app.powerbi.com <ExternalLink size={11} />
+            </a>
+          </li>
+          <li className="flex gap-2">
+            <span className="mt-2 flex-none w-1 h-1 rounded-full bg-[#0f766e]" />
+            <a href="https://learn.microsoft.com/en-us/power-bi/fundamentals/desktop-getting-started" target="_blank" rel="noreferrer" className="font-medium text-[#0d9488] hover:underline inline-flex items-center gap-1">
+              Getting started with Power BI Desktop, official Microsoft guide <ExternalLink size={11} />
+            </a>
+          </li>
+          <li className="flex gap-2">
+            <span className="mt-2 flex-none w-1 h-1 rounded-full bg-[#0f766e]" />
+            <a href="https://www.linkedin.com/learning/power-bi-essential-training-2024/overview-power-bi-concepts" target="_blank" rel="noreferrer" className="font-medium text-[#0d9488] hover:underline inline-flex items-center gap-1">
+              Power BI Essential Training, LinkedIn Learning <ExternalLink size={11} />
+            </a>
           </li>
         </ul>
+
+        <div className="mt-10 p-5 border" style={{ borderColor: 'rgba(15,118,110,0.3)', background: '#f0fdfa' }}>
+          <p className="text-[13px] font-semibold uppercase tracking-wide" style={{ color: '#0f766e' }}>Try it yourself</p>
+          <p className="mt-1.5 text-[15px] font-semibold text-[#111827]">A hello world for Power BI.</p>
+          <p className="mt-1.5 text-[13.5px] leading-relaxed text-[#4b5563]">
+            No data source needed. This builds one small chart from scratch, using Power BI's own "Enter
+            Data" feature, in Power BI Desktop or the Service.
+          </p>
+          <div className="mt-4">
+            <StepList items={[
+              { title: 'Open a new report', body: 'In Desktop: Home tab. In the Service: Create, then New report.' },
+              { title: 'Choose "Enter Data"', body: 'Instead of connecting to a real data source, this builds a tiny table by hand.' },
+              { title: 'Type a small table', body: 'Two columns: Item and Sales. Three rows: Coffee, 120; Tea, 90; Juice, 60.' },
+              { title: 'Click Load', body: 'Your table now exists inside the report as a data source, like any other.' },
+              { title: 'Add a bar chart', body: 'In the Visualizations pane, click the bar chart icon to add an empty chart to the page.' },
+              { title: 'Drag in your fields', body: 'Drag Item onto the axis, and Sales onto the values. The chart draws itself.' },
+            ]} />
+          </div>
+          <p className="mt-4 text-[13px] text-[#9ca3af]">
+            That's it. Three rows of made-up data and one chart. Everything later in the course is this
+            same idea, with real data instead.
+          </p>
+        </div>
       </Section>
 
       {/* ── Benefits ── */}
@@ -411,36 +577,24 @@ export default function IntroToBusinessAnalyticsLesson() {
         <ul className="space-y-2.5 text-[14.5px] text-[#4b5563] max-w-2xl">
           <li className="flex gap-2">
             <span className="mt-2 flex-none w-1 h-1 rounded-full bg-[#0f766e]" />
-            <span>
-              Bring a laptop with{' '}
-              <a href="https://www.microsoft.com/en-us/download/details.aspx?id=58494" target="_blank" rel="noreferrer" className="font-medium text-[#0d9488] hover:underline inline-flex items-center gap-1">
-                Power BI Desktop <ExternalLink size={11} />
-              </a>{' '}
-              installed if you can. If you cannot install it beforehand, that is fine, we will sort it out
-              in class.
-            </span>
+            Bring a laptop. Power BI Desktop or Power BI Service, set up using the steps above, if you can.
+            If not, that gets sorted out in class.
           </li>
           <li className="flex gap-2">
             <span className="mt-2 flex-none w-1 h-1 rounded-full bg-[#0f766e]" />
             No coding, statistics or prior AI experience is assumed. If you have never opened a data tool
-            before, you are exactly who this session is for.
+            before, this course is for you.
           </li>
           <li className="flex gap-2">
             <span className="mt-2 flex-none w-1 h-1 rounded-full bg-[#0f766e]" />
-            Think of one place you already noticed AI in your own life this week. We will use it.
+            Think of one place you have noticed AI in your own life recently. It gets used in class.
           </li>
         </ul>
       </Section>
 
       {/* ── Sign off ── */}
       <section className="border-t border-black/[0.08] py-14">
-        <p className="max-w-xl text-[15px] leading-relaxed text-[#374151]">
-          That's Session 1. By the end of today, "AI" and "Machine Learning" should feel like ordinary
-          working terms, not buzzwords. From here, the course moves from understanding these ideas to
-          actually using them, visualising what you find, and deciding what to do about it. I will see you
-          in the room.
-        </p>
-        <p className="mt-6 text-[13px] font-medium text-[#6b7280] inline-flex items-center gap-1.5">
+        <p className="text-[13px] font-medium text-[#6b7280] inline-flex items-center gap-1.5">
           Yasas Sri Wickramasinghe
           <a href="https://www.linkedin.com/in/yasassri/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[#0d9488] hover:underline">
             MBI806B lecturer <ExternalLink size={11} />

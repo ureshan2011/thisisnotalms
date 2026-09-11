@@ -2,6 +2,8 @@ import { ExternalLink } from 'lucide-react';
 import { Reveal, SaveAsPdf, SectionHead } from '../blend';
 import HospitalSheets from './dbms/HospitalSheets';
 import DataToInformation from './dbms/DataToInformation';
+import DataOrInformation from './dbms/DataOrInformation';
+import WebAppStack from './dbms/WebAppStack';
 import { DBMS_NOTES } from '../../content/notes/mbi802Dbms';
 
 // ─── MBI802: Introduction to Database Management Systems ──────────────────
@@ -158,6 +160,29 @@ export default function IntroToDBMSLesson() {
         </Reveal>
         <Reveal delay={0.05}>
           <DataToInformation />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <h3 className="bt-subhead">Now tell them apart</h3>
+          <p className="bt-note" style={{ maxWidth: '62ch' }}>
+            Six things from the chapter. Some are raw, some have had enough added that you could act on them.
+            In the exam you’ll be asked which is which, plus one sentence saying why — and the “why” is where
+            the marks are.
+          </p>
+          <DataOrInformation />
+        </Reveal>
+      </section>
+
+      {/* ══ Where a database sits in a real system ═══════════════════════ */}
+      <section id="stack" className="bt-sec">
+        <Reveal>
+          <SectionHead
+            eyebrow="Section 1.3 · Where it all lives"
+            title="Where the database actually sits"
+            aside="Nearly every app on your phone is talking to one, though you never see it. Follow a single tap all the way there and back."
+          />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <WebAppStack />
         </Reveal>
       </section>
 

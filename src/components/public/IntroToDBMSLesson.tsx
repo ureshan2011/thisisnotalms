@@ -2,6 +2,8 @@ import { ExternalLink } from 'lucide-react';
 import { Reveal, SaveAsPdf, SectionHead } from '../blend';
 import HospitalSheets from './dbms/HospitalSheets';
 import DataToInformation from './dbms/DataToInformation';
+import DataOrInformation from './dbms/DataOrInformation';
+import WebAppStack from './dbms/WebAppStack';
 import { DBMS_NOTES } from '../../content/notes/mbi802Dbms';
 
 // ─── MBI802: Introduction to Database Management Systems ──────────────────
@@ -158,6 +160,29 @@ export default function IntroToDBMSLesson() {
         </Reveal>
         <Reveal delay={0.05}>
           <DataToInformation />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <h3 className="bt-subhead">Now tell them apart</h3>
+          <p className="bt-note" style={{ maxWidth: '62ch' }}>
+            Six items from the chapter. Some are raw, some have had context and processing applied. An exam
+            will ask you to classify them and justify each in a sentence, and the justification carries the
+            marks.
+          </p>
+          <DataOrInformation />
+        </Reveal>
+      </section>
+
+      {/* ══ Where a database sits in a real system ═══════════════════════ */}
+      <section id="stack" className="bt-sec">
+        <Reveal>
+          <SectionHead
+            eyebrow="Section 1.3 · The relational model at work"
+            title="Where the database actually sits"
+            aside="Every site you use runs on one, but almost nobody can say where. Walk a single click through the system and watch the SQL appear in the middle of it."
+          />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <WebAppStack />
         </Reveal>
       </section>
 

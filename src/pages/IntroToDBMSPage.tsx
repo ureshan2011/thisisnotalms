@@ -19,6 +19,7 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 const NAV = [
   { id: 'break', label: 'The problem' },
   { id: 'meaning', label: 'Data' },
+  { id: 'stack', label: 'Web apps' },
   { id: 'course', label: 'The course' },
   { id: 'outline', label: 'Outline' },
   { id: 'preview', label: 'Preview' },

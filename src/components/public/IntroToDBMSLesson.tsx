@@ -3,15 +3,18 @@ import Reveal from './Reveal';
 import HospitalSheets from './dbms/HospitalSheets';
 import DataToInformation from './dbms/DataToInformation';
 
-// ─── MBI802, Class 1: Introduction to Database Management Systems ─────────
-// A public, ungated "Day 1" course page, dressed in the ICTCAMPUS design
-// system (see src/styles/ictcampus.css) — warm cream, one rationed orange,
-// Manrope display type at negative tracking, and pill-shaped actions.
+// ─── MBI802: Introduction to Database Management Systems ──────────────────
+// A public, ungated course intro page in Blended Teaching Content's
+// course-page theme (see src/styles/courseTheme.css) — warm paper, one
+// rationed accent, Manrope display type, and pill-shaped actions.
+//
+// Nothing is pinned to a class number or a calendar day. The page describes
+// the course and its lessons, which are stable; when it is read is not.
 //
 // The page is ordered to earn attention before it asks for any: it opens by
 // letting you break a hospital's spreadsheet and turn a bare 85 into a
 // sentence, and only then explains what the course is and how it is laid
-// out. That ordering is deliberate — it is how the real first class runs.
+// out. That ordering is deliberate — it is how the material itself builds.
 //
 // Every example, SQL snippet, diagram and video thumbnail is real material
 // from the course: the MBI802 study pack chapters (study-pack/content/mbi802
@@ -108,23 +111,23 @@ const VIDEO_PREVIEWS = [
 
 function SectionHead({ eyebrow, title, stop, aside }: { eyebrow: string; title: string; stop?: string; aside: string }) {
   return (
-    <div className="ict-sechead">
+    <div className="bt-sechead">
       <div>
-        <p className="ict-eyebrow">{eyebrow}</p>
+        <p className="bt-eyebrow">{eyebrow}</p>
         <h2>
           {title}
-          {stop && <span className="ict-stop">{stop}</span>}
+          {stop && <span className="bt-stop">{stop}</span>}
         </h2>
       </div>
-      <p className="ict-aside">{aside}</p>
+      <p className="bt-aside">{aside}</p>
     </div>
   );
 }
 
 function Figure({ src, caption, maxWidth = 560 }: { src: string; caption: string; maxWidth?: number }) {
   return (
-    <figure className="ict-figure">
-      <div className="ict-figure__frame">
+    <figure className="bt-figure">
+      <div className="bt-figure__frame">
         <img src={src} alt={caption} style={{ maxWidth, width: '100%', height: 'auto', display: 'block', margin: '0 auto' }} />
       </div>
       <figcaption>{caption}</figcaption>
@@ -134,8 +137,8 @@ function Figure({ src, caption, maxWidth = 560 }: { src: string; caption: string
 
 function Code({ children, title }: { children: string; title?: string }) {
   return (
-    <div className="ict-code">
-      {title && <div className="ict-code__bar"><span className="ict-dot" style={{ background: 'var(--green-500)' }} />{title}</div>}
+    <div className="bt-code">
+      {title && <div className="bt-code__bar"><span className="bt-dot" style={{ background: 'var(--green-500)' }} />{title}</div>}
       <pre>{children}</pre>
     </div>
   );
@@ -145,7 +148,7 @@ export default function IntroToDBMSLesson() {
   return (
     <div>
       {/* ══ 1.2 — break a file-based system ══════════════════════════════ */}
-      <section id="break" className="ict-sec">
+      <section id="break" className="bt-sec">
         <Reveal>
           <SectionHead
             eyebrow="Section 1.2 · Why file-based systems fail"
@@ -160,7 +163,7 @@ export default function IntroToDBMSLesson() {
       </section>
 
       {/* ══ 1.1 — data vs information ════════════════════════════════════ */}
-      <section id="meaning" className="ict-sec">
+      <section id="meaning" className="bt-sec">
         <Reveal>
           <SectionHead
             eyebrow="Section 1.1 · Data vs information"
@@ -175,7 +178,7 @@ export default function IntroToDBMSLesson() {
       </section>
 
       {/* ══ What this course is ══════════════════════════════════════════ */}
-      <section id="course" className="ict-sec">
+      <section id="course" className="bt-sec">
         <Reveal>
           <SectionHead
             eyebrow="What this course is"
@@ -185,7 +188,7 @@ export default function IntroToDBMSLesson() {
           />
         </Reveal>
         <Reveal delay={0.05}>
-          <div className="ict-prose">
+          <div className="bt-prose">
             <p>
               Over the trimester you will design relational databases, query them with SQL, and think about
               who owns the data you are storing and why that matters. It is 150 learning hours in total.
@@ -200,17 +203,17 @@ export default function IntroToDBMSLesson() {
             </p>
           </div>
 
-          <div className="ict-stats">
-            <div><b className="ict-tnum">15</b><span>Credits, Level 8, no prerequisites</span></div>
-            <div><b className="ict-tnum">150</b><span>Learning hours: 36 in class, 114 yours</span></div>
-            <div><b className="ict-tnum">8</b><span>Lessons, in a deliberate order</span></div>
-            <div><b className="ict-tnum">58</b><span>Knowledge-check questions with instant feedback</span></div>
+          <div className="bt-stats">
+            <div><b className="bt-tnum">15</b><span>Credits, Level 8, no prerequisites</span></div>
+            <div><b className="bt-tnum">150</b><span>Learning hours: 36 in class, 114 yours</span></div>
+            <div><b className="bt-tnum">8</b><span>Lessons, in a deliberate order</span></div>
+            <div><b className="bt-tnum">58</b><span>Knowledge-check questions with instant feedback</span></div>
           </div>
         </Reveal>
       </section>
 
       {/* ══ Outline ══════════════════════════════════════════════════════ */}
-      <section id="outline" className="ict-sec">
+      <section id="outline" className="bt-sec">
         <Reveal>
           <SectionHead
             eyebrow="The lesson outline"
@@ -223,18 +226,18 @@ export default function IntroToDBMSLesson() {
             genuinely a sequence, and each row carries the one thing you should
             be able to do by the end of it. */}
         <Reveal delay={0.05}>
-          <ol className="ict-track">
+          <ol className="bt-track">
             {OUTLINE.map(lesson => (
-              <li key={lesson.n} className={`ict-trackrow${lesson.here ? ' ict-trackrow--here' : ''}`}>
-                <span className="ict-trackrow__n ict-tnum" aria-hidden="true">{lesson.n}</span>
-                <div className="ict-trackrow__body">
+              <li key={lesson.n} className={`bt-trackrow${lesson.here ? ' bt-trackrow--here' : ''}`}>
+                <span className="bt-trackrow__n bt-tnum" aria-hidden="true">{lesson.n}</span>
+                <div className="bt-trackrow__body">
                   <h3>
                     {lesson.title}
-                    {lesson.here && <span className="ict-here">You are here</span>}
+                    {lesson.here && <span className="bt-here">You are here</span>}
                   </h3>
                   <p>{lesson.subtitle}</p>
                 </div>
-                <p className="ict-trackrow__obj">
+                <p className="bt-trackrow__obj">
                   <span>By the end</span>
                   {lesson.objective}
                 </p>
@@ -245,7 +248,7 @@ export default function IntroToDBMSLesson() {
       </section>
 
       {/* ══ Preview ══════════════════════════════════════════════════════ */}
-      <section id="preview" className="ict-sec">
+      <section id="preview" className="bt-sec">
         <Reveal>
           <SectionHead
             eyebrow="A small preview"
@@ -255,20 +258,20 @@ export default function IntroToDBMSLesson() {
           />
         </Reveal>
 
-        <div className="ict-preview">
+        <div className="bt-preview">
           <Reveal>
-            <div className="ict-step">
-              <span className="ict-step__n">01</span>
+            <div className="bt-step">
+              <span className="bt-step__n">01</span>
               <div>
                 <h3>First, we separate data from information.</h3>
-                <p className="ict-prose">
+                <p className="bt-prose">
                   You did the interactive version of this at the top of the page. In the chapter it looks like
                   this, and the four quality characteristics get a table of their own, because a marker will
                   ask you to name them.
                 </p>
                 <Figure src={`${BASE}mbi802/data-to-information.svg`} caption="From the Lesson 1 chapter: data becomes information through processing and context." />
-                <div className="ict-scroll">
-                  <table className="ict-plaintable">
+                <div className="bt-scroll">
+                  <table className="bt-plaintable">
                     <thead>
                       <tr><th>Quality information is</th><th>Meaning</th></tr>
                     </thead>
@@ -285,11 +288,11 @@ export default function IntroToDBMSLesson() {
           </Reveal>
 
           <Reveal>
-            <div className="ict-step">
-              <span className="ict-step__n">02</span>
+            <div className="bt-step">
+              <span className="bt-step__n">02</span>
               <div>
                 <h3>Then you start writing SQL.</h3>
-                <p className="ict-prose">
+                <p className="bt-prose">
                   Not toy examples. A real table, real rows, and a query that actually returns something.
                   This is the exact code from Lesson 2.
                 </p>
@@ -313,7 +316,7 @@ VALUES
 SELECT name AS 'Student Name',
        gpa  AS 'Grade Point'
 FROM   students;`}</Code>
-                <p className="ict-note">
+                <p className="bt-note">
                   A few lessons later you do the same thing again, but with a table you designed yourself, for
                   a scenario chosen for you: a library, a hospital, a hotel, a gym. Everyone gets a different one.
                 </p>
@@ -322,11 +325,11 @@ FROM   students;`}</Code>
           </Reveal>
 
           <Reveal>
-            <div className="ict-step">
-              <span className="ict-step__n">03</span>
+            <div className="bt-step">
+              <span className="bt-step__n">03</span>
               <div>
                 <h3>A few classes in, we design before we build.</h3>
-                <p className="ict-prose">
+                <p className="bt-prose">
                   I like to compare it to an architect’s drawing. An architect plans the rooms before anyone
                   pours concrete. We plan the tables before anyone writes CREATE TABLE. This is Chen’s notation,
                   the diagramming style we use for the whole course.
@@ -337,35 +340,35 @@ FROM   students;`}</Code>
           </Reveal>
 
           <Reveal>
-            <div className="ict-step">
-              <span className="ict-step__n">04</span>
+            <div className="bt-step">
+              <span className="bt-step__n">04</span>
               <div>
                 <h3>By Lesson 7, we clean up a table that was never designed properly.</h3>
-                <p className="ict-prose">
+                <p className="bt-prose">
                   A real example from the normalization chapter. It tries to record students, departments and
                   courses all in one table. The red columns are where it goes wrong.
                 </p>
-                <div className="ict-scroll ict-badtable">
-                  <table className="ict-grid">
+                <div className="bt-scroll bt-badtable">
+                  <table className="bt-grid">
                     <thead>
                       <tr>
                         <th>StudentID</th><th>Name</th><th>Dept</th><th>DeptHead</th>
-                        <th className="ict-th--bad">Courses</th><th className="ict-th--bad">Instructor</th>
+                        <th className="bt-th--bad">Courses</th><th className="bt-th--bad">Instructor</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
                         <td>S1</td><td>Alice</td><td>CS</td><td>Dr. Smith</td>
-                        <td className="ict-td--bad">DB, OS, Networks</td><td className="ict-td--bad">Lee, Ray, Kim</td>
+                        <td className="bt-td--bad">DB, OS, Networks</td><td className="bt-td--bad">Lee, Ray, Kim</td>
                       </tr>
                       <tr>
                         <td>S2</td><td>Bob</td><td>CS</td><td>Dr. Smith</td>
-                        <td className="ict-td--bad">DB, AI</td><td className="ict-td--bad">Lee, Patel</td>
+                        <td className="bt-td--bad">DB, AI</td><td className="bt-td--bad">Lee, Patel</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
-                <p className="ict-prose">
+                <p className="bt-prose">
                   If Dr. Smith leaves, every CS row needs updating, and it is easy to miss one. That is an update
                   anomaly, one of three problems this design has. We will name all three, then split this into
                   clean tables that do not contradict themselves — which is the same instinct you used on the
@@ -377,18 +380,18 @@ FROM   students;`}</Code>
           </Reveal>
 
           <Reveal>
-            <div className="ict-step">
-              <span className="ict-step__n">05</span>
+            <div className="bt-step">
+              <span className="bt-step__n">05</span>
               <div>
                 <h3>And some of it, you will just watch.</h3>
-                <p className="ict-prose">
+                <p className="bt-prose">
                   You will receive a video recording for every lecture, plus additional video resources on top
                   of that. These are a few of the actual thumbnails from inside the course.
                 </p>
-                <div className="ict-videos">
+                <div className="bt-videos">
                   {VIDEO_PREVIEWS.map(v => (
                     <figure key={v.file}>
-                      <div className="ict-videos__frame">
+                      <div className="bt-videos__frame">
                         <img src={`${BASE}${v.file}`} alt={v.title} loading="lazy" />
                       </div>
                       <figcaption>{v.title}</figcaption>
@@ -402,7 +405,7 @@ FROM   students;`}</Code>
       </section>
 
       {/* ══ Activities ═══════════════════════════════════════════════════ */}
-      <section id="practice" className="ict-sec">
+      <section id="practice" className="bt-sec">
         <Reveal>
           <SectionHead
             eyebrow="What you'll actually do"
@@ -412,10 +415,10 @@ FROM   students;`}</Code>
           />
         </Reveal>
         <Reveal delay={0.05}>
-          <div className="ict-activities">
+          <div className="bt-activities">
             {ACTIVITIES.map(([title, body], i) => (
-              <div key={title} className="ict-activity">
-                <span className="ict-activity__n">{String(i + 1).padStart(2, '0')}</span>
+              <div key={title} className="bt-activity">
+                <span className="bt-activity__n">{String(i + 1).padStart(2, '0')}</span>
                 <div>
                   <h3>{title}</h3>
                   <p>{body}</p>
@@ -427,7 +430,7 @@ FROM   students;`}</Code>
       </section>
 
       {/* ══ Resources ════════════════════════════════════════════════════ */}
-      <section id="resources" className="ict-sec">
+      <section id="resources" className="bt-sec">
         <Reveal>
           <SectionHead
             eyebrow="Beyond this page"
@@ -437,9 +440,9 @@ FROM   students;`}</Code>
           />
         </Reveal>
         <Reveal delay={0.05}>
-          <div className="ict-resources">
+          <div className="bt-resources">
             {RESOURCES.map(([title, body]) => (
-              <div key={title} className="ict-card">
+              <div key={title} className="bt-card">
                 <h3>{title}</h3>
                 <p>{body}</p>
               </div>
@@ -449,17 +452,17 @@ FROM   students;`}</Code>
       </section>
 
       {/* ══ Sign off ═════════════════════════════════════════════════════ */}
-      <section className="ict-sec">
+      <section className="bt-sec">
         <Reveal>
-          <div className="ict-signoff">
-            <p className="ict-eyebrow">Your lecturer</p>
-            <h2>See you in class<span className="ict-stop">.</span></h2>
-            <p className="ict-signoff__body">
-              You have just done the first half of class one — you broke a file-based system, named what went
-              wrong, and turned data into information. That is genuinely where MBI802 starts. The rest is eight
+          <div className="bt-signoff">
+            <p className="bt-eyebrow">Your lecturer</p>
+            <h2>See you in class<span className="bt-stop">.</span></h2>
+            <p className="bt-signoff__body">
+              You have just done the part everything else rests on — you broke a file-based system, named what
+              went wrong, and turned data into information. That is where MBI802 starts. The rest is eight
               lessons of doing it properly, with someone to ask when it does not work.
             </p>
-            <p className="ict-signoff__name">
+            <p className="bt-signoff__name">
               Yasas Sri Wickramasinghe
               <a href="https://www.linkedin.com/in/yasassri/" target="_blank" rel="noreferrer">
                 MBI802 lecturer <ExternalLink size={12} aria-hidden="true" />

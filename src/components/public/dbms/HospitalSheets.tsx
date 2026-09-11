@@ -136,44 +136,44 @@ export default function HospitalSheets() {
 
   function addrClass(p: typeof PATIENTS[number]) {
     if (!p.tracked || !edited) return '';
-    if (dbMode) return 'ict-addr--fresh';
-    return sheets[active].addr === ORIGINAL ? 'ict-addr--stale' : 'ict-addr--fresh';
+    if (dbMode) return 'bt-addr--fresh';
+    return sheets[active].addr === ORIGINAL ? 'bt-addr--stale' : 'bt-addr--fresh';
   }
 
   return (
-    <div className="ict-demo">
+    <div className="bt-demo">
       {/* ── sheet tabs and the storage-mode switch ── */}
-      <div className="ict-demobar">
+      <div className="bt-demobar">
         {sheets.map((s, i) => (
           <button
             key={s.file}
             type="button"
-            className={`ict-tab${!dbMode && edited && s.addr === ORIGINAL ? ' ict-tab--stale' : ''}`}
+            className={`bt-tab${!dbMode && edited && s.addr === ORIGINAL ? ' bt-tab--stale' : ''}`}
             aria-pressed={i === active}
             onClick={() => selectSheet(i)}
           >
             {dbMode ? ['patients', 'patients', 'patients'][i] : s.file}
-            <span className="ict-tab__warn" aria-hidden="true" />
+            <span className="bt-tab__warn" aria-hidden="true" />
           </button>
         ))}
 
-        <div className="ict-modeswitch" role="group" aria-label="How the hospital stores this patient">
+        <div className="bt-modeswitch" role="group" aria-label="How the hospital stores this patient">
           <button type="button" aria-pressed={!dbMode} onClick={() => setMode(false)}>Spreadsheets</button>
           <button type="button" aria-pressed={dbMode} onClick={() => setMode(true)}>One database</button>
         </div>
       </div>
 
-      <div className="ict-sheetbody">
+      <div className="bt-sheetbody">
         {/* ── the sheet itself ── */}
-        <div className="ict-sheet">
-          <div className="ict-sheetname">
-            <span className="ict-dot" style={{ background: dbMode ? 'var(--green-500)' : 'var(--amber-500)' }} />
+        <div className="bt-sheet">
+          <div className="bt-sheetname">
+            <span className="bt-dot" style={{ background: dbMode ? 'var(--green-500)' : 'var(--amber-500)' }} />
             {dbMode
               ? 'hospital_db · patients — one row, one address, one truth'
               : `${sheets[active].file} — last saved by ${sheets[active].by}`}
           </div>
-          <div className="ict-scroll">
-            <table className="ict-grid">
+          <div className="bt-scroll">
+            <table className="bt-grid">
               <thead>
                 <tr>
                   <th>Patient ID</th><th>Name</th><th>Address</th><th>NHI</th><th>Ward</th>
@@ -182,9 +182,9 @@ export default function HospitalSheets() {
               <tbody>
                 {PATIENTS.map(p => (
                   <tr key={p.id}>
-                    <td>{dbMode && p.tracked ? <span className="ict-pk">{p.id}</span> : p.id}</td>
+                    <td>{dbMode && p.tracked ? <span className="bt-pk">{p.id}</span> : p.id}</td>
                     <td>{p.name}</td>
-                    <td className={`ict-addr ${addrClass(p)}`}>{shownAddr(p)}</td>
+                    <td className={`bt-addr ${addrClass(p)}`}>{shownAddr(p)}</td>
                     <td>{p.nhi}</td>
                     <td>{p.ward}</td>
                   </tr>
@@ -195,8 +195,8 @@ export default function HospitalSheets() {
         </div>
 
         {/* ── the controls ── */}
-        <div className="ict-ctrl">
-          <div className="ict-field">
+        <div className="bt-ctrl">
+          <div className="bt-field">
             <label htmlFor="dbms-addr">Mere Rangi has moved. Type her new address.</label>
             <input
               id="dbms-addr"
@@ -207,13 +207,13 @@ export default function HospitalSheets() {
             />
           </div>
 
-          <button type="button" className="ict-btn ict-btn--md" style={{ alignSelf: 'flex-start' }} onClick={save}>
+          <button type="button" className="bt-btn bt-btn--md" style={{ alignSelf: 'flex-start' }} onClick={save}>
             {dbMode ? 'Save to the database' : 'Save to this sheet'}
-            <span className="ict-btn__badge" aria-hidden="true">→</span>
+            <span className="bt-btn__badge" aria-hidden="true">→</span>
           </button>
 
-          <div className="ict-counter">
-            <b className="ict-tnum">{dbMode ? 1 : 3}</b>
+          <div className="bt-counter">
+            <b className="bt-tnum">{dbMode ? 1 : 3}</b>
             <span>
               {dbMode
                 ? 'copy of her address exists. Every screen in the hospital reads it.'
@@ -221,34 +221,34 @@ export default function HospitalSheets() {
             </span>
           </div>
 
-          <div className={`ict-verdict${verdict.tone === 'bad' ? ' ict-verdict--bad' : verdict.tone === 'good' ? ' ict-verdict--good' : ''}`} aria-live="polite">
+          <div className={`bt-verdict${verdict.tone === 'bad' ? ' bt-verdict--bad' : verdict.tone === 'good' ? ' bt-verdict--good' : ''}`} aria-live="polite">
             <strong>{verdict.title}</strong>
             {verdict.body}
           </div>
 
-          <button type="button" className="ict-btn ict-btn--tertiary ict-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={collide}>
+          <button type="button" className="bt-btn bt-btn--tertiary bt-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={collide}>
             Two nurses save at once
-            <span className="ict-btn__badge" aria-hidden="true">→</span>
+            <span className="bt-btn__badge" aria-hidden="true">→</span>
           </button>
         </div>
       </div>
 
       {/* ── the five failures, lit as you cause them ── */}
-      <div className="ict-faillist">
+      <div className="bt-faillist">
         {FAILURES.map(f => (
-          <div key={f.key} className={`ict-fail${lit === f.key ? ' ict-fail--lit' : ''}`}>
-            <span className="ict-fail__n">{f.n}</span>
+          <div key={f.key} className={`bt-fail${lit === f.key ? ' bt-fail--lit' : ''}`}>
+            <span className="bt-fail__n">{f.n}</span>
             <h4>{f.title}</h4>
             <p>{f.body}</p>
-            <p className="ict-fail__fix"><span>A DBMS:</span> {f.fix}</p>
+            <p className="bt-fail__fix"><span>A DBMS:</span> {f.fix}</p>
           </div>
         ))}
       </div>
 
-      <p className="ict-demofoot">
+      <p className="bt-demofoot">
         Those five names — redundancy, inconsistency, security, concurrency, integrity — are worth more in the
-        exam than any definition you could memorise. In class we do this same exercise in pairs, on paper,
-        before anyone touches a keyboard. {staleSheets.length > 0 && !dbMode && edited
+        exam than any definition you could memorise. We do this same exercise in pairs, on paper, before
+        anyone touches a keyboard. {staleSheets.length > 0 && !dbMode && edited
           ? `Right now ${staleSheets.length} of your three sheets ${staleSheets.length > 1 ? 'are' : 'is'} out of date.`
           : ''}
       </p>

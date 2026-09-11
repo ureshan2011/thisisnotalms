@@ -61,22 +61,22 @@ export default function DataToInformation() {
   );
 
   return (
-    <div className="ict-builder">
-      <div className="ict-card">
-        <p className="ict-eyebrow ict-eyebrow--quiet">Raw data</p>
-        <div className="ict-rawval">85</div>
-        <p className="ict-rawnote">
+    <div className="bt-builder">
+      <div className="bt-card">
+        <p className="bt-eyebrow bt-eyebrow--quiet">Raw data</p>
+        <div className="bt-rawval">85</div>
+        <p className="bt-rawnote">
           A bare number. It could be a mark, an age, a heart rate, a bus route or a temperature. Nobody can
           decide anything with it, which is exactly what makes it data.
         </p>
 
-        <p className="ict-eyebrow" style={{ marginTop: 26 }}>Add context</p>
-        <div className="ict-chiprow">
+        <p className="bt-eyebrow" style={{ marginTop: 26 }}>Add context</p>
+        <div className="bt-chiprow">
           {PIECES.map(p => (
             <button
               key={p.key}
               type="button"
-              className="ict-ctxchip"
+              className="bt-ctxchip"
               aria-pressed={!!on[p.key]}
               onClick={() => toggle(p)}
             >
@@ -84,25 +84,25 @@ export default function DataToInformation() {
             </button>
           ))}
         </div>
-        <p className="ict-chipnote" aria-live="polite">
+        <p className="bt-chipnote" aria-live="polite">
           {last ? last.note : 'Tap the pieces in any order. Each one does a different job.'}
         </p>
       </div>
 
-      <div className="ict-outbox">
-        <p className="ict-eyebrow">Information</p>
-        <p className="ict-sentence">{sentence}</p>
+      <div className="bt-outbox">
+        <p className="bt-eyebrow">Information</p>
+        <p className="bt-sentence">{sentence}</p>
 
-        <div className="ict-qual">
-          <div className="ict-qualhead">
+        <div className="bt-qual">
+          <div className="bt-qualhead">
             <span>Quality information is…</span>
-            <span className="ict-bar" aria-hidden="true"><i style={{ width: `${Math.round(score * 100)}%` }} /></span>
+            <span className="bt-bar" aria-hidden="true"><i style={{ width: `${Math.round(score * 100)}%` }} /></span>
           </div>
           {QUALITIES.map(q => {
             const met = PIECES.some(p => p.quality === q.key && on[p.key]);
             return (
-              <div key={q.key} className={`ict-qrow${met ? ' ict-qrow--on' : ''}`}>
-                <span className="ict-qbox" aria-hidden="true">
+              <div key={q.key} className={`bt-qrow${met ? ' bt-qrow--on' : ''}`}>
+                <span className="bt-qbox" aria-hidden="true">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round"><path d="m4 12.5 5 5L20 6.5" /></svg>
                 </span>
                 <span><b>{q.name}</b> — {q.meaning}</span>
@@ -111,7 +111,7 @@ export default function DataToInformation() {
           })}
         </div>
 
-        <p className="ict-outfoot">
+        <p className="bt-outfoot">
           {all
             ? 'That is the worked example from the chapter, built piece by piece. The requirement is context plus processing — nothing more exotic than that.'
             : 'Keep going. The transformation requirement is context plus processing, and you are part of the way there.'}

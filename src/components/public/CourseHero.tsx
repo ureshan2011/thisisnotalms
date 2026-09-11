@@ -12,14 +12,15 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 interface CourseHeroProps {
   eyebrow: string;
   title: string;
-  meta: string;
+  author: string;
+  authorUrl: string;
   intro: string;
   accent: string;
   orb2: string;
   Scene?: ComponentType;
 }
 
-export default function CourseHero({ eyebrow, title, meta, intro, accent, orb2, Scene }: CourseHeroProps) {
+export default function CourseHero({ eyebrow, title, author, authorUrl, intro, accent, orb2, Scene }: CourseHeroProps) {
   return (
     <header className="relative overflow-hidden border-b border-black/[0.08]">
       {/* Ambient gradient backdrop, same language as PublicLessonShell's hero */}
@@ -59,7 +60,10 @@ export default function CourseHero({ eyebrow, title, meta, intro, accent, orb2, 
             transition={{ duration: 0.65, ease: EASE, delay: 0.16 }}
             className="mt-3 text-[14px] text-[#6b7280]"
           >
-            {meta}
+            By{' '}
+            <a href={authorUrl} target="_blank" rel="noreferrer" className="font-medium hover:underline" style={{ color: accent }}>
+              {author}
+            </a>
           </motion.p>
           <motion.p
             initial={{ opacity: 0, y: 16 }}

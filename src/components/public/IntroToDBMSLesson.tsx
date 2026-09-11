@@ -21,6 +21,10 @@ interface OutlineLesson {
   links: OutlineLink[];
 }
 
+// Every lesson's `links` is empty for now: the interactive lesson pages
+// they'd point to (/sql-programming, /er-diagrams, and so on) are still
+// behind the platform's lesson password, and this page is meant to be
+// openly shareable. Re-populate `links` once those pages are unlocked.
 const OUTLINE: OutlineLesson[] = [
   {
     n: '01',
@@ -34,61 +38,49 @@ const OUTLINE: OutlineLesson[] = [
     title: 'SQL Programming Fundamentals',
     subtitle: 'The language of relational databases. Data types, CREATE, INSERT, and your first SELECT queries.',
     objective: 'Write DDL statements and insert your first rows into a real table.',
-    links: [{ label: 'Open this lesson', to: '/sql-programming' }],
+    links: [],
   },
   {
     n: '03',
     title: 'Advanced SQL Queries',
     subtitle: 'Filtering, sorting, safe UPDATE and DELETE, aggregate functions, and your first JOIN.',
     objective: 'Combine two related tables with an INNER JOIN.',
-    links: [{ label: 'Continues in UPDATE & DELETE', to: '/sql-reels' }],
+    links: [],
   },
   {
     n: '04',
     title: 'ER Diagrams Foundations',
     subtitle: "Chen's notation. Entities, attributes, keys, relationships, and cardinality.",
     objective: 'Draw a complete ER diagram from a written scenario.',
-    links: [
-      { label: 'Open this lesson', to: '/er-diagrams' },
-      { label: 'Try the activities', to: '/er-activities' },
-    ],
+    links: [],
   },
   {
     n: '05',
     title: 'Advanced ER Concepts',
     subtitle: 'Weak entities, composite and multivalued attributes, and total vs partial participation.',
     objective: 'Apply the full Chen symbol set to a scenario you have not seen before.',
-    links: [
-      { label: 'Open this lesson', to: '/er-advanced' },
-      { label: 'Attributes & constraints', to: '/er-attributes' },
-    ],
+    links: [],
   },
   {
     n: '06',
     title: 'ER to Relational Mapping',
     subtitle: 'The eight rules that turn any ER diagram into a complete set of tables.',
     objective: 'Turn a diagram into a schema without guessing.',
-    links: [{ label: 'Open this lesson', to: '/er-mapping' }],
+    links: [],
   },
   {
     n: '07',
     title: 'Database Normalization',
     subtitle: 'Functional dependencies, 1NF through BCNF, and decomposing a messy table properly.',
     objective: 'Take a table that contradicts itself and split it until it does not.',
-    links: [
-      { label: 'Open this lesson', to: '/normalisation' },
-      { label: 'Practice activities', to: '/normalisation-activities' },
-    ],
+    links: [],
   },
   {
     n: '08',
     title: 'Consolidation & Exam Preparation',
     subtitle: 'The full pipeline from raw data to a normalized, queryable database. Where to go next.',
     objective: 'Build a small database end to end, on your own.',
-    links: [
-      { label: 'Hands-on lesson', to: '/database-concepts' },
-      { label: 'Free certifications', to: '/sql-certifications' },
-    ],
+    links: [],
   },
 ];
 
@@ -117,9 +109,9 @@ function Code({ children, title }: { children: string; title?: string }) {
 }
 
 const VIDEO_PREVIEWS = [
-  { title: 'Normalization, Introduction', file: 'NormIntro.png', href: '/normalisation-videos' },
-  { title: 'Normalization, Why Normalise?', file: 'NormWhy.png', href: '/normalisation-videos' },
-  { title: 'Normalization, First Normal Form', file: 'Norm1NF.png', href: '/normalisation-videos' },
+  { title: 'Normalization, Introduction', file: 'NormIntro.png' },
+  { title: 'Normalization, Why Normalise?', file: 'NormWhy.png' },
+  { title: 'Normalization, First Normal Form', file: 'Norm1NF.png' },
   { title: 'Advanced ER, Activity Walkthrough', file: 'Activity1.png' },
 ];
 
@@ -131,7 +123,7 @@ export default function IntroToDBMSLesson() {
         <Reveal>
           <p className="text-[12px] font-semibold uppercase tracking-[0.12em] text-[#8e8e93]">What this course is</p>
           <h2 className="mt-2 font-semibold tracking-[-0.01em] text-[#111827] text-[24px] sm:text-[28px]">
-            Database Management Systems, plainly.
+            Database Management Systems.
           </h2>
           <p className="mt-3 max-w-2xl text-[15px] sm:text-[16px] leading-relaxed text-[#4b5563]">
             MBI802 is a 15 credit, Level 8 core course. No prerequisites, so everyone starts from the same
@@ -300,26 +292,19 @@ FROM   students;`}</Code>
 
           <div>
             <p className="text-[15px] sm:text-[16px] leading-relaxed text-[#374151]">
-              <strong>And some of it, you will just watch.</strong> A few of the lessons have recorded
-              walkthroughs. These are a few of the actual thumbnails from inside the course. There are more
-              waiting once you are enrolled.
+              <strong>And some of it, you will just watch.</strong> You will receive a video recording for
+              every lecture, plus additional video resources on top of that. These are a few of the actual
+              thumbnails from inside the course.
             </p>
             <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {VIDEO_PREVIEWS.map(v => {
-                const inner = (
-                  <>
-                    <div className="border border-black/[0.08] overflow-hidden transition-all duration-300 group-hover:border-[#6d28d9]/40 group-hover:shadow-[0_10px_28px_-14px_rgba(109,40,217,0.4)] group-hover:-translate-y-0.5">
-                      <img src={`${BASE}${v.file}`} alt={v.title} className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.04]" loading="lazy" />
-                    </div>
-                    <p className="mt-1.5 text-[12px] leading-snug text-[#6b7280]">{v.title}</p>
-                  </>
-                );
-                return v.href ? (
-                  <a key={v.file} href={`${BASE}#${v.href}`} className="block group">{inner}</a>
-                ) : (
-                  <div key={v.file} className="group">{inner}</div>
-                );
-              })}
+              {VIDEO_PREVIEWS.map(v => (
+                <div key={v.file} className="group">
+                  <div className="border border-black/[0.08] overflow-hidden">
+                    <img src={`${BASE}${v.file}`} alt={v.title} className="w-full h-auto block transition-transform duration-500 group-hover:scale-[1.04]" loading="lazy" />
+                  </div>
+                  <p className="mt-1.5 text-[12px] leading-snug text-[#6b7280]">{v.title}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -358,11 +343,7 @@ FROM   students;`}</Code>
         <ul className="space-y-3 max-w-2xl text-[14.5px] text-[#4b5563]">
           <li>
             A full written study pack for MBI802, typeset as a proper book with worked examples and answer
-            keys.{' '}
-            <a href={`${BASE}#/study-packs`} className="font-medium text-[#6d28d9] hover:underline">
-              It's on the study packs page <ExternalLink size={11} className="inline -mt-0.5" />
-            </a>
-            .
+            keys.
           </li>
           <li>
             A 38 question knowledge check at the end of the DBMS section, and a separate 20 question ER
@@ -374,11 +355,7 @@ FROM   students;`}</Code>
           </li>
           <li>
             Nine genuinely free database certifications you can add to your profile once you are comfortable
-            with SQL.{' '}
-            <a href={`${BASE}#/sql-certifications`} className="font-medium text-[#6d28d9] hover:underline">
-              Listed here <ExternalLink size={11} className="inline -mt-0.5" />
-            </a>
-            .
+            with SQL.
           </li>
         </ul>
       </CourseSection>

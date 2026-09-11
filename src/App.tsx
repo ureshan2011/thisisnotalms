@@ -3,6 +3,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { FullPageSpinner } from './components/ui/LoadingSpinner';
 import ProtectedRoute from './components/layout/ProtectedRoute';
+import LessonPasswordGate from './components/layout/LessonPasswordGate';
 import { ToastProvider } from './components/ui/ToastProvider';
 import { PLATFORM_ACTIVE } from './config/platform';
 import ShutdownPage from './pages/ShutdownPage';
@@ -216,7 +217,9 @@ export default function App() {
   if (!PLATFORM_ACTIVE) {
     return (
       <HashRouter>
-        <ShutdownRoutes />
+        <LessonPasswordGate>
+          <ShutdownRoutes />
+        </LessonPasswordGate>
       </HashRouter>
     );
   }
@@ -224,7 +227,9 @@ export default function App() {
     <AuthProvider>
       <ToastProvider>
         <HashRouter>
-          <AppRoutes />
+          <LessonPasswordGate>
+            <AppRoutes />
+          </LessonPasswordGate>
         </HashRouter>
       </ToastProvider>
     </AuthProvider>

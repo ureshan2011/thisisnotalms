@@ -33,6 +33,24 @@ export default defineConfig({
           // Leaflet map libraries (only needed on pages that render a map)
           if (id.includes('leaflet') || id.includes('react-leaflet')) return 'vendor-map';
 
+          // jsPDF is imported dynamically, and only when somebody presses
+          // "Save as PDF". Keep it and its optional companions out of the
+          // shared vendor chunk, so a reader who never asks for a document
+          // never downloads any of it. jsPDF references canvg, dompurify and
+          // core-js for features this code does not use; without this they
+          // get hoisted into vendor-react and ship on every page.
+          if (
+            id.includes('jspdf')
+            || id.includes('fflate')
+            || id.includes('fast-png')
+            || id.includes('canvg')
+            || id.includes('dompurify')
+            || id.includes('core-js')
+            || id.includes('rgbcolor')
+            || id.includes('stackblur')
+            || id.includes('html2canvas')
+          ) return 'vendor-pdf';
+
           // React core + router + everything else in node_modules goes into one
           // stable vendor chunk. Avoids circular chunk warnings from libraries
           // (e.g. lucide-react) that themselves depend on react.

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
-import { Reveal, SectionHead } from '../blend';
+import { Reveal, SaveAsPdf, SectionHead } from '../blend';
+import { ANALYTICS_NOTES } from '../../content/notes/mbi806bAnalytics';
 
 // ─── MBI806B: Business Data Analytics with AI and ML ──────────────────────
 // A public, ungated course intro page in Blended Teaching Content's
@@ -592,6 +593,8 @@ export default function IntroToBusinessAnalyticsLesson() {
           </div>
         </Reveal>
       </section>
+
+      <SaveAsPdf doc={ANALYTICS_NOTES} />
 
       {/* ══ Sign off ═════════════════════════════════════════════════════ */}
       <section className="bt-sec">

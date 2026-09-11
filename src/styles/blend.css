@@ -1517,3 +1517,63 @@
   .pbi-chart--column { gap: 14px; height: 186px; }
   .pbi-chart--column .pbi-chart__track { width: 40px; }
 }
+
+/* ── Save as PDF ─────────────────────────────────────────────────────────── */
+.bt-savepdf {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 0;
+  margin-top: 84px;
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.bt-savepdf__main { padding: 30px; }
+.bt-savepdf h2 { font-size: clamp(24px, 3.4vw, 34px); font-weight: 800; letter-spacing: -0.03em; margin-top: 10px; }
+.bt-savepdf__lead { margin-top: 14px !important; font-size: 15px; line-height: 1.6; color: var(--ink-600); max-width: 56ch; }
+.bt-savepdf__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; margin-top: 24px; }
+.bt-savepdf__pw { display: flex; flex-direction: column; gap: 5px; }
+.bt-savepdf__pwlabel { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-400); }
+.bt-savepdf__code {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px dashed var(--border-subtle);
+  background: var(--paper-50);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.bt-savepdf__code:hover { border-color: var(--accent-400); background: var(--accent-50); }
+.bt-savepdf__code code {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink-900);
+  letter-spacing: 0.02em;
+}
+.bt-savepdf__code span { font-size: 11px; font-weight: 700; color: var(--accent-600); text-transform: uppercase; letter-spacing: 0.1em; }
+.bt-savepdf__status { margin-top: 18px !important; font-size: 13px; line-height: 1.5; color: var(--ink-400); max-width: 60ch; min-height: 38px; }
+
+.bt-savepdf__meta {
+  background: var(--paper-100);
+  border-left: 1px solid var(--border-subtle);
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  justify-content: center;
+}
+.bt-savepdf__meta h3 { font-size: 13.5px; font-weight: 800; letter-spacing: -0.015em; }
+.bt-savepdf__meta p { margin-top: 6px !important; font-size: 12.5px; line-height: 1.55; color: var(--ink-400); }
+
+@media (max-width: 840px) {
+  .bt-savepdf { grid-template-columns: minmax(0, 1fr); margin-top: 56px; }
+  .bt-savepdf__main { padding: 22px; }
+  .bt-savepdf__meta { border-left: none; border-top: 1px solid var(--border-subtle); padding: 22px; }
+  .bt-savepdf__actions { gap: 14px; }
+}

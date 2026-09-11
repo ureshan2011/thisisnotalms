@@ -1,7 +1,8 @@
 import { ExternalLink } from 'lucide-react';
-import { Reveal, SectionHead } from '../blend';
+import { Reveal, SaveAsPdf, SectionHead } from '../blend';
 import HospitalSheets from './dbms/HospitalSheets';
 import DataToInformation from './dbms/DataToInformation';
+import { DBMS_NOTES } from '../../content/notes/mbi802Dbms';
 
 // ─── MBI802: Introduction to Database Management Systems ──────────────────
 // A public, ungated course intro page in Blended Teaching Content's
@@ -435,6 +436,8 @@ FROM   students;`}</Code>
           </div>
         </Reveal>
       </section>
+
+      <SaveAsPdf doc={DBMS_NOTES} />
 
       {/* ══ Sign off ═════════════════════════════════════════════════════ */}
       <section className="bt-sec">

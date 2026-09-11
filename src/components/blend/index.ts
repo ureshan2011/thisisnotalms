@@ -7,3 +7,4 @@ export { default as CourseBrand } from './CourseBrand';
 export { default as PillNav, type NavItem } from './PillNav';
 export { default as SectionHead } from './SectionHead';
 export { default as Reveal } from './Reveal';
+export { default as SaveAsPdf } from './SaveAsPdf';

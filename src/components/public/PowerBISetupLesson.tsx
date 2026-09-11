@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
-import { Reveal, SectionHead } from '../blend';
+import { Reveal, SaveAsPdf, SectionHead } from '../blend';
 import ChartBuilder from './powerbi/ChartBuilder';
+import { POWERBI_NOTES } from '../../content/notes/mbi806bPowerBi';
 
 // ─── Power BI, from nothing to your first chart ───────────────────────────
 // A beginner guide for MBI806B. Written because roughly half of any class
@@ -439,6 +440,8 @@ export default function PowerBISetupLesson() {
           </ul>
         </Reveal>
       </section>
+
+      <SaveAsPdf doc={POWERBI_NOTES} />
 
       {/* ══ Sign off ═════════════════════════════════════════════════════ */}
       <section className="bt-sec">

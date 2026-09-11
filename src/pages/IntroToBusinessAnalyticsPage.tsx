@@ -1,18 +1,29 @@
 import { Link } from 'react-router-dom';
 import BrandLogo from '../components/ui/BrandLogo';
 import IntroToBusinessAnalyticsLesson from '../components/public/IntroToBusinessAnalyticsLesson';
+import CourseHero from '../components/public/CourseHero';
+import CourseStickyNav from '../components/public/CourseStickyNav';
+import AnalyticsScene from '../components/public/scenes/AnalyticsScene';
 
-// Same plain, editorial approach as /intro-to-dbms: no gradient hero, no pill
-// badges, one column, real course material below. See IntroToDBMSPage.tsx
-// for the reasoning.
+// Same approach as IntroToDBMSPage.tsx: a CourseHero with an ambient 3D
+// scene, then the same plain, editorial body underneath.
 
 const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", system-ui, sans-serif';
+const ACCENT = '#0f766e';
+
+const NAV_ITEMS = [
+  { id: 'course', label: 'Course' },
+  { id: 'outcomes', label: 'Outcomes' },
+  { id: 'preview', label: 'Preview' },
+  { id: 'decisions', label: 'Decisions' },
+  { id: 'setup', label: 'Power BI setup' },
+];
 
 export default function IntroToBusinessAnalyticsPage() {
   return (
     <div style={{ fontFamily: FONT }} className="min-h-screen bg-white text-[#1d1d1f]">
-      <nav className="border-b border-black/[0.08]">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+      <nav className="relative z-50 border-b border-black/[0.08] bg-white">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link to="/home" className="no-underline">
             <BrandLogo iconSize={26} variant="on-light" />
           </Link>
@@ -20,37 +31,17 @@ export default function IntroToBusinessAnalyticsPage() {
         </div>
       </nav>
 
-      <header className="border-b border-black/[0.08] px-6 py-14 sm:py-16">
-        <div className="mx-auto max-w-3xl">
-          <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-[#0d9488]">
-            MBI806B · Business Data Analytics with Visualisation and Decision-Making
-          </p>
-          <h1 className="mt-4 text-[34px] sm:text-[44px] font-semibold leading-[1.1] tracking-[-0.02em] text-[#111827]">
-            Welcome to MBI806B.
-          </h1>
-          <p className="mt-3 text-[14px] text-[#6b7280]">
-            Session 1 &nbsp;·&nbsp; written by Yasas Sri Wickramasinghe
-          </p>
-          <div className="mt-6 max-w-2xl space-y-4 text-[16px] sm:text-[17px] leading-relaxed text-[#374151]">
-            <p>
-              I'm Yasas. This page covers our first session together: an introduction to AI and Machine
-              Learning in a business setting, and how they connect to the decisions organisations make
-              every day.
-            </p>
-            <p>
-              If the words "AI" and "Machine Learning" sound a bit intimidating, that is completely
-              normal, and it is exactly why we start here. You do not need any background in statistics,
-              programming or data science for this course. By the end of today, those two terms will
-              feel a lot more ordinary, and you will notice how often you already use them without
-              realising it.
-            </p>
-            <p>
-              Below is a real look at what today covers, in the same order we will actually go through it
-              in class, plus what the whole course builds towards.
-            </p>
-          </div>
-        </div>
-      </header>
+      <CourseHero
+        eyebrow="MBI806B · Business Data Analytics with Visualisation and Decision-Making"
+        title="Welcome to MBI806B."
+        meta="Session 1 · written by Yasas Sri Wickramasinghe"
+        intro="MBI806B is an introduction to business data analytics, using AI and machine learning to support business decisions. This page covers the course outline, the learning outcomes, and examples from the material. No background in statistics, programming or data science is required."
+        accent={ACCENT}
+        orb2="#f59e0b"
+        Scene={AnalyticsScene}
+      />
+
+      <CourseStickyNav items={NAV_ITEMS} accent={ACCENT} />
 
       <main className="mx-auto max-w-3xl px-6">
         <IntroToBusinessAnalyticsLesson />

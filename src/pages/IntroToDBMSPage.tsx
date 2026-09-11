@@ -1,20 +1,31 @@
 import { Link } from 'react-router-dom';
 import BrandLogo from '../components/ui/BrandLogo';
 import IntroToDBMSLesson from '../components/public/IntroToDBMSLesson';
+import CourseHero from '../components/public/CourseHero';
+import CourseStickyNav from '../components/public/CourseStickyNav';
+import DatabaseScene from '../components/public/scenes/DatabaseScene';
 
 // This page intentionally does not use PublicLessonShell. That shell is
-// built for the other public lessons (a full-bleed hero, drifting colour
-// orbs, pill badges) and works well there, but this page is meant to read
-// like a course page a lecturer put together, not a product landing page.
-// Plain masthead, one column, real course material below.
+// built for the other public lessons; this one gets its own hero
+// (CourseHero) with an ambient 3D scene, but keeps the same plain,
+// editorial body below it — real course material, not decorative filler.
 
 const FONT = '-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", system-ui, sans-serif';
+const ACCENT = '#6d28d9';
+
+const NAV_ITEMS = [
+  { id: 'course', label: 'Course' },
+  { id: 'outline', label: 'Outline' },
+  { id: 'preview', label: 'Preview' },
+  { id: 'practice', label: 'Practice' },
+  { id: 'resources', label: 'Resources' },
+];
 
 export default function IntroToDBMSPage() {
   return (
     <div style={{ fontFamily: FONT }} className="min-h-screen bg-white text-[#1d1d1f]">
-      <nav className="border-b border-black/[0.08]">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
+      <nav className="relative z-50 border-b border-black/[0.08] bg-white">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link to="/home" className="no-underline">
             <BrandLogo iconSize={26} variant="on-light" />
           </Link>
@@ -22,25 +33,17 @@ export default function IntroToDBMSPage() {
         </div>
       </nav>
 
-      <header className="border-b border-black/[0.08] px-6 py-14 sm:py-16">
-        <div className="mx-auto max-w-3xl">
-          <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-[#6d28d9]">
-            MBI802 · Database Management Systems
-          </p>
-          <h1 className="mt-4 text-[34px] sm:text-[44px] font-semibold leading-[1.1] tracking-[-0.02em] text-[#111827]">
-            Welcome to the course.
-          </h1>
-          <p className="mt-3 text-[14px] text-[#6b7280]">
-            Class 1 of 8 &nbsp;·&nbsp; written by Yasas Sri Wickramasinghe, MBI802 lecturer
-          </p>
-          <div className="mt-6 max-w-2xl space-y-4 text-[16px] sm:text-[17px] leading-relaxed text-[#374151]">
-            <p>
-              MBI802 is an introduction to database management systems. This page covers the course
-              outline, the learning objectives, and examples from the lessons.
-            </p>
-          </div>
-        </div>
-      </header>
+      <CourseHero
+        eyebrow="MBI802 · Database Management Systems"
+        title="Welcome to the course."
+        meta="Class 1 of 8 · written by Yasas Sri Wickramasinghe, MBI802 lecturer"
+        intro="MBI802 is an introduction to database management systems. This page covers the course outline, the learning objectives, and examples from the lessons."
+        accent={ACCENT}
+        orb2="#059669"
+        Scene={DatabaseScene}
+      />
+
+      <CourseStickyNav items={NAV_ITEMS} accent={ACCENT} />
 
       <main className="mx-auto max-w-3xl px-6">
         <IntroToDBMSLesson />

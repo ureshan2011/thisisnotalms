@@ -36,7 +36,8 @@ export default function IntroToDBMSPage() {
       <CourseHero
         eyebrow="MBI802 · Database Management Systems"
         title="Welcome to the course."
-        meta="Class 1 of 8 · written by Yasas Sri Wickramasinghe, MBI802 lecturer"
+        author="Dr. Yasas Sri Wickramasinghe"
+        authorUrl="https://www.yasassri.me"
         intro="MBI802 is an introduction to database management systems. This page covers the course outline, the learning objectives, and examples from the lessons."
         accent={ACCENT}
         orb2="#059669"

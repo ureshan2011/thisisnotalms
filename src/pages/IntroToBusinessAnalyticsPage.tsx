@@ -34,7 +34,8 @@ export default function IntroToBusinessAnalyticsPage() {
       <CourseHero
         eyebrow="MBI806B · Business Data Analytics with Visualisation and Decision-Making"
         title="Welcome to MBI806B."
-        meta="Session 1 · written by Yasas Sri Wickramasinghe"
+        author="Dr. Yasas Sri Wickramasinghe"
+        authorUrl="https://www.yasassri.me"
         intro="MBI806B is an introduction to business data analytics, using AI and machine learning to support business decisions. This page covers the course outline, the learning outcomes, and examples from the material. No background in statistics, programming or data science is required."
         accent={ACCENT}
         orb2="#f59e0b"

@@ -22,6 +22,7 @@ const NAV = [
   { id: 'course', label: 'The course' },
   { id: 'outcomes', label: 'Outcomes' },
   { id: 'preview', label: 'Preview' },
+  { id: 'charts', label: 'Charts' },
   { id: 'setup', label: 'Power BI' },
   { id: 'prepared', label: 'Come prepared' },
 ];

@@ -72,6 +72,17 @@
   --blue-50: #e8f0fd;
   --violet-500: #7c5cff;
 
+  /* Categorical chart hues, in fixed order. Checked with the dataviz
+     validator against a white card: lightness band, chroma floor, adjacent
+     colour-vision separation and contrast all pass. Colour follows the
+     entity, never its rank, so a series keeps its hue across every chart.
+     A fifth series folds into "Other" or gets small multiples — never a
+     generated hue. */
+  --cat-1: #0e9384;
+  --cat-2: #c2410c;
+  --cat-3: #1d4ed8;
+  --cat-4: #a21caf;
+
   --border-subtle: #efd8c9;
   --border-dark: #2a2321;
 
@@ -1576,4 +1587,149 @@
   .bt-savepdf__main { padding: 22px; }
   .bt-savepdf__meta { border-left: none; border-top: 1px solid var(--border-subtle); padding: 22px; }
   .bt-savepdf__actions { gap: 14px; }
+}
+
+/* ── Chart-choice widget (MBI806B, LO3) ──────────────────────────────────── */
+.cc {
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+}
+.cc__bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.cc__group { display: flex; flex-direction: column; gap: 9px; }
+.cc__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+}
+.cc__pills { display: flex; flex-wrap: wrap; gap: 7px; }
+.cc__pill {
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  border-radius: var(--radius-pill);
+  padding: 8px 15px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-500);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+.cc__pill:hover { background: var(--paper-200); color: var(--ink-900); }
+.cc__pill[aria-pressed='true'] { background: var(--ink-900); border-color: var(--ink-900); color: #fff; }
+
+.cc__asking {
+  margin-top: 20px !important;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink-900);
+  line-height: 1.35;
+}
+.cc__asking span {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-600);
+  margin-right: 8px;
+  vertical-align: 2px;
+}
+
+.cc__stage {
+  margin-top: 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--paper-0);
+  padding: 16px 16px 12px;
+}
+/* The SVG is authored at 560 units wide; letting it stretch to a full card
+   scales the type and marks with it. Cap it so 11px stays 11px. */
+.cc__plot svg { display: block; width: 100%; max-width: 620px; height: auto; margin: 0 auto; }
+.cc__caption {
+  margin-top: 10px !important;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-400);
+  letter-spacing: 0.02em;
+}
+.cc__legend {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 12px 0 0;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.cc__legend li { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-600); }
+.cc__swatch, .cc-swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  flex: 0 0 11px;
+  display: inline-block;
+}
+.cc-swatch { margin-right: 9px; vertical-align: -1px; }
+
+.cc-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 480px; }
+.cc-table th {
+  text-align: left;
+  padding: 9px 14px 9px 0;
+  border-bottom: 1.5px solid var(--ink-900);
+  color: var(--ink-900);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 12px;
+}
+.cc-table th:not(:first-child), .cc-table td:not(:first-child) { text-align: right; }
+.cc-table td { padding: 10px 14px 10px 0; border-bottom: 1px solid var(--border-subtle); color: var(--ink-600); white-space: nowrap; }
+.cc-table td:first-child { color: var(--ink-900); font-weight: 500; }
+.cc-table__total td { border-bottom: none; border-top: 1.5px solid var(--ink-900); color: var(--ink-900); font-weight: 700; }
+
+.cc__verdict {
+  margin-top: 14px;
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  background: var(--paper-100);
+}
+.cc__stamp {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 8px !important;
+}
+.cc__verdict p:last-child { font-size: 14px; line-height: 1.6; max-width: 72ch; }
+.cc__verdict--good { background: var(--green-50); }
+.cc__verdict--good .cc__stamp { color: #186845; }
+.cc__verdict--good p:last-child { color: #1c5c42; }
+.cc__verdict--ok { background: var(--amber-50); }
+.cc__verdict--ok .cc__stamp { color: #7a5404; }
+.cc__verdict--ok p:last-child { color: #6b4c0a; }
+.cc__verdict--bad { background: var(--red-50); }
+.cc__verdict--bad .cc__stamp { color: #8f2318; }
+.cc__verdict--bad p:last-child { color: #7d2a20; }
+
+.cc__tally {
+  margin-top: 16px !important;
+  font-size: 12.5px;
+  color: var(--ink-400);
+  line-height: 1.5;
+}
+.cc__tally span { font-weight: 700; color: var(--ink-900); font-family: var(--font-display); }
+
+@media (max-width: 640px) {
+  .cc { padding: 16px; }
+  .cc__stage { padding: 12px 12px 10px; }
+  .cc__asking { font-size: 15.5px; }
+  .cc__verdict { padding: 16px; }
 }

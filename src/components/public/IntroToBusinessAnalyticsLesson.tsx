@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { Reveal, SaveAsPdf, SectionHead } from '../blend';
+import ChartChoice from './analytics/ChartChoice';
 import { ANALYTICS_NOTES } from '../../content/notes/mbi806bAnalytics';
 
 // ─── MBI806B: Business Data Analytics with AI and ML ──────────────────────
@@ -452,6 +453,26 @@ export default function IntroToBusinessAnalyticsLesson() {
             </div>
           </Reveal>
         </div>
+      </section>
+
+      {/* ══ Choosing a chart (LO3) ═══════════════════════════════════════ */}
+      <section id="charts" className="bt-sec">
+        <Reveal>
+          <SectionHead
+            eyebrow="LO3 · Visualisation"
+            title="Which chart answers which question"
+            aside="One cafe’s year, five ways of drawing it. Pick a question and a chart, and see whether that pairing answers it, works but slowly, or quietly misleads."
+          />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <ChartChoice />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <p className="bt-note" style={{ marginTop: 20 }}>
+            No chart is good or bad on its own, only good or bad for a question. That’s most of LO3, and it’s
+            what gets marked: not whether the chart is pretty, but whether it answers what you claimed.
+          </p>
+        </Reveal>
       </section>
 
       {/* ══ Indicative content ═══════════════════════════════════════════ */}

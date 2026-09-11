@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 150" width="660" font-family="DM Sans, sans-serif">
+  <defs>
+    <marker id="nfArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5b6b7c"/>
+    </marker>
+  </defs>
+  <g>
+    <rect x="4" y="30" width="112" height="58" rx="6" fill="#fbeceb" stroke="#b3261e" stroke-width="1.5"/>
+    <text x="60" y="54" text-anchor="middle" font-size="14" font-weight="700" fill="#b3261e">UNF</text>
+    <text x="60" y="72" text-anchor="middle" font-size="9" fill="#5b6b7c">lists in cells,</text>
+    <text x="60" y="83" text-anchor="middle" font-size="9" fill="#5b6b7c">repeating groups</text>
+  </g>
+  <line x1="120" y1="59" x2="138" y2="59" stroke="#5b6b7c" stroke-width="1.5" marker-end="url(#nfArrow)"/>
+  <g>
+    <rect x="140" y="30" width="112" height="58" rx="6" fill="#fdf3e0" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="196" y="54" text-anchor="middle" font-size="14" font-weight="700" fill="#92610a">1NF</text>
+    <text x="196" y="72" text-anchor="middle" font-size="9" fill="#5b6b7c">atomic values,</text>
+    <text x="196" y="83" text-anchor="middle" font-size="9" fill="#5b6b7c">primary key exists</text>
+  </g>
+  <line x1="256" y1="59" x2="274" y2="59" stroke="#5b6b7c" stroke-width="1.5" marker-end="url(#nfArrow)"/>
+  <g>
+    <rect x="276" y="30" width="112" height="58" rx="6" fill="#e9f0f9" stroke="#1e56a0" stroke-width="1.5"/>
+    <text x="332" y="54" text-anchor="middle" font-size="14" font-weight="700" fill="#1e56a0">2NF</text>
+    <text x="332" y="72" text-anchor="middle" font-size="9" fill="#5b6b7c">no partial</text>
+    <text x="332" y="83" text-anchor="middle" font-size="9" fill="#5b6b7c">dependencies</text>
+  </g>
+  <line x1="392" y1="59" x2="410" y2="59" stroke="#5b6b7c" stroke-width="1.5" marker-end="url(#nfArrow)"/>
+  <g>
+    <rect x="412" y="30" width="112" height="58" rx="6" fill="#e8f4ee" stroke="#1e7a4f" stroke-width="1.5"/>
+    <text x="468" y="54" text-anchor="middle" font-size="14" font-weight="700" fill="#1e7a4f">3NF</text>
+    <text x="468" y="72" text-anchor="middle" font-size="9" fill="#5b6b7c">no transitive</text>
+    <text x="468" y="83" text-anchor="middle" font-size="9" fill="#5b6b7c">dependencies</text>
+  </g>
+  <line x1="528" y1="59" x2="546" y2="59" stroke="#5b6b7c" stroke-width="1.5" marker-end="url(#nfArrow)"/>
+  <g>
+    <rect x="548" y="30" width="108" height="58" rx="6" fill="#0d1b2a" stroke="#0d1b2a" stroke-width="1.5"/>
+    <text x="602" y="54" text-anchor="middle" font-size="14" font-weight="700" fill="#f59e0b">BCNF</text>
+    <text x="602" y="72" text-anchor="middle" font-size="9" fill="#cbd5e1">every determinant</text>
+    <text x="602" y="83" text-anchor="middle" font-size="9" fill="#cbd5e1">is a superkey</text>
+  </g>
+  <text x="330" y="118" text-anchor="middle" font-size="10.5" font-style="italic" fill="#5b6b7c" font-family="Source Serif 4, serif">Each form includes all the rules of the forms before it — a 3NF table is automatically in 2NF and 1NF.</text>
+  <text x="330" y="136" text-anchor="middle" font-size="10" font-weight="600" fill="#0d1b2a">“The key, the whole key, and nothing but the key.”</text>
+</svg>

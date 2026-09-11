@@ -1,14 +1,19 @@
-import { useEffect, useState } from 'react';
-import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, type Timestamp } from 'firebase/firestore';
-import { db } from './firebase';
+import { useEffect, useRef, useState } from 'react';
 
 // ─── Day 1 "meet the class" icebreaker — see ClassMapIcebreaker.tsx ────────
-// Open, no-login Firestore collection (same pattern as conflictSwapSessions /
-// presentationTeams): students haven't got accounts yet on Class 1, so this
-// has to work before anyone logs in. Only a first name, a rough map pin, and
-// a short self-description are stored — nothing sensitive.
+// Deliberately NOT Firestore — this repo's clone was never wired up to a
+// live Firebase project, and for a single low-stakes classroom icebreaker
+// that's not worth the setup. Instead this reads/writes a single anonymous,
+// unauthenticated JSON blob on jsonblob.com: no login, no API key, no repo
+// secrets. Trade-offs, on purpose: no auth (anyone with the URL can read or
+// overwrite it), last-write-wins on near-simultaneous submits (mitigated
+// with one retry, not eliminated), and the blob itself can expire after a
+// few days of inactivity on jsonblob's free tier. All fine for a one-off,
+// disposable Day 1 warm-up — not a pattern to reuse for anything that needs
+// to last or matter.
 
-export const ICEBREAKER_COLLECTION = 'day1Icebreaker';
+const BLOB_URL = 'https://jsonblob.com/api/jsonBlob/01a08fb8-2194-7feb-b954-2321b8bfd988';
+const POLL_MS = 4000;
 
 export const BACKGROUND_OPTIONS = [
   { key: 'student',    emoji: '🎓', label: 'Fresh out of study',        color: '#8b5cf6' },
@@ -37,7 +42,7 @@ export interface IcebreakerPin {
   lat: number;
   lng: number;
   placeLabel: string;
-  createdAt: Date | null;
+  createdAt: number;
 }
 
 export function backgroundInfo(key: BackgroundKey) {
@@ -48,44 +53,72 @@ export function moodInfo(key: MoodKey) {
   return MOOD_OPTIONS.find(m => m.key === key) ?? MOOD_OPTIONS[0];
 }
 
+function parsePins(raw: unknown): IcebreakerPin[] {
+  const list = Array.isArray((raw as { pins?: unknown })?.pins) ? (raw as { pins: unknown[] }).pins : [];
+  return list.map((entry) => {
+    const d = entry as Record<string, unknown>;
+    return {
+      id: String(d.id ?? ''),
+      name: String(d.name ?? 'Someone'),
+      background: (d.background as BackgroundKey) ?? 'student',
+      detail: String(d.detail ?? ''),
+      mood: (d.mood as MoodKey) ?? 'curious',
+      lat: Number(d.lat ?? 0),
+      lng: Number(d.lng ?? 0),
+      placeLabel: String(d.placeLabel ?? ''),
+      createdAt: Number(d.createdAt ?? 0),
+    };
+  }).sort((a, b) => b.createdAt - a.createdAt);
+}
+
+const REQUEST_TIMEOUT_MS = 6000;
+
+// A flaky Wi-Fi or an overzealous bot filter can leave a request neither
+// resolving nor rejecting — an AbortController timeout guarantees this
+// always settles, so the UI never gets stuck on "Adding you to the map…".
+function withTimeout(ms: number) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  return { signal: controller.signal, clear: () => clearTimeout(timer) };
+}
+
+async function fetchPins(): Promise<IcebreakerPin[]> {
+  const { signal, clear } = withTimeout(REQUEST_TIMEOUT_MS);
+  try {
+    const res = await fetch(BLOB_URL, { headers: { Accept: 'application/json' }, signal });
+    if (!res.ok) throw new Error(`Blob fetch failed: ${res.status}`);
+    return parsePins(await res.json());
+  } finally {
+    clear();
+  }
+}
+
 export function useIcebreakerPins() {
   const [pins, setPins] = useState<IcebreakerPin[]>([]);
   const [loading, setLoading] = useState(true);
   const [unavailable, setUnavailable] = useState(false);
+  const mounted = useRef(true);
 
   useEffect(() => {
-    if (!db) {
-      setUnavailable(true);
-      setLoading(false);
-      return;
-    }
-    const q = query(collection(db, ICEBREAKER_COLLECTION), orderBy('createdAt', 'desc'));
-    const unsub = onSnapshot(
-      q,
-      snap => {
-        setPins(snap.docs.map(d => {
-          const data = d.data() as Record<string, unknown>;
-          const createdAt = data.createdAt as Timestamp | undefined;
-          return {
-            id: d.id,
-            name: String(data.name ?? 'Someone'),
-            background: (data.background as BackgroundKey) ?? 'student',
-            detail: String(data.detail ?? ''),
-            mood: (data.mood as MoodKey) ?? 'curious',
-            lat: Number(data.lat ?? 0),
-            lng: Number(data.lng ?? 0),
-            placeLabel: String(data.placeLabel ?? ''),
-            createdAt: createdAt ? createdAt.toDate() : null,
-          };
-        }));
-        setLoading(false);
-      },
-      () => {
+    mounted.current = true;
+
+    async function poll() {
+      try {
+        const next = await fetchPins();
+        if (!mounted.current) return;
+        setPins(next);
+        setUnavailable(false);
+      } catch {
+        if (!mounted.current) return;
         setUnavailable(true);
-        setLoading(false);
-      },
-    );
-    return unsub;
+      } finally {
+        if (mounted.current) setLoading(false);
+      }
+    }
+
+    void poll();
+    const interval = setInterval(poll, POLL_MS);
+    return () => { mounted.current = false; clearInterval(interval); };
   }, []);
 
   return { pins, loading, unavailable };
@@ -100,9 +133,29 @@ export async function submitIcebreakerPin(input: {
   lng: number;
   placeLabel: string;
 }) {
-  if (!db) throw new Error('Firestore is not configured');
-  await addDoc(collection(db, ICEBREAKER_COLLECTION), {
-    ...input,
-    createdAt: serverTimestamp(),
-  });
+  const pin: IcebreakerPin = { ...input, id: crypto.randomUUID(), createdAt: Date.now() };
+
+  async function attempt() {
+    const current = await fetchPins();
+    const { signal, clear } = withTimeout(REQUEST_TIMEOUT_MS);
+    try {
+      const res = await fetch(BLOB_URL, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pins: [...current, pin] }),
+        signal,
+      });
+      if (!res.ok) throw new Error(`Blob write failed: ${res.status}`);
+    } finally {
+      clear();
+    }
+  }
+
+  try {
+    await attempt();
+  } catch {
+    // One retry — covers a near-simultaneous submit from another student
+    // clobbering the read this attempt started from.
+    await attempt();
+  }
 }

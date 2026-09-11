@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
-import Reveal from './Reveal';
+import { Reveal, SectionHead } from '../blend';
 
 // ─── MBI806B: Business Data Analytics with AI and ML ──────────────────────
 // A public, ungated course intro page in Blended Teaching Content's
-// course-page theme (see src/styles/courseTheme.css), running on MBI806B's
-// teal through the `.bt--analytics` accent variant set by the page shell.
+// course-page design system, Blend (src/components/blend/README.md),
+// running on MBI806B's teal through the `analytics` accent set by the shell.
 //
 // Everything below is drawn from the actual course material and the official
 // MBI806B course descriptor. The four learning-style explanations partway
@@ -15,6 +15,8 @@ import Reveal from './Reveal';
 // This page intentionally does not map any content to "today", a session
 // number or a calendar day, since when someone reads it does not line up
 // with when a class actually runs.
+
+const BASE = import.meta.env.BASE_URL;
 
 const INDICATIVE_CONTENT = [
   'Business decision-making with AI and ML',
@@ -108,35 +110,13 @@ const POWERBI_PARTS: [string, string][] = [
 ];
 
 const HELLO_WORLD: [string, string][] = [
-  ['Open a new report', 'In Desktop: the Home tab. In the Service: Create, then New report.'],
-  ['Choose “Enter Data”', 'Instead of connecting to a real data source, this builds a tiny table by hand.'],
+  ['Go to My Workspace', 'In the browser at app.powerbi.com. In Power BI Desktop, start a new report from the Home tab instead.'],
+  ['Choose New, then Semantic model', 'A semantic model is Power BI’s name for the data a report sits on. Older guides call the same thing a dataset.'],
+  ['Pick “Paste or manually enter data”', 'Rather than connecting to a real source. The Power BI Desktop equivalent is the Enter data button.'],
   ['Type a small table', 'Two columns: Item and Sales. Three rows: Coffee, 120; Tea, 90; Juice, 60.'],
-  ['Click Load', 'Your table now exists inside the report as a data source, like any other.'],
-  ['Add a bar chart', 'In the Visualizations pane, click the bar chart icon to drop an empty chart on the page.'],
-  ['Drag in your fields', 'Drag Item onto the axis and Sales onto the values. The chart draws itself.'],
+  ['Load it, then create a report', 'Your table now exists as a semantic model. Choose Create report next to it and the editor opens.'],
+  ['Add a bar chart and fill the wells', 'Click the bar chart icon in the Visualizations pane, then put Item on the axis and Sales on the values.'],
 ];
-
-const LINKS: [string, string][] = [
-  ['https://www.microsoft.com/en-us/download/details.aspx?id=58494', 'Power BI Desktop, direct download from Microsoft'],
-  ['https://app.powerbi.com', 'Power BI Service, app.powerbi.com'],
-  ['https://learn.microsoft.com/en-us/power-bi/fundamentals/desktop-getting-started', 'Getting started with Power BI Desktop, official Microsoft guide'],
-  ['https://www.linkedin.com/learning/power-bi-essential-training-2024/overview-power-bi-concepts', 'Power BI Essential Training, LinkedIn Learning'],
-];
-
-function SectionHead({ eyebrow, title, stop, aside }: { eyebrow: string; title: string; stop?: string; aside: string }) {
-  return (
-    <div className="bt-sechead">
-      <div>
-        <p className="bt-eyebrow">{eyebrow}</p>
-        <h2>
-          {title}
-          {stop && <span className="bt-stop">{stop}</span>}
-        </h2>
-      </div>
-      <p className="bt-aside">{aside}</p>
-    </div>
-  );
-}
 
 /** The seven-step framework, walked one step at a time. */
 function DecisionWalk() {
@@ -528,42 +508,28 @@ export default function IntroToBusinessAnalyticsLesson() {
             ))}
           </div>
 
-          <div className="bt-platforms">
-            <div>
-              <p className="bt-eyebrow">Windows</p>
-              <p className="bt-note">Power BI Desktop installs directly and is completely free.</p>
-              <ol className="bt-flow bt-flow--tight">
-                <li><span className="bt-flow__n bt-tnum">1</span><div><h4>Open the Microsoft Store</h4><p>Search for “Power BI Desktop” and click Get, or Install.</p></div></li>
-                <li><span className="bt-flow__n bt-tnum">2</span><div><h4>No Microsoft Store access?</h4><p>Download the installer directly from Microsoft instead — the link is below.</p></div></li>
-                <li><span className="bt-flow__n bt-tnum">3</span><div><h4>Open Power BI Desktop</h4><p>You can close the sign-in prompt and use it without an account for now.</p></div></li>
-              </ol>
-            </div>
-            <div>
-              <p className="bt-eyebrow">macOS</p>
-              <p className="bt-note">Power BI Desktop only runs on Windows. There is no Mac version, so a Mac needs one of these instead.</p>
-              <ol className="bt-flow bt-flow--tight">
-                <li><span className="bt-flow__n bt-tnum">1</span><div><h4>Use Power BI Service in a browser</h4><p>Go to app.powerbi.com and sign in with a Microsoft account. That covers viewing and basic report building, free.</p></div></li>
-                <li><span className="bt-flow__n bt-tnum">2</span><div><h4>Or run Windows</h4><p>Through Boot Camp or a virtual machine, then install Power BI Desktop as above. Only needed for the full desktop feature set.</p></div></li>
-              </ol>
-            </div>
+          <div className="bt-caution" style={{ marginTop: 26 }}>
+            <p className="bt-eyebrow">Mac, Windows, or a laptop you cannot install on</p>
+            <p>
+              Everybody starts in the browser at app.powerbi.com, which works the same on macOS as on Windows
+              and needs nothing installed. Power BI Desktop is a Windows-only addition for later in the course.
+              There is a full beginner guide for all of this — installing it, signing in, and building your
+              first chart — on its own page.
+            </p>
           </div>
 
-          <ul className="bt-links">
-            {LINKS.map(([href, label]) => (
-              <li key={href}>
-                <a href={href} target="_blank" rel="noreferrer">
-                  {label} <ExternalLink size={12} aria-hidden="true" />
-                </a>
-              </li>
-            ))}
-          </ul>
+          <a className="bt-btn" href={`${BASE}#/power-bi-setup`} style={{ marginTop: 22, textDecoration: 'none' }}>
+            Open the Power BI setup guide
+            <span className="bt-btn__badge" aria-hidden="true">→</span>
+          </a>
 
           <div className="bt-tryit">
             <p className="bt-eyebrow">Try it yourself</p>
             <h3>A hello world for Power BI<span className="bt-stop">.</span></h3>
             <p className="bt-tryit__lead">
-              No data source needed. This builds one small chart from scratch using Power BI’s own “Enter
-              Data” feature — it is the same three rows as the chart at the top of this page.
+              No data source needed. This builds one small chart from scratch by typing in three rows by hand —
+              the same three rows as the chart at the top of this page. It works in the browser and in Power BI
+              Desktop.
             </p>
             <ol className="bt-flow bt-flow--tight">
               {HELLO_WORLD.map(([title, body], i) => (
@@ -575,7 +541,7 @@ export default function IntroToBusinessAnalyticsLesson() {
             </ol>
             <p className="bt-note">
               That is it. Three rows of made-up data and one chart. Everything later in the course is this same
-              idea, with real data instead.
+              idea, with real data instead. The setup guide has a practice version you can click through first.
             </p>
           </div>
         </Reveal>
@@ -611,7 +577,7 @@ export default function IntroToBusinessAnalyticsLesson() {
               <ul className="bt-bring">
                 <li>
                   <h4>Bring a laptop</h4>
-                  <p>With Power BI Desktop or Power BI Service set up using the steps above, if you can. If not, that gets sorted out in class.</p>
+                  <p>With Power BI open in a browser, if you can. The setup guide walks through it, on any operating system. If not, that gets sorted out in class.</p>
                 </li>
                 <li>
                   <h4>Bring no prior experience</h4>

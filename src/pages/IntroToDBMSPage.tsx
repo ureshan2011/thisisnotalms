@@ -1,16 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import CourseBrand from '../components/public/CourseBrand';
+import { CoursePage } from '../components/blend';
 import IntroToDBMSLesson from '../components/public/IntroToDBMSLesson';
-import '../styles/courseTheme.css';
 
 // ─── /intro-to-dbms — MBI802 course intro, public and ungated ─────────────
-// Blended Teaching Content's course-page theme: flat warm paper, one rationed
-// accent, Manrope 800 display type at negative tracking, pill-shaped actions
-// with a circular arrow badge, and a floating near-black pill nav. Tokens and
-// component classes live in src/styles/courseTheme.css, namespaced under `.bt`
-// so none of it reaches the rest of the app.
+// Built on Blend, the Blended Teaching Content course-page design system:
+// see src/components/blend/README.md. This page supplies a hero, a nav list
+// and the lesson body; the frame, theme and footer come from CoursePage.
 //
 // The hero leads with the hospital spreadsheet rather than a course blurb,
 // because that is the thing a reader can act on straight away — and acting on
@@ -37,78 +32,13 @@ const HERO_ROWS = [
   ['1003', 'Mia Tuilagi', '19', 'Hamilton'],
 ];
 
-/** Floating near-black pill nav that highlights whichever section is in view. */
-function PillNav() {
-  const [active, setActive] = useState(NAV[0].id);
-  const barRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const sections = NAV
-      .map(n => document.getElementById(n.id))
-      .filter((el): el is HTMLElement => !!el);
-
-    const observer = new IntersectionObserver(
-      entries => {
-        const seen = entries.find(e => e.isIntersecting);
-        if (seen) setActive(seen.target.id);
-      },
-      { rootMargin: '-25% 0px -65% 0px', threshold: 0 },
-    );
-    sections.forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-
-  // Keep the current section's pill in view when the bar has to scroll
-  // sideways, which it does on narrow screens.
-  useEffect(() => {
-    const bar = barRef.current;
-    const current = bar?.querySelector<HTMLElement>('[aria-current="true"]');
-    if (!bar || !current) return;
-    const left = current.offsetLeft - bar.clientWidth / 2 + current.clientWidth / 2;
-    bar.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
-  }, [active]);
-
-  return (
-    <div className="bt-navdock">
-      <nav ref={barRef} className="bt-pillbar" aria-label="Sections of this lesson">
-        <span className="bt-wordmark" style={{ fontSize: 15, marginRight: 8 }}>MBI802</span>
-        {NAV.map(n => (
-          <button
-            key={n.id}
-            type="button"
-            aria-current={active === n.id}
-            onClick={() => document.getElementById(n.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-          >
-            {n.label}
-          </button>
-        ))}
-      </nav>
-    </div>
-  );
-}
-
 export default function IntroToDBMSPage() {
   return (
-    <div className="bt" style={{ minHeight: '100vh' }}>
-      {/* ── Site identity, kept separate from the page's own nav ── */}
-      <header style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-        <div
-          className="bt-wrap"
-          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, paddingBlock: 14, flexWrap: 'wrap' }}
-        >
-          <Link to="/home" style={{ textDecoration: 'none' }} aria-label="Back to the home page">
-            <CourseBrand size={28} />
-          </Link>
-          <span style={{ fontSize: 12.5, color: 'var(--ink-400)' }}>
-            MBI802 · Database Management Systems
-          </span>
-        </div>
-      </header>
-
-      <PillNav />
-
-      {/* ── Hero ── */}
-      <div className="bt-wrap bt-hero">
+    <CoursePage
+      courseCode="MBI802"
+      courseName="Database Management Systems"
+      nav={NAV}
+      hero={
         <div className="bt-herogrid">
           <div>
             <motion.span
@@ -205,25 +135,9 @@ export default function IntroToDBMSPage() {
             </p>
           </motion.div>
         </div>
-      </div>
-
-      <main className="bt-wrap">
-        <IntroToDBMSLesson />
-      </main>
-
-      <footer className="bt-footer">
-        <div className="bt-footer__row">
-          <div>
-            <CourseBrand size={26} variant="on-dark" />
-            <p style={{ marginTop: 12, color: 'var(--ink-400)' }}>
-              MBI802 · Database Management Systems
-            </p>
-          </div>
-          <p style={{ maxWidth: '40ch' }}>
-            Everything on this page runs in your own browser. No login, no personal data collected.
-          </p>
-        </div>
-      </footer>
-    </div>
+      }
+    >
+      <IntroToDBMSLesson />
+    </CoursePage>
   );
 }

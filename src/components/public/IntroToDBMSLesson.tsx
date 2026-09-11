@@ -1,12 +1,12 @@
 import { ExternalLink } from 'lucide-react';
-import Reveal from './Reveal';
+import { Reveal, SectionHead } from '../blend';
 import HospitalSheets from './dbms/HospitalSheets';
 import DataToInformation from './dbms/DataToInformation';
 
 // ─── MBI802: Introduction to Database Management Systems ──────────────────
 // A public, ungated course intro page in Blended Teaching Content's
-// course-page theme (see src/styles/courseTheme.css) — warm paper, one
-// rationed accent, Manrope display type, and pill-shaped actions.
+// course-page design system, Blend (src/components/blend/README.md) —
+// warm paper, one rationed accent, Manrope display type, pill actions.
 //
 // Nothing is pinned to a class number or a calendar day. The page describes
 // the course and its lessons, which are stable; when it is read is not.
@@ -108,21 +108,6 @@ const VIDEO_PREVIEWS = [
   { title: 'Normalization, First Normal Form', file: 'Norm1NF.png' },
   { title: 'Advanced ER, Activity Walkthrough', file: 'Activity1.png' },
 ];
-
-function SectionHead({ eyebrow, title, stop, aside }: { eyebrow: string; title: string; stop?: string; aside: string }) {
-  return (
-    <div className="bt-sechead">
-      <div>
-        <p className="bt-eyebrow">{eyebrow}</p>
-        <h2>
-          {title}
-          {stop && <span className="bt-stop">{stop}</span>}
-        </h2>
-      </div>
-      <p className="bt-aside">{aside}</p>
-    </div>
-  );
-}
 
 function Figure({ src, caption, maxWidth = 560 }: { src: string; caption: string; maxWidth?: number }) {
   return (

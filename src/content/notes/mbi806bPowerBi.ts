@@ -15,8 +15,8 @@ export const POWERBI_NOTES: NotesDoc = {
   fileName: 'MBI806B-Power-BI-setup-notes',
   sections: [
     {
-      heading: 'Power BI is three things wearing one name',
-      standfirst: 'Most beginner confusion comes from not knowing which one a set of instructions means.',
+      heading: 'The three parts of Power BI',
+      standfirst: 'Instructions online rarely say which one they mean.',
       blocks: [
         {
           type: 'kv',
@@ -29,12 +29,12 @@ export const POWERBI_NOTES: NotesDoc = {
         {
           type: 'p',
           text:
-            'Both authoring routes end in the same place. A report you build in the browser is a real report, in the same workspace Power BI Desktop would publish to, so starting in the browser costs you nothing later.',
+            'Both authoring routes end in the same place. A report built in the browser is a real report, sitting in the same workspace Power BI Desktop would publish to.',
         },
       ],
     },
     {
-      heading: 'The one thing that stops most people',
+      heading: 'Before you sign in',
       blocks: [
         {
           type: 'callout',
@@ -51,12 +51,12 @@ export const POWERBI_NOTES: NotesDoc = {
     },
     {
       heading: 'If you have a Mac, Chromebook, iPad or Linux machine',
-      standfirst: 'You use the browser, and that is not a compromise.',
+      standfirst: 'You will be working in the browser.',
       blocks: [
         {
           type: 'p',
           text:
-            'Power BI Desktop is a Windows application. Microsoft has never shipped a Mac version and has not announced one. What they have shipped is the whole service as a web application, which runs on your machine today with nothing to install. You can type in data, build reports, save them and reopen them anywhere. Every exercise in this guide works on your machine.',
+            'Power BI Desktop is a Windows application. Microsoft has never shipped a Mac version and has not announced one. The service itself runs as a web application, though, and works on your machine today with nothing to install. Every exercise in this guide works for you.',
         },
         {
           type: 'numbered',
@@ -69,15 +69,15 @@ export const POWERBI_NOTES: NotesDoc = {
         },
         {
           type: 'callout',
-          title: 'On purpose, no virtual machines',
+          title: 'A note on virtual machines',
           text:
-            'Guides elsewhere suggest running Windows on a Mac through Parallels, Boot Camp or a virtual machine. This course does not. It means licensing and maintaining a second operating system in order to open one application, which is a far bigger undertaking than the problem it solves. If you reach a point where the browser genuinely is not enough, ask rather than buying anything.',
+            'Other guides suggest running Windows on a Mac through Parallels or Boot Camp. Do not bother. You would be licensing and maintaining a second operating system to open one application. If you hit a point where the browser is not enough, ask before buying anything.',
         },
       ],
     },
     {
       heading: 'If you have Windows',
-      standfirst: 'Browser first, then add Desktop.',
+      standfirst: 'Browser first, then Desktop.',
       blocks: [
         {
           type: 'numbered',
@@ -105,13 +105,13 @@ export const POWERBI_NOTES: NotesDoc = {
         {
           type: 'p',
           text:
-            'Most laptops from the last few years clear all of this comfortably. The two that catch people out are the screen size and the display scaling, and both produce the same symptom: a dialog box you cannot reach or close.',
+            'Most laptops from the last few years clear all of this. The two that catch people out are screen size and display scaling, and both produce the same symptom: a dialog box you cannot reach or close.',
         },
       ],
     },
     {
       heading: 'Your first chart',
-      standfirst: 'Three rows of made-up data. The smallest possible piece of real work.',
+      standfirst: 'Three rows of made-up data.',
       blocks: [
         {
           type: 'numbered',
@@ -129,19 +129,19 @@ export const POWERBI_NOTES: NotesDoc = {
         {
           type: 'p',
           text:
-            'The point of the exercise is the last step but one. You never told Power BI to draw bars, sort them, or label an axis. It worked all of that out from two fields dropped into two wells. Everything later in the course is the same move, with real data and harder questions behind it.',
+            'Note what happened at step six. You never told Power BI to draw bars, sort them or label an axis — it worked that out from two fields dropped into two wells. Everything later is the same move, with real data and harder questions behind it.',
         },
         {
           type: 'callout',
-          title: 'About data you type in by hand',
+          title: 'About pasted data',
           text:
-            'Pasted data is a snapshot, not a connection. There is no way to refresh it later, so to change it you re-paste or move to a file. It also has limits: roughly 512 KB of pasted data, table names up to 80 characters, column names up to 512. Three rows will not trouble any of that, but it is why real work starts from a file or a database.',
+            'Pasted data is a snapshot, not a connection. There is no way to refresh it, so to change it you re-paste or move to a file. It caps out around 512 KB, with table names up to 80 characters and column names up to 512. Three rows will not trouble that, but it is why real work starts from a file or a database.',
         },
       ],
     },
     {
-      heading: 'What the browser does, and where it stops',
-      standfirst: 'The honest division, so nothing is a surprise later in the course.',
+      heading: 'Browser versus Desktop',
+      standfirst: 'Where the browser stops.',
       blocks: [
         {
           type: 'table',
@@ -161,13 +161,13 @@ export const POWERBI_NOTES: NotesDoc = {
         {
           type: 'p',
           text:
-            'The row that matters is Power Query. If you are on a Mac and the course reaches genuinely messy data that needs reshaping, ask before buying anything — there are ways around it.',
+            'Power Query is the row that matters. If you are on a Mac and the course reaches genuinely messy data that needs reshaping, come and ask rather than buying anything.',
         },
       ],
     },
     {
       heading: 'When it goes wrong',
-      standfirst: 'Every one of these has caught somebody before you.',
+      standfirst: 'These six come up every year.',
       blocks: [
         {
           type: 'kv',

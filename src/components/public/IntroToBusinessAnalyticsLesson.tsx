@@ -37,7 +37,7 @@ const INDICATIVE_CONTENT = [
 // Verbatim from the MBI806B course descriptor.
 const LEARNING_OUTCOMES = [
   { n: 'LO1', short: 'Decide with AI and ML', body: 'Evaluate advanced business data analytics techniques, including AI and ML algorithms, to make informed decisions within a business organization.' },
-  { n: 'LO2', short: 'Use the real tools', body: 'Apply industry-standard business analytics tools to improve the efficiency and effectiveness of decision-making processes in a business context.' },
+  { n: 'LO2', short: 'Use industry tools', body: 'Apply industry-standard business analytics tools to improve the efficiency and effectiveness of decision-making processes in a business context.' },
   { n: 'LO3', short: 'Visualise for an audience', body: 'Assess and apply different data visualization techniques to convey specific types of business information for an organization.' },
   { n: 'LO4', short: 'Judge it ethically', body: 'Critically evaluate business analytics practices from an ethical and data privacy perspective within a business context.' },
 ];
@@ -50,22 +50,22 @@ const COURSE_PATH = [
 ];
 
 const DECISION_STEPS = [
-  { title: 'Define the problem', body: 'Say clearly what the issue or opportunity actually is, and understand its context. Most bad decisions are answers to the wrong question.' },
-  { title: 'Gather information', body: 'Work out what data and facts you actually need, then go get them. Not everything that is easy to collect is worth collecting.' },
-  { title: 'Generate alternatives', body: 'Brainstorm more than one option, including ones that are not immediately obvious. A choice between one option is not a choice.' },
+  { title: 'Define the problem', body: 'Say clearly what the issue or opportunity is, and understand its context. Most bad decisions are answers to the wrong question.' },
+  { title: 'Gather information', body: 'Work out what data you need, then go and get it. Not everything easy to collect is worth collecting.' },
+  { title: 'Generate alternatives', body: 'Come up with more than one option, including ones that aren’t obvious. A choice between one option isn’t a choice.' },
   { title: 'Evaluate alternatives', body: 'Weigh up each option’s risk, cost and likely outcome. This is where the analysis earns its keep.' },
-  { title: 'Choose one', body: 'Pick the option that best fits your goals and is actually achievable with what you have.' },
-  { title: 'Implement it', body: 'Turn the choice into real actions, with someone responsible for each one and a date attached.' },
-  { title: 'Review and learn', body: 'Check what actually happened, and be honest about what you would do differently. This step is the one people skip.' },
+  { title: 'Choose one', body: 'Pick the option that fits your goals and is achievable with what you have.' },
+  { title: 'Implement it', body: 'Turn the choice into actions, each with someone responsible and a date attached.' },
+  { title: 'Review and learn', body: 'Check what happened and be honest about what you’d do differently. Most people skip this one.' },
 ];
 
 const SPOT_THE_AI = [
-  { prompt: 'A streaming app queues up your next show before you ask.', reveal: 'Recommendation system. It learned your taste from what you already watched — nobody typed in rules for “things you’ll like.”' },
-  { prompt: 'Your bank texts you about a payment that “doesn’t look like you.”', reveal: 'Fraud detection. It compares this transaction against your normal pattern and flags what does not fit.' },
-  { prompt: 'A map app tells you traffic will clear in 12 minutes.', reveal: 'Predictive analysis. It has seen this road, at this time, often enough to forecast what usually happens next.' },
-  { prompt: 'You get a useful answer from a chatbot at 2am.', reveal: 'Natural language processing, handling a routine question so a human does not have to be awake to answer it.' },
+  { prompt: 'A streaming app queues up your next show before you ask.', reveal: 'Recommendation system. It learned your taste from what you already watched. Nobody typed in rules for “things you’ll like”.' },
+  { prompt: 'Your bank texts you about a payment that “doesn’t look like you.”', reveal: 'Fraud detection. It compares this transaction against your normal pattern and flags what doesn’t fit.' },
+  { prompt: 'A map app tells you traffic will clear in 12 minutes.', reveal: 'Predictive analysis. It has seen this road at this time often enough to forecast what usually happens.' },
+  { prompt: 'You get a useful answer from a chatbot at 2am.', reveal: 'Natural language processing, handling a routine question so nobody has to be awake to answer it.' },
   { prompt: 'A delivery app already knows roughly when your order will arrive.', reveal: 'The same forecasting used in supply chains, predicting demand and timing from patterns in past deliveries.' },
-  { prompt: 'Your photos app already knows who is in the photo.', reveal: 'Machine learning trained on labelled examples: enough tagged photos that it worked out how to recognise faces itself.' },
+  { prompt: 'Your photos app already knows who is in the photo.', reveal: 'Machine learning trained on labelled examples. Enough tagged photos and it works out how to recognise faces.' },
 ];
 
 const LEARNING_STYLES: [string, string][] = [
@@ -77,9 +77,9 @@ const LEARNING_STYLES: [string, string][] = [
 
 const DATA_SCIENCE_STEPS: [string, string][] = [
   ['Gather data', 'From internal systems, public sources, or third parties.'],
-  ['Clean and structure it', 'Make sure it is usable, complete and consistent, before you trust it.'],
+  ['Clean and structure it', 'Make sure it’s usable, complete and consistent, before you trust it.'],
   ['Model and analyse it', 'Use statistics and machine learning to explore patterns and test ideas.'],
-  ['Interpret the results', 'Communicate what you found clearly enough that someone can actually act on it.'],
+  ['Interpret the results', 'Communicate what you found clearly enough that someone can act on it.'],
 ];
 
 const APPLICATIONS = [
@@ -100,8 +100,8 @@ const BENEFITS: [string, string][] = [
   ['Increased efficiency', 'Automating routine work saves time and money.'],
   ['Better customer experience', 'Personalised, faster support keeps people satisfied and loyal.'],
   ['Better insights', 'You understand your own operations and customers more deeply.'],
-  ['A real advantage', 'Businesses that adopt this early tend to out-innovate the ones that wait.'],
-  ['It scales', 'The same tools keep working as the business, and its data, grow.'],
+  ['A competitive edge', 'Businesses that adopt early tend to out-innovate the ones that wait.'],
+  ['It scales', 'The same tools keep working as the business and its data grow.'],
 ];
 
 const POWERBI_PARTS: [string, string][] = [
@@ -161,7 +161,7 @@ function DecisionWalk() {
             disabled={active === DECISION_STEPS.length - 1}
             onClick={() => setActive(a => Math.min(DECISION_STEPS.length - 1, a + 1))}
           >
-            {active === DECISION_STEPS.length - 1 ? 'That is the loop' : 'Next step'}
+            Next step
             <span className="bt-btn__badge" aria-hidden="true">→</span>
           </button>
         </div>
@@ -195,10 +195,9 @@ export default function IntroToBusinessAnalyticsLesson() {
       <section id="decisions" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="A structured approach"
-            title="How does a decision actually get made"
-            stop="?"
-            aside="Before any AI enters the picture, it helps to be clear about how decisions get made at all. A framework is just a structured way to get from a problem to a choice you can stand behind. Walk the seven steps."
+            eyebrow="Decision-making frameworks"
+            title="How a decision gets made"
+            aside="A framework is a structured way of getting from a problem to a choice you can defend. Seven steps, and AI doesn’t enter until step four."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -210,10 +209,9 @@ export default function IntroToBusinessAnalyticsLesson() {
       <section id="spot" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="Before any of the theory"
-            title="You already use AI. Probably six times today"
-            stop="."
-            aside="The course opens with a simple activity: noticing the AI you use without thinking about it. Try a few of these, then bring one of your own — that is the version we use in the group discussion."
+            eyebrow="AI in my life"
+            title="AI you already use"
+            aside="We open the course with this. Try a few, then bring one of your own to class — that’s the one we discuss."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -224,8 +222,8 @@ export default function IntroToBusinessAnalyticsLesson() {
           </div>
           <p className="bt-note">
             {seen >= SPOT_THE_AI.length
-              ? 'Six everyday things, six different techniques — recommendation, fraud detection, forecasting, language, demand prediction and image recognition. None of them were programmed rule by rule.'
-              : 'None of these were programmed rule by rule. Each one learned its behaviour from examples, which is the whole idea behind machine learning.'}
+              ? 'Six different techniques: recommendation, fraud detection, forecasting, language, demand prediction, image recognition. None of them were programmed rule by rule.'
+              : 'None of these were programmed rule by rule. Each learned its behaviour from examples.'}
           </p>
         </Reveal>
       </section>
@@ -236,17 +234,16 @@ export default function IntroToBusinessAnalyticsLesson() {
           <SectionHead
             eyebrow="What this course is"
             title="Turning data into a decision"
-            stop="."
-            aside="15 credits at Level 8. No coding, statistics or prior AI experience is assumed. If you have never opened a data tool before, this course was written for you."
+            aside="15 credits at Level 8. No coding, statistics or prior AI experience assumed."
           />
         </Reveal>
         <Reveal delay={0.05}>
           <div className="bt-prose">
             <p>
-              MBI806B builds on MBI805B, which you take alongside it, and needs MBI801 as a foundation. It is
-              150 learning hours in total: 36 in class, 114 on your own. You will learn to pull insight out of
-              business data using AI and machine learning, turn that insight into a visual that communicates
-              something, and use it to make a decision — including on ethical and privacy grounds.
+              MBI806B builds on MBI805B, which you take alongside it, and needs MBI801 underneath. 150 learning
+              hours: 36 in class, 114 on your own. You’ll pull insight out of business data using AI and machine
+              learning, turn it into a visual that communicates something, and use that to make a decision —
+              including on ethical and privacy grounds.
             </p>
           </div>
 
@@ -276,9 +273,8 @@ export default function IntroToBusinessAnalyticsLesson() {
         <Reveal>
           <SectionHead
             eyebrow="By the end of the course"
-            title="Four things you'll be able to do"
-            stop="."
-            aside="Word for word from the MBI806B course descriptor. Everything you are assessed on maps back to one of these four."
+            title="Learning outcomes"
+            aside="Word for word from the course descriptor. Everything you’re assessed on maps back to one of these four."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -301,9 +297,8 @@ export default function IntroToBusinessAnalyticsLesson() {
         <Reveal>
           <SectionHead
             eyebrow="A small preview"
-            title="Here is some of what this covers"
-            stop="."
-            aside="A few examples pulled from the course material, in the order they are taught. There is a good deal more than fits on one page."
+            title="Some of what this covers"
+            aside="From the course material, in the order it’s taught. More than fits on one page."
           />
         </Reveal>
 
@@ -312,14 +307,13 @@ export default function IntroToBusinessAnalyticsLesson() {
             <div className="bt-step">
               <span className="bt-step__n">01</span>
               <div>
-                <h3>First, what actually is AI?</h3>
+                <h3>What AI is</h3>
                 <p className="bt-prose">
-                  Here is a definition that does not require a computer science degree. If you are interacting
-                  with a machine, by typing or talking, and it feels enough like talking to a person that you
-                  cannot easily tell the difference, that machine is behaving intelligently. AI is not about
-                  building an all-powerful machine. It is about building systems that behave in a human-like
-                  way — either by communicating with us, or, in robotics, by physically doing something in the
-                  world.
+                  A definition that doesn’t need a computer science degree: if you’re dealing with a machine, by
+                  typing or talking, and it feels close enough to talking to a person that you can’t easily tell,
+                  that machine is behaving intelligently. The goal isn’t an all-powerful machine. It’s systems
+                  that behave in a human-like way, by communicating with us or, in robotics, by physically doing
+                  something.
                 </p>
               </div>
             </div>
@@ -329,14 +323,12 @@ export default function IntroToBusinessAnalyticsLesson() {
             <div className="bt-step">
               <span className="bt-step__n">02</span>
               <div>
-                <h3>And what is machine learning?</h3>
+                <h3>What machine learning is</h3>
                 <p className="bt-prose">
-                  A computer program that learns to behave a certain way without a person explicitly
-                  programming every rule. It can even end up behaving in ways its own creator did not fully
-                  predict. That learning comes from three things working together: data the program is given,
-                  a way of measuring how wrong its current behaviour is, and a feedback loop that uses that
-                  error to improve next time. Nobody sits there writing “if this, then that.” The machine
-                  works it out from examples.
+                  A program that learns to behave a certain way without anyone programming every rule, sometimes
+                  in ways its own creator didn’t predict. Three things make that work: data the program is given,
+                  a way of measuring how wrong it currently is, and a feedback loop that uses the error to improve
+                  next time. Nobody writes “if this, then that” — it works it out from examples.
                 </p>
               </div>
             </div>
@@ -346,11 +338,10 @@ export default function IntroToBusinessAnalyticsLesson() {
             <div className="bt-step">
               <span className="bt-step__n">03</span>
               <div>
-                <h3>So are AI and ML the same thing?</h3>
+                <h3>How the two relate</h3>
                 <p className="bt-prose">
-                  No. Machine learning is one specific way of building AI: training a model on data until it
-                  can perform a task. Every machine learning system is a form of AI. Not every AI system uses
-                  machine learning.
+                  Machine learning is one way of building AI: train a model on data until it can do a task.
+                  Every ML system is AI. Not every AI system uses ML.
                 </p>
                 <figure className="bt-figure">
                   <div className="bt-figure__frame">
@@ -362,7 +353,7 @@ export default function IntroToBusinessAnalyticsLesson() {
                       <text x="180" y="134" textAnchor="middle" fill="var(--accent-600)" fontSize="13" fontWeight="700" letterSpacing="1.2" fontFamily="var(--font-body)">LEARNING</text>
                     </svg>
                   </div>
-                  <figcaption>A rule of thumb worth keeping: all ML is AI, not all AI is ML.</figcaption>
+                  <figcaption>All ML is AI. Not all AI is ML.</figcaption>
                 </figure>
               </div>
             </div>
@@ -372,10 +363,10 @@ export default function IntroToBusinessAnalyticsLesson() {
             <div className="bt-step">
               <span className="bt-step__n">04</span>
               <div>
-                <h3>Where does data science fit in?</h3>
+                <h3>Where data science fits</h3>
                 <p className="bt-prose">
-                  Data science is the broader discipline that combines statistics and computer science to pull
-                  meaning out of data. It follows the same four steps, whatever the question.
+                  The broader discipline: statistics plus computer science, applied to pulling meaning out of
+                  data. Four steps, whatever the question.
                 </p>
                 <ol className="bt-flow">
                   {DATA_SCIENCE_STEPS.map(([title, body], i) => (
@@ -396,10 +387,9 @@ export default function IntroToBusinessAnalyticsLesson() {
             <div className="bt-step">
               <span className="bt-step__n">05</span>
               <div>
-                <h3>There are four ways a machine can learn.</h3>
+                <h3>Four ways a machine learns</h3>
                 <p className="bt-prose">
-                  You will hear these four terms constantly through the course, so they are worth getting
-                  straight early.
+                  These four come up constantly, so get them straight early.
                 </p>
                 <div className="bt-pairgrid">
                   {LEARNING_STYLES.map(([title, body]) => (
@@ -417,9 +407,9 @@ export default function IntroToBusinessAnalyticsLesson() {
             <div className="bt-step">
               <span className="bt-step__n">06</span>
               <div>
-                <h3>Where you’ll actually see this in a business.</h3>
+                <h3>Where this shows up in a business</h3>
                 <p className="bt-prose">
-                  These five areas come up constantly, across almost every industry.
+                  Five areas, across almost every industry.
                 </p>
                 <div className="bt-rows">
                   {APPLICATIONS.map(a => (
@@ -437,11 +427,10 @@ export default function IntroToBusinessAnalyticsLesson() {
             <div className="bt-step">
               <span className="bt-step__n">07</span>
               <div>
-                <h3>Then we bring AI back into the decision.</h3>
+                <h3>AI back in the decision</h3>
                 <p className="bt-prose">
-                  Data-driven decision-making means using analysis to find patterns and insight instead of
-                  relying purely on gut feeling. It does not remove the human from the decision. It gives them
-                  better information to decide with.
+                  Data-driven decision-making means using analysis to find patterns instead of relying on gut
+                  feeling. The human still decides. They just decide with better information.
                 </p>
                 <div className="bt-rows">
                   {AI_DECISION_ROLES.map(r => (
@@ -452,12 +441,11 @@ export default function IntroToBusinessAnalyticsLesson() {
                   ))}
                 </div>
                 <div className="bt-caution">
-                  <p className="bt-eyebrow">The part people skip</p>
+                  <p className="bt-eyebrow">A caveat</p>
                   <p>
-                    None of this is automatically safe to trust. The data has to actually be accurate. Someone
-                    still has to interpret what the algorithm says. As AI gets more involved in decisions that
-                    affect real people, bias, transparency and accountability need to be taken seriously. The
-                    course comes back to this properly, and LO4 assesses it.
+                    None of this is automatically safe to trust. The data has to be accurate, and someone still
+                    has to interpret what the algorithm says. As AI takes a bigger part in decisions affecting
+                    real people, bias, transparency and accountability matter. LO4 assesses exactly this.
                   </p>
                 </div>
               </div>
@@ -472,8 +460,7 @@ export default function IntroToBusinessAnalyticsLesson() {
           <SectionHead
             eyebrow="Across the whole course"
             title="The full topic list"
-            stop="."
-            aside="The real indicative content for MBI806B, straight from the descriptor. Twelve topics, building on each other."
+            aside="The indicative content from the descriptor. Twelve topics, building on each other."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -495,7 +482,7 @@ export default function IntroToBusinessAnalyticsLesson() {
             eyebrow="Our first tool"
             title="Setting up Power BI"
             stop="."
-            aside="Power BI is a business intelligence tool. You connect it to your data, build reports and dashboards out of it, and share those with the people who need to see them."
+            aside="A business intelligence tool. You point it at your data, build reports out of it, and share those with whoever needs them."
           />
         </Reveal>
 
@@ -512,10 +499,9 @@ export default function IntroToBusinessAnalyticsLesson() {
           <div className="bt-caution" style={{ marginTop: 26 }}>
             <p className="bt-eyebrow">Mac, Windows, or a laptop you cannot install on</p>
             <p>
-              Everybody starts in the browser at app.powerbi.com, which works the same on macOS as on Windows
-              and needs nothing installed. Power BI Desktop is a Windows-only addition for later in the course.
-              There is a full beginner guide for all of this — installing it, signing in, and building your
-              first chart — on its own page.
+              Everybody starts in the browser at app.powerbi.com. It works the same on macOS as on Windows and
+              needs nothing installed. Power BI Desktop is a Windows-only addition for later in the course.
+              There’s a full setup guide on its own page.
             </p>
           </div>
 
@@ -528,9 +514,8 @@ export default function IntroToBusinessAnalyticsLesson() {
             <p className="bt-eyebrow">Try it yourself</p>
             <h3>A hello world for Power BI<span className="bt-stop">.</span></h3>
             <p className="bt-tryit__lead">
-              No data source needed. This builds one small chart from scratch by typing in three rows by hand —
-              the same three rows as the chart at the top of this page. It works in the browser and in Power BI
-              Desktop.
+              No data source needed. Type in three rows by hand and build one chart from them. Works in the
+              browser and in Power BI Desktop.
             </p>
             <ol className="bt-flow bt-flow--tight">
               {HELLO_WORLD.map(([title, body], i) => (
@@ -541,8 +526,8 @@ export default function IntroToBusinessAnalyticsLesson() {
               ))}
             </ol>
             <p className="bt-note">
-              That is it. Three rows of made-up data and one chart. Everything later in the course is this same
-              idea, with real data instead. The setup guide has a practice version you can click through first.
+              Three rows of made-up data and one chart. Everything later is the same move with real data. The
+              setup guide has a practice version you can click through first.
             </p>
           </div>
         </Reveal>
@@ -552,16 +537,15 @@ export default function IntroToBusinessAnalyticsLesson() {
       <section id="prepared" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="Worth learning, and worth arriving ready for"
-            title="What this is good for, and what to bring"
-            stop="."
-            aside="Nothing on this list needs buying, and nothing needs prior experience. The first one matters most: turn up with a laptop."
+            eyebrow="Before class"
+            title="Why bother, and what to bring"
+            aside="Nothing here needs buying. Mainly: turn up with a laptop."
           />
         </Reveal>
         <Reveal delay={0.05}>
           <div className="bt-twocol">
             <div>
-              <p className="bt-eyebrow bt-eyebrow--quiet">Why this is worth learning</p>
+              <p className="bt-eyebrow bt-eyebrow--quiet">Why it’s worth learning</p>
               <ol className="bt-track bt-track--compact">
                 {BENEFITS.map(([title, body]) => (
                   <li key={title} className="bt-trackrow bt-trackrow--plain">
@@ -578,15 +562,15 @@ export default function IntroToBusinessAnalyticsLesson() {
               <ul className="bt-bring">
                 <li>
                   <h4>Bring a laptop</h4>
-                  <p>With Power BI open in a browser, if you can. The setup guide walks through it, on any operating system. If not, that gets sorted out in class.</p>
+                  <p>With Power BI open in a browser if you can. The setup guide covers it on any operating system. If not, we’ll sort it out in class.</p>
                 </li>
                 <li>
-                  <h4>Bring no prior experience</h4>
-                  <p>No coding, statistics or AI background is assumed. If you have never opened a data tool before, this course is for you.</p>
+                  <h4>No prior experience needed</h4>
+                  <p>No coding, statistics or AI background assumed. Never opened a data tool? That’s the expected starting point.</p>
                 </li>
                 <li>
                   <h4>Bring one example</h4>
-                  <p>Think of one place you have noticed AI in your own life recently. It gets used in the group discussion.</p>
+                  <p>One place you’ve noticed AI in your own life recently. We use these in the group discussion.</p>
                 </li>
               </ul>
             </div>
@@ -603,9 +587,8 @@ export default function IntroToBusinessAnalyticsLesson() {
             <p className="bt-eyebrow">Your lecturer</p>
             <h2>See you in class<span className="bt-stop">.</span></h2>
             <p className="bt-signoff__body">
-              You have just walked a decision framework end to end, worked out which everyday systems are
-              quietly running on machine learning, and seen exactly what Power BI asks of you. That is a
-              genuine head start, and none of it needed a maths background.
+              None of the above needed a maths background, and neither does the course. If the Power BI setup
+              gives you trouble, sort it out before the first class or bring it with you. Either is fine.
             </p>
             <p className="bt-signoff__name">
               Yasas Sri Wickramasinghe

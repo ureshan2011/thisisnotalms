@@ -22,8 +22,8 @@ type WellKey = 'axis' | 'values';
 type ChartKind = 'bar' | 'column' | 'pie';
 
 const FIELDS: { key: FieldKey; label: string; kind: string; note: string }[] = [
-  { key: 'item', label: 'Item', kind: 'Text', note: 'Three words: Coffee, Tea, Juice. Text fields make good categories.' },
-  { key: 'sales', label: 'Sales', kind: 'Number', note: 'Three numbers. Power BI adds a Σ to fields it can add up.' },
+  { key: 'item', label: 'Item', kind: 'Text', note: 'Coffee, Tea, Juice. Text fields make good categories.' },
+  { key: 'sales', label: 'Sales', kind: 'Number', note: 'Power BI puts a Σ on fields it can add up.' },
 ];
 
 const CHARTS: { key: ChartKind; label: string }[] = [
@@ -33,8 +33,8 @@ const CHARTS: { key: ChartKind; label: string }[] = [
 ];
 
 const WELLS: { key: WellKey; label: string; wants: FieldKey; hint: string }[] = [
-  { key: 'axis', label: 'Y-axis', wants: 'item', hint: 'What you are comparing. Drop a category here.' },
-  { key: 'values', label: 'X-axis', wants: 'sales', hint: 'What you are measuring. Drop a number here.' },
+  { key: 'axis', label: 'Y-axis', wants: 'item', hint: 'What you’re comparing. A category goes here.' },
+  { key: 'values', label: 'X-axis', wants: 'sales', hint: 'What you’re measuring. A number goes here.' },
 ];
 
 const MAX = 120;
@@ -44,7 +44,7 @@ export default function ChartBuilder() {
   const [placed, setPlaced] = useState<Partial<Record<WellKey, FieldKey>>>({});
   const [held, setHeld] = useState<FieldKey | null>(null);
   const [kind, setKind] = useState<ChartKind>('bar');
-  const [said, setSaid] = useState('Pick a field on the left, then pick a well to put it in. Two fields is all it takes.');
+  const [said, setSaid] = useState('Pick a field, then pick a well to put it in. Two fields is all it takes.');
 
   const ready = !!placed.axis && !!placed.values;
   const used = (k: FieldKey) => Object.values(placed).includes(k);
@@ -53,7 +53,7 @@ export default function ChartBuilder() {
     if (used(k)) return;
     setHeld(held === k ? null : k);
     const f = FIELDS.find(x => x.key === k)!;
-    setSaid(held === k ? 'Put it back. Pick either field when you are ready.' : `${f.label} is in hand. ${f.note} Now choose a well.`);
+    setSaid(held === k ? 'Put it back. Pick either field when you’re ready.' : `${f.label} in hand. ${f.note} Now choose a well.`);
   }
 
   function dropInto(w: WellKey) {
@@ -61,22 +61,22 @@ export default function ChartBuilder() {
     if (placed[w]) {
       const removed = placed[w]!;
       setPlaced(p => { const n = { ...p }; delete n[w]; return n; });
-      setSaid(`Removed ${FIELDS.find(f => f.key === removed)!.label} from ${well.label}. The chart redraws every time you change a well.`);
+      setSaid(`Removed ${FIELDS.find(f => f.key === removed)!.label} from ${well.label}. The chart redraws whenever a well changes.`);
       return;
     }
     if (!held) {
-      setSaid(`Nothing in hand yet. Pick ${well.wants === 'item' ? 'Item' : 'Sales'} from the Data pane first.`);
+      setSaid(`Nothing in hand. Pick ${well.wants === 'item' ? 'Item' : 'Sales'} from the Data pane first.`);
       return;
     }
     const next = { ...placed, [w]: held };
     setPlaced(next);
     setHeld(null);
     if (held !== well.wants) {
-      setSaid(`That works, but it reads oddly — ${well.label} usually holds ${well.wants === 'item' ? 'a category, like Item' : 'a number, like Sales'}. Click the well again to take it out.`);
+      setSaid(`That works, but ${well.label} usually holds ${well.wants === 'item' ? 'a category like Item' : 'a number like Sales'}. Click the well again to take it out.`);
     } else if (next.axis && next.values) {
-      setSaid('That is the whole exercise. You never told it to draw bars, sort them, or label the axis. It worked that out from the two fields.');
+      setSaid('Done. You never told it to draw bars, sort them or label the axis — it worked that out from the two fields.');
     } else {
-      setSaid(`${FIELDS.find(f => f.key === held)!.label} is in ${well.label}. One well to go.`);
+      setSaid(`${FIELDS.find(f => f.key === held)!.label} in ${well.label}. One well to go.`);
     }
   }
 
@@ -84,7 +84,7 @@ export default function ChartBuilder() {
     setPlaced({});
     setHeld(null);
     setKind('bar');
-    setSaid('Cleared. Pick a field on the left, then pick a well to put it in.');
+    setSaid('Cleared. Pick a field, then pick a well.');
   }
 
   const total = DATA.reduce((a, d) => a + d.sales, 0);
@@ -92,8 +92,8 @@ export default function ChartBuilder() {
   return (
     <div className="pbi-builder">
       <p className="pbi-builder__note">
-        A practice run of the report canvas — not Microsoft software, and nothing here leaves your browser.
-        The panes sit where Power BI puts them.
+        A mock-up of the report canvas, not Microsoft software. The panes sit roughly where Power BI puts
+        them.
       </p>
 
       <div className="pbi-canvas">
@@ -112,7 +112,7 @@ export default function ChartBuilder() {
                   <path d="M3 20h18" /><rect x="5" y="11" width="3.4" height="6" rx="1" /><rect x="10.3" y="7" width="3.4" height="10" rx="1" /><rect x="15.6" y="13" width="3.4" height="4" rx="1" />
                 </svg>
                 <p>An empty visual, waiting for fields.</p>
-                <p className="pbi-empty__sub">This is exactly what Power BI shows you before you fill the wells.</p>
+                <p className="pbi-empty__sub">Power BI shows you this before you fill the wells.</p>
               </div>
             )}
 
@@ -185,8 +185,8 @@ export default function ChartBuilder() {
                 onClick={() => {
                   setKind(c.key);
                   setSaid(ready
-                    ? `Same two fields, drawn as a ${c.label.toLowerCase()}. Changing the visual never changes the data.`
-                    : `${c.label} selected. Fill both wells and it will draw.`);
+                    ? `Same two fields as a ${c.label.toLowerCase()}. Changing the visual doesn’t touch the data.`
+                    : `${c.label} selected. Fill both wells and it draws.`);
                 }}
               >
                 {c.key === 'bar' && <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M4 4v16h16" /><path d="M7 8h10M7 13h6M7 17.5h3" /></svg>}
@@ -237,7 +237,7 @@ export default function ChartBuilder() {
             </button>
           ))}
 
-          <p className="pbi-pane__sub">The table underneath</p>
+          <p className="pbi-pane__sub">Your table</p>
           <table className="pbi-mini">
             <thead><tr><th>Item</th><th>Sales</th></tr></thead>
             <tbody>

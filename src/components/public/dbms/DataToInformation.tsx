@@ -15,11 +15,11 @@ type Quality = 'accurate' | 'complete' | 'timely' | 'relevant';
 interface Piece { key: string; label: string; quality: Quality; note: string; }
 
 const PIECES: Piece[] = [
-  { key: 'who', label: 'John Smith', quality: 'relevant', note: 'Who it is about. Without a subject there is no decision to make.' },
+  { key: 'who', label: 'John Smith', quality: 'relevant', note: 'Who it’s about. No subject, no decision to make.' },
   { key: 'what', label: 'in MBI802', quality: 'relevant', note: 'Which course. The same 85 means different things in different papers.' },
-  { key: 'scale', label: 'out of 100', quality: 'accurate', note: 'The scale. 85 out of 100 and 85 out of 200 are not the same result.' },
-  { key: 'when', label: 'Semester 1', quality: 'timely', note: 'When it happened. Last year’s mark does not help this year’s decision.' },
-  { key: 'grade', label: 'a distinction', quality: 'complete', note: 'What the number actually earned. This is the part a reader acts on.' },
+  { key: 'scale', label: 'out of 100', quality: 'accurate', note: '85 out of 100 and 85 out of 200 aren’t the same result.' },
+  { key: 'when', label: 'Semester 1', quality: 'timely', note: 'When it happened. Last year’s mark won’t help this year’s decision.' },
+  { key: 'grade', label: 'a distinction', quality: 'complete', note: 'What the number earned. This is the part a reader acts on.' },
 ];
 
 const QUALITIES: { key: Quality; name: string; meaning: string }[] = [
@@ -66,8 +66,7 @@ export default function DataToInformation() {
         <p className="bt-eyebrow bt-eyebrow--quiet">Raw data</p>
         <div className="bt-rawval">85</div>
         <p className="bt-rawnote">
-          A bare number. It could be a mark, an age, a heart rate, a bus route or a temperature. Nobody can
-          decide anything with it, which is exactly what makes it data.
+          Could be a mark, an age, a heart rate, a bus route. Nobody can decide anything with it.
         </p>
 
         <p className="bt-eyebrow" style={{ marginTop: 26 }}>Add context</p>
@@ -85,7 +84,7 @@ export default function DataToInformation() {
           ))}
         </div>
         <p className="bt-chipnote" aria-live="polite">
-          {last ? last.note : 'Tap the pieces in any order. Each one does a different job.'}
+          {last ? last.note : 'Tap the pieces in any order.'}
         </p>
       </div>
 
@@ -113,8 +112,8 @@ export default function DataToInformation() {
 
         <p className="bt-outfoot">
           {all
-            ? 'That is the worked example from the chapter, built piece by piece. The requirement is context plus processing — nothing more exotic than that.'
-            : 'Keep going. The transformation requirement is context plus processing, and you are part of the way there.'}
+            ? 'That’s the worked example from the chapter. Context plus processing, nothing more exotic than that.'
+            : 'Context plus processing is all it takes. Keep adding.'}
         </p>
       </div>
     </div>

@@ -45,8 +45,8 @@ export default function SaveAsPdf({ doc }: { doc: NotesDoc }) {
           Save these as notes<span className="bt-stop">.</span>
         </h2>
         <p className="bt-savepdf__lead">
-          A written summary of this page as a PDF — the explanations, tables and steps, without the
-          interactive parts. Useful on a phone, on a printout, or somewhere with no signal.
+          A written summary of this page as a PDF: the explanations, tables and steps, without the interactive
+          parts. Handy on a phone, or printed out.
         </p>
 
         <div className="bt-savepdf__actions">
@@ -65,10 +65,10 @@ export default function SaveAsPdf({ doc }: { doc: NotesDoc }) {
         </div>
 
         <p className="bt-savepdf__status" aria-live="polite">
-          {state === 'done' && 'Downloaded. Your PDF reader will ask for the password above before it opens the file.'}
-          {state === 'failed' && 'That did not work. Try again, and if it keeps failing tell me which browser you are on.'}
-          {state === 'idle' && 'The file is built here in your browser. Nothing is uploaded, and no account is needed.'}
-          {state === 'working' && 'One moment — laying out the pages.'}
+          {state === 'done' && 'Downloaded. Your PDF reader will ask for the password above before it opens.'}
+          {state === 'failed' && 'That didn’t work. Try again, and if it keeps failing tell me which browser you’re on.'}
+          {state === 'idle' && 'Built here in your browser. Nothing is uploaded and no account is needed.'}
+          {state === 'working' && 'One moment, laying out the pages.'}
         </p>
       </div>
 
@@ -76,15 +76,15 @@ export default function SaveAsPdf({ doc }: { doc: NotesDoc }) {
         <div>
           <h3>Extra reading only</h3>
           <p>
-            The document is a summary, not the primary lesson content. Your LMS holds the authoritative
-            material, assessments, deadlines and announcements.
+            A summary, not the primary lesson content. Your LMS holds the authoritative material, assessments,
+            deadlines and announcements.
           </p>
         </div>
         <div>
           <h3>© {new Date().getFullYear()} Yasas Sri Wickramasinghe</h3>
           <p>
-            All rights reserved. Provided to enrolled students for personal study. Not for redistribution,
-            re-upload to study-notes services, or training automated systems.
+            All rights reserved. For enrolled students, for personal study. Not for redistribution, re-upload
+            to study-notes services, or training automated systems.
           </p>
         </div>
       </div>

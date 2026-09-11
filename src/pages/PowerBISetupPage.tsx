@@ -53,8 +53,8 @@ export default function PowerBISetupPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: EASE, delay: 0.14 }}
             >
-              Written for people who have never opened a data tool. Everybody starts in the browser, which works
-              the same on a Mac as on a PC, so nobody spends the first class watching a download bar.
+              Written for people who have never opened a data tool. Everybody starts in the browser, which
+              works the same on a Mac as on a PC. Nobody should spend the first class watching a download bar.
             </motion.p>
 
             <motion.p
@@ -63,7 +63,7 @@ export default function PowerBISetupPage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, ease: EASE, delay: 0.24 }}
             >
-              Written by Yasas Sri Wickramasinghe, MBI806B lecturer · checked against Microsoft’s own documentation
+              Yasas Sri Wickramasinghe, MBI806B lecturer · checked against Microsoft’s documentation
             </motion.p>
 
             <motion.div
@@ -117,7 +117,7 @@ export default function PowerBISetupPage() {
             </div>
             <p className="bt-keyline">
               <span className="bt-keyline__swatch" aria-hidden="true" />
-              <span><b>Three rows and one chart.</b> Everything else in the course is this same move, with real data and harder questions behind it.</span>
+              <span><b>Three rows and one chart.</b> Everything else in the course is the same move, with real data and harder questions behind it.</span>
             </p>
           </motion.div>
         </div>

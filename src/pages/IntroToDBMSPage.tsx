@@ -65,8 +65,8 @@ export default function IntroToDBMSPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: EASE, delay: 0.14 }}
             >
-              Let’s break it together, right here on this page, and you will understand why databases exist.
-              That is where MBI802 starts, and you can do it before you enrol — no account, nothing to install.
+              Break it and you’ll see why databases exist. That’s roughly where MBI802 starts, and you can do
+              it before you enrol. No account, nothing to install.
             </motion.p>
 
             <motion.p
@@ -75,7 +75,7 @@ export default function IntroToDBMSPage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, ease: EASE, delay: 0.24 }}
             >
-              Written by Yasas Sri Wickramasinghe, MBI802 lecturer · 15 credits, Level 8, no prerequisites
+              Yasas Sri Wickramasinghe, MBI802 lecturer · 15 credits, Level 8, no prerequisites
             </motion.p>
 
             <motion.div
@@ -131,7 +131,7 @@ export default function IntroToDBMSPage() {
             </div>
             <p className="bt-keyline">
               <span className="bt-keyline__swatch" aria-hidden="true" />
-              <span><b>Primary key.</b> Unique, never NULL. It is the thing that makes a row findable at all, and by Lesson 3 you will be joining on it.</span>
+              <span><b>Primary key.</b> Unique, never NULL. It’s what makes a row findable, and by Lesson 3 you’ll be joining on it.</span>
             </p>
           </motion.div>
         </div>

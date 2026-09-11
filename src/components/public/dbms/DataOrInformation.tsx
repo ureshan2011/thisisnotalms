@@ -3,9 +3,9 @@ import { useState } from 'react';
 // ─── Data or information? (section 1.1) ───────────────────────────────────
 // The builder above shows how data turns into information. This shows you
 // whether you can tell them apart, which is the half an exam actually asks.
-// Six items, all from the chapter and its answer key, including the pair
-// that catches people: ten thousand transaction amounts is still data, and
-// a sentence drawn from those same transactions is information.
+// Six items, all from the chapter and its answer key, written plainly.
+// The pair that catches people sits together: ten thousand payment amounts
+// is still data, and one sentence drawn from those same payments is not.
 
 type Answer = 'data' | 'information';
 
@@ -16,37 +16,37 @@ const ITEMS: Item[] = [
     v: '42',
     a: 'data',
     src: 'practice question 1(a)',
-    why: 'A bare number with no context. It could be an age, a mark, a bus route or a temperature, and you can’t decide anything from it.',
+    why: 'Forty-two what? It could be an age, a test mark, a bus route or a temperature. Nobody can do anything with it.',
   },
   {
     v: '“Auckland”',
     a: 'data',
     src: 'practice question 1(b)',
-    why: 'A place name on its own. Whose Auckland, doing what, when? Nothing here is actionable yet.',
+    why: 'Just a place name. Whose Auckland? Doing what? When? There’s nothing here you could act on.',
   },
   {
-    v: 'A file of 10,000 transaction amounts',
+    v: 'A file with 10,000 payment amounts in it',
     a: 'data',
     src: 'practice question 1(d)',
-    why: 'The one that catches people. Volume doesn’t create meaning — ten thousand bare numbers is still ten thousand pieces of data.',
+    why: 'The one that catches people. Piling numbers up doesn’t give them meaning. Ten thousand of them is still just ten thousand numbers.',
   },
   {
     v: 'Sales rose 12% in March, driven by the Auckland store',
     a: 'information',
     src: 'section 1.1',
-    why: 'The same transactions as the file above, now processed and given context. Somebody can act on this one.',
+    why: 'Built from the very same payments as the file above — but somebody worked them out and said what they mean. A manager could act on this today.',
   },
   {
     v: 'Enrolments in MBI802 grew 15% between 2025 and 2026',
     a: 'information',
     src: 'practice question 1(c)',
-    why: 'Processed, contextualised and decision-ready. Someone can now choose whether to open a second class.',
+    why: 'Someone can do something with this: open a second class, or hire another tutor. That’s the test.',
   },
   {
     v: 'John Smith achieved a distinction (85%) in MBI802 during Semester 1',
     a: 'information',
     src: 'the 1.1 definition box',
-    why: 'Who, what, how well and when. The chapter’s worked example of data plus context plus processing.',
+    why: 'Who, what, how well and when. Once you know all four, the 85 finally means something.',
   },
 ];
 
@@ -107,8 +107,8 @@ export default function DataOrInformation() {
             <>
               <p className="doi__verdict">Which is it?</p>
               <p>
-                Data is raw. Information is data that’s been processed and given context, so somebody can decide
-                something with it. You’ll get the reasoning either way.
+                Data is raw — numbers and words on their own. It turns into information once somebody adds
+                enough around it that you could act on it. You’ll get the reasoning either way.
               </p>
             </>
           )}

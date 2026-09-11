@@ -164,9 +164,9 @@ export default function IntroToDBMSLesson() {
         <Reveal delay={0.05}>
           <h3 className="bt-subhead">Now tell them apart</h3>
           <p className="bt-note" style={{ maxWidth: '62ch' }}>
-            Six items from the chapter. Some are raw, some have had context and processing applied. An exam
-            will ask you to classify them and justify each in a sentence, and the justification carries the
-            marks.
+            Six things from the chapter. Some are raw, some have had enough added that you could act on them.
+            In the exam you’ll be asked which is which, plus one sentence saying why — and the “why” is where
+            the marks are.
           </p>
           <DataOrInformation />
         </Reveal>
@@ -176,9 +176,9 @@ export default function IntroToDBMSLesson() {
       <section id="stack" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="Section 1.3 · The relational model at work"
+            eyebrow="Section 1.3 · Where it all lives"
             title="Where the database actually sits"
-            aside="Every site you use runs on one, but almost nobody can say where. Walk a single click through the system and watch the SQL appear in the middle of it."
+            aside="Nearly every app on your phone is talking to one, though you never see it. Follow a single tap all the way there and back."
           />
         </Reveal>
         <Reveal delay={0.05}>

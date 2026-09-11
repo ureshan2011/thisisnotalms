@@ -1,14 +1,17 @@
 import { useState } from 'react';
 
 // ─── Where the database actually sits ─────────────────────────────────────
-// Beginners picture a database as a thing a website "has", and cannot say
-// where the SQL runs or who is allowed to send it. This walks one round
-// trip — a student clicking their grades — and shows what the data looks
-// like at each hop, including the SQL, so Lesson 2 has somewhere to land.
+// Beginners picture a database as a thing a website "has", and can't say
+// where it lives or who's allowed to ask it questions. This walks one round
+// trip — tapping "My grades" — in plain language, with a restaurant running
+// alongside it, because everyone already understands a restaurant.
 //
-// The point the diagram makes on its own: there is no arrow from the
-// browser to the database. Every query goes through the server, and that
-// is the whole of database security in one picture.
+// The SQL stays. It's the subject of the course, and Lesson 2 needs
+// somewhere to land. Everything else that would normally be shown as raw
+// protocol is written out as the message it actually is.
+//
+// The point the diagram makes on its own: there's no line from the browser
+// to the database. Every question goes through the server.
 
 type Leg = 'browser' | 'request' | 'server' | 'query' | 'database' | 'response';
 
@@ -16,9 +19,12 @@ interface Step {
   leg: Leg;
   where: string;
   title: string;
-  /** Monospace payload — what is on the wire or in the engine at this moment. */
+  /** The same step, told as the restaurant. */
+  like: string;
+  /** A short message written out in words rather than raw protocol. */
+  card?: { label: string; lines: [string, string][] };
+  /** Real SQL — kept, because it's the thing the course is about. */
   code?: string;
-  /** A result set, when the payload is rows rather than text. */
   rows?: { paper: string; grade: string; credits: string }[];
   note: string;
 }
@@ -26,68 +32,83 @@ interface Step {
 const STEPS: Step[] = [
   {
     leg: 'browser',
-    where: 'Your laptop',
-    title: 'You click “My grades”',
-    code: 'https://campus.example.ac.nz/grades',
-    note: 'A link on a page. Nothing has left your laptop yet, and no database has been touched.',
+    where: 'You',
+    title: 'You tap “My grades”',
+    like: 'You sit down and pick something off the menu.',
+    card: { label: 'On screen', lines: [['A link', 'My grades']] },
+    note: 'Nothing has left your phone yet, and no database anywhere has been bothered.',
   },
   {
     leg: 'request',
-    where: 'The public internet',
-    title: 'The browser sends a request',
-    code: 'GET /grades HTTP/1.1\nHost: campus.example.ac.nz\nCookie: session=8f3ad9c1…',
-    note: 'Plain text over the network. Notice what is not in it: no SQL, no table names, no database password. The browser does not know any of those exist.',
+    where: 'Over the internet',
+    title: 'Your browser sends a message',
+    like: 'You tell the waiter what you want, and show the ticket with your table number on it.',
+    card: {
+      label: 'The message, in plain words',
+      lines: [
+        ['To', 'the campus website'],
+        ['Asking for', 'my grades page'],
+        ['Signed', 'whoever is holding pass 8f3ad9c1'],
+      ],
+    },
+    note: 'That’s really all a web request is — a short note asking for a page. Notice there’s no mention of a database in it. Your browser doesn’t even know one exists.',
   },
   {
     leg: 'server',
-    where: 'The application server',
+    where: 'The server',
     title: 'The server works out who you are',
-    code: 'session 8f3ad9c1…  →  student_id = 1001',
-    note: 'The step that keeps everything safe. The server decides which rows you are allowed to see. You never get to say “student_id = 1002” and be believed.',
+    like: 'The waiter checks which table the order came from. You don’t get to say “I’m table four” and be believed.',
+    card: {
+      label: 'What the server figures out',
+      lines: [
+        ['Pass 8f3ad9c1', 'belongs to Sam'],
+        ['Sam', 'is student 1001'],
+      ],
+    },
+    note: 'This is the bit that keeps everyone’s grades private. The server decides which rows you’re allowed to see. You don’t.',
   },
   {
     leg: 'query',
-    where: 'A private connection',
-    title: 'The server queries the database',
+    where: 'Asking the database',
+    title: 'The server writes a question',
+    like: 'The order slip goes through to the kitchen.',
     code: 'SELECT paper, grade, credits\nFROM   enrolments\nWHERE  student_id = 1001;',
-    note: 'This is the SQL you start writing in Lesson 2. It travels on a connection inside the organisation that the public internet cannot reach at all.',
+    note: 'This is SQL, and you start writing it in Lesson 2. Read it out loud and it nearly makes sense already: get the paper, grade and credits, from the enrolments table, where the student is 1001.',
   },
   {
     leg: 'database',
-    where: 'The database server',
-    title: 'The database returns rows',
+    where: 'The database answers',
+    title: 'Three rows come back',
+    like: 'The kitchen hands the food over. It never walks out to your table itself.',
     rows: [
       { paper: 'MBI801', grade: 'A-', credits: '15' },
       { paper: 'MBI802', grade: 'A', credits: '15' },
       { paper: 'MBI805B', grade: 'B+', credits: '15' },
     ],
-    note: 'Just rows. The database has no idea a website asked — it would answer a desktop app, a report or a phone the same way. That is why one database can serve all of them.',
+    note: 'Just rows. The database has no idea a website asked. Ask it from a phone app or a spreadsheet and it answers exactly the same way, which is why one database can feed all of them at once.',
   },
   {
     leg: 'response',
-    where: 'Back to your laptop',
-    title: 'Rows become a page',
-    code: '<table>\n  <tr><td>MBI801</td><td>A-</td></tr>\n  <tr><td>MBI802</td><td>A</td></tr>\n  …',
-    note: 'The server dresses the same rows as HTML and sends them back. Your grades appear. The database was involved for a few milliseconds in the middle.',
+    where: 'Back to you',
+    title: 'Your grades appear',
+    like: 'Plated up and carried out to you.',
+    card: {
+      label: 'What lands back on your screen',
+      lines: [
+        ['MBI801', 'A-'],
+        ['MBI802', 'A'],
+        ['MBI805B', 'B+'],
+      ],
+    },
+    note: 'The server wraps those same three rows in a little code that tells your browser how to draw a table, and sends it back. The whole trip takes about as long as a blink.',
   },
 ];
 
 const ACTIVE_BOX: Record<Leg, 'browser' | 'server' | 'db' | null> = {
-  browser: 'browser',
-  request: null,
-  server: 'server',
-  query: null,
-  database: 'db',
-  response: 'server',
+  browser: 'browser', request: null, server: 'server', query: null, database: 'db', response: 'server',
 };
-
 const ACTIVE_ARROW: Record<Leg, 'req' | 'query' | 'back' | null> = {
-  browser: null,
-  request: 'req',
-  server: null,
-  query: 'query',
-  database: null,
-  response: 'back',
+  browser: null, request: 'req', server: null, query: 'query', database: null, response: 'back',
 };
 
 function Diagram({ leg }: { leg: Leg }) {
@@ -98,28 +119,25 @@ function Diagram({ leg }: { leg: Leg }) {
   const ink = (k: string) => (box === k ? 'var(--accent-700)' : 'var(--ink-900)');
 
   return (
-    <svg viewBox="0 0 620 168" width="100%" role="img"
-      aria-label="A browser talks to an application server, and only the application server talks to the database. There is no direct arrow from the browser to the database.">
-      {/* Browser */}
-      <rect x="8" y="42" width="150" height="76" rx="12" fill={fill('browser')} stroke={on('browser')} strokeWidth="2" />
-      <rect x="24" y="56" width="118" height="12" rx="3" fill={box === 'browser' ? 'var(--accent-200)' : 'var(--paper-200)'} />
-      <text x="83" y="92" textAnchor="middle" fontSize="13" fontWeight="800" fill={ink('browser')} fontFamily="var(--font-display)">Browser</text>
-      <text x="83" y="108" textAnchor="middle" fontSize="10" fill="var(--ink-400)" fontFamily="var(--font-body)">your laptop</text>
+    <svg viewBox="0 0 620 172" width="100%" role="img"
+      aria-label="Your browser talks to the website's server, and only the server talks to the database. There is no direct line from the browser to the database.">
+      <rect x="8" y="44" width="152" height="78" rx="12" fill={fill('browser')} stroke={on('browser')} strokeWidth="2" />
+      <rect x="24" y="58" width="120" height="12" rx="3" fill={box === 'browser' ? 'var(--accent-200)' : 'var(--paper-200)'} />
+      <text x="84" y="94" textAnchor="middle" fontSize="13" fontWeight="800" fill={ink('browser')} fontFamily="var(--font-display)">Your browser</text>
+      <text x="84" y="110" textAnchor="middle" fontSize="10" fill="var(--ink-400)" fontFamily="var(--font-body)">phone or laptop</text>
 
-      {/* Application server */}
-      <rect x="235" y="42" width="150" height="76" rx="12" fill={fill('server')} stroke={on('server')} strokeWidth="2" />
-      <text x="310" y="80" textAnchor="middle" fontSize="13" fontWeight="800" fill={ink('server')} fontFamily="var(--font-display)">App server</text>
-      <text x="310" y="96" textAnchor="middle" fontSize="10" fill="var(--ink-400)" fontFamily="var(--font-body)">the code, and the</text>
-      <text x="310" y="108" textAnchor="middle" fontSize="10" fill="var(--ink-400)" fontFamily="var(--font-body)">only thing holding SQL</text>
+      <rect x="236" y="44" width="152" height="78" rx="12" fill={fill('server')} stroke={on('server')} strokeWidth="2" />
+      <text x="312" y="82" textAnchor="middle" fontSize="13" fontWeight="800" fill={ink('server')} fontFamily="var(--font-display)">The server</text>
+      <text x="312" y="98" textAnchor="middle" fontSize="10" fill="var(--ink-400)" fontFamily="var(--font-body)">the website’s own computer</text>
+      <text x="312" y="110" textAnchor="middle" fontSize="10" fill="var(--ink-400)" fontFamily="var(--font-body)">and the only part that knows SQL</text>
 
-      {/* Database, drawn as the cylinder everyone recognises */}
       <g>
-        <path d="M462 60 v48 a46 13 0 0 0 92 0 v-48 Z" fill={fill('db')} stroke={on('db')} strokeWidth="2" />
-        <ellipse cx="508" cy="60" rx="46" ry="13" fill={fill('db')} stroke={on('db')} strokeWidth="2" />
-        <ellipse cx="508" cy="76" rx="46" ry="13" fill="none" stroke={on('db')} strokeWidth="1" opacity=".55" />
-        <text x="508" y="100" textAnchor="middle" fontSize="12.5" fontWeight="800" fill={ink('db')} fontFamily="var(--font-display)">Database</text>
+        <path d="M464 62 v48 a46 13 0 0 0 92 0 v-48 Z" fill={fill('db')} stroke={on('db')} strokeWidth="2" />
+        <ellipse cx="510" cy="62" rx="46" ry="13" fill={fill('db')} stroke={on('db')} strokeWidth="2" />
+        <ellipse cx="510" cy="78" rx="46" ry="13" fill="none" stroke={on('db')} strokeWidth="1" opacity=".55" />
+        <text x="510" y="102" textAnchor="middle" fontSize="12.5" fontWeight="800" fill={ink('db')} fontFamily="var(--font-display)">Database</text>
       </g>
-      <text x="508" y="136" textAnchor="middle" fontSize="10" fill="var(--ink-400)" fontFamily="var(--font-body)">tables, rows, keys</text>
+      <text x="510" y="138" textAnchor="middle" fontSize="10" fill="var(--ink-400)" fontFamily="var(--font-body)">where the rows live</text>
 
       <defs>
         <marker id="wa-head" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
@@ -127,28 +145,25 @@ function Diagram({ leg }: { leg: Leg }) {
         </marker>
       </defs>
 
-      {/* Browser ↔ server */}
       <g color={arrow === 'req' ? 'var(--accent-500)' : 'var(--ink-300)'}>
-        <path d="M162 68 h64" stroke="currentColor" strokeWidth={arrow === 'req' ? 2.4 : 1.4} fill="none" markerEnd="url(#wa-head)" />
+        <path d="M164 70 h64" stroke="currentColor" strokeWidth={arrow === 'req' ? 2.4 : 1.4} fill="none" markerEnd="url(#wa-head)" />
       </g>
       <g color={arrow === 'back' ? 'var(--accent-500)' : 'var(--ink-300)'}>
-        <path d="M231 96 h-64" stroke="currentColor" strokeWidth={arrow === 'back' ? 2.4 : 1.4} fill="none" markerEnd="url(#wa-head)" />
+        <path d="M232 98 h-64" stroke="currentColor" strokeWidth={arrow === 'back' ? 2.4 : 1.4} fill="none" markerEnd="url(#wa-head)" />
       </g>
-      <text x="196" y="26" textAnchor="middle" fontSize="9.5" fill="var(--ink-400)" fontFamily="var(--font-mono)">HTTP</text>
+      <text x="198" y="28" textAnchor="middle" fontSize="9.5" fill="var(--ink-400)" fontFamily="var(--font-body)">a message</text>
 
-      {/* Server ↔ database */}
       <g color={arrow === 'query' ? 'var(--accent-500)' : 'var(--ink-300)'}>
-        <path d="M389 68 h64" stroke="currentColor" strokeWidth={arrow === 'query' ? 2.4 : 1.4} fill="none" markerEnd="url(#wa-head)" />
+        <path d="M392 70 h64" stroke="currentColor" strokeWidth={arrow === 'query' ? 2.4 : 1.4} fill="none" markerEnd="url(#wa-head)" />
       </g>
       <g color={leg === 'database' ? 'var(--accent-500)' : 'var(--ink-300)'}>
-        <path d="M458 96 h-64" stroke="currentColor" strokeWidth={leg === 'database' ? 2.4 : 1.4} fill="none" markerEnd="url(#wa-head)" />
+        <path d="M460 98 h-64" stroke="currentColor" strokeWidth={leg === 'database' ? 2.4 : 1.4} fill="none" markerEnd="url(#wa-head)" />
       </g>
-      <text x="423" y="26" textAnchor="middle" fontSize="9.5" fill="var(--ink-400)" fontFamily="var(--font-mono)">SQL</text>
+      <text x="426" y="28" textAnchor="middle" fontSize="9.5" fill="var(--ink-400)" fontFamily="var(--font-mono)">SQL</text>
 
-      {/* The arrow that does not exist */}
-      <path d="M83 142 H508" stroke="var(--red-500)" strokeWidth="1.4" strokeDasharray="5 5" fill="none" opacity=".5" />
-      <rect x="214" y="150" width="192" height="16" rx="8" fill="var(--paper-0)" />
-      <text x="310" y="162" textAnchor="middle" fontSize="10" fontWeight="700" fill="var(--red-500)" fontFamily="var(--font-body)">no such connection</text>
+      <path d="M84 146 H510" stroke="var(--red-500)" strokeWidth="1.4" strokeDasharray="5 5" fill="none" opacity=".5" />
+      <rect x="228" y="154" width="164" height="16" rx="8" fill="var(--paper-0)" />
+      <text x="310" y="166" textAnchor="middle" fontSize="10" fontWeight="700" fill="var(--red-500)" fontFamily="var(--font-body)">no direct line</text>
     </svg>
   );
 }
@@ -159,6 +174,11 @@ export default function WebAppStack() {
 
   return (
     <div className="wa">
+      <p className="wa__framing">
+        Think of it as a restaurant. You’re at the table, the kitchen is out the back, and a waiter goes
+        between the two. You never walk into the kitchen yourself — and that turns out to be the whole point.
+      </p>
+
       <div className="wa__diagram"><Diagram leg={step.leg} /></div>
 
       <ol className="wa__rail">
@@ -178,8 +198,21 @@ export default function WebAppStack() {
       </ol>
 
       <div className="wa__panel">
-        <p className="bt-eyebrow">Step {i + 1} of {STEPS.length} · {step.where}</p>
+        <p className="bt-eyebrow">Step {i + 1} of {STEPS.length}</p>
         <h3>{step.title}</h3>
+
+        <p className="wa__like"><span>In the restaurant</span>{step.like}</p>
+
+        {step.card && (
+          <div className="wa__slip">
+            <p className="wa__slip__label">{step.card.label}</p>
+            <dl>
+              {step.card.lines.map(([k, v]) => (
+                <div key={k}><dt>{k}</dt><dd>{v}</dd></div>
+              ))}
+            </dl>
+          </div>
+        )}
 
         {step.code && <pre className="wa__code">{step.code}</pre>}
 
@@ -210,12 +243,12 @@ export default function WebAppStack() {
       </div>
 
       <div className="wa__why">
-        <p className="bt-eyebrow">Why not let the browser talk to the database directly?</p>
+        <p className="bt-eyebrow">So why can’t your browser just ask the database itself?</p>
         <p>
-          Because anything your browser holds, you can read — and so can anyone using your laptop. The database
-          username and password would be sitting in the page source, and whoever found them could run any query
-          they liked against every student’s record, not just yours. Putting a server in the middle means the
-          only SQL the database ever sees is SQL your organisation wrote.
+          Because anything your browser knows, you can go and look at. Right-click, view source, and there it
+          is. If the database password were in there, anyone could find it and then help themselves to
+          everybody’s grades, not only their own. Keeping the server in the middle means the only questions the
+          database ever hears are ones the university wrote itself.
         </p>
       </div>
     </div>

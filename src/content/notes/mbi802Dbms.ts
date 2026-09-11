@@ -15,8 +15,8 @@ export const DBMS_NOTES: NotesDoc = {
   fileName: 'MBI802-Introduction-to-DBMS-notes',
   sections: [
     {
-      heading: 'Data and information are not the same thing',
-      standfirst: 'The idea the rest of the course sits on.',
+      heading: 'Data and information',
+      standfirst: 'Section 1.1',
       blocks: [
         {
           type: 'p',
@@ -44,18 +44,18 @@ export const DBMS_NOTES: NotesDoc = {
           type: 'callout',
           title: 'Exam note',
           text:
-            'You may be asked to classify items as data or information and justify each in one sentence. The justification is where the marks are: name what context is present or missing.',
+            'You may be asked to classify items as data or information and justify each in a sentence. The justification carries the marks: name what context is present or missing.',
         },
       ],
     },
     {
       heading: 'Why file-based systems fail',
-      standfirst: 'The hospital spreadsheet, and the five things that go wrong.',
+      standfirst: 'Section 1.2',
       blocks: [
         {
           type: 'p',
           text:
-            'Before databases, organisations kept records in separate files, and plenty of small ones still run on spreadsheets. Consider a hospital storing patient records in Excel, with the same patient typed into an admissions sheet, a ward sheet and a pharmacy sheet.',
+            'Before databases, organisations kept records in separate files, and plenty of small ones still run on spreadsheets. Take a hospital storing patient records in Excel, with the same patient typed into an admissions sheet, a ward sheet and a pharmacy sheet.',
         },
         {
           type: 'numbered',
@@ -71,19 +71,19 @@ export const DBMS_NOTES: NotesDoc = {
         {
           type: 'p',
           text:
-            'A DBMS (Database Management System) is software built specifically to solve those five problems. Families of DBMS include relational (MySQL, PostgreSQL, Oracle — the subject of this course), NoSQL document and key-value stores such as MongoDB for flexible data at large scale, and NewSQL, which aims at relational guarantees with NoSQL scale. The relational model still runs the overwhelming majority of business systems.',
+            'A DBMS (Database Management System) is software built to solve those five problems. The families are relational (MySQL, PostgreSQL, Oracle — what this course covers), NoSQL document and key-value stores such as MongoDB, and NewSQL, which aims at relational guarantees with NoSQL scale. The relational model still runs most business systems.',
         },
         {
           type: 'callout',
-          title: 'Worth memorising',
+          title: 'Memorise these',
           text:
-            'Redundancy, inconsistency, security, concurrency, integrity. Those five words are worth more in an exam than any single definition, because almost every "why use a database" question is one of them in disguise.',
+            'Redundancy, inconsistency, security, concurrency, integrity. Almost every "why use a database" question is one of these five in disguise.',
         },
       ],
     },
     {
       heading: 'Inside a relational database',
-      standfirst: 'The vocabulary, and the two directions an exam can ask it in.',
+      standfirst: 'Section 1.3',
       blocks: [
         {
           type: 'p',
@@ -119,19 +119,19 @@ export const DBMS_NOTES: NotesDoc = {
         {
           type: 'p',
           text:
-            'Here student_id is the primary key. If a second table, enrolments, carries a student_id column, that is a foreign key pointing back at this one. An enrolment referring to student 1009, who does not appear above, breaks referential integrity — a real DBMS would have refused to store it, and a spreadsheet would have accepted it without comment.',
+            'student_id is the primary key here. If a second table, enrolments, carries a student_id column, that is a foreign key pointing back at this one. An enrolment referring to student 1009, who is not listed above, breaks referential integrity. A DBMS would refuse to store it; a spreadsheet would accept it without comment.',
         },
         {
           type: 'callout',
           title: 'Exam note',
           text:
-            'Formal and everyday terms both appear in questions: table equals relation, row equals tuple, column equals attribute. Know the mapping in both directions.',
+            'Both sets of terms appear in questions: table equals relation, row equals tuple, column equals attribute. Know it in both directions.',
         },
       ],
     },
     {
       heading: 'Setting up MySQL',
-      standfirst: 'Your toolchain for the whole course.',
+      standfirst: 'Section 1.4',
       blocks: [
         {
           type: 'p',
@@ -151,15 +151,15 @@ export const DBMS_NOTES: NotesDoc = {
         { type: 'code', title: 'The verification statement', text: 'SHOW DATABASES;' },
         {
           type: 'callout',
-          title: 'Do this now, not later',
+          title: 'Do this on the installer screen',
           text:
-            'The root password you set during installation is the master key to your local server. If you lose it, recovery is fiddly. Put it in your password manager while you are still on the installer screen.',
+            'The root password you set during installation is the master key to your local server, and recovery is fiddly if you lose it. Put it in your password manager now.',
         },
       ],
     },
     {
       heading: 'A preview of what is coming',
-      standfirst: 'Real material from later chapters, so the shape of the course is clear.',
+      standfirst: 'Material from later chapters.',
       blocks: [
         {
           type: 'code',
@@ -187,21 +187,21 @@ FROM   students;`,
         },
         {
           type: 'p',
-          title: 'Lesson 4: design before you build',
+          title: 'Lesson 4: designing before building',
           text:
-            'We plan tables before anyone writes CREATE TABLE, the way an architect plans rooms before anyone pours concrete. The notation is Chen\'s: rectangles for entities, ovals for attributes, diamonds for relationships, and lines carrying cardinality.',
+            'We plan tables before anyone writes CREATE TABLE, the way an architect plans rooms before anyone pours concrete. Chen\'s notation: rectangles for entities, ovals for attributes, diamonds for relationships, lines carrying cardinality.',
         },
         {
           type: 'p',
-          title: 'Lesson 7: cleaning up a table that was never designed properly',
+          title: 'Lesson 7: cleaning up a bad table',
           text:
-            'A single table recording students, departments and courses at once will contain update, insertion and deletion anomalies. If a department head leaves, every row for that department needs changing and it is easy to miss one. Normalization names all three anomalies and then splits the table, step by step, into a design that cannot contradict itself.',
+            'A single table recording students, departments and courses at once contains update, insertion and deletion anomalies. If a department head leaves, every row for that department needs changing and it is easy to miss one. Normalization names all three, then splits the table step by step until it cannot contradict itself.',
         },
       ],
     },
     {
       heading: 'The eight lessons',
-      standfirst: 'The real structure of the course. Each one assumes the one before it.',
+      standfirst: 'Each lesson assumes the one before it.',
       blocks: [
         {
           type: 'table',
@@ -221,13 +221,13 @@ FROM   students;`,
         {
           type: 'p',
           text:
-            'MBI802 is a 15 credit, Level 8 course with no prerequisites. 150 learning hours in total: 36 in class and 114 on your own. Most of your career will be spent working with databases other people built, so the course is aimed at judging and repairing designs as much as creating them.',
+            'MBI802 is a 15 credit, Level 8 course with no prerequisites. 150 learning hours: 36 in class, 114 on your own. Most of your career will be spent on databases other people built, so the course covers judging and repairing designs as much as creating them.',
         },
       ],
     },
     {
       heading: 'Practice questions',
-      standfirst: 'From the chapter. Answer them before checking the key below.',
+      standfirst: 'Answer these before checking the key below.',
       blocks: [
         {
           type: 'numbered',

@@ -78,7 +78,7 @@ const OUTLINE: OutlineLesson[] = [
     n: '07',
     title: 'Database Normalization',
     subtitle: 'Functional dependencies, 1NF through BCNF, and decomposing a messy table properly.',
-    objective: 'Take a table that contradicts itself and split it until it does not.',
+    objective: 'Take a table that contradicts itself and split it until it doesn’t.',
   },
   {
     n: '08',
@@ -138,9 +138,8 @@ export default function IntroToDBMSLesson() {
         <Reveal>
           <SectionHead
             eyebrow="Section 1.2 · Why file-based systems fail"
-            title="Change her address. Watch what breaks"
-            stop="."
-            aside="Three sheets. One patient. Her details were typed into all three, because that is what happens when nobody has a database. Give her a new address, save it, then open the other tabs and see which sheets now disagree."
+            title="The hospital spreadsheet"
+            aside="Three sheets, one patient. Her details were typed into all three because nobody had a database. Change her address, save it, then check the other tabs."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -153,9 +152,8 @@ export default function IntroToDBMSLesson() {
         <Reveal>
           <SectionHead
             eyebrow="Section 1.1 · Data vs information"
-            title="85 means nothing. Add context and it decides things"
-            stop="."
-            aside="This is the idea the whole course sits on, and it is simpler than it sounds. Data is raw. Information is data that has been processed and given context. Add the pieces and watch a number turn into something somebody can act on."
+            title="Data and information"
+            aside="Data is raw. Information is data with context and processing applied to it. Add the pieces below and the difference gets obvious."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -170,22 +168,20 @@ export default function IntroToDBMSLesson() {
             eyebrow="What this course is"
             title="Database Management Systems"
             stop="."
-            aside="15 credits, Level 8, no prerequisites. Everyone starts from the same place — including the people who have never opened a database in their life."
+            aside="15 credits, Level 8, no prerequisites. Plenty of people arrive having never opened a database."
           />
         </Reveal>
         <Reveal delay={0.05}>
           <div className="bt-prose">
             <p>
-              Over the trimester you will design relational databases, query them with SQL, and think about
-              who owns the data you are storing and why that matters. It is 150 learning hours in total.
-              36 of those are in class with me, and 114 are yours, spent building and fixing things on your own.
+              Over the trimester you’ll design relational databases, query them with SQL, and think about who
+              gets access to the data you’re storing. 150 learning hours: 36 in class with me, 114 on your own.
             </p>
             <p>
-              By the end of the course, you should be able to do three things: make good decisions about who
-              gets access to data and why, judge whether a database design will actually hold up under real use,
-              and look at someone else’s database and say what is wrong with it and how to fix it. That last one
-              matters more than it sounds. Most of your career will be spent working with databases other people
-              built, not ones you designed from scratch.
+              By the end you should be able to decide who gets access to data and why, judge whether a design
+              will hold up under real use, and look at someone else’s database and say what’s wrong with it.
+              Most of your career will be spent on databases other people built, so that last one gets a lot of
+              attention.
             </p>
           </div>
 
@@ -203,9 +199,8 @@ export default function IntroToDBMSLesson() {
         <Reveal>
           <SectionHead
             eyebrow="The lesson outline"
-            title="Eight lessons, in order"
-            stop="."
-            aside="The real structure of the course, the same one the study pack and the lesson plans follow. Each one assumes the one before it, so the order is not a suggestion."
+            title="Eight lessons"
+            aside="The same structure the study pack and the lesson plans follow. Each lesson assumes the one before it."
           />
         </Reveal>
         {/* A numbered track rather than eight identical cards: the content is
@@ -238,9 +233,8 @@ export default function IntroToDBMSLesson() {
         <Reveal>
           <SectionHead
             eyebrow="A small preview"
-            title="Here is some of what is coming"
-            stop="."
-            aside="Pulled straight from the actual lessons. There is a lot more inside once we get going — I am showing you these so you know what the course will feel like, not just what it is called."
+            title="Some of what's coming"
+            aside="Examples from the actual lessons. There's a good deal more once we get going."
           />
         </Reveal>
 
@@ -249,11 +243,10 @@ export default function IntroToDBMSLesson() {
             <div className="bt-step">
               <span className="bt-step__n">01</span>
               <div>
-                <h3>First, we separate data from information.</h3>
+                <h3>Data and information</h3>
                 <p className="bt-prose">
-                  You did the interactive version of this at the top of the page. In the chapter it looks like
-                  this, and the four quality characteristics get a table of their own, because a marker will
-                  ask you to name them.
+                  Same idea as the widget at the top of the page. Learn the four quality characteristics
+                  properly — you’ll be asked to name them.
                 </p>
                 <Figure src={`${BASE}mbi802/data-to-information.svg`} caption="From the Lesson 1 chapter: data becomes information through processing and context." />
                 <div className="bt-scroll">
@@ -277,10 +270,9 @@ export default function IntroToDBMSLesson() {
             <div className="bt-step">
               <span className="bt-step__n">02</span>
               <div>
-                <h3>Then you start writing SQL.</h3>
+                <h3>Writing SQL</h3>
                 <p className="bt-prose">
-                  Not toy examples. A real table, real rows, and a query that actually returns something.
-                  This is the exact code from Lesson 2.
+                  A real table, real rows, and a query that returns something. This is the code from Lesson 2.
                 </p>
                 <Code title="lesson02_sql_fundamentals.sql">{`CREATE DATABASE school_db;
 USE school_db;
@@ -314,11 +306,10 @@ FROM   students;`}</Code>
             <div className="bt-step">
               <span className="bt-step__n">03</span>
               <div>
-                <h3>A few classes in, we design before we build.</h3>
+                <h3>Designing before building</h3>
                 <p className="bt-prose">
-                  I like to compare it to an architect’s drawing. An architect plans the rooms before anyone
-                  pours concrete. We plan the tables before anyone writes CREATE TABLE. This is Chen’s notation,
-                  the diagramming style we use for the whole course.
+                  An architect plans the rooms before anyone pours concrete. We plan the tables before anyone
+                  writes CREATE TABLE. Chen’s notation is what we use for the whole course.
                 </p>
                 <Figure src={`${BASE}mbi802/chen-shapes.svg`} caption="From the Lesson 4 chapter: the four Chen notation shapes, and what each one becomes in the database." />
               </div>
@@ -329,10 +320,10 @@ FROM   students;`}</Code>
             <div className="bt-step">
               <span className="bt-step__n">04</span>
               <div>
-                <h3>By Lesson 7, we clean up a table that was never designed properly.</h3>
+                <h3>Cleaning up a bad table</h3>
                 <p className="bt-prose">
-                  A real example from the normalization chapter. It tries to record students, departments and
-                  courses all in one table. The red columns are where it goes wrong.
+                  From the normalization chapter. It records students, departments and courses in one table.
+                  The red columns are where it goes wrong.
                 </p>
                 <div className="bt-scroll bt-badtable">
                   <table className="bt-grid">
@@ -355,10 +346,9 @@ FROM   students;`}</Code>
                   </table>
                 </div>
                 <p className="bt-prose">
-                  If Dr. Smith leaves, every CS row needs updating, and it is easy to miss one. That is an update
-                  anomaly, one of three problems this design has. We will name all three, then split this into
-                  clean tables that do not contradict themselves — which is the same instinct you used on the
-                  hospital sheets, done formally.
+                  If Dr. Smith leaves, every CS row needs updating and it’s easy to miss one. That’s an update
+                  anomaly — one of three problems here. We name all three, then split the table until it stops
+                  contradicting itself.
                 </p>
                 <Figure src={`${BASE}mbi802/nf-ladder.svg`} caption="From the Lesson 7 chapter: the normalization ladder, 1NF through BCNF." maxWidth={480} />
               </div>
@@ -369,10 +359,10 @@ FROM   students;`}</Code>
             <div className="bt-step">
               <span className="bt-step__n">05</span>
               <div>
-                <h3>And some of it, you will just watch.</h3>
+                <h3>Recordings</h3>
                 <p className="bt-prose">
-                  You will receive a video recording for every lecture, plus additional video resources on top
-                  of that. These are a few of the actual thumbnails from inside the course.
+                  Every lecture is recorded, and there are extra videos on top of that. A few thumbnails from
+                  inside the course:
                 </p>
                 <div className="bt-videos">
                   {VIDEO_PREVIEWS.map(v => (
@@ -394,10 +384,9 @@ FROM   students;`}</Code>
       <section id="practice" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="What you'll actually do"
-            title="Not hypothetical exercises"
-            stop="."
-            aside="Every one of these is a real activity from the course, with a worked answer waiting on the other side of it."
+            eyebrow="What you'll do"
+            title="Activities from the course"
+            aside="Each one has a worked answer to check yourself against."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -420,9 +409,8 @@ FROM   students;`}</Code>
         <Reveal>
           <SectionHead
             eyebrow="Beyond this page"
-            title="There is more waiting through the course"
-            stop="."
-            aside="A few things you get access to as we go. Not all of it is visible from here, which is the point of enrolling."
+            title="What else you get"
+            aside="A few things that open up once you're enrolled."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -446,9 +434,8 @@ FROM   students;`}</Code>
             <p className="bt-eyebrow">Your lecturer</p>
             <h2>See you in class<span className="bt-stop">.</span></h2>
             <p className="bt-signoff__body">
-              You have just done the part everything else rests on — you broke a file-based system, named what
-              went wrong, and turned data into information. That is where MBI802 starts. The rest is eight
-              lessons of doing it properly, with someone to ask when it does not work.
+              That’s roughly where MBI802 starts. The rest is eight lessons of doing it properly, with someone
+              to ask when it doesn’t work. Bring questions.
             </p>
             <p className="bt-signoff__name">
               Yasas Sri Wickramasinghe

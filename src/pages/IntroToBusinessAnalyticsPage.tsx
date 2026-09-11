@@ -70,8 +70,8 @@ export default function IntroToBusinessAnalyticsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: EASE, delay: 0.14 }}
             >
-              Coffee outsells juice two to one. That much anyone can read. Working out what to do about it,
-              and being able to defend the answer, is the actual job — and it is what MBI806B teaches.
+              Coffee outsells juice two to one — anyone can read that. Working out what to do about it, and
+              being able to defend the answer, is the job. That’s what MBI806B teaches.
             </motion.p>
 
             <motion.p
@@ -80,7 +80,7 @@ export default function IntroToBusinessAnalyticsPage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, ease: EASE, delay: 0.24 }}
             >
-              Written by Yasas Sri Wickramasinghe, MBI806B lecturer · 15 credits, Level 8, built for beginners
+              Yasas Sri Wickramasinghe, MBI806B lecturer · 15 credits, Level 8, no prior experience needed
             </motion.p>
 
             <motion.div
@@ -135,7 +135,7 @@ export default function IntroToBusinessAnalyticsPage() {
             </div>
             <p className="bt-keyline">
               <span className="bt-keyline__swatch" aria-hidden="true" />
-              <span><b>A chart is not the answer.</b> It is the start of an argument. Which is why this course spends as long on the decision as it does on the data.</span>
+              <span><b>A chart isn’t the answer.</b> It’s the start of an argument, which is why the course spends as long on the decision as on the data.</span>
             </p>
           </motion.div>
         </div>

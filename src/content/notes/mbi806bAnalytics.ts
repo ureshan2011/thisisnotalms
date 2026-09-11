@@ -9,43 +9,43 @@ export const ANALYTICS_NOTES: NotesDoc = {
   course: 'Business Data Analytics with Visualisation and Decision-Making',
   title: 'Business Decision-Making with AI and ML',
   summary:
-    'How decisions get made, what AI and machine learning actually are, where they show up in a business, and what the course assesses.',
+    'How decisions get made, what AI and machine learning are, where they show up in a business, and what the course assesses.',
   accent: [15, 118, 110],
   fileName: 'MBI806B-Business-Analytics-notes',
   sections: [
     {
-      heading: 'How a decision actually gets made',
-      standfirst: 'Before any AI enters the picture.',
+      heading: 'How a decision gets made',
+      standfirst: 'A framework, before any AI enters the picture.',
       blocks: [
         {
           type: 'p',
           text:
-            'A decision-making framework is a structured way to get from a problem to a choice you can stand behind. It matters because most bad decisions are not bad analysis — they are good analysis of the wrong question, or a choice nobody reviewed afterwards.',
+            'A framework is a structured way to get from a problem to a choice you can defend. Most bad decisions are not bad analysis: they are good analysis of the wrong question, or a choice nobody reviewed afterwards.',
         },
         {
           type: 'numbered',
           title: 'The seven steps',
           pairs: [
-            ['Define the problem', 'Say clearly what the issue or opportunity actually is, and understand its context.'],
-            ['Gather information', 'Work out what data and facts you actually need, then go and get them. Not everything easy to collect is worth collecting.'],
+            ['Define the problem', 'Say clearly what the issue or opportunity is, and understand its context.'],
+            ['Gather information', 'Work out what data you need, then go and get it. Not everything easy to collect is worth collecting.'],
             ['Generate alternatives', 'Produce more than one option, including ones that are not immediately obvious. A choice between one option is not a choice.'],
             ['Evaluate alternatives', 'Weigh each option\'s risk, cost and likely outcome. This is where the analysis earns its keep.'],
-            ['Choose one', 'Pick the option that best fits the goals and is actually achievable with what you have.'],
+            ['Choose one', 'Pick the option that fits the goals and is achievable with what you have.'],
             ['Implement it', 'Turn the choice into real actions, each with somebody responsible and a date attached.'],
-            ['Review and learn', 'Check what actually happened and be honest about what you would do differently. This is the step people skip.'],
+            ['Review and learn', 'Check what happened and be honest about what you would do differently. Most people skip this one.'],
           ],
         },
         {
           type: 'callout',
           title: 'Where analytics fits',
           text:
-            'Data-driven decision-making uses analysis to find patterns and insight instead of relying purely on judgement. It does not remove the human from the decision. It gives them better information to decide with, mostly at steps 2 and 4.',
+            'Data-driven decision-making uses analysis to find patterns instead of relying on judgement alone. The human still decides, with better information, mostly at steps 2 and 4.',
         },
       ],
     },
     {
-      heading: 'What AI and machine learning actually are',
-      standfirst: 'Definitions that do not require a computer science degree.',
+      heading: 'What AI and machine learning are',
+      standfirst: 'Definitions that need no computer science background.',
       blocks: [
         {
           type: 'p',
@@ -79,7 +79,7 @@ export const ANALYTICS_NOTES: NotesDoc = {
     },
     {
       heading: 'The four ways a machine can learn',
-      standfirst: 'These four terms come up constantly through the course.',
+      standfirst: 'These come up constantly through the course.',
       blocks: [
         {
           type: 'kv',
@@ -94,7 +94,7 @@ export const ANALYTICS_NOTES: NotesDoc = {
     },
     {
       heading: 'AI you already use',
-      standfirst: 'Six everyday systems, and the technique behind each.',
+      standfirst: 'Six everyday systems and the technique behind each.',
       blocks: [
         {
           type: 'table',
@@ -113,13 +113,13 @@ export const ANALYTICS_NOTES: NotesDoc = {
           type: 'callout',
           title: 'Bring one of your own',
           text:
-            'The course opens with this as a group activity. Come with an example from your own life rather than one from this list — that is the version that gets discussed.',
+            'We open the course with this as a group activity. Come with an example from your own life rather than one off this list.',
         },
       ],
     },
     {
       heading: 'Where this shows up in a business',
-      standfirst: 'Five areas that come up across almost every industry.',
+      standfirst: 'Five areas, across almost every industry.',
       blocks: [
         {
           type: 'kv',
@@ -142,15 +142,15 @@ export const ANALYTICS_NOTES: NotesDoc = {
         },
         {
           type: 'callout',
-          title: 'The part people skip',
+          title: 'A caveat',
           text:
-            'None of this is automatically safe to trust. The data has to actually be accurate, and somebody still has to interpret what the algorithm says. As AI takes a larger part in decisions affecting real people, bias, transparency and accountability have to be taken seriously. LO4 assesses exactly this.',
+            'None of this is automatically safe to trust. The data has to be accurate, and somebody still has to interpret what the algorithm says. As AI takes a larger part in decisions affecting real people, bias, transparency and accountability matter. LO4 assesses exactly this.',
         },
       ],
     },
     {
       heading: 'What the course assesses',
-      standfirst: 'The four learning outcomes, word for word from the course descriptor.',
+      standfirst: 'Word for word from the course descriptor.',
       blocks: [
         {
           type: 'kv',
@@ -199,9 +199,9 @@ export const ANALYTICS_NOTES: NotesDoc = {
         },
         {
           type: 'callout',
-          title: 'Why this is worth learning',
+          title: 'Why it is worth learning',
           text:
-            'Automating routine work saves time and money; personalised, faster support keeps customers loyal; you understand your own operations more deeply; businesses that adopt early tend to out-innovate those that wait; and the same tools keep working as the business and its data grow.',
+            'Automating routine work saves time and money. Personalised, faster support keeps customers loyal. You understand your own operations more deeply. Businesses that adopt early tend to out-innovate those that wait, and the same tools keep working as the business grows.',
         },
       ],
     },

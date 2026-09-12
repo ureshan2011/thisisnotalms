@@ -169,6 +169,12 @@
 }
 .bt :where(p) { margin: 0; text-wrap: pretty; }
 .bt :focus-visible { outline: 2px solid var(--accent-400); outline-offset: 2px; }
+/* SVG groups used as buttons — the clickable layers of the iceberg, the cells
+   of the risk grid. The browser's default ring lands on the group's bounding
+   box and reads as a stray black rectangle after an ordinary mouse click, so
+   it is suppressed and redrawn only for keyboard focus. */
+.bt svg [role='button']:focus { outline: none; }
+.bt svg [role='button']:focus-visible { outline: 2px solid var(--accent-400); outline-offset: 2px; }
 
 .bt-wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; }
 
@@ -315,6 +321,10 @@
 
 /* ── Progress bars ────────────────────────────────────────────────────── */
 .bt-bar {
+  /* display:block is load-bearing. As a bare inline <span> — which is what it
+     is anywhere outside a flex row — the height is ignored and the fill
+     renders at whatever height the line box happens to be. */
+  display: block;
   height: 6px;
   border-radius: var(--radius-pill);
   background: var(--paper-300);
@@ -993,6 +1003,8 @@
 
 /* ── The decision walk ───────────────────────────────────────────────────── */
 .bt-walk { display: grid; grid-template-columns: 268px minmax(0, 1fr); gap: 20px; align-items: start; }
+/* For a rail that is a drawing rather than a list of labels. */
+.bt-walk--wide { grid-template-columns: 330px minmax(0, 1fr); gap: 26px; }
 .bt-walk__rail { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 .bt-walk__node {
   display: flex;
@@ -2030,4 +2042,226 @@
 @media (max-width: 640px) {
   .wa__slip dl > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .wa__like { flex-direction: column; gap: 6px; }
+}
+
+/* ── Lesson furniture ────────────────────────────────────────────────────
+   A Blend course page that is also the course's first lesson needs three
+   things the marketing-shaped pages never did: a stated set of objectives
+   at the top, section numbers a student can refer to out loud, and a
+   knowledge check at the end. Everything below is accent-agnostic. ───── */
+
+.bt-lessonhead {
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: 30px;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 34px;
+  margin-top: 46px;
+}
+.bt-lessonhead h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 800; letter-spacing: -0.03em; margin-top: 10px; }
+.bt-lessonhead__lead {
+  margin-top: 14px !important;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--ink-500);
+  max-width: 46ch;
+}
+.bt-lessonmeta { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 20px !important; }
+.bt-lessonmeta > span { font-size: 12.5px; color: var(--ink-400); }
+.bt-lessonmeta b { color: var(--ink-900); font-weight: 700; }
+
+/* The objectives list. A hollow ring rather than a tick: nothing has been
+   achieved yet at the top of a lesson, and a row of green ticks would say
+   it had. */
+.bt-objectives { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+.bt-objectives > li { display: grid; grid-template-columns: 15px minmax(0, 1fr); gap: 12px; align-items: start; font-size: 14px; line-height: 1.5; color: var(--ink-600); }
+.bt-objectives__ring {
+  width: 13px;
+  height: 13px;
+  margin-top: 5px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--accent-300);
+}
+
+/* Section numbers. Small, monospaced, recessive — a reference, not a
+   decoration, and never the loudest thing in the heading. */
+.bt-secno {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-300);
+  margin-right: 10px;
+}
+
+/* The end-of-lesson recap, on the dark surface so it closes the teaching
+   before the course admin starts. */
+.bt-recap { background: var(--ink-900); border-radius: var(--radius-panel); padding: 34px; color: var(--ink-200); margin-top: 42px; }
+.bt-recap h2 { color: #fff; font-size: clamp(22px, 3vw, 28px); font-weight: 800; letter-spacing: -0.03em; margin-top: 12px; }
+.bt-recap ul { list-style: none; margin: 22px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px 34px; }
+.bt-recap li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; font-size: 14px; line-height: 1.55; color: var(--ink-300); }
+.bt-recap li b { color: var(--paper-50); font-weight: 700; }
+.bt-recap__n { font-family: var(--font-mono); font-size: 11.5px; color: var(--accent-400); padding-top: 3px; }
+
+/* ── Knowledge check ─────────────────────────────────────────────────────
+   Answer, see why, move on. No score is stored and nothing is reported
+   anywhere: it is a way of finding out whether the last ten minutes
+   landed, not an assessment. ──────────────────────────────────────────── */
+
+.bt-quiz {
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: 26px;
+  box-shadow: var(--shadow-md);
+}
+.bt-quiz__bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.bt-quiz__bar .bt-bar { max-width: 220px; }
+.bt-quiz__count { font-family: var(--font-mono); font-size: 12px; color: var(--ink-400); }
+.bt-quiz__q { margin-top: 18px !important; font-family: var(--font-display); font-size: 19px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink-900); line-height: 1.35; }
+.bt-quiz__opts { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.bt-quiz__opt {
+  width: 100%;
+  text-align: left;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 13px;
+  align-items: start;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  border-radius: var(--radius-md);
+  padding: 15px 17px;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink-600);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+    transform var(--dur-base) var(--ease);
+}
+.bt-quiz__opt:hover { background: var(--paper-200); color: var(--ink-900); transform: translateY(-2px); }
+.bt-quiz__opt:disabled { cursor: default; transform: none; }
+.bt-quiz__opt:disabled:hover { background: var(--paper-50); color: var(--ink-600); }
+.bt-quiz__key { font-family: var(--font-mono); font-size: 12px; color: var(--ink-300); padding-top: 2px; }
+.bt-quiz__opt--right { background: var(--green-50); border-color: rgba(47, 163, 107, 0.32); color: #186845; }
+.bt-quiz__opt--right:disabled:hover { background: var(--green-50); color: #186845; }
+.bt-quiz__opt--right .bt-quiz__key { color: var(--green-500); }
+.bt-quiz__opt--wrong { background: var(--red-50); border-color: rgba(217, 58, 43, 0.3); color: #8f2318; }
+.bt-quiz__opt--wrong:disabled:hover { background: var(--red-50); color: #8f2318; }
+.bt-quiz__opt--wrong .bt-quiz__key { color: var(--red-500); }
+.bt-quiz__why { margin-top: 16px; border-radius: var(--radius-md); background: var(--paper-100); padding: 17px 19px; }
+.bt-quiz__stamp { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-600); margin-bottom: 7px !important; }
+.bt-quiz__why p:last-child { font-size: 14px; line-height: 1.6; color: var(--ink-600); max-width: 70ch; }
+.bt-quiz__nav { margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.bt-quiz__nav .bt-btn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+.bt-quiz__done { font-size: 13px; color: var(--ink-400); line-height: 1.5; }
+
+/* ── Two-ended scale ─────────────────────────────────────────────────────
+   For a property that sits between two named poles rather than being on or
+   off. The hollow ring marks the reference position, so "where this one is"
+   and "where it ought to be" are one glance apart. ───────────────────── */
+
+.bt-scale { display: flex; flex-direction: column; gap: 2px; }
+.bt-scale__row { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 12px 22px; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border-subtle); }
+.bt-scale__row:last-child { border-bottom: none; }
+.bt-scale__name { font-family: var(--font-display); font-size: 15px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink-900); }
+.bt-scale__ask { display: block; font-family: var(--font-body); font-size: 12.5px; font-weight: 400; color: var(--ink-400); margin-top: 4px; line-height: 1.4; }
+.bt-scale__track { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; }
+.bt-scale__end {
+  position: relative;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  border-radius: var(--radius-pill);
+  padding: 10px 16px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-500);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.bt-scale__end:hover { background: var(--paper-200); color: var(--ink-900); }
+.bt-scale__end[aria-pressed='true'] { background: var(--ink-900); border-color: var(--ink-900); color: #fff; }
+/* The reference marker. Present on whichever end the ideal profile sits,
+   so a wrong setting reads as "the ring is over there". */
+.bt-scale__ref::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 9px;
+  height: 9px;
+  margin-top: -4.5px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--accent-400);
+}
+.bt-scale__end[aria-pressed='true'].bt-scale__ref::after { border-color: var(--accent-300); background: var(--accent-500); }
+.bt-scale__note { grid-column: 2; font-size: 12.5px; color: var(--ink-400); line-height: 1.45; margin-top: -2px !important; }
+
+/* Two small meters summarising a profile, side by side. */
+.bt-meters { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-top: 22px; }
+.bt-meter { border: 1px solid var(--border-subtle); background: var(--paper-0); border-radius: var(--radius-md); padding: 16px 18px; }
+.bt-meter__head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.bt-meter__name { font-family: var(--font-display); font-size: 13.5px; font-weight: 800; letter-spacing: -0.015em; color: var(--ink-900); }
+.bt-meter__val { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-400); }
+.bt-meter .bt-bar { margin-top: 12px; }
+.bt-meter__note { margin-top: 10px !important; font-size: 12.5px; color: var(--ink-400); line-height: 1.45; }
+
+/* ── Simulation panel ────────────────────────────────────────────────────
+   Controls on the left, a drawing that responds on the right, and a single
+   readout underneath saying what just changed. Used by the systems feedback
+   loop and the schedule slip. ─────────────────────────────────────────── */
+
+.bt-sim {
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+}
+.bt-sim__grid { display: grid; grid-template-columns: 268px minmax(0, 1fr); gap: 26px; align-items: start; }
+/* A readout in a simulation's narrow control column stacks, so the figure
+   gets a full line instead of wrapping against its own caption. */
+.bt-sim__grid .bt-counter { flex-direction: column; align-items: flex-start; gap: 7px; }
+.bt-sim__label { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-400); }
+.bt-sim__choices { list-style: none; margin: 11px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.bt-sim__choice {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  border-radius: var(--radius-md);
+  padding: 13px 16px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-base) var(--ease);
+}
+.bt-sim__choice:hover { background: var(--paper-200); transform: translateY(-2px); }
+.bt-sim__choice b { display: block; font-family: var(--font-display); font-size: 14px; font-weight: 800; letter-spacing: -0.015em; color: var(--ink-900); }
+.bt-sim__choice span { display: block; margin-top: 4px; font-size: 12.5px; line-height: 1.45; color: var(--ink-400); }
+.bt-sim__choice[aria-pressed='true'] { background: var(--ink-900); border-color: var(--ink-900); }
+.bt-sim__choice[aria-pressed='true'] b { color: #fff; }
+.bt-sim__choice[aria-pressed='true'] span { color: var(--ink-300); }
+.bt-sim__stage { border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--paper-50); padding: 16px 16px 12px; }
+.bt-sim__stage svg { display: block; width: 100%; height: auto; }
+.bt-sim__caption { margin-top: 10px !important; font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-400); letter-spacing: 0.02em; }
+.bt-sim__range { margin-top: 20px; }
+.bt-sim__range input[type='range'] { width: 100%; margin-top: 10px; accent-color: var(--accent-500); }
+.bt-sim__legend { list-style: none; margin: 14px 0 0; padding: 12px 0 0; border-top: 1px solid var(--border-subtle); display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.bt-sim__legend li { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-600); }
+.bt-sim__swatch { width: 11px; height: 11px; border-radius: 3px; flex: 0 0 11px; }
+
+@media (max-width: 860px) {
+  .bt-lessonhead { grid-template-columns: minmax(0, 1fr); gap: 26px; padding: 24px; }
+  .bt-sim__grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+}
+@media (max-width: 640px) {
+  .bt-scale__row { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .bt-scale__note { grid-column: 1; }
+  .bt-recap { padding: 24px; }
+  .bt-quiz { padding: 18px; }
+  .bt-sim { padding: 16px; }
+  .bt-secno { display: block; margin-bottom: 4px; }
 }

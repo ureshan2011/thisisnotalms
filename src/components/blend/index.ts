@@ -8,3 +8,6 @@ export { default as PillNav, type NavItem } from './PillNav';
 export { default as SectionHead } from './SectionHead';
 export { default as Reveal } from './Reveal';
 export { default as SaveAsPdf } from './SaveAsPdf';
+export { default as LessonHeader } from './LessonHeader';
+export { default as Recap } from './Recap';
+export { default as Quiz, type QuizQuestion, type QuizOption } from './Quiz';

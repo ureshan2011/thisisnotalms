@@ -1,42 +1,186 @@
 import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
-import { Reveal, SaveAsPdf, SectionHead } from '../blend';
+import { LessonHeader, Quiz, Recap, Reveal, SaveAsPdf, SectionHead, type QuizQuestion } from '../blend';
+import IcebergModel, { type IcebergLayer } from './sisp/IcebergModel';
+import FeedbackLoopSim from './sisp/FeedbackLoopSim';
+import DimensionProfile from './sisp/DimensionProfile';
 import { SISP_NOTES } from '../../content/notes/mbi800Sisp';
 
-// ─── MBI800: Strategic Information Systems Planning ───────────────────────
-// A public, ungated course intro page in Blended Teaching Content's
-// course-page design system, Blend (src/components/blend/README.md), running
-// on MBI800's indigo through the `planning` accent set by the shell.
+// ─── MBI800 · Lesson 1: Introduction and Systems Thinking ─────────────────
+// A public, ungated page in Blended Teaching Content's course-page design
+// system, Blend (src/components/blend/README.md), running on MBI800's indigo
+// through the `planning` accent set by the shell.
 //
-// The material is the course's own: the Iceberg Model and the collections /
-// systems distinction from the systems-thinking chapter, the Segars, Grover
-// and Teng definition and the six process dimensions from the SISP
-// foundations chapter, and the learning outcomes, content list and
-// assessment weightings verbatim from the MBI800 course descriptor.
+// This is the course's first lesson, not a prospectus with a lesson bolted
+// on. It follows the study pack's own order — what SISP is, why it is hard,
+// systems before frameworks, then the Iceberg Model — and everything after
+// the knowledge check is explicitly labelled as what comes next rather than
+// as part of this hour.
 //
-// Like the other course intros, nothing here is pinned to a session number
-// or a calendar day. It is written to be read before the first class, by
-// somebody who may not have enrolled yet.
+// The learning outcomes, indicative content and assessment weightings are
+// verbatim from the MBI800 course descriptor. The teaching content follows
+// study-pack/content/mbi800/lessons chapters 1 to 3.
+//
+// Nothing here is pinned to a calendar date. It is Lesson 1 of the course,
+// which is a position in a sequence, not a day in a term.
 
 const BASE = import.meta.env.BASE_URL;
 
-// Verbatim from the MBI800 course descriptor.
-const LEARNING_OUTCOMES = [
+const OBJECTIVES = [
+  'Say what Strategic Information Systems Planning is, and what problem it solves',
+  'Explain how SISP differs from planning a single IT project',
+  'Tell a system from a collection, and say why that distinction decides how you plan',
+  'Use the Iceberg Model to get from an observed failure down to the belief that produced it',
+  'Name the layer an improvement is operating at, and predict whether it will hold',
+];
+
+const LESSON_META: [string, string][] = [
+  ['Reading', '25 minutes'],
+  ['Assumes', 'nothing'],
+  ['Bring', 'one system that annoys you'],
+];
+
+const THREE_FORCES = [
   {
-    n: 'LO1',
-    short: 'Read the system you have',
-    body: 'Assess current information systems to identify strategic opportunities and associated risks for improvement in a business context.',
+    title: 'Systems shape strategy as much as strategy shapes systems',
+    body: 'A retailer that adopts real-time inventory data does not merely automate an existing process. It opens strategic options — dynamic pricing, drop-shipping, personalised marketing — that did not exist before the system did. Plan in one direction only and you keep building systems that support last year’s strategy.',
   },
   {
-    n: 'LO2',
-    short: 'Weigh culture and privacy',
-    body: 'Evaluate the impact of cultural protocols and data privacy on the successful implementation of information systems in diverse cultural settings.',
+    title: 'Planning happens under uncertainty and constraint',
+    body: 'Technology moves faster than most planning cycles, budgets are finite, and the people who understand the business rarely share a time horizon with the people who understand the technology. A good process reconciles that without freezing the organisation in permanent analysis.',
   },
   {
-    n: 'LO3',
-    short: 'Write the plan',
-    body: 'Develop strategic plans to align information systems with organisational goals in a business context.',
+    title: 'It is a human process before it is a technical one',
+    body: 'The frameworks in this course exist because organisations are made of people with competing incentives, incomplete information and legitimate disagreement about priorities. A plan that ignores this does not survive contact with the organisation it was written for.',
   },
+];
+
+// The swap test: change one part and see whether the rest cares.
+const SORT_ITEMS = [
+  {
+    thing: 'A bowl of fruit',
+    verdict: 'Collection',
+    why: 'Take the apple out and the pears carry on being pears. The items co-exist without interacting, so nothing about the whole depends on any one of them.',
+  },
+  {
+    thing: 'A football team',
+    verdict: 'System',
+    why: 'Remove one player mid-match and every other player’s role shifts. The behaviour — holding a shape, winning, losing — belongs to the whole, not to any player in it.',
+  },
+  {
+    thing: 'A toolbox',
+    verdict: 'Collection',
+    why: 'A hammer does not change what the screwdriver does. Useful together, but they do not interact, so the box produces no behaviour of its own.',
+  },
+  {
+    thing: 'A kitchen',
+    verdict: 'System',
+    why: 'Oven, fridge, bench and the person moving between them interact to produce a meal. Take the fridge out and the whole way the room is used changes.',
+  },
+  {
+    thing: 'A toaster',
+    verdict: 'System',
+    why: 'A small one. Heating element, timer and lever interact to produce toast — an outcome none of the three parts produces alone.',
+  },
+  {
+    thing: 'A database of customer names',
+    verdict: 'It depends',
+    why: 'A static list with no relationships defined is close to a collection. The moment other processes query it and depend on its answers, it is a system, and changing it changes their behaviour.',
+  },
+];
+
+// Worked through the CrowdStrike content update of 19 July 2024, because the
+// event layer was reported everywhere and the three below it almost nowhere.
+const ICEBERG_LAYERS: IcebergLayer[] = [
+  {
+    title: 'Events',
+    kicker: 'what happened',
+    question: 'What is happening?',
+    body: 'On 19 July 2024 a faulty content update from a security vendor crashed Windows machines worldwide. Flights were grounded, hospital systems went dark, payment terminals stopped. This is the layer that gets reported, and the only one visible without going looking for the rest.',
+    ask: 'React here and you restore service. Nothing about the next one has changed.',
+  },
+  {
+    title: 'Patterns of behaviour',
+    kicker: 'what keeps happening',
+    question: 'What has been happening, over and over?',
+    body: 'Ask what recurs rather than what occurred. Outages of this class cluster around urgent updates pushed outside the normal review window — in every vendor, for years. Seen as a pattern, one event stops looking like bad luck and starts looking like a schedule.',
+    ask: 'Patterns turn a one-off into something you can plan against.',
+  },
+  {
+    title: 'Structures',
+    kicker: 'what makes it possible',
+    question: 'What arrangement produces that pattern?',
+    body: 'The policies, architecture, workflows and resource allocations underneath it: kernel-level deployment with no staged rollout, no canary ring, and a channel classified as content rather than as code, so it skipped the review that code gets.',
+    ask: 'Change a structure and you change every future event it would have produced.',
+  },
+  {
+    title: 'Mental models',
+    kicker: 'what holds it in place',
+    question: 'What belief made that arrangement seem reasonable?',
+    body: 'That a vendor security update is low-risk enough not to need staged deployment. Nobody wrote it down. Everybody acted on it, and every structure above was built to match.',
+    ask: 'The least visible layer, and the one with the most leverage of all.',
+  },
+];
+
+const CHECK: QuizQuestion[] = [
+  {
+    q: 'A company’s IT plan is thorough, formally documented, and signed off by the executive. It covers only the finance department’s systems. Which test in the SISP definition does it fail?',
+    answer: 1,
+    options: [
+      { text: 'Long-range time frame', why: 'Nothing in the description says the horizon is short. A departmental plan can easily run five years and still not be SISP.' },
+      { text: 'Broad scope', why: 'That is the one. Scope asks how much of the organisation the plan reaches, and a plan confined to one department cannot coordinate investment across the others or stop them duplicating it.' },
+      { text: 'Conceptual level of abstraction', why: 'Nothing says this plan jumped to technical specification. It may be pitched at exactly the right altitude — for one department.' },
+      { text: 'Upper-management perspective', why: 'Tempting, because the failure feels organisational. But the executive signed it, so that test passes. It is the reach of the plan, not the seniority of its approver, that fails here.' },
+    ],
+  },
+  {
+    q: 'Which of these is a collection rather than a system?',
+    answer: 2,
+    options: [
+      { text: 'A football team', why: 'A system. Remove one player mid-match and every other player’s role changes, which is exactly what a collection does not do.' },
+      { text: 'A kitchen', why: 'A system. The appliances and the person working between them interact to produce something none of them produces alone.' },
+      { text: 'A toolbox', why: 'That is the one. Take the hammer out and the screwdriver behaves exactly as before. The tools co-exist without interacting, so the box has no behaviour of its own.' },
+      { text: 'A toaster', why: 'A small system. Heating element, timer and lever interact, and removing any one of them stops the other two producing toast.' },
+    ],
+  },
+  {
+    q: 'After a data breach, an organisation resets every password and adds a banner reminding staff not to click unfamiliar links. Which layer is that fix operating at?',
+    answer: 0,
+    options: [
+      { text: 'Events', why: 'Yes. It addresses this breach and restores service, and it changes nothing about how the next one gets in. The banner is the clearest tell: it asks people to compensate for an arrangement rather than changing the arrangement.' },
+      { text: 'Patterns of behaviour', why: 'A pattern-layer response would start by asking how often this class of breach has happened and what it clusters around. Nothing here looks past the single incident.' },
+      { text: 'Structures', why: 'A structural fix would change how access is granted, how mail is filtered, or how credentials are issued — the arrangement that produced the opening, rather than the symptom it produced.' },
+      { text: 'Mental models', why: 'That layer is the belief underneath, such as "our staff are careful enough that filtering is optional". Reminding people to be careful actually reinforces that belief rather than examining it.' },
+    ],
+  },
+  {
+    q: 'A planning process is comprehensive, formally documented, cost-controlled and initiated by senior management. It runs once a year, and business units are told the priorities rather than consulted while they are set. What is the diagnosis?',
+    answer: 1,
+    options: [
+      { text: 'Rational Adaptation', why: 'Half of it. All four Rational Tendencies are present, and both Adaptive Tendencies — broad participation and a continuous cycle — are missing, so the balanced profile is not there.' },
+      { text: 'Rational, but not adaptive', why: 'Exactly. Thorough, formal, controlled and top-down, with nothing in the process that notices the organisation changing. The plan is out of date within a year, and the fix is to widen participation and shorten the interval, not to loosen the discipline.' },
+      { text: 'Adaptive, but not rational', why: 'The other way round. This process has all the discipline and none of the responsiveness — adaptive without rational would be continuous, broadly consulted activity with no traceable line from a decision to a goal.' },
+      { text: 'Neither half is in place', why: 'Four of the six dimensions are at the right pole. This is a real planning process with a specific, fixable weakness, not an absence of one.' },
+    ],
+  },
+  {
+    q: 'Why does this course insist that systems reshape strategy, and not only the other way round?',
+    answer: 1,
+    options: [
+      { text: 'Because IT departments usually control more budget than strategy teams', why: 'They usually do not, and the claim is not about budget. It is about what becomes possible once a capability exists.' },
+      { text: 'Because a new system opens options the organisation did not previously have', why: 'That is it. Real-time inventory data does not just speed up stock counts; it makes dynamic pricing and drop-shipping thinkable at all. A plan that only runs from strategy down to systems never notices those options.' },
+      { text: 'Because technology changes faster than planning cycles', why: 'True, and it is one of the three forces that make planning hard — but it is a point about uncertainty, not about influence running in both directions.' },
+      { text: 'Because senior managers rarely understand technology', why: 'Sometimes true and beside the point. The claim holds even where senior management understands the technology perfectly well.' },
+    ],
+  },
+];
+
+const RECAP: [string, string][] = [
+  ['SISP asks whether a system should exist at all.', 'A project plan answers how to build it on time and on budget. Answer the prior question badly and flawless delivery still fails.'],
+  ['Four tests, and all four have to pass.', 'Broad scope, an upper-management perspective, a long-range horizon, and a conceptual level of abstraction. Fail one and it is not SISP, however much analysis went in.'],
+  ['A system is not a list.', 'Change one part and see whether the rest cares. Organisations are systems, which is why a fix applied to one visible part so often rebounds.'],
+  ['Events are the cheap layer.', 'Patterns, structures and mental models carry the leverage, and none of them appear without somebody deliberately going to look for them.'],
+  ['Balance beats maximum.', 'Rational Adaptation is a shape, not a score. Discipline without breadth goes stale; breadth without discipline is motion without a plan.'],
 ];
 
 const COURSE_PATH = [
@@ -47,12 +191,18 @@ const COURSE_PATH = [
   { code: 'MBI804', label: 'Needs MBI800 underneath it' },
 ];
 
+// Verbatim from the MBI800 course descriptor.
+const LEARNING_OUTCOMES = [
+  { n: 'LO1', short: 'Read the system you have', body: 'Assess current information systems to identify strategic opportunities and associated risks for improvement in a business context.' },
+  { n: 'LO2', short: 'Weigh culture and privacy', body: 'Evaluate the impact of cultural protocols and data privacy on the successful implementation of information systems in diverse cultural settings.' },
+  { n: 'LO3', short: 'Write the plan', body: 'Develop strategic plans to align information systems with organisational goals in a business context.' },
+];
+
 const ASSESSMENTS: [string, string, string][] = [
   ['60%', 'Strategic Information Systems Planning report', 'Individual · assesses LO1 and LO3'],
   ['40%', 'Case study analysis: cultural and ethical analysis in information systems implementation', 'Individual · assesses LO2'],
 ];
 
-// The indicative content from the descriptor, in teaching order.
 const COURSE_CONTENT = [
   'Understanding information systems and their role in organisations',
   'Critical understanding of how information systems shape and influence organisational strategy',
@@ -67,211 +217,7 @@ const COURSE_CONTENT = [
   'Future trends in SISP and its impact on business analytics and healthcare informatics',
 ];
 
-// The four Iceberg layers, worked through one documented incident. The
-// CrowdStrike content update of 19 July 2024 is the case the course uses,
-// because the event layer was reported everywhere and the three layers
-// underneath it were reported almost nowhere.
-const ICEBERG = [
-  {
-    title: 'Event',
-    kicker: 'What happened',
-    body: 'On 19 July 2024 a faulty content update from a security vendor crashed Windows machines worldwide. Flights were grounded, hospital systems went dark, payment terminals stopped. This is the layer that gets reported, and the only one visible without going looking for the rest.',
-    ask: 'React to it, and you restore service. Nothing else changes.',
-  },
-  {
-    title: 'Patterns of behaviour',
-    kicker: 'What has been happening',
-    body: 'Now ask what keeps happening, rather than what happened once. Outages of this class cluster around urgent updates pushed outside the normal review window, in every vendor, for years. Seen as a pattern, the single event stops looking like bad luck and starts looking like a schedule.',
-    ask: 'Patterns are where a one-off becomes a trend you can plan against.',
-  },
-  {
-    title: 'Structures',
-    kicker: 'What makes the pattern possible',
-    body: 'The policies, architecture, workflows and resource allocations underneath: kernel-level deployment with no staged rollout, no canary ring, and a channel classified as content rather than as code so it skipped the review that code gets.',
-    ask: 'Change a structure and you change every future event it produces.',
-  },
-  {
-    title: 'Mental models',
-    kicker: 'What holds the structures in place',
-    body: 'The belief that made those structures reasonable to the people who built them: that a vendor security update is low-risk enough not to need staged deployment. Nobody wrote that down. Everybody acted on it.',
-    ask: 'The deepest layer, the least visible, and the one with the most leverage.',
-  },
-];
-
-// The swap test: remove or change one part and see whether the rest cares.
-const SORT_ITEMS = [
-  {
-    thing: 'A bowl of fruit',
-    verdict: 'Collection',
-    why: 'Take the apple out and the pears carry on being pears. The items co-exist without interacting, so nothing about the whole depends on any one of them.',
-  },
-  {
-    thing: 'A football team',
-    verdict: 'System',
-    why: 'Remove one player mid-match and every other player’s role shifts. The behaviour — winning, losing, holding a shape — belongs to the whole, not to any player in it.',
-  },
-  {
-    thing: 'A toolbox',
-    verdict: 'Collection',
-    why: 'A hammer does not change what the screwdriver does. Useful together, but they do not interact, so the box produces no behaviour of its own.',
-  },
-  {
-    thing: 'A kitchen',
-    verdict: 'System',
-    why: 'Oven, fridge, bench and the person working across them interact to produce a meal. Take the fridge out and the whole way the room is used changes.',
-  },
-  {
-    thing: 'A toaster',
-    verdict: 'System',
-    why: 'A small one. Heating element, timer and lever interact to produce toast — an outcome none of the three parts produces alone.',
-  },
-  {
-    thing: 'A database of customer names',
-    verdict: 'It depends',
-    why: 'A static list with no relationships defined is close to a collection. The moment other processes query it and depend on its answers, it is a system, and changing it changes their behaviour.',
-  },
-];
-
-// Six process dimensions (Segars, Grover & Teng). Index 0 of each pole pair
-// is that dimension's Rational Adaptation setting, so the diagnosis below is
-// just "which ones are not at index 0".
-type DimKey = 'comp' | 'form' | 'focus' | 'flow' | 'part' | 'cons';
-type Half = 'Rational' | 'Adaptive';
-
-const DIMENSIONS: {
-  key: DimKey;
-  name: string;
-  ask: string;
-  half: Half;
-  poles: [string, string];
-  notes: [string, string];
-}[] = [
-  {
-    key: 'comp',
-    name: 'Comprehensiveness',
-    ask: 'How wide a range of alternatives does the process actually canvass?',
-    half: 'Rational',
-    poles: ['Thorough', 'Partial'],
-    notes: [
-      'Alternatives canvassed widely, evaluation data sought out, risks weighed, contingencies set in advance.',
-      'One or two obvious options, little evaluation data, risk handled if and when it arrives.',
-    ],
-  },
-  {
-    key: 'form',
-    name: 'Formalization',
-    ask: 'Written procedure, or whoever happens to be in the room?',
-    half: 'Rational',
-    poles: ['Written', 'Ad hoc'],
-    notes: [
-      'Explicit policies, recognised pathways for collecting information, a process that survives a change of staff.',
-      'Conversation and precedent. Fast, and unrepeatable.',
-    ],
-  },
-  {
-    key: 'focus',
-    name: 'Focus',
-    ask: 'Is the process protecting assets, or nurturing new ideas?',
-    half: 'Rational',
-    poles: ['Integrative', 'Innovative'],
-    notes: [
-      'Budgetary control, cost performance and asset protection lead. Discipline over novelty.',
-      'Novel and creative solutions lead. Invention over control. Neither end is wrong — they pull in opposite directions.',
-    ],
-  },
-  {
-    key: 'flow',
-    name: 'Flow',
-    ask: 'Where does planning authority sit?',
-    half: 'Rational',
-    poles: ['Top-down', 'Bottom-up'],
-    notes: [
-      'Centralised, initiated by upper management, able to commit organisation-wide resources.',
-      'Functional managers initiate plans, which are aggregated upward.',
-    ],
-  },
-  {
-    key: 'part',
-    name: 'Participation',
-    ask: 'Who co-designs the plan, as opposed to being told about it?',
-    half: 'Adaptive',
-    poles: ['Broad', 'Narrow'],
-    notes: [
-      'A diverse set of functional areas is in the room while decisions are still open.',
-      'An isolated planning team decides; everyone else is informed. Surveying staff afterwards does not count.',
-    ],
-  },
-  {
-    key: 'cons',
-    name: 'Consistency',
-    ask: 'How often does the cycle come round?',
-    half: 'Adaptive',
-    poles: ['Continuous', 'Once a year'],
-    notes: [
-      'Embedded in operations, with constant communication and iterative evaluation.',
-      'Sporadic and largely ad hoc, often a single annual event.',
-    ],
-  },
-];
-
-// The worked example from the course: comprehensive, formal, controlled and
-// top-down, but business units are informed rather than consulted and the
-// cycle runs once a year. Rational, not adaptive.
-const DEFAULT_PICKS: Record<DimKey, 0 | 1> = { comp: 0, form: 0, focus: 0, flow: 0, part: 1, cons: 1 };
-
-/** Walk the Iceberg Model down through one documented incident. */
-function IcebergWalk() {
-  const [active, setActive] = useState(0);
-  const layer = ICEBERG[active];
-
-  return (
-    <div className="bt-walk">
-      <ol className="bt-walk__rail">
-        {ICEBERG.map((l, i) => (
-          <li key={l.title}>
-            <button
-              type="button"
-              className={`bt-walk__node${i === active ? ' bt-walk__node--on' : ''}${i < active ? ' bt-walk__node--done' : ''}`}
-              aria-current={i === active}
-              onClick={() => setActive(i)}
-            >
-              <span className="bt-walk__num bt-tnum">{i + 1}</span>
-              <span className="bt-walk__label">{l.title}</span>
-            </button>
-          </li>
-        ))}
-      </ol>
-
-      <div className="bt-walk__panel">
-        <p className="bt-eyebrow">Layer {active + 1} of {ICEBERG.length} · {layer.kicker}</p>
-        <h3>{layer.title}</h3>
-        <p className="bt-walk__body">{layer.body}</p>
-        <p className="bt-note" style={{ marginTop: 14 }}>{layer.ask}</p>
-        <div className="bt-walk__nav">
-          <button
-            type="button"
-            className="bt-btn bt-btn--tertiary bt-btn--sm"
-            disabled={active === 0}
-            onClick={() => setActive(a => Math.max(0, a - 1))}
-          >
-            Back up
-          </button>
-          <button
-            type="button"
-            className="bt-btn bt-btn--sm"
-            disabled={active === ICEBERG.length - 1}
-            onClick={() => setActive(a => Math.min(ICEBERG.length - 1, a + 1))}
-          >
-            Go deeper
-            <span className="bt-btn__badge" aria-hidden="true">→</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Tap to apply the swap test and see whether the thing is a system. */
+/** Tap to apply the swap test and find out whether the thing is a system. */
 function SortCard({ thing, verdict, why }: { thing: string; verdict: string; why: string }) {
   const [flipped, setFlipped] = useState(false);
   return (
@@ -287,93 +233,192 @@ function SortCard({ thing, verdict, why }: { thing: string; verdict: string; why
   );
 }
 
-/** Set a planning process against the six dimensions and read the diagnosis. */
-function DimensionDial() {
-  const [picks, setPicks] = useState<Record<DimKey, 0 | 1>>(DEFAULT_PICKS);
-
-  const missing = DIMENSIONS.filter(d => picks[d.key] === 1);
-  const missingRational = missing.filter(d => d.half === 'Rational');
-  const missingAdaptive = missing.filter(d => d.half === 'Adaptive');
-  const names = (list: typeof DIMENSIONS) => list.map(d => d.name.toLowerCase()).join(', ');
-
-  let tone = '';
-  let label = '';
-  let why = '';
-
-  if (missing.length === 0) {
-    tone = ' bt-verdict--good';
-    label = 'Rational Adaptation';
-    why =
-      'Comprehensiveness, formalization, an integrative focus and top-down flow give the process discipline and accountability. Broad participation and a continuous cycle stop that discipline calcifying into something the organisation no longer recognises. This balanced profile, not a maximum on every dimension, is what the research associates with the strongest planning performance.';
-  } else if (missingRational.length === 0) {
-    label = 'Rational, but not adaptive';
-    why = `Every Rational Tendency is in place and ${missingAdaptive.length === 1 ? 'one Adaptive Tendency is' : 'both Adaptive Tendencies are'} missing — ${names(missingAdaptive)}. This produces a thorough, well-documented plan that is out of date within a year, because nothing in the process notices the organisation changing. The prescription is not to abandon the discipline: it is to widen participation earlier in the cycle and shorten the interval between reviews.`;
-  } else if (missingAdaptive.length === 0) {
-    label = 'Adaptive, but not rational';
-    why = `Participation and cycle frequency are right, but ${names(missingRational)} ${missingRational.length === 1 ? 'is' : 'are'} missing. Continuous, broadly consulted activity with no discipline behind it is motion without a plan — plenty of meetings, no traceable line from any one decision to a strategic goal.`;
-  } else if (missing.length >= 4) {
-    tone = ' bt-verdict--bad';
-    label = 'Neither half is in place';
-    why = `Short on both sides: ${names(missing)}. What is left is a sequence of individual IT purchases. There is no planning process here to evaluate, which is the most common finding when an organisation is asked to show its IS strategy.`;
-  } else {
-    label = 'Short on both sides';
-    why = `${names(missing)} ${missing.length === 1 ? 'is' : 'are'} at the weaker pole, across both halves of the profile. Fix the Rational side first: discipline without breadth still produces a plan, while breadth without discipline produces none.`;
-  }
-
-  return (
-    <div>
-      {/* Six dimensions want a 3 × 2 block, not the 4 + 2 that the grid's
-          own auto-fit lands on at this column width. */}
-      <div className="bt-pairgrid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
-        {DIMENSIONS.map(d => (
-          <div key={d.key} className="bt-card">
-            <h4>{d.name}</h4>
-            <p>{d.ask}</p>
-            <div className="bt-chiprow">
-              {d.poles.map((pole, i) => (
-                <button
-                  key={pole}
-                  type="button"
-                  className="bt-ctxchip"
-                  aria-pressed={picks[d.key] === i}
-                  onClick={() => setPicks(p => ({ ...p, [d.key]: i as 0 | 1 }))}
-                >
-                  {pole}
-                </button>
-              ))}
-            </div>
-            <p className="bt-chipnote">{d.notes[picks[d.key]]}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className={`bt-verdict${tone}`} style={{ marginTop: 20 }} aria-live="polite">
-        <strong>{label}</strong>
-        {why}
-      </div>
-    </div>
-  );
-}
-
 export default function IntroToSISPLesson() {
   const [sorted, setSorted] = useState(0);
 
   return (
     <div>
-      {/* ══ The Iceberg Model ════════════════════════════════════════════ */}
-      <section id="iceberg" className="bt-sec">
+      <Reveal>
+        <LessonHeader
+          lesson={1}
+          of={11}
+          title="Introduction and systems thinking"
+          lead="Before any planning framework arrives, two things have to be in place: a clear idea of what Strategic Information Systems Planning is for, and the habit of looking at an organisation as a system rather than a list of separate problems. This lesson builds both, and ends with the model the rest of the course leans on."
+          meta={LESSON_META}
+          objectives={OBJECTIVES}
+        />
+      </Reveal>
+
+      {/* ══ 1.1 What SISP is ═════════════════════════════════════════════ */}
+      <section id="what" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="Systems thinking · the Iceberg Model"
-            title="Take one outage apart"
-            aside="Four layers, from what happened down to the belief that made it likely. Learning runs downward, and so does leverage."
+            eyebrow="1.1 · The question this course answers"
+            title="Deciding what to build"
+            aside="Which systems should we build, buy or retire, and in what order? Answering it badly is the most expensive thing an organisation does quietly."
           />
         </Reveal>
         <Reveal delay={0.05}>
-          <IcebergWalk />
+          <div className="bt-prose">
+            <p>
+              Every organisation eventually faces the same question, and most answer it by accident. The results are
+              familiar: systems that duplicate capability the business already owns, systems nobody asked for, and
+              technology spending that drifts a little further from what the organisation needs every year.
+            </p>
+            <p>
+              Strategic Information Systems Planning is the discipline that answers it deliberately.
+            </p>
+          </div>
+
+          <div className="bt-caution">
+            <p className="bt-eyebrow">Definition</p>
+            <p>
+              <b>Strategic Information Systems Planning</b> is the process of identifying and prioritising information
+              systems investments so that they support an organisation’s business strategy, rather than being pursued
+              independently of it.
+            </p>
+          </div>
+
+          <div className="bt-prose" style={{ marginTop: 26 }}>
+            <p>
+              It is not the same activity as running an IT project. A project plan answers <i>how do we build this on
+              time and on budget?</i> SISP answers the question before it: <i>should this system exist at all, and
+              why, before any budget is committed?</i> Get that wrong and the best-executed project in the world
+              still fails, because it solves a problem the organisation did not have.
+            </p>
+          </div>
+
+          <div className="bt-scroll">
+            <table className="bt-plaintable">
+              <thead>
+                <tr><th /><th>Project planning</th><th>SISP</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Asks</td><td>How do we deliver this?</td><td>Should this exist, and before what else?</td></tr>
+                <tr><td>Owned by</td><td>A project manager</td><td>Upper management, across the organisation</td></tr>
+                <tr><td>Horizon</td><td>The length of the project</td><td>Long range, past any one delivery</td></tr>
+                <tr><td>Detail</td><td>Specification, schedule, budget</td><td>Conceptual: capability, sequence, priority</td></tr>
+                <tr><td>Fails when</td><td>Delivery slips</td><td>Everything is delivered and none of it was needed</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <div style={{ marginTop: 40 }}>
+            <p className="bt-eyebrow bt-eyebrow--quiet">Three forces that make it hard</p>
+            <div className="bt-rows">
+              {THREE_FORCES.map(f => (
+                <div key={f.title}>
+                  <h4>{f.title}</h4>
+                  <p>{f.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ══ 1.2 System or collection ═════════════════════════════════════ */}
+      <section id="systems" className="bt-sec">
+        <Reveal>
+          <SectionHead
+            eyebrow="1.2 · Before any framework"
+            title="A system, or just a pile"
+            aside="A system is a set of interacting parts producing behaviour no part produces alone. The test is cheap: change one part and see whether the rest cares."
+          />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <div className="bt-prose">
+            <p>
+              This distinction looks like a warm-up exercise and is not. Everything later in this course — process
+              dimensions, risk registers, feasibility studies — assumes you can look at an organisation and see
+              interacting parts rather than a list of separate problems. Without that habit, planning collapses into
+              fixing one visible symptom at a time, and the same problem returns in a different shape a year later.
+            </p>
+          </div>
+
+          <p className="bt-eyebrow bt-eyebrow--quiet" style={{ marginTop: 28 }}>Activity · sort these six</p>
+          <div className="bt-flipgrid" style={{ marginTop: 14 }} onClick={() => setSorted(s => Math.min(SORT_ITEMS.length, s + 1))}>
+            {SORT_ITEMS.map(item => (
+              <SortCard key={item.thing} thing={item.thing} verdict={item.verdict} why={item.why} />
+            ))}
+          </div>
+          <p className="bt-note">
+            {sorted >= SORT_ITEMS.length
+              ? 'Three systems, two collections, and one that changes category the moment something else depends on it. Organisations sit in that last group far more often than anybody plans for.'
+              : 'Decide for each one before you turn it over. Remove a part: if nothing else changes, it was a collection.'}
+          </p>
+        </Reveal>
+      </section>
+
+      {/* ══ 1.3 The loop ═════════════════════════════════════════════════ */}
+      <section id="loop" className="bt-sec">
+        <Reveal>
+          <SectionHead
+            eyebrow="1.3 · Why a sensible fix rebounds"
+            title="Run the loop for a year"
+            stop="."
+            aside="A company reports poor sales. The obvious response is to tell the sales team to work harder. Pick an intervention and watch twelve months of it."
+          />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <div className="bt-prose">
+            <p>
+              Systems thinking replaces two habits of ordinary problem-solving. It looks for interrelationships
+              between parts rather than a single linear cause, and it looks at change over time rather than a
+              snapshot. Both show up in the same example, and neither is persuasive as a sentence.
+            </p>
+          </div>
+        </Reveal>
+        <Reveal delay={0.05}>
+          <div style={{ marginTop: 26 }}>
+            <FeedbackLoopSim />
+          </div>
         </Reveal>
         <Reveal delay={0.05}>
           <p className="bt-note" style={{ marginTop: 20 }}>
+            Nobody in this loop is behaving unreasonably. Management acts on the information it is given, and that
+            information is produced by the very performance it is meant to explain. That is what a feedback loop is,
+            and it is why the intervention point matters more than the effort spent.
+          </p>
+        </Reveal>
+      </section>
+
+      {/* ══ 1.4 The Iceberg Model ════════════════════════════════════════ */}
+      <section id="iceberg" className="bt-sec">
+        <Reveal>
+          <SectionHead
+            eyebrow="1.4 · The Iceberg Model"
+            title="Take one outage apart"
+            aside="Senge's four layers, from what happened down to the belief that made it likely. Learning runs downward, and so does leverage."
+          />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <div className="bt-prose">
+            <p>
+              The Iceberg Model is systems thinking’s most practical export: a way of asking why a single observed
+              event is happening by moving down through progressively less visible layers. Click your way down
+              through a documented one.
+            </p>
+          </div>
+        </Reveal>
+        <Reveal delay={0.05}>
+          <div style={{ marginTop: 26 }}>
+            <IcebergModel layers={ICEBERG_LAYERS} />
+          </div>
+        </Reveal>
+        <Reveal delay={0.05}>
+          <div className="bt-caution" style={{ marginTop: 26 }}>
+            <p className="bt-eyebrow">Activity · bring your own</p>
+            <p>
+              Pick an incident you have actually watched happen — an outage, a breach, a system nobody adopted — and
+              work down all four layers on paper before the first class. State the event in one sentence, then the
+              pattern, then the structure, then the belief. The last one is the hard one, and it is the one we
+              discuss.
+            </p>
+          </div>
+          <p className="bt-note" style={{ marginTop: 18 }}>
             Most organisations spend nearly all their improvement effort on the Events layer, because it is the only
             layer visible without deliberate investigation. That is exactly why the same problem returns in a new
             shape a year later.
@@ -381,54 +426,156 @@ export default function IntroToSISPLesson() {
         </Reveal>
       </section>
 
-      {/* ══ System or collection ═════════════════════════════════════════ */}
-      <section id="systems" className="bt-sec">
+      {/* ══ Knowledge check ══════════════════════════════════════════════ */}
+      <section id="check" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="Before any framework"
-            title="System, or just a pile"
-            aside="A system is a set of interacting parts producing behaviour no part produces alone. The test: change one part and see whether the rest cares."
+            eyebrow="End of the lesson"
+            title="Check yourself"
+            aside="Five questions on what this lesson claimed. Nothing is stored and nothing is reported — this is for you, now, while there is still time to reread."
           />
         </Reveal>
         <Reveal delay={0.05}>
-          <div className="bt-flipgrid" onClick={() => setSorted(s => Math.min(SORT_ITEMS.length, s + 1))}>
-            {SORT_ITEMS.map(item => (
-              <SortCard key={item.thing} thing={item.thing} verdict={item.verdict} why={item.why} />
-            ))}
-          </div>
-          <p className="bt-note">
-            {sorted >= SORT_ITEMS.length
-              ? 'Three systems, two collections, and one that changes category the moment something depends on it. Organisations are in the last group far more often than anybody plans for.'
-              : 'Not everything that looks like a group of things is a system. Remove a part: if nothing else changes, it was a collection.'}
-          </p>
+          <Quiz
+            questions={CHECK}
+            closing="Any you got wrong point at a specific section above. Worth going back before the next lesson."
+          />
         </Reveal>
       </section>
 
-      {/* ══ What this course is ══════════════════════════════════════════ */}
+      <Reveal>
+        <Recap
+          title="Five things to carry forward"
+          points={RECAP}
+          footnote="Everything below this line is what the course does next, and the practical detail on how it runs. The lesson itself ends here."
+        />
+      </Reveal>
+
+      {/* ══ What's next ══════════════════════════════════════════════════ */}
+      <section id="ahead" className="bt-sec">
+        <Reveal>
+          <SectionHead
+            eyebrow="Lessons 2 onward"
+            title="Where this goes next"
+            aside="A short look at the frameworks the rest of the course builds on top of what you just did, with one of them ready to try."
+          />
+        </Reveal>
+
+        <div className="bt-preview">
+          <Reveal>
+            <div className="bt-step">
+              <span className="bt-step__n">02</span>
+              <div>
+                <h3>A definition you can test something against</h3>
+                <p className="bt-prose">
+                  Segars, Grover and Teng give SISP a testable shape: a formal process, conducted at a broad scope,
+                  from an upper-management perspective, over a long-range time frame, at a conceptual rather than
+                  operational level of abstraction. Four properties, each ruling something out.
+                </p>
+                <ol className="bt-flow bt-flow--tight">
+                  <li><span className="bt-flow__n bt-tnum">1</span><div><h4>Broad scope</h4><p>Rules out a planning exercise confined to one department’s systems.</p></div></li>
+                  <li><span className="bt-flow__n bt-tnum">2</span><div><h4>Upper-management perspective</h4><p>Rules out planning that never leaves the IT department. SISP has to be owned where organisation-wide resources can be committed.</p></div></li>
+                  <li><span className="bt-flow__n bt-tnum">3</span><div><h4>Long-range time frame</h4><p>Rules out a horizon measured in one project’s duration.</p></div></li>
+                  <li><span className="bt-flow__n bt-tnum">4</span><div><h4>Conceptual abstraction</h4><p>Rules out jumping to technical specification before the business question is settled.</p></div></li>
+                </ol>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <div className="bt-step">
+              <span className="bt-step__n">03</span>
+              <div>
+                <h3>The six process dimensions, and the shape that works</h3>
+                <p className="bt-prose">
+                  Any planning process can be described along six dimensions, and — this is the part people get
+                  wrong — the best one is not the process scoring highest on all six. It is a specific balanced
+                  profile called Rational Adaptation. You can try it now: this is Lesson 3’s framework, set to the
+                  worked example the course opens that lesson with.
+                </p>
+                <div style={{ marginTop: 24 }}>
+                  <DimensionProfile />
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <div className="bt-step">
+              <span className="bt-step__n">06</span>
+              <div>
+                <h3>Risk, as part of the plan</h3>
+                <p className="bt-prose">
+                  The descriptor names three risks explicitly — technological failure, data breaches and misalignment
+                  with organisational objectives — and the course treats them as planning inputs rather than a
+                  compliance exercise run after the decision. A risk found during planning is a decision. The same
+                  risk found during implementation is an incident. The only difference is when somebody looked.
+                </p>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <div className="bt-step">
+              <span className="bt-step__n">07</span>
+              <div>
+                <h3>Culturally responsive planning, assessed on its own</h3>
+                <p className="bt-prose">
+                  LO2 carries 40% of this course, which tells you how seriously it is meant. Systems handling
+                  personal or culturally sensitive data — health records above all — carry obligations beyond cost
+                  and schedule. The course works through the design of information services for Māori and Pasifika
+                  health providers as a case: data sovereignty, cultural protocols and community consent, not just
+                  technical privacy controls.
+                </p>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal>
+            <div className="bt-step">
+              <span className="bt-step__n">08</span>
+              <div>
+                <h3>Real implementations, named</h3>
+                <p className="bt-prose">
+                  Frameworks are easier to apply once you have watched them succeed and fail in organisations you can
+                  name, under constraints somebody actually had. The course uses documented case studies from
+                  telecommunications, government and several national contexts, plus five founding stories of
+                  companies whose information-systems choices created an advantage competitors could not copy.
+                </p>
+                <a className="bt-btn bt-btn--sm" href={`${BASE}#/five-stories`} style={{ marginTop: 18, textDecoration: 'none' }}>
+                  Read the five stories
+                  <span className="bt-btn__badge" aria-hidden="true">→</span>
+                </a>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+
+        <Reveal delay={0.05}>
+          <div style={{ marginTop: 44 }}>
+            <p className="bt-eyebrow bt-eyebrow--quiet">The full topic list, from the descriptor</p>
+            <ol className="bt-topics" style={{ marginTop: 16 }}>
+              {COURSE_CONTENT.map((item, i) => (
+                <li key={item}>
+                  <span className="bt-topics__n bt-tnum">{String(i + 1).padStart(2, '0')}</span>
+                  {item}
+                </li>
+              ))}
+            </ol>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ══ The course ═══════════════════════════════════════════════════ */}
       <section id="course" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="What this course is"
-            title="Deciding what to build"
+            eyebrow="The practical detail"
+            title="How this course runs"
             aside="15 credits at Level 8, no prerequisites. The first course of the programme, and the one MBI804 later builds on."
           />
         </Reveal>
         <Reveal delay={0.05}>
-          <div className="bt-prose">
-            <p>
-              Every organisation eventually faces the same question: which information systems should we build, buy or
-              retire, and in what order? Answering it badly is expensive — systems that duplicate capability the
-              business already has, systems nobody asked for, and technology spending that quietly drifts away from
-              what the organisation actually needs.
-            </p>
-            <p>
-              Strategic Information Systems Planning is the discipline that answers it well. A project plan asks how to
-              build a system on time and on budget. SISP asks the prior question: should this system exist at all, and
-              why, before a budget is committed? Get that wrong and the best-executed project in the world still fails,
-              because it solves a problem the organisation did not have.
-            </p>
-          </div>
-
           <div className="bt-path">
             {COURSE_PATH.map(step => {
               const here = step.code === 'MBI800';
@@ -447,6 +594,21 @@ export default function IntroToSISPLesson() {
             <div><b className="bt-tnum">11</b><span>Topics across the whole course</span></div>
             <div><b className="bt-tnum">3</b><span>Learning outcomes you are assessed against</span></div>
           </div>
+
+          <div className="bt-outcomes" style={{ marginTop: 40 }}>
+            {LEARNING_OUTCOMES.map(lo => (
+              <div key={lo.n} className="bt-outcome">
+                <div className="bt-outcome__head">
+                  <span className="bt-outcome__n">{lo.n}</span>
+                  <h3>{lo.short}</h3>
+                </div>
+                <p>{lo.body}</p>
+              </div>
+            ))}
+          </div>
+          <p className="bt-note" style={{ marginTop: 16 }}>
+            Word for word from the course descriptor. Everything you are assessed on maps back to one of these three.
+          </p>
 
           <div className="bt-scroll">
             <table className="bt-plaintable">
@@ -471,261 +633,13 @@ export default function IntroToSISPLesson() {
         </Reveal>
       </section>
 
-      {/* ══ Learning outcomes ════════════════════════════════════════════ */}
-      <section id="outcomes" className="bt-sec">
-        <Reveal>
-          <SectionHead
-            eyebrow="By the end of the course"
-            title="Learning outcomes"
-            aside="Word for word from the course descriptor. Everything you are assessed on maps back to one of these three."
-          />
-        </Reveal>
-        <Reveal delay={0.05}>
-          <div className="bt-outcomes">
-            {LEARNING_OUTCOMES.map(lo => (
-              <div key={lo.n} className="bt-outcome">
-                <div className="bt-outcome__head">
-                  <span className="bt-outcome__n">{lo.n}</span>
-                  <h3>{lo.short}</h3>
-                </div>
-                <p>{lo.body}</p>
-              </div>
-            ))}
-          </div>
-        </Reveal>
-      </section>
-
-      {/* ══ Preview ══════════════════════════════════════════════════════ */}
-      <section id="preview" className="bt-sec">
-        <Reveal>
-          <SectionHead
-            eyebrow="A small preview"
-            title="Some of what this covers"
-            aside="From the course material, in roughly the order it is taught. More than fits on one page."
-          />
-        </Reveal>
-
-        <div className="bt-preview">
-          <Reveal>
-            <div className="bt-step">
-              <span className="bt-step__n">01</span>
-              <div>
-                <h3>A definition you can test something against</h3>
-                <p className="bt-prose">
-                  Segars, Grover and Teng give SISP a testable shape: a formal process, conducted at a broad scope,
-                  from an upper-management perspective, over a long-range time frame, at a conceptual rather than
-                  operational level of abstraction. Four properties, and each one rules something out.
-                </p>
-                <ol className="bt-flow bt-flow--tight">
-                  <li>
-                    <span className="bt-flow__n bt-tnum">1</span>
-                    <div><h4>Broad scope</h4><p>Rules out a planning exercise confined to one department’s systems.</p></div>
-                  </li>
-                  <li>
-                    <span className="bt-flow__n bt-tnum">2</span>
-                    <div><h4>Upper-management perspective</h4><p>Rules out planning that never leaves the IT department. SISP has to be owned where organisation-wide resources can be committed.</p></div>
-                  </li>
-                  <li>
-                    <span className="bt-flow__n bt-tnum">3</span>
-                    <div><h4>Long-range time frame</h4><p>Rules out a horizon measured in one project’s duration.</p></div>
-                  </li>
-                  <li>
-                    <span className="bt-flow__n bt-tnum">4</span>
-                    <div><h4>Conceptual abstraction</h4><p>Rules out jumping to technical specification before the business question is settled.</p></div>
-                  </li>
-                </ol>
-                <p className="bt-note" style={{ marginTop: 16 }}>
-                  Fail any one of the four and it is not SISP, however much analysis went into it.
-                </p>
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal>
-            <div className="bt-step">
-              <span className="bt-step__n">02</span>
-              <div>
-                <h3>The three jobs SISP does</h3>
-                <p className="bt-prose">
-                  Confusing these is a common source of planning failure, because each one is judged against a
-                  different standard.
-                </p>
-                <div className="bt-rows">
-                  <div>
-                    <h4>Support and influence</h4>
-                    <p>Identify which systems would genuinely add value, rather than simply automating a process the organisation already runs.</p>
-                  </div>
-                  <div>
-                    <h4>Technological integration</h4>
-                    <p>Coordinate otherwise disparate technologies into one information architecture, so systems built independently do not duplicate data or block future integration.</p>
-                  </div>
-                  <div>
-                    <h4>Implementation strategy</h4>
-                    <p>Produce macro-level blueprints detailed enough to sequence and prioritise investment, without descending into project-level specification.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal>
-            <div className="bt-step">
-              <span className="bt-step__n">03</span>
-              <div>
-                <h3>Planning runs in both directions</h3>
-                <p className="bt-prose">
-                  Information systems shape strategy as much as strategy shapes information systems. A retailer that
-                  adopts real-time inventory data does not merely automate an existing process — it opens options
-                  (dynamic pricing, drop-shipping, personalised marketing) that did not exist before the system did.
-                  Plan in only one direction and you will keep building systems that support last year’s strategy.
-                </p>
-                <figure className="bt-figure">
-                  <div className="bt-figure__frame">
-                    <svg viewBox="0 0 520 168" width="100%" style={{ maxWidth: 540, display: 'block', margin: '0 auto' }} role="img" aria-label="Inadequate selling effort feeds out-of-date procedures, producing poor sales performance; incorrect information flows back to poor sales management, which drives the effort again.">
-                      <defs>
-                        <marker id="sisp-arrow" markerWidth="8" markerHeight="8" refX="6.4" refY="3" orient="auto">
-                          <path d="M0 0 L7 3 L0 6 z" fill="var(--ink-300)" />
-                        </marker>
-                      </defs>
-                      {[
-                        { x: 8, label: 'Input', sub: 'Inadequate selling effort' },
-                        { x: 182, label: 'Processing', sub: 'Out-of-date procedures' },
-                        { x: 356, label: 'Output', sub: 'Poor sales performance' },
-                      ].map(box => (
-                        <g key={box.label}>
-                          <rect x={box.x} y="16" width="156" height="54" rx="12" fill="var(--paper-0)" stroke="var(--border-subtle)" />
-                          <text x={box.x + 78} y="38" textAnchor="middle" fontSize="10" letterSpacing="1.4" fontWeight="700" fill="var(--accent-600)" fontFamily="var(--font-body)">{box.label.toUpperCase()}</text>
-                          <text x={box.x + 78} y="56" textAnchor="middle" fontSize="11.5" fill="var(--ink-600)" fontFamily="var(--font-body)">{box.sub}</text>
-                        </g>
-                      ))}
-                      <line x1="166" y1="43" x2="180" y2="43" stroke="var(--ink-300)" strokeWidth="1.4" markerEnd="url(#sisp-arrow)" />
-                      <line x1="340" y1="43" x2="354" y2="43" stroke="var(--ink-300)" strokeWidth="1.4" markerEnd="url(#sisp-arrow)" />
-                      <rect x="182" y="106" width="156" height="46" rx="12" fill="var(--accent-50)" stroke="var(--accent-200)" />
-                      <text x="260" y="134" textAnchor="middle" fontSize="11.5" fill="var(--accent-700)" fontFamily="var(--font-body)">Poor sales management</text>
-                      <path d="M434 72 L434 129 L340 129" fill="none" stroke="var(--ink-300)" strokeWidth="1.4" markerEnd="url(#sisp-arrow)" />
-                      <path d="M182 129 L86 129 L86 74" fill="none" stroke="var(--ink-300)" strokeWidth="1.4" markerEnd="url(#sisp-arrow)" />
-                      <text x="434" y="96" textAnchor="middle" fontSize="10" fill="var(--ink-400)" fontFamily="var(--font-body)">incorrect</text>
-                      <text x="434" y="108" textAnchor="middle" fontSize="10" fill="var(--ink-400)" fontFamily="var(--font-body)">information</text>
-                    </svg>
-                  </div>
-                  <figcaption>
-                    Telling the sales team to try harder addresses none of this loop. Management, acting on bad
-                    information, reinforces the conditions that produced the bad information.
-                  </figcaption>
-                </figure>
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal>
-            <div className="bt-step">
-              <span className="bt-step__n">04</span>
-              <div>
-                <h3>Risk is part of the plan, not a bolt-on</h3>
-                <p className="bt-prose">
-                  The descriptor names three risks explicitly — technological failure, data breaches and misalignment
-                  with organisational objectives — and the course treats them as planning inputs rather than a
-                  compliance exercise run after the decision. Resource constraints, security vulnerabilities and
-                  integration challenges all get identified while there is still a choice to make about them.
-                </p>
-                <div className="bt-caution">
-                  <p className="bt-eyebrow">Why this sits here and not at the end</p>
-                  <p>
-                    A risk found during planning is a decision. The same risk found during implementation is an
-                    incident. The only difference is when somebody looked.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal>
-            <div className="bt-step">
-              <span className="bt-step__n">05</span>
-              <div>
-                <h3>Culturally responsive planning, assessed on its own</h3>
-                <p className="bt-prose">
-                  LO2 carries 40% of the course, which tells you how seriously it is meant. Systems handling personal
-                  or culturally sensitive data — health records above all — carry obligations beyond cost and
-                  schedule. The course works through the design of information services for Māori and Pasifika health
-                  providers as a case: data sovereignty, cultural protocols and community consent, not just technical
-                  privacy controls.
-                </p>
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal>
-            <div className="bt-step">
-              <span className="bt-step__n">06</span>
-              <div>
-                <h3>Real implementations, named</h3>
-                <p className="bt-prose">
-                  Frameworks are easier to apply once you have watched them succeed and fail in organisations you can
-                  name, under constraints somebody actually had. The course uses documented case studies from
-                  telecommunications, government and several national contexts, plus five founding stories of
-                  companies whose information-systems choices created an advantage their competitors could not copy.
-                </p>
-                <a className="bt-btn bt-btn--sm" href={`${BASE}#/five-stories`} style={{ marginTop: 18, textDecoration: 'none' }}>
-                  Read the five stories
-                  <span className="bt-btn__badge" aria-hidden="true">→</span>
-                </a>
-              </div>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ══ The six process dimensions ═══════════════════════════════════ */}
-      <section id="dimensions" className="bt-sec">
-        <Reveal>
-          <SectionHead
-            eyebrow="LO1 · Assessing a process"
-            title="Diagnose a planning process"
-            stop="."
-            aside="Six dimensions describe any planning process. Set them to match one you have seen, and read what the configuration predicts."
-          />
-        </Reveal>
-        <Reveal delay={0.05}>
-          <DimensionDial />
-        </Reveal>
-        <Reveal delay={0.05}>
-          <p className="bt-note" style={{ marginTop: 20 }}>
-            It starts on a real profile: a mid-sized firm running an annual, top-down IT plan, comprehensive and
-            formally documented, with business units informed of the priorities rather than consulted while they are
-            set. Maximum on every dimension is not the goal — the balance is.
-          </p>
-        </Reveal>
-      </section>
-
-      {/* ══ Full topic list ══════════════════════════════════════════════ */}
-      <section id="outline" className="bt-sec">
-        <Reveal>
-          <SectionHead
-            eyebrow="Across the whole course"
-            title="The full topic list"
-            aside="The indicative content from the descriptor. Eleven topics, each one leaning on the ones before it."
-          />
-        </Reveal>
-        <Reveal delay={0.05}>
-          <ol className="bt-topics">
-            {COURSE_CONTENT.map((item, i) => (
-              <li key={item}>
-                <span className="bt-topics__n bt-tnum">{String(i + 1).padStart(2, '0')}</span>
-                {item}
-              </li>
-            ))}
-          </ol>
-        </Reveal>
-      </section>
-
       {/* ══ Come prepared ════════════════════════════════════════════════ */}
       <section id="prepared" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="Before class"
-            title="Why bother, and what to bring"
-            aside="Nothing here needs buying, and no prior IT background is assumed. Mainly: bring one example."
+            eyebrow="Before the first class"
+            title="What to bring"
+            aside="Nothing here needs buying, and no prior IT background is assumed. Mainly: bring one example of your own."
           />
         </Reveal>
         <Reveal delay={0.05}>

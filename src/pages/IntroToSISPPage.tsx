@@ -2,30 +2,32 @@ import { motion } from 'framer-motion';
 import { CoursePage } from '../components/blend';
 import IntroToSISPLesson from '../components/public/IntroToSISPLesson';
 
-// ─── /intro-to-sisp — MBI800 course intro, public and ungated ─────────────
+// ─── /intro-to-sisp — MBI800 Lesson 1, public and ungated ─────────────────
 // Built on Blend, the Blended Teaching Content course-page design system
 // (src/components/blend/README.md), running on MBI800's indigo through the
 // `planning` accent.
 //
-// The hero is the Iceberg Model drawn to scale rather than a course blurb:
-// one event above the waterline and three layers beneath it. It is the
-// course's own first framework, it explains the page's colour, and it is the
-// thing a reader can act on immediately — the stepper below asks them to take
-// a real outage down through all four layers.
+// The page is the course's actual first lesson: objectives, four numbered
+// teaching sections, a knowledge check and a recap, with everything after
+// that labelled as what comes next. The hero is the Iceberg Model drawn to
+// scale rather than a course blurb — one event above the waterline and three
+// layers beneath it. It is the lesson's own closing framework, it explains
+// the page's colour, and it is the thing a reader can act on immediately.
 //
-// Nothing here is pinned to a session number or a calendar day: when somebody
-// reads this page has nothing to do with when a class runs.
+// Lesson 1 is a position in a sequence, not a day in a term. Nothing here is
+// pinned to a calendar date, because when somebody reads this page has
+// nothing to do with when a class runs.
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 const NAV = [
-  { id: 'iceberg', label: 'The iceberg' },
-  { id: 'systems', label: 'Systems' },
+  { id: 'what', label: '1.1 What SISP is' },
+  { id: 'systems', label: '1.2 Systems' },
+  { id: 'loop', label: '1.3 The loop' },
+  { id: 'iceberg', label: '1.4 The iceberg' },
+  { id: 'check', label: 'Check yourself' },
+  { id: 'ahead', label: "What's next" },
   { id: 'course', label: 'The course' },
-  { id: 'outcomes', label: 'Outcomes' },
-  { id: 'preview', label: 'Preview' },
-  { id: 'dimensions', label: 'Six dimensions' },
-  { id: 'outline', label: 'Outline' },
   { id: 'prepared', label: 'Come prepared' },
 ];
 
@@ -62,9 +64,9 @@ export default function IntroToSISPPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: EASE, delay: 0.14 }}
             >
-              Under it sit the patterns, the structures and the beliefs that made it likely. MBI800 plans at those
-              layers rather than the visible one. You can try the method before you enrol — no account, nothing to
-              install.
+              Under it sit the patterns, the structures and the beliefs that made it likely. This is Lesson 1 of
+              MBI800, and it works at those layers rather than the visible one. Open it before you enrol — no
+              account, nothing to install.
             </motion.p>
 
             <motion.p
@@ -85,17 +87,17 @@ export default function IntroToSISPPage() {
               <button
                 type="button"
                 className="bt-btn"
-                onClick={() => document.getElementById('iceberg')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                onClick={() => document.getElementById('what')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
               >
-                Take an outage apart
+                Start Lesson 1
                 <span className="bt-btn__badge" aria-hidden="true">→</span>
               </button>
               <button
                 type="button"
                 className="bt-btn bt-btn--tertiary"
-                onClick={() => document.getElementById('outline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                onClick={() => document.getElementById('iceberg')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
               >
-                See the whole course
+                Take an outage apart
                 <span className="bt-btn__badge" aria-hidden="true">→</span>
               </button>
             </motion.div>

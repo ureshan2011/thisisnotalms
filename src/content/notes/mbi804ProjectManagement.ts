@@ -8,12 +8,70 @@ import type { NotesDoc } from '../../lib/notesPdf';
 export const PM_NOTES: NotesDoc = {
   code: 'MBI804',
   course: 'IT Project Management',
-  title: 'Choosing a Methodology, and Naming the Risk',
+  title: 'Lesson 1 — What a Project Is, and What Decides How to Run It',
   summary:
-    'The triple constraint, how Agile, Waterfall and PRINCE2 differ and when each fits, estimating and reserves, risk exposure and response, and what the course assesses.',
+    'What makes something a project, the triple constraint, critical path and float, how Agile, Waterfall and PRINCE2 differ and when each fits, and turning a risk into an exposure figure.',
   accent: [171, 53, 92],
   fileName: 'MBI804-IT-Project-Management-notes',
   sections: [
+    {
+      heading: 'What this lesson is for',
+      standfirst: 'Lesson 1 of 9. Assumes MBI800 and MBI801.',
+      blocks: [
+        {
+          type: 'bullets',
+          title: 'By the end of this lesson you can',
+          items: [
+            'Say what makes something a project rather than the work an organisation already does',
+            'Name which of scope, time and cost is actually free to move on a given project',
+            'Explain why two tasks can slip by the same amount and only one of them costs the launch',
+            'Match a project’s attributes to Agile, Waterfall or PRINCE2, and defend the match',
+            'Turn a risk into an exposure figure, and choose a response that costs less than it removes',
+          ],
+        },
+        {
+          type: 'numbered',
+          title: 'Three tests for a project',
+          pairs: [
+            ['Temporary', 'A definite start and a definite end. Not short — temporary. A five-year programme is a project; running the service it delivers is not.'],
+            ['Unique', 'It produces a result that did not exist before. The hundredth store fit-out is still a project, because this site and this landlord have never been done.'],
+            ['Progressively elaborated', 'You know least on the first day and commit anyway. Detail arrives as the work does, which is why an estimate has a maturity and a plan has versions.'],
+          ],
+        },
+        {
+          type: 'kv',
+          title: 'Three levels of success, and only one gets reported',
+          pairs: [
+            ['Delivered', 'On time, inside budget, matching the agreed scope. The only level most projects measure.'],
+            ['Adopted', 'The people it was built for actually use it. A system delivered perfectly and used by nobody consumed the whole budget and returned nothing.'],
+            ['Worth it', 'The benefit the business case promised arrived. Measured months after closure, usually by somebody else, and the only level that pays for the other two.'],
+          ],
+        },
+      ],
+    },
+    {
+      heading: 'Critical path and float',
+      standfirst: 'Why two identical delays cost completely different amounts.',
+      blocks: [
+        {
+          type: 'p',
+          text:
+            'A schedule is not a list of dates. It is a network of dependencies, and somewhere in that network runs the longest chain with no slack in it: the critical path. A task on it has nothing to give, so every week it loses the project loses. A task off it has float — time it can lose before anything downstream notices.',
+        },
+        {
+          type: 'p',
+          title: 'Worked example',
+          text:
+            'On the SecurePay NZ integration, discovery, gateway integration, security review and user acceptance testing form the critical path and finish at week 14. Merchant onboarding documentation runs alongside and finishes at week 7, four weeks before user acceptance testing can start. A three-week slip on the integration moves the launch to week 17. The same three-week slip on the documentation moves the launch not at all — it spends three of that task’s four weeks of float. Past four weeks the documentation joins the critical path and starts costing launch weeks like everything else on it.',
+        },
+        {
+          type: 'callout',
+          title: 'What this changes about your day',
+          text:
+            'A project manager who treats every delay as equally urgent spends their attention in the wrong place. The first question about a slipped task is not how late it is, but what is waiting on it.',
+        },
+      ],
+    },
     {
       heading: 'The triple constraint',
       standfirst: 'Scope, time and cost. Hold two and the third moves.',

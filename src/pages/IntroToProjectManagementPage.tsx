@@ -2,30 +2,34 @@ import { motion } from 'framer-motion';
 import { CoursePage } from '../components/blend';
 import IntroToProjectManagementLesson from '../components/public/IntroToProjectManagementLesson';
 
-// ─── /intro-to-project-management — MBI804 course intro, public ───────────
+// ─── /intro-to-project-management — MBI804 Lesson 1, public ───────────────
 // Built on Blend, the Blended Teaching Content course-page design system
 // (src/components/blend/README.md), running on MBI804's plum through the
 // `project` accent.
 //
-// The hero is one real schedule rather than a course blurb: four phases of
-// the SecurePay NZ integration used throughout the cost-management lecture,
-// with the middle phase at nearly twice its plan. The point it sets up is
-// LO1's — the overrun is a methodology decision made badly at the start, not
-// an estimating error made in the middle.
+// The page is the course's actual first lesson: objectives, five numbered
+// teaching sections, a knowledge check and a recap, with everything after
+// that labelled as what comes next. The hero is one real schedule rather
+// than a course blurb — four phases of the SecurePay NZ integration used
+// throughout the cost-management lecture, with the middle phase at nearly
+// twice its plan. Section 1.3 then hands the reader that same schedule and
+// lets them find out which delays the launch date actually cares about.
 //
-// Nothing here is pinned to a session number or a calendar day: when somebody
-// reads this page has nothing to do with when a class runs.
+// Lesson 1 is a position in a sequence, not a day in a term. Nothing here is
+// pinned to a calendar date, because when somebody reads this page has
+// nothing to do with when a class runs.
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 const NAV = [
-  { id: 'constraints', label: 'The triangle' },
-  { id: 'choose', label: 'Pick a method' },
+  { id: 'project', label: '1.1 What a project is' },
+  { id: 'constraints', label: '1.2 The triangle' },
+  { id: 'slip', label: '1.3 Delay' },
+  { id: 'methods', label: '1.4 Methodology' },
+  { id: 'risk', label: '1.5 Risk' },
+  { id: 'check', label: 'Check yourself' },
+  { id: 'ahead', label: "What's next" },
   { id: 'course', label: 'The course' },
-  { id: 'outcomes', label: 'Outcomes' },
-  { id: 'preview', label: 'Preview' },
-  { id: 'risk', label: 'Risk' },
-  { id: 'outline', label: 'Outline' },
   { id: 'prepared', label: 'Come prepared' },
 ];
 
@@ -64,9 +68,9 @@ export default function IntroToProjectManagementPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: EASE, delay: 0.14 }}
             >
-              A project can hit every date and every dollar and still be run the wrong way for what it was.
-              MBI804 is about choosing the method before you start, and naming the risks while there are still
-              choices left. You can try both before the first class.
+              A project can hit every date and every dollar and still be run the wrong way for what it was. This is
+              Lesson 1 of MBI804: what is really fixed, what a delay actually costs, and which methodology the
+              project’s own attributes call for. Open it before the first class.
             </motion.p>
 
             <motion.p
@@ -87,17 +91,17 @@ export default function IntroToProjectManagementPage() {
               <button
                 type="button"
                 className="bt-btn"
-                onClick={() => document.getElementById('choose')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                onClick={() => document.getElementById('project')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
               >
-                Pick a method for a project
+                Start Lesson 1
                 <span className="bt-btn__badge" aria-hidden="true">→</span>
               </button>
               <button
                 type="button"
                 className="bt-btn bt-btn--tertiary"
-                onClick={() => document.getElementById('risk')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                onClick={() => document.getElementById('slip')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
               >
-                Put a number on a risk
+                See what this delay cost
                 <span className="bt-btn__badge" aria-hidden="true">→</span>
               </button>
             </motion.div>

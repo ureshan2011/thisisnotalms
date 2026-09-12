@@ -8,12 +8,29 @@ import type { NotesDoc } from '../../lib/notesPdf';
 export const SISP_NOTES: NotesDoc = {
   code: 'MBI800',
   course: 'Strategic Information Systems Planning',
-  title: 'Systems Thinking and the Shape of a Planning Process',
+  title: 'Lesson 1 — Introduction and Systems Thinking',
   summary:
-    'What SISP is and is not, the Iceberg Model, the four tests a real planning process passes, the six process dimensions, and what the course assesses.',
+    'What SISP is and is not, systems against collections, the feedback loop, the Iceberg Model, and a look ahead to the four tests and the six process dimensions.',
   accent: [81, 76, 168],
   fileName: 'MBI800-Strategic-IS-Planning-notes',
   sections: [
+    {
+      heading: 'What this lesson is for',
+      standfirst: 'Lesson 1 of 11. No prerequisites, and nothing to install.',
+      blocks: [
+        {
+          type: 'bullets',
+          title: 'By the end of this lesson you can',
+          items: [
+            'Say what Strategic Information Systems Planning is, and what problem it solves',
+            'Explain how SISP differs from planning a single IT project',
+            'Tell a system from a collection, and say why that distinction decides how you plan',
+            'Use the Iceberg Model to get from an observed failure down to the belief that produced it',
+            'Name the layer an improvement is operating at, and predict whether it will hold',
+          ],
+        },
+      ],
+    },
     {
       heading: 'What SISP is',
       standfirst: 'The question asked before a project starts, not during it.',
@@ -55,6 +72,18 @@ export const SISP_NOTES: NotesDoc = {
           title: 'Systems thinking',
           text:
             'A way of seeing that replaces two habits of ordinary problem-solving: it looks for interrelationships among parts rather than isolated linear cause-and-effect, and for processes of change over time rather than discrete snapshots.',
+        },
+        {
+          type: 'p',
+          title: 'The sales performance loop',
+          text:
+            'A company reports poor sales. Inadequate selling effort feeds out-of-date sales procedures, which produce poor performance, which is reported back through incorrect sales information to poor sales management — which is itself a cause of the inadequate effort. The loop closes on itself. Telling the sales team to work harder addresses the output alone, so it improves the numbers for roughly a quarter and then the loop pulls them back below where they started. Rebuilding the reporting is slower and costs a quarter of visible progress, and it is the intervention that compounds, because management finally acts on numbers that are true.',
+        },
+        {
+          type: 'callout',
+          title: 'Why the wrong fix keeps winning',
+          text:
+            'The event-layer fix looks best at the three-month review, which is usually when the review happens. Nothing in the loop is anybody behaving unreasonably: management acts on the information it is given, and that information is produced by the performance it is meant to explain.',
         },
         {
           type: 'table',

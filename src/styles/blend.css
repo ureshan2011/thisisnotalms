@@ -131,6 +131,36 @@
   --accent-shadow: 0 10px 24px -8px rgba(15, 118, 110, 0.42);
 }
 
+/* MBI800 — Strategic Information Systems Planning. A violet-leaning indigo:
+   deep enough to read as "below the waterline" beside the iceberg the page
+   opens on, and warm enough on the cream paper not to turn blue-grey. */
+.bt--planning {
+  --accent-50: #eeeefb;
+  --accent-100: #dcdcf5;
+  --accent-200: #b9b8ea;
+  --accent-300: #908ed9;
+  --accent-400: #6864c2;
+  --accent-500: #514ca8;
+  --accent-600: #3e3a87;
+  --accent-700: #2b2861;
+  --accent-shadow: 0 10px 24px -8px rgba(81, 76, 168, 0.45);
+}
+
+/* MBI804 — IT Project Management. A wine plum: the warm side of red, and far
+   enough from MBI802's orange that the two are never confused on the home
+   page's lesson list. */
+.bt--project {
+  --accent-50: #fceef2;
+  --accent-100: #f7d8e2;
+  --accent-200: #eeaec1;
+  --accent-300: #de7d9b;
+  --accent-400: #c74f74;
+  --accent-500: #ab355c;
+  --accent-600: #8b2549;
+  --accent-700: #631634;
+  --accent-shadow: 0 10px 24px -8px rgba(171, 53, 92, 0.45);
+}
+
 .bt :where(h1, h2, h3, h4) {
   margin: 0;
   font-family: var(--font-display);
@@ -1589,7 +1619,11 @@
   .bt-savepdf__actions { gap: 14px; }
 }
 
-/* ── Chart-choice widget (MBI806B, LO3) ──────────────────────────────────── */
+/* ── Pick-two-and-judge-the-pairing widget ───────────────────────────────
+   Two pill groups, a stage holding a drawing, and a three-tone verdict.
+   Built for MBI806B's chart chooser (LO3) and reused verbatim by MBI804's
+   methodology chooser (LO1), so the two behave identically. Everything here
+   is accent-agnostic — the hosting course page supplies the hue. ───────── */
 .cc {
   background: var(--paper-0);
   border: 1px solid var(--border-subtle);
@@ -1732,6 +1766,12 @@
   .cc__stage { padding: 12px 12px 10px; }
   .cc__asking { font-size: 15.5px; }
   .cc__verdict { padding: 16px; }
+  /* A drawing carrying labels rather than bars cannot be scaled to a phone
+     without taking its type below legibility, so it keeps a readable minimum
+     and scrolls inside its own box — the treatment a wide table gets. The
+     caption sits outside this wrapper so it still wraps normally. */
+  .cc__diagram { overflow-x: auto; }
+  .cc__diagram svg { min-width: 500px; }
 }
 
 /* ── Data or information? (MBI802, section 1.1) ──────────────────────────── */

@@ -6,7 +6,8 @@ accent, big tight display type, pills for anything you can press and
 soft-squares for anything that holds content.
 
 Live examples: `/intro-to-dbms` (warm orange), `/intro-to-business-analytics`
-and `/power-bi-setup` (teal).
+and `/power-bi-setup` (teal), `/intro-to-sisp` (indigo),
+`/intro-to-project-management` (plum).
 
 - **Stylesheet** — `src/styles/blend.css`
 - **Components** — `src/components/blend/`
@@ -122,6 +123,8 @@ language. Nothing but these seven values and the shadow changes between them.
 |---|---|---|
 | Warm orange (default) | none | MBI802 — Database Management Systems |
 | Teal | `.bt--analytics` | MBI806B — Business Data Analytics, Power BI setup |
+| Indigo | `.bt--planning` | MBI800 — Strategic Information Systems Planning |
+| Plum | `.bt--project` | MBI804 — IT Project Management |
 
 To add one, copy the `.bt--analytics` block in `blend.css`, redefine
 `--accent-50` through `--accent-700` plus `--accent-shadow`, and add the name

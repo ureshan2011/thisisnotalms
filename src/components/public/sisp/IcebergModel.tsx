@@ -14,13 +14,7 @@ import { useState } from 'react';
 // — learning and leverage both run downward — and it is easier to believe
 // when you can watch it move.
 
-export interface IcebergLayer {
-  title: string;
-  kicker: string;
-  question: string;
-  body: string;
-  ask: string;
-}
+import type { IcebergLayer } from './icebergCase';
 
 // Geometry, top to bottom. Only the first sits above the waterline; the
 // three below widen as they deepen, so the shape reads as an iceberg rather

@@ -4,6 +4,7 @@ import ConstraintTriangle from './project/ConstraintTriangle';
 import SlipSim from './project/SlipSim';
 import MethodChoice from './project/MethodChoice';
 import RiskMatrix from './project/RiskMatrix';
+import PostMortemBuilder from './project/PostMortemBuilder';
 import { PM_NOTES } from '../../content/notes/mbi804ProjectManagement';
 
 // ─── MBI804 · Lesson 1: What a project is, and what decides how to run it ──
@@ -414,6 +415,33 @@ export default function IntroToProjectManagementLesson() {
         <Reveal delay={0.05}>
           <div style={{ marginTop: 26 }}>
             <RiskMatrix />
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ══ 1.6 Build your own ═══════════════════════════════════════════ */}
+      <section id="yours" className="bt-sec">
+        <Reveal>
+          <SectionHead
+            eyebrow="1.6 · Your turn"
+            title="Write up one of your own"
+            stop="."
+            aside="Six questions on a project you watched, in the order this lesson covered them. The page builds as you answer, and you take it away at the end."
+          />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <div className="bt-prose">
+            <p>
+              This is deliberately a small version of the 60% case study: a project’s attributes, the methodology
+              those attributes called for, and an argument about the gap between that and what actually happened.
+              Finish it now, on a project you already know, and the assessment stops being a research exercise four
+              months from now.
+            </p>
+          </div>
+        </Reveal>
+        <Reveal delay={0.05}>
+          <div style={{ marginTop: 26 }}>
+            <PostMortemBuilder />
           </div>
         </Reveal>
       </section>

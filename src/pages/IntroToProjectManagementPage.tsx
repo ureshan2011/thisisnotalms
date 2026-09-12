@@ -27,6 +27,7 @@ const NAV = [
   { id: 'slip', label: '1.3 Delay' },
   { id: 'methods', label: '1.4 Methodology' },
   { id: 'risk', label: '1.5 Risk' },
+  { id: 'yours', label: '1.6 Your turn' },
   { id: 'check', label: 'Check yourself' },
   { id: 'ahead', label: "What's next" },
   { id: 'course', label: 'The course' },

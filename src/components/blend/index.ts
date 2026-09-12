@@ -11,3 +11,4 @@ export { default as SaveAsPdf } from './SaveAsPdf';
 export { default as LessonHeader } from './LessonHeader';
 export { default as Recap } from './Recap';
 export { default as Quiz, type QuizQuestion, type QuizOption } from './Quiz';
+export { default as LessonBuilder, type BuilderStep, type BuilderField, type BuilderValues } from './LessonBuilder';

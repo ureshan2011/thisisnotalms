@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { LessonHeader, Quiz, Recap, Reveal, SaveAsPdf, SectionHead, type QuizQuestion } from '../blend';
-import IcebergModel, { type IcebergLayer } from './sisp/IcebergModel';
+import IcebergModel from './sisp/IcebergModel';
+import { ICEBERG_LAYERS } from './sisp/icebergCase';
+import IcebergBuilder from './sisp/IcebergBuilder';
 import FeedbackLoopSim from './sisp/FeedbackLoopSim';
 import DimensionProfile from './sisp/DimensionProfile';
 import { SISP_NOTES } from '../../content/notes/mbi800Sisp';
@@ -86,39 +88,6 @@ const SORT_ITEMS = [
     thing: 'A database of customer names',
     verdict: 'It depends',
     why: 'A static list with no relationships defined is close to a collection. The moment other processes query it and depend on its answers, it is a system, and changing it changes their behaviour.',
-  },
-];
-
-// Worked through the CrowdStrike content update of 19 July 2024, because the
-// event layer was reported everywhere and the three below it almost nowhere.
-const ICEBERG_LAYERS: IcebergLayer[] = [
-  {
-    title: 'Events',
-    kicker: 'what happened',
-    question: 'What is happening?',
-    body: 'On 19 July 2024 a faulty content update from a security vendor crashed Windows machines worldwide. Flights were grounded, hospital systems went dark, payment terminals stopped. This is the layer that gets reported, and the only one visible without going looking for the rest.',
-    ask: 'React here and you restore service. Nothing about the next one has changed.',
-  },
-  {
-    title: 'Patterns of behaviour',
-    kicker: 'what keeps happening',
-    question: 'What has been happening, over and over?',
-    body: 'Ask what recurs rather than what occurred. Outages of this class cluster around urgent updates pushed outside the normal review window — in every vendor, for years. Seen as a pattern, one event stops looking like bad luck and starts looking like a schedule.',
-    ask: 'Patterns turn a one-off into something you can plan against.',
-  },
-  {
-    title: 'Structures',
-    kicker: 'what makes it possible',
-    question: 'What arrangement produces that pattern?',
-    body: 'The policies, architecture, workflows and resource allocations underneath it: kernel-level deployment with no staged rollout, no canary ring, and a channel classified as content rather than as code, so it skipped the review that code gets.',
-    ask: 'Change a structure and you change every future event it would have produced.',
-  },
-  {
-    title: 'Mental models',
-    kicker: 'what holds it in place',
-    question: 'What belief made that arrangement seem reasonable?',
-    body: 'That a vendor security update is low-risk enough not to need staged deployment. Nobody wrote it down. Everybody acted on it, and every structure above was built to match.',
-    ask: 'The least visible layer, and the one with the most leverage of all.',
   },
 ];
 
@@ -409,20 +378,37 @@ export default function IntroToSISPLesson() {
           </div>
         </Reveal>
         <Reveal delay={0.05}>
-          <div className="bt-caution" style={{ marginTop: 26 }}>
-            <p className="bt-eyebrow">Activity · bring your own</p>
-            <p>
-              Pick an incident you have actually watched happen — an outage, a breach, a system nobody adopted — and
-              work down all four layers on paper before the first class. State the event in one sentence, then the
-              pattern, then the structure, then the belief. The last one is the hard one, and it is the one we
-              discuss.
-            </p>
-          </div>
-          <p className="bt-note" style={{ marginTop: 18 }}>
+          <p className="bt-note" style={{ marginTop: 22 }}>
             Most organisations spend nearly all their improvement effort on the Events layer, because it is the only
             layer visible without deliberate investigation. That is exactly why the same problem returns in a new
             shape a year later.
           </p>
+        </Reveal>
+      </section>
+
+      {/* ══ 1.5 Build your own ═══════════════════════════════════════════ */}
+      <section id="yours" className="bt-sec">
+        <Reveal>
+          <SectionHead
+            eyebrow="1.5 · Your turn"
+            title="Now do it with yours"
+            stop="."
+            aside="Six short questions on an incident you actually watched happen. The page builds as you answer, and you take it away at the end."
+          />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <div className="bt-prose">
+            <p>
+              This is the thing to bring to the first class. Not because it is marked, but because a room full of
+              real incidents is a far better lesson than one of mine, and because the fourth layer is much harder on
+              an organisation you actually know.
+            </p>
+          </div>
+        </Reveal>
+        <Reveal delay={0.05}>
+          <div style={{ marginTop: 26 }}>
+            <IcebergBuilder />
+          </div>
         </Reveal>
       </section>
 

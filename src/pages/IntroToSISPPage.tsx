@@ -25,6 +25,7 @@ const NAV = [
   { id: 'systems', label: '1.2 Systems' },
   { id: 'loop', label: '1.3 The loop' },
   { id: 'iceberg', label: '1.4 The iceberg' },
+  { id: 'yours', label: '1.5 Your turn' },
   { id: 'check', label: 'Check yourself' },
   { id: 'ahead', label: "What's next" },
   { id: 'course', label: 'The course' },

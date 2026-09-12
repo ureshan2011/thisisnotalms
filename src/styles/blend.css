@@ -131,6 +131,36 @@
   --accent-shadow: 0 10px 24px -8px rgba(15, 118, 110, 0.42);
 }
 
+/* MBI800 — Strategic Information Systems Planning. A violet-leaning indigo:
+   deep enough to read as "below the waterline" beside the iceberg the page
+   opens on, and warm enough on the cream paper not to turn blue-grey. */
+.bt--planning {
+  --accent-50: #eeeefb;
+  --accent-100: #dcdcf5;
+  --accent-200: #b9b8ea;
+  --accent-300: #908ed9;
+  --accent-400: #6864c2;
+  --accent-500: #514ca8;
+  --accent-600: #3e3a87;
+  --accent-700: #2b2861;
+  --accent-shadow: 0 10px 24px -8px rgba(81, 76, 168, 0.45);
+}
+
+/* MBI804 — IT Project Management. A wine plum: the warm side of red, and far
+   enough from MBI802's orange that the two are never confused on the home
+   page's lesson list. */
+.bt--project {
+  --accent-50: #fceef2;
+  --accent-100: #f7d8e2;
+  --accent-200: #eeaec1;
+  --accent-300: #de7d9b;
+  --accent-400: #c74f74;
+  --accent-500: #ab355c;
+  --accent-600: #8b2549;
+  --accent-700: #631634;
+  --accent-shadow: 0 10px 24px -8px rgba(171, 53, 92, 0.45);
+}
+
 .bt :where(h1, h2, h3, h4) {
   margin: 0;
   font-family: var(--font-display);
@@ -139,6 +169,12 @@
 }
 .bt :where(p) { margin: 0; text-wrap: pretty; }
 .bt :focus-visible { outline: 2px solid var(--accent-400); outline-offset: 2px; }
+/* SVG groups used as buttons — the clickable layers of the iceberg, the cells
+   of the risk grid. The browser's default ring lands on the group's bounding
+   box and reads as a stray black rectangle after an ordinary mouse click, so
+   it is suppressed and redrawn only for keyboard focus. */
+.bt svg [role='button']:focus { outline: none; }
+.bt svg [role='button']:focus-visible { outline: 2px solid var(--accent-400); outline-offset: 2px; }
 
 .bt-wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; }
 
@@ -285,6 +321,10 @@
 
 /* ── Progress bars ────────────────────────────────────────────────────── */
 .bt-bar {
+  /* display:block is load-bearing. As a bare inline <span> — which is what it
+     is anywhere outside a flex row — the height is ignored and the fill
+     renders at whatever height the line box happens to be. */
+  display: block;
   height: 6px;
   border-radius: var(--radius-pill);
   background: var(--paper-300);
@@ -963,6 +1003,8 @@
 
 /* ── The decision walk ───────────────────────────────────────────────────── */
 .bt-walk { display: grid; grid-template-columns: 268px minmax(0, 1fr); gap: 20px; align-items: start; }
+/* For a rail that is a drawing rather than a list of labels. */
+.bt-walk--wide { grid-template-columns: 330px minmax(0, 1fr); gap: 26px; }
 .bt-walk__rail { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 .bt-walk__node {
   display: flex;
@@ -1589,7 +1631,11 @@
   .bt-savepdf__actions { gap: 14px; }
 }
 
-/* ── Chart-choice widget (MBI806B, LO3) ──────────────────────────────────── */
+/* ── Pick-two-and-judge-the-pairing widget ───────────────────────────────
+   Two pill groups, a stage holding a drawing, and a three-tone verdict.
+   Built for MBI806B's chart chooser (LO3) and reused verbatim by MBI804's
+   methodology chooser (LO1), so the two behave identically. Everything here
+   is accent-agnostic — the hosting course page supplies the hue. ───────── */
 .cc {
   background: var(--paper-0);
   border: 1px solid var(--border-subtle);
@@ -1732,6 +1778,12 @@
   .cc__stage { padding: 12px 12px 10px; }
   .cc__asking { font-size: 15.5px; }
   .cc__verdict { padding: 16px; }
+  /* A drawing carrying labels rather than bars cannot be scaled to a phone
+     without taking its type below legibility, so it keeps a readable minimum
+     and scrolls inside its own box — the treatment a wide table gets. The
+     caption sits outside this wrapper so it still wraps normally. */
+  .cc__diagram { overflow-x: auto; }
+  .cc__diagram svg { min-width: 500px; }
 }
 
 /* ── Data or information? (MBI802, section 1.1) ──────────────────────────── */
@@ -1990,4 +2042,433 @@
 @media (max-width: 640px) {
   .wa__slip dl > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .wa__like { flex-direction: column; gap: 6px; }
+}
+
+/* ── Lesson furniture ────────────────────────────────────────────────────
+   A Blend course page that is also the course's first lesson needs three
+   things the marketing-shaped pages never did: a stated set of objectives
+   at the top, section numbers a student can refer to out loud, and a
+   knowledge check at the end. Everything below is accent-agnostic. ───── */
+
+.bt-lessonhead {
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: 30px;
+  box-shadow: var(--shadow-sm);
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 34px;
+  margin-top: 46px;
+}
+.bt-lessonhead h2 { font-size: clamp(24px, 3vw, 32px); font-weight: 800; letter-spacing: -0.03em; margin-top: 10px; }
+.bt-lessonhead__lead {
+  margin-top: 14px !important;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: var(--ink-500);
+  max-width: 46ch;
+}
+.bt-lessonmeta { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-top: 20px !important; }
+.bt-lessonmeta > span { font-size: 12.5px; color: var(--ink-400); }
+.bt-lessonmeta b { color: var(--ink-900); font-weight: 700; }
+
+/* The objectives list. A hollow ring rather than a tick: nothing has been
+   achieved yet at the top of a lesson, and a row of green ticks would say
+   it had. */
+.bt-objectives { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+.bt-objectives > li { display: grid; grid-template-columns: 15px minmax(0, 1fr); gap: 12px; align-items: start; font-size: 14px; line-height: 1.5; color: var(--ink-600); }
+.bt-objectives__ring {
+  width: 13px;
+  height: 13px;
+  margin-top: 5px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--accent-300);
+}
+
+/* Section numbers. Small, monospaced, recessive — a reference, not a
+   decoration, and never the loudest thing in the heading. */
+.bt-secno {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--ink-300);
+  margin-right: 10px;
+}
+
+/* The end-of-lesson recap, on the dark surface so it closes the teaching
+   before the course admin starts. */
+.bt-recap { background: var(--ink-900); border-radius: var(--radius-panel); padding: 34px; color: var(--ink-200); margin-top: 42px; }
+.bt-recap h2 { color: #fff; font-size: clamp(22px, 3vw, 28px); font-weight: 800; letter-spacing: -0.03em; margin-top: 12px; }
+.bt-recap ul { list-style: none; margin: 22px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px 34px; }
+.bt-recap li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; font-size: 14px; line-height: 1.55; color: var(--ink-300); }
+.bt-recap li b { color: var(--paper-50); font-weight: 700; }
+.bt-recap__n { font-family: var(--font-mono); font-size: 11.5px; color: var(--accent-400); padding-top: 3px; }
+
+/* ── Knowledge check ─────────────────────────────────────────────────────
+   Answer, see why, move on. No score is stored and nothing is reported
+   anywhere: it is a way of finding out whether the last ten minutes
+   landed, not an assessment. ──────────────────────────────────────────── */
+
+.bt-quiz {
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: 26px;
+  box-shadow: var(--shadow-md);
+}
+.bt-quiz__bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.bt-quiz__bar .bt-bar { max-width: 220px; }
+.bt-quiz__count { font-family: var(--font-mono); font-size: 12px; color: var(--ink-400); }
+.bt-quiz__q { margin-top: 18px !important; font-family: var(--font-display); font-size: 19px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink-900); line-height: 1.35; }
+.bt-quiz__opts { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.bt-quiz__opt {
+  width: 100%;
+  text-align: left;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 13px;
+  align-items: start;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  border-radius: var(--radius-md);
+  padding: 15px 17px;
+  font-family: var(--font-body);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--ink-600);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+    transform var(--dur-base) var(--ease);
+}
+.bt-quiz__opt:hover { background: var(--paper-200); color: var(--ink-900); transform: translateY(-2px); }
+.bt-quiz__opt:disabled { cursor: default; transform: none; }
+.bt-quiz__opt:disabled:hover { background: var(--paper-50); color: var(--ink-600); }
+.bt-quiz__key { font-family: var(--font-mono); font-size: 12px; color: var(--ink-300); padding-top: 2px; }
+.bt-quiz__opt--right { background: var(--green-50); border-color: rgba(47, 163, 107, 0.32); color: #186845; }
+.bt-quiz__opt--right:disabled:hover { background: var(--green-50); color: #186845; }
+.bt-quiz__opt--right .bt-quiz__key { color: var(--green-500); }
+.bt-quiz__opt--wrong { background: var(--red-50); border-color: rgba(217, 58, 43, 0.3); color: #8f2318; }
+.bt-quiz__opt--wrong:disabled:hover { background: var(--red-50); color: #8f2318; }
+.bt-quiz__opt--wrong .bt-quiz__key { color: var(--red-500); }
+.bt-quiz__why { margin-top: 16px; border-radius: var(--radius-md); background: var(--paper-100); padding: 17px 19px; }
+.bt-quiz__stamp { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-600); margin-bottom: 7px !important; }
+.bt-quiz__why p:last-child { font-size: 14px; line-height: 1.6; color: var(--ink-600); max-width: 70ch; }
+.bt-quiz__nav { margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.bt-quiz__nav .bt-btn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+.bt-quiz__done { font-size: 13px; color: var(--ink-400); line-height: 1.5; }
+
+/* ── Two-ended scale ─────────────────────────────────────────────────────
+   For a property that sits between two named poles rather than being on or
+   off. The hollow ring marks the reference position, so "where this one is"
+   and "where it ought to be" are one glance apart. ───────────────────── */
+
+.bt-scale { display: flex; flex-direction: column; gap: 2px; }
+.bt-scale__row { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 12px 22px; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border-subtle); }
+.bt-scale__row:last-child { border-bottom: none; }
+.bt-scale__name { font-family: var(--font-display); font-size: 15px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink-900); }
+.bt-scale__ask { display: block; font-family: var(--font-body); font-size: 12.5px; font-weight: 400; color: var(--ink-400); margin-top: 4px; line-height: 1.4; }
+.bt-scale__track { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; }
+.bt-scale__end {
+  position: relative;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  border-radius: var(--radius-pill);
+  padding: 10px 16px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-500);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.bt-scale__end:hover { background: var(--paper-200); color: var(--ink-900); }
+.bt-scale__end[aria-pressed='true'] { background: var(--ink-900); border-color: var(--ink-900); color: #fff; }
+/* The reference marker. Present on whichever end the ideal profile sits,
+   so a wrong setting reads as "the ring is over there". */
+.bt-scale__ref::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 9px;
+  height: 9px;
+  margin-top: -4.5px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--accent-400);
+}
+.bt-scale__end[aria-pressed='true'].bt-scale__ref::after { border-color: var(--accent-300); background: var(--accent-500); }
+.bt-scale__note { grid-column: 2; font-size: 12.5px; color: var(--ink-400); line-height: 1.45; margin-top: -2px !important; }
+
+/* Two small meters summarising a profile, side by side. */
+.bt-meters { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-top: 22px; }
+.bt-meter { border: 1px solid var(--border-subtle); background: var(--paper-0); border-radius: var(--radius-md); padding: 16px 18px; }
+.bt-meter__head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.bt-meter__name { font-family: var(--font-display); font-size: 13.5px; font-weight: 800; letter-spacing: -0.015em; color: var(--ink-900); }
+.bt-meter__val { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-400); }
+.bt-meter .bt-bar { margin-top: 12px; }
+.bt-meter__note { margin-top: 10px !important; font-size: 12.5px; color: var(--ink-400); line-height: 1.45; }
+
+/* ── Simulation panel ────────────────────────────────────────────────────
+   Controls on the left, a drawing that responds on the right, and a single
+   readout underneath saying what just changed. Used by the systems feedback
+   loop and the schedule slip. ─────────────────────────────────────────── */
+
+.bt-sim {
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+}
+.bt-sim__grid { display: grid; grid-template-columns: 268px minmax(0, 1fr); gap: 26px; align-items: start; }
+/* A readout in a simulation's narrow control column stacks, so the figure
+   gets a full line instead of wrapping against its own caption. */
+.bt-sim__grid .bt-counter { flex-direction: column; align-items: flex-start; gap: 7px; }
+.bt-sim__label { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-400); }
+.bt-sim__choices { list-style: none; margin: 11px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.bt-sim__choice {
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  border-radius: var(--radius-md);
+  padding: 13px 16px;
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), transform var(--dur-base) var(--ease);
+}
+.bt-sim__choice:hover { background: var(--paper-200); transform: translateY(-2px); }
+.bt-sim__choice b { display: block; font-family: var(--font-display); font-size: 14px; font-weight: 800; letter-spacing: -0.015em; color: var(--ink-900); }
+.bt-sim__choice span { display: block; margin-top: 4px; font-size: 12.5px; line-height: 1.45; color: var(--ink-400); }
+.bt-sim__choice[aria-pressed='true'] { background: var(--ink-900); border-color: var(--ink-900); }
+.bt-sim__choice[aria-pressed='true'] b { color: #fff; }
+.bt-sim__choice[aria-pressed='true'] span { color: var(--ink-300); }
+.bt-sim__stage { border: 1px solid var(--border-subtle); border-radius: var(--radius-md); background: var(--paper-50); padding: 16px 16px 12px; }
+.bt-sim__stage svg { display: block; width: 100%; height: auto; }
+.bt-sim__caption { margin-top: 10px !important; font-family: var(--font-mono); font-size: 10.5px; color: var(--ink-400); letter-spacing: 0.02em; }
+.bt-sim__range { margin-top: 20px; }
+.bt-sim__range input[type='range'] { width: 100%; margin-top: 10px; accent-color: var(--accent-500); }
+.bt-sim__legend { list-style: none; margin: 14px 0 0; padding: 12px 0 0; border-top: 1px solid var(--border-subtle); display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.bt-sim__legend li { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-600); }
+.bt-sim__swatch { width: 11px; height: 11px; border-radius: 3px; flex: 0 0 11px; }
+
+@media (max-width: 860px) {
+  .bt-lessonhead { grid-template-columns: minmax(0, 1fr); gap: 26px; padding: 24px; }
+  .bt-sim__grid { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+}
+@media (max-width: 640px) {
+  .bt-scale__row { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .bt-scale__note { grid-column: 1; }
+  .bt-recap { padding: 24px; }
+  .bt-quiz { padding: 18px; }
+  .bt-sim { padding: 16px; }
+  .bt-secno { display: block; margin-bottom: 4px; }
+}
+
+/* ── Build your own ──────────────────────────────────────────────────────
+   A guided pass over a student's own example, producing a page they take
+   away. One question on the left, the sheet assembling on the right.
+
+   Two rules from the system are bent here on purpose, and only here:
+   a textarea is a soft-square rather than a pill, because at five rows a
+   pill reads as a lozenge rather than a field; and the sheet is white
+   rather than cream, because it is a picture of the paper that comes out
+   of the printer. ─────────────────────────────────────────────────────── */
+
+.bt-build {
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: 26px;
+  box-shadow: var(--shadow-md);
+}
+.bt-build__head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.bt-build__head .bt-bar { max-width: 200px; }
+.bt-build__count { font-family: var(--font-mono); font-size: 12px; color: var(--ink-400); }
+.bt-build__saved {
+  font-size: 12px;
+  color: var(--ink-300);
+  min-width: 13ch;
+  transition: opacity var(--dur-base) var(--ease);
+}
+
+/* The step rail. Horizontal, because six steps read as a journey across
+   rather than a menu down, and a done step keeps its filled dot as the
+   record of progress. */
+.bt-build__rail {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0 0 6px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.bt-build__rail::-webkit-scrollbar { display: none; }
+.bt-build__tab {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  white-space: nowrap;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  border-radius: var(--radius-pill);
+  padding: 9px 16px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--ink-500);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.bt-build__tab:hover { background: var(--paper-200); color: var(--ink-900); }
+.bt-build__dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--ink-300);
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.bt-build__tab--done .bt-build__dot { background: var(--accent-500); border-color: var(--accent-500); }
+.bt-build__tab--on { background: var(--ink-900); border-color: var(--ink-900); color: #fff; }
+.bt-build__tab--on:hover { background: var(--ink-900); color: #fff; }
+.bt-build__tab--on .bt-build__dot { border-color: var(--ink-400); }
+.bt-build__tab--on.bt-build__tab--done .bt-build__dot { background: var(--accent-400); border-color: var(--accent-400); }
+
+.bt-build__grid {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+  gap: 32px;
+  align-items: start;
+}
+.bt-build__q { font-size: 23px; font-weight: 800; letter-spacing: -0.03em; margin-top: 10px; line-height: 1.25; }
+.bt-build__hint { margin-top: 10px !important; font-size: 14px; line-height: 1.55; color: var(--ink-400); max-width: 52ch; }
+
+.bt-build__field { margin-top: 22px; }
+.bt-build__label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+  margin-bottom: 9px;
+}
+.bt-build__input,
+.bt-build__area {
+  width: 100%;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-900);
+  padding: 13px 18px;
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.bt-build__input { border-radius: var(--radius-pill); }
+.bt-build__area { border-radius: var(--radius-md); resize: vertical; min-height: 128px; }
+.bt-build__input::placeholder,
+.bt-build__area::placeholder { color: var(--ink-300); }
+.bt-build__input:focus,
+.bt-build__area:focus { outline: none; border-color: var(--accent-400); background: var(--paper-0); }
+.bt-build__nudge { margin-top: 8px !important; font-size: 12.5px; color: var(--ink-300); line-height: 1.45; }
+
+/* The worked answer, folded away. Opening it is a deliberate act — beside an
+   empty box it would anchor every student to the same answer. */
+.bt-build__example { margin-top: 22px; border-top: 1px solid var(--border-subtle); padding-top: 16px; }
+.bt-build__example summary {
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--accent-600);
+  list-style: none;
+}
+.bt-build__example summary::-webkit-details-marker { display: none; }
+.bt-build__example summary::before { content: '+ '; font-family: var(--font-mono); }
+.bt-build__example[open] summary::before { content: '– '; }
+.bt-build__example p { margin-top: 12px !important; font-size: 13.5px; line-height: 1.6; color: var(--ink-400); max-width: 60ch; }
+
+.bt-build__nav { margin-top: 26px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.bt-build__nav .bt-btn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+.bt-build__done { font-size: 12.5px; color: var(--ink-400); line-height: 1.45; max-width: 30ch; }
+
+/* The sheet. Sticky on a tall screen so the thing being built stays in view
+   while the question column scrolls. */
+.bt-build__preview { position: sticky; top: 84px; }
+
+.bt-build__foot {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.bt-build__foot .bt-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+.bt-build__confirm { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--ink-600); }
+.bt-build__privacy { font-size: 12.5px; color: var(--ink-400); line-height: 1.5; max-width: 46ch; }
+
+/* ── The sheet itself ────────────────────────────────────────────────────
+   A picture of the page that will come out of the printer, filling in as
+   the student types. `--inset` lets a row indent, which is what turns a
+   plain stack into an iceberg widening as it deepens. ────────────────── */
+
+.bt-sheet2 {
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 22px 22px 26px;
+  margin-top: 12px;
+}
+.bt-sheet2__head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; border-bottom: 1px solid var(--ink-900); padding-bottom: 8px; }
+.bt-sheet2__code { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-400); }
+.bt-sheet2__title { margin-top: 14px !important; font-family: var(--font-display); font-size: 17px; font-weight: 800; letter-spacing: -0.025em; color: var(--ink-900); line-height: 1.3; }
+.bt-sheet2__title--empty { color: var(--ink-300); font-weight: 500; }
+
+.bt-sheet2__rows { margin-top: 16px; display: flex; flex-direction: column; }
+.bt-sheet2__row {
+  border-top: 1px solid var(--border-subtle);
+  /* Inset both sides, so a row that is further down the iceberg is visibly
+     wider than the one above it rather than merely indented. */
+  padding: 12px var(--inset, 0px);
+  transition: padding var(--dur-slow) var(--ease);
+}
+.bt-sheet2__row:first-child { border-top: none; }
+.bt-sheet2__rowhead { display: flex; align-items: baseline; gap: 10px; justify-content: space-between; }
+.bt-sheet2__label { font-size: 10px; font-weight: 700; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink-400); }
+.bt-sheet2__tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent-700);
+  background: var(--accent-50);
+  border-radius: var(--radius-pill);
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+.bt-sheet2__body { margin-top: 6px !important; font-size: 13px; line-height: 1.55; color: var(--ink-600); }
+.bt-sheet2__body--empty { color: var(--ink-300); font-style: italic; }
+/* A filled row earns a thin accent edge, so progress is visible on the sheet
+   and not only on the bar. */
+.bt-sheet2__row--filled { box-shadow: inset 2px 0 0 var(--accent-200); }
+
+/* The waterline, for the iceberg sheet. */
+.bt-sheet2__line { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+.bt-sheet2__line span { font-size: 9.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-300); white-space: nowrap; }
+.bt-sheet2__line i { display: block; flex: 1; border-top: 1.5px dashed var(--accent-300); }
+
+@media (max-width: 980px) {
+  .bt-build__grid { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+  .bt-build__preview { position: static; }
+}
+@media (max-width: 640px) {
+  .bt-build { padding: 18px; }
+  .bt-build__q { font-size: 20px; }
+  .bt-sheet2 { padding: 18px; }
 }

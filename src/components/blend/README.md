@@ -6,7 +6,8 @@ accent, big tight display type, pills for anything you can press and
 soft-squares for anything that holds content.
 
 Live examples: `/intro-to-dbms` (warm orange), `/intro-to-business-analytics`
-and `/power-bi-setup` (teal).
+and `/power-bi-setup` (teal), `/intro-to-sisp` (indigo),
+`/intro-to-project-management` (plum).
 
 - **Stylesheet** — `src/styles/blend.css`
 - **Components** — `src/components/blend/`
@@ -122,6 +123,8 @@ language. Nothing but these seven values and the shadow changes between them.
 |---|---|---|
 | Warm orange (default) | none | MBI802 — Database Management Systems |
 | Teal | `.bt--analytics` | MBI806B — Business Data Analytics, Power BI setup |
+| Indigo | `.bt--planning` | MBI800 — Strategic Information Systems Planning |
+| Plum | `.bt--project` | MBI804 — IT Project Management |
 
 To add one, copy the `.bt--analytics` block in `blend.css`, redefine
 `--accent-50` through `--accent-700` plus `--accent-shadow`, and add the name
@@ -162,6 +165,9 @@ The three faces load from `index.html` alongside Inter, in one request.
 | `PillNav` | Floating nav that tracks the section in view. `CoursePage` wires this up already. |
 | `SectionHead` | Eyebrow + headline + right-hand standfirst. |
 | `Reveal` | Scroll-in wrapper: 22px lift and fade, once per element. Wrap a section head and its body separately, with `delay={0.05}` on the body. |
+| `LessonHeader` | For a page that is a real lesson: which lesson it is, what it covers, reading time, and the objectives. Objectives carry a hollow ring, not a tick — nothing is achieved yet at the top of a lesson. |
+| `Recap` | The end-of-teaching summary on the dark surface. One line per claim, bold first. It marks the boundary between the lesson and the course admin below it. |
+| `Quiz` | Knowledge check. Answer, read why, move on. Every wrong option gets its own explanation, because the distractor a student picked names the misunderstanding they arrived with. Nothing is stored or reported. |
 
 ---
 
@@ -182,9 +188,15 @@ sequence), `bt-step` (a numbered preview block), `bt-figure`, `bt-code`,
 `bt-flow` (numbered steps), `bt-rows`, `bt-pairgrid`, `bt-topics`,
 `bt-signoff`.
 
-Interactive: `bt-flip` (tap-to-reveal card), `bt-walk` (stepper with a rail),
-`bt-verdict` (a tone-coloured response box), `bt-tab`, `bt-modeswitch`,
-`bt-ctxchip`.
+Interactive: `bt-flip` (tap-to-reveal card), `bt-walk` (stepper with a rail,
+`--wide` when the rail is a drawing rather than labels), `bt-verdict` (a
+tone-coloured response box), `bt-tab`, `bt-modeswitch`, `bt-ctxchip`.
+
+Lesson: `bt-lessonhead`, `bt-objectives`, `bt-secno`, `bt-recap`, `bt-quiz`.
+
+Simulations: `bt-sim` (controls left, a drawing that responds right, one
+readout underneath), `bt-scale` (a property between two named poles, with a
+ring marking the reference setting), `bt-meter` (a small labelled bar).
 
 ---
 

@@ -6,7 +6,7 @@ import { LESSON_ACCESS_PASSWORD, LESSON_ACCESS_STORAGE_KEY } from '../../config/
 // Route prefixes that are already behind Firebase auth (or are functional
 // utility links like QR attendance / certificate verification) — the lesson
 // password popup does not apply to these.
-const EXCLUDED_PREFIXES = ['/login', '/register', '/student', '/lecturer', '/attend', '/certificate', '/intro-to-dbms', '/intro-to-business-analytics', '/power-bi-setup'];
+const EXCLUDED_PREFIXES = ['/login', '/register', '/student', '/lecturer', '/attend', '/certificate', '/intro-to-dbms', '/intro-to-business-analytics', '/power-bi-setup', '/teachable-machine'];
 
 function requiresGate(pathname: string): boolean {
   return !EXCLUDED_PREFIXES.some(prefix => pathname === prefix || pathname.startsWith(`${prefix}/`));

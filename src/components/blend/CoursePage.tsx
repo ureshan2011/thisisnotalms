@@ -11,7 +11,7 @@ import '../../styles/blend.css';
 // Everything lives inside `.bt`, so the theme's tokens and classes never
 // reach the rest of the app.
 
-export type BlendAccent = 'default' | 'analytics';
+export type BlendAccent = 'default' | 'analytics' | 'strategy';
 
 export default function CoursePage({
   accent = 'default',

@@ -122,6 +122,7 @@ language. Nothing but these seven values and the shadow changes between them.
 |---|---|---|
 | Warm orange (default) | none | MBI802 — Database Management Systems |
 | Teal | `.bt--analytics` | MBI806B — Business Data Analytics, Power BI setup |
+| Indigo | `.bt--strategy` | MBI800 — Teachable Machine |
 
 To add one, copy the `.bt--analytics` block in `blend.css`, redefine
 `--accent-50` through `--accent-700` plus `--accent-shadow`, and add the name

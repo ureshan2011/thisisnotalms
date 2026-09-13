@@ -78,6 +78,15 @@ const LESSONS: {
     to2: '#FF5A5F',
   },
   {
+    to: '/teachable-machine',
+    eyebrow: 'MBI800 · Strategic Information System Planning',
+    title: 'Meet Teachable Machine',
+    body: 'Google’s free, no-code tool for training an image, sound or pose classifier in your browser — what it actually is, why it belongs in a strategy course, a tiny working trainer you can try right on the page, and an eight-step guide to building the real thing.',
+    emoji: '🧠',
+    from: '#6144d1',
+    to2: '#392787',
+  },
+  {
     to: '/bonus-lecture',
     eyebrow: 'MBI800 · Capstone Bonus Lecture',
     title: "Let's make sense of shipping your own site",

@@ -131,6 +131,20 @@
   --accent-shadow: 0 10px 24px -8px rgba(15, 118, 110, 0.42);
 }
 
+/* MBI800 — Strategic Information System Planning. An indigo, kept warm
+   enough to still sit on the cream paper without going cold or sour. */
+.bt--strategy {
+  --accent-50: #f1eefc;
+  --accent-100: #e0d8f8;
+  --accent-200: #c2b0f2;
+  --accent-300: #9f84e9;
+  --accent-400: #7c5cde;
+  --accent-500: #6144d1;
+  --accent-600: #4b32ab;
+  --accent-700: #392787;
+  --accent-shadow: 0 10px 24px -8px rgba(97, 68, 209, 0.42);
+}
+
 .bt :where(h1, h2, h3, h4) {
   margin: 0;
   font-family: var(--font-display);
@@ -1990,4 +2004,88 @@
 @media (max-width: 640px) {
   .wa__slip dl > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .wa__like { flex-direction: column; gap: 6px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Teachable Machine — pieces only /teachable-machine uses.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.tm-trainer {
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: 28px;
+  margin-top: 22px;
+  box-shadow: var(--shadow-sm);
+}
+.tm-trainer__note { font-size: 13px; color: var(--ink-400); margin-bottom: 20px !important; max-width: 56ch; }
+
+.tm-classes { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.tm-class {
+  background: var(--paper-100);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 18px;
+}
+.tm-class__label { font-family: var(--font-display); font-weight: 800; font-size: 17px; letter-spacing: -0.02em; color: var(--ink-900); }
+.tm-class__hint { margin-top: 2px !important; font-size: 12.5px; color: var(--ink-400); }
+.tm-class__bar {
+  margin-top: 14px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--paper-200);
+  overflow: hidden;
+}
+.tm-class__bar i { display: block; height: 100%; background: var(--accent-400); transition: width var(--dur-base) var(--ease); }
+.tm-class__row { margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.tm-class__count { font-size: 12.5px; color: var(--ink-500); }
+
+.tm-actions { margin-top: 22px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+.tm-test { margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--border-subtle); }
+.tm-testrow { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+.tm-result { margin-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+.tm-result__row { display: grid; grid-template-columns: 78px minmax(0, 1fr) 42px; align-items: center; gap: 12px; }
+.tm-result__label { font-size: 13px; font-weight: 700; color: var(--ink-700); }
+.tm-result__track {
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--paper-200);
+  overflow: hidden;
+}
+.tm-result__track i { display: block; height: 100%; border-radius: var(--radius-pill); transition: width var(--dur-slow) var(--ease); }
+.tm-result__val { font-size: 12.5px; text-align: right; color: var(--ink-500); }
+
+.tm-say {
+  margin-top: 18px !important;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-500);
+  background: var(--paper-100);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+}
+.tm-say--done { background: var(--accent-50); color: var(--accent-700); }
+
+.tm-links { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border-subtle); }
+.tm-links > li { padding: 15px 0; border-bottom: 1px solid var(--border-subtle); display: flex; flex-direction: column; gap: 4px; }
+.tm-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--accent-600);
+  text-decoration: none;
+  align-self: flex-start;
+}
+.tm-links a:hover { text-decoration: underline; }
+.tm-links span { font-size: 13px; color: var(--ink-400); line-height: 1.45; }
+
+@media (max-width: 560px) {
+  .tm-trainer { padding: 20px; }
+  .tm-result__row { grid-template-columns: 64px minmax(0, 1fr) 38px; gap: 8px; }
 }

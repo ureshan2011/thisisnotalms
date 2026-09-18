@@ -231,9 +231,9 @@ const MBI802: Course = {
       id: 'web-architecture',
       title: 'Client, server and databases',
       blurb:
-        'How a website actually works, for absolute beginners. Sort jobs between the two computers, watch a request travel to the server and database in 3D, run a live search, then step into a safe attack lab.',
+        'How a website actually works, for absolute beginners. Sort jobs between the two computers, then follow one search all the way to the database and back — watching the server run the SQL as it goes. Ends in a safe attack lab.',
       to: '/web-architecture',
-      access: 'code',
+      access: 'open',
       kind: 'Lesson',
     },
     {

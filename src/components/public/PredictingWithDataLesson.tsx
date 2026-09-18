@@ -2,7 +2,7 @@ import { LessonHeader, Quiz, Recap, Reveal, SectionHead, type QuizQuestion } fro
 import FitTheLine from './ml/FitTheLine';
 import GrowTheTree from './ml/GrowTheTree';
 import ForestVote from './ml/ForestVote';
-import ModelShapes from './ml/ModelShapes';
+import ModelCompare from './ml/ModelCompare';
 import RuleVsExamples from './ml/RuleVsExamples';
 import PythonPlayground, { COLAB_URL } from './ml/PythonPlayground';
 
@@ -22,7 +22,7 @@ import PythonPlayground, { COLAB_URL } from './ml/PythonPlayground';
 // two inches above it, which is the only reason it sticks.
 //
 // Numbers in the text are numbers the page's own code prints. The rent line
-// is $221 + $6.73, which is what both the slider widget and the playground
+// is $222 + $6.72, which is what both the slider widget and the playground
 // land on, because they run the same search.
 
 const OBJECTIVES = [
@@ -468,34 +468,14 @@ export default function PredictingWithDataLesson() {
       <section id="which" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="Choosing"
+            eyebrow="All three, side by side"
             title="Which one do I use?"
             aside="Usually decided by what you have to explain afterwards, not by which one scores highest."
           />
         </Reveal>
 
         <Reveal delay={0.05}>
-          <div style={{ maxWidth: 560 }}>
-            <ModelShapes captions={['Linear regression', 'Decision tree', 'Random forest']} />
-          </div>
-          <p className="bt-note">Same dots all three times. Only the shape of the rule changes.</p>
-        </Reveal>
-
-        <Reveal delay={0.05}>
-          <div className="bt-pairgrid bt-pairgrid--three" style={{ marginTop: 26 }}>
-            <div className="bt-card">
-              <h4>The answer is a number</h4>
-              <p>Use linear regression. It is quick, and it tells you how much each thing is worth.</p>
-            </div>
-            <div className="bt-card">
-              <h4>You have to explain it</h4>
-              <p>Use one small decision tree. You can print it and point at the branch.</p>
-            </div>
-            <div className="bt-card">
-              <h4>It just has to be right</h4>
-              <p>Use a random forest. Best accuracy, no explaining.</p>
-            </div>
-          </div>
+          <ModelCompare />
         </Reveal>
 
         <Reveal delay={0.05}>

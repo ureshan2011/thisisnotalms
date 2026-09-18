@@ -2472,3 +2472,247 @@
   .bt-build__q { font-size: 20px; }
   .bt-sheet2 { padding: 18px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Course home — the four course index pages (/mbi800, /mbi802, /mbi804,
+   /mbi806b). One component renders all four from src/content/courses.ts, so
+   everything below has to work for a two-lesson course and a sixteen-lesson
+   one without looking sparse at one end or cramped at the other.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── The progress board (hero art) ────────────────────────────────────────
+   The count carries the weight on a short course, the map carries it on a
+   long one, so neither size of course gets an empty-looking panel.        */
+.bt-board__top { display: flex; align-items: baseline; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+.bt-board__num {
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+}
+.bt-board__of { font-size: 13.5px; color: var(--ink-400); }
+.bt-board__bar { margin-top: 16px; }
+.bt-board__map { display: block; width: 100%; margin-top: 20px; overflow: visible; }
+
+/* Fixed height, so naming a lesson under the map never shifts the page. */
+.bt-board__read { min-height: 54px; margin-top: 16px !important; font-size: 12.5px; line-height: 1.5; color: var(--ink-400); }
+.bt-board__read b { color: var(--ink-900); font-weight: 700; }
+
+.bt-board__reset {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin-top: 4px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-400);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.bt-board__reset:hover { color: var(--ink-900); }
+
+/* One square per lesson, threaded in teaching order. Done is a solid accent
+   square; open is outlined; needing the class code is a dashed outline — the
+   state reads at a glance without a legend, though there is one anyway. */
+.bt-tile { cursor: pointer; }
+.bt-tile rect {
+  transition: fill var(--dur-base) var(--ease), stroke var(--dur-base) var(--ease);
+}
+.bt-tile:hover rect { stroke: var(--ink-500); }
+
+.bt-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; }
+.bt-legend > span { display: inline-flex; align-items: center; gap: 7px; font-size: 11.5px; color: var(--ink-400); }
+.bt-legend i {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 11px;
+  border-radius: 4px;
+  background: var(--paper-0);
+  border: 1.5px solid var(--ink-200);
+}
+.bt-legend i.is-done { background: var(--accent-500); border-color: var(--accent-500); }
+.bt-legend i.is-open { border-color: var(--accent-300); }
+.bt-legend i.is-code { border-style: dashed; }
+
+/* ── The index ────────────────────────────────────────────────────────────
+   A course is a sequence, so the lessons get one numbered track, not N
+   identical cards. The third column holds the two things a reader does with
+   a row: open it, or tick it off.                                         */
+.bt-trackrow--idx { grid-template-columns: 74px minmax(0, 1.7fr) minmax(0, 210px); }
+
+/* The shared track caps its body text at 52ch, which on the index leaves a
+   channel of dead space before the actions column. The index's middle column
+   is wider, so the measure can be too. */
+.bt-trackrow--idx .bt-trackrow__body p { max-width: 64ch; }
+
+.bt-idx__tags { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; margin-top: 9px; }
+.bt-kind {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  border-radius: var(--radius-pill);
+  padding: 3px 11px;
+  white-space: nowrap;
+}
+.bt-kind--open { color: var(--accent-700); border-color: var(--accent-200); background: var(--accent-50); }
+.bt-kind--code { display: inline-flex; align-items: center; gap: 6px; }
+
+.bt-idx__acts { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding-top: 3px; }
+
+/* The tick is the only semantic colour on the row, and it is 22px — never a
+   fill across the row itself. */
+.bt-tick {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-400);
+  transition: color var(--dur-fast) var(--ease);
+}
+.bt-tick i {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--ink-200);
+  display: grid;
+  place-items: center;
+  color: transparent;
+  transition: background var(--dur-base) var(--ease), border-color var(--dur-base) var(--ease),
+    color var(--dur-base) var(--ease);
+}
+.bt-tick:hover { color: var(--ink-900); }
+.bt-tick:hover i { border-color: var(--ink-500); }
+.bt-tick[aria-pressed='true'] { color: var(--ink-900); }
+.bt-tick[aria-pressed='true'] i { background: var(--green-500); border-color: var(--green-500); color: #fff; }
+
+/* A thin inset edge rather than a tinted row — done should be legible at a
+   glance down the left margin without repainting a quarter of the screen. */
+.bt-trackrow--done { box-shadow: inset 2px 0 0 var(--green-500); }
+.bt-trackrow--done .bt-trackrow__body h3 { color: var(--ink-400); }
+
+/* Arriving from the board: the row says which one it is, then settles. */
+.bt-trackrow--flash { animation: bt-flash var(--dur-slow) var(--ease-out) 3; }
+@keyframes bt-flash {
+  0%, 100% { background: transparent; }
+  50% { background: var(--accent-50); }
+}
+
+.bt-filters { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; margin-bottom: 26px; }
+.bt-filters__note { font-size: 12.5px; color: var(--ink-400); margin-left: auto; }
+
+.bt-empty {
+  padding: 40px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 14.5px;
+  color: var(--ink-400);
+}
+
+/* ── Start here ───────────────────────────────────────────────────────────
+   The one dark panel on the page, carrying the single thing a first-time
+   reader should do. One per screen, by the same rule as the accent.       */
+.bt-start {
+  background: var(--ink-900);
+  border-radius: var(--radius-panel);
+  padding: 34px;
+  color: var(--ink-200);
+}
+.bt-start h3 { color: #fff; font-size: clamp(22px, 3.2vw, 30px); font-weight: 800; letter-spacing: -0.03em; margin-top: 12px; }
+.bt-start p { margin-top: 14px !important; font-size: 15px; line-height: 1.6; color: var(--ink-300); max-width: 58ch; }
+.bt-start .bt-eyebrow { color: var(--accent-300); }
+.bt-start__cta { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px; }
+.bt-start__cta .bt-btn--dark { background: var(--paper-50); color: var(--ink-900); box-shadow: none; }
+.bt-start__cta .bt-btn--dark:hover { background: #fff; }
+.bt-start__cta .bt-btn--dark .bt-btn__badge { background: var(--ink-900); color: var(--paper-50); }
+.bt-start__cta .bt-btn--tertiary { color: var(--paper-50); }
+.bt-start__cta .bt-btn--tertiary:hover { background: rgba(255, 255, 255, 0.09); }
+
+/* ── Outcomes and descriptor ──────────────────────────────────────────── */
+.bt-lo { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.bt-lo__n {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  color: var(--accent-600);
+}
+.bt-lo h4 { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; margin-top: 7px; }
+.bt-lo p { margin-top: 9px !important; font-size: 13.5px; line-height: 1.55; color: var(--ink-400); }
+
+.bt-assess { margin-top: 26px; border-top: 1px solid var(--border-subtle); }
+.bt-assess > div {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 8px 22px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.bt-assess b {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ink-900);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.bt-assess h4 { font-size: 15px; font-weight: 700; letter-spacing: -0.015em; }
+.bt-assess p { margin-top: 4px !important; font-size: 13px; color: var(--ink-400); }
+
+/* ── Sibling courses ──────────────────────────────────────────────────── */
+.bt-siblings { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 8px; }
+.bt-sibling {
+  display: block;
+  text-decoration: none;
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 20px;
+  transition: transform var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease);
+}
+.bt-sibling:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.bt-sibling span {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-400);
+}
+.bt-sibling h4 { font-size: 16px; font-weight: 800; letter-spacing: -0.025em; margin-top: 9px; line-height: 1.25; }
+.bt-sibling p { margin-top: 8px !important; font-size: 12.5px; color: var(--ink-400); }
+
+@media (max-width: 980px) {
+  /* Re-stated after the shared 980px rule, which would otherwise win on
+     source order and drop the index's third column at every width. */
+  .bt-trackrow--idx { grid-template-columns: 64px minmax(0, 1fr); }
+  .bt-idx__acts { grid-column: 2; flex-direction: row; align-items: center; gap: 20px; padding-top: 12px; }
+}
+@media (max-width: 640px) {
+  .bt-board__num { font-size: 42px; }
+  .bt-start { padding: 22px; }
+  .bt-filters__note { margin-left: 0; width: 100%; }
+}
+
+/* A course home page's headline is the course's own title, which runs much
+   longer than the 3–7 word headlines the hero was tuned for. Smaller, and
+   free of the 15ch cap, so "Business data analytics with AI and ML" sets on
+   two deliberate lines instead of wrapping to four. */
+.bt-hero--title h1 { font-size: clamp(26px, 4.4vw, 46px); max-width: 100%; line-height: 1.06; }
+
+/* The house pattern has been an inline textDecoration on every linked
+   button. Stated once here instead. */
+a.bt-btn { text-decoration: none; }

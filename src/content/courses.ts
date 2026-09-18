@@ -472,6 +472,15 @@ const MBI806B: Course = {
       kind: 'Lesson',
     },
     {
+      id: 'ml-three-models',
+      title: 'Linear regression, decision trees and random forests',
+      blurb:
+        'The three models that do most of the work in business analytics, with no maths and no setup. Fit a line by hand, grow a decision tree until it memorises, watch nine trees outvote the best one among them, then run real Python in the page.',
+      to: '/predicting-with-data',
+      access: 'open',
+      kind: 'Lesson',
+    },
+    {
       id: 'power-bi-setup',
       title: 'Setting up Power BI',
       blurb:

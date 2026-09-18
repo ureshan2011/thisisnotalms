@@ -24,6 +24,7 @@ const EXCLUDED_PREFIXES = [
   '/intro-to-sisp',
   '/intro-to-project-management',
   '/power-bi-setup',
+  '/predicting-with-data',
   '/mbi800',
   '/mbi802',
   '/mbi804',

@@ -17,6 +17,7 @@ const IntroToBusinessAnalyticsPage = lazy(() => import('./pages/IntroToBusinessA
 const IntroToSISPPage = lazy(() => import('./pages/IntroToSISPPage'));
 const IntroToProjectManagementPage = lazy(() => import('./pages/IntroToProjectManagementPage'));
 const PowerBISetupPage = lazy(() => import('./pages/PowerBISetupPage'));
+const PredictingWithDataPage = lazy(() => import('./pages/PredictingWithDataPage'));
 const PreClassSwarmPage = lazy(() => import('./pages/PreClassSwarmPage'));
 const SQLReelsPage = lazy(() => import('./pages/SQLReelsPage'));
 const NormalizationExplorerPage = lazy(() => import('./pages/NormalizationExplorerPage'));
@@ -111,6 +112,7 @@ function AppRoutes() {
         <Route path="/intro-to-sisp" element={<Suspense fallback={null}><IntroToSISPPage /></Suspense>} />
         <Route path="/intro-to-project-management" element={<Suspense fallback={null}><IntroToProjectManagementPage /></Suspense>} />
         <Route path="/power-bi-setup" element={<Suspense fallback={null}><PowerBISetupPage /></Suspense>} />
+        <Route path="/predicting-with-data" element={<Suspense fallback={null}><PredictingWithDataPage /></Suspense>} />
         <Route path="/xr-explorer"  element={<XRExplorerPage />} />
         <Route path="/normalisation" element={<Suspense fallback={null}><NormalizationExplorerPage /></Suspense>} />
         <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />
@@ -206,6 +208,7 @@ function ShutdownRoutes() {
       <Route path="/intro-to-sisp" element={<Suspense fallback={null}><IntroToSISPPage /></Suspense>} />
       <Route path="/intro-to-project-management" element={<Suspense fallback={null}><IntroToProjectManagementPage /></Suspense>} />
       <Route path="/power-bi-setup" element={<Suspense fallback={null}><PowerBISetupPage /></Suspense>} />
+      <Route path="/predicting-with-data" element={<Suspense fallback={null}><PredictingWithDataPage /></Suspense>} />
       <Route path="/xr-explorer" element={<XRExplorerPage />} />
       <Route path="/normalisation" element={<Suspense fallback={null}><NormalizationExplorerPage /></Suspense>} />
       <Route path="/normalization" element={<Navigate to="/normalisation" replace />} />

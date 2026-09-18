@@ -2716,3 +2716,168 @@
 /* The house pattern has been an inline textDecoration on every linked
    button. Stated once here instead. */
 a.bt-btn { text-decoration: none; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Python playground — an editable, runnable code space.
+   The code surface is the dark ink of .bt-code, because a student who has
+   seen a terminal expects code to sit on dark and everything else on this
+   page sits on paper. The controls stay on paper, so the box reads as an
+   object on the page rather than a window pasted over it.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.bt-play {
+  margin-top: 22px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--paper-0);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.bt-play__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+}
+.bt-play__label {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+  margin-right: auto;
+}
+.bt-play__ghost {
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-0);
+  border-radius: var(--radius-pill);
+  padding: 5px 13px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-400);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.bt-play__ghost:hover { background: var(--paper-200); color: var(--ink-900); }
+
+.bt-play__code {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  border: none;
+  /* Soft-square, not a pill: at sixteen rows a pill reads as a lozenge. The
+     same exception the build-your-own sheet takes, for the same reason. */
+  border-radius: 0;
+  background: var(--ink-900);
+  color: #ede6e2;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  padding: 18px 16px;
+  resize: vertical;
+  tab-size: 4;
+  white-space: pre;
+  overflow-wrap: normal;
+  overflow-x: auto;
+}
+.bt-play__code:focus { outline: 2px solid var(--accent-400); outline-offset: -2px; }
+
+.bt-play__run {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+.bt-play__run .bt-btn { margin-top: 0; }
+.bt-play__run .bt-btn:disabled { opacity: 0.55; cursor: progress; }
+.bt-play__wait { font-size: 12.5px; color: var(--ink-400); line-height: 1.45; max-width: 46ch; }
+
+.bt-play__out {
+  margin: 0;
+  padding: 16px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--ink-700);
+  white-space: pre-wrap;
+  overflow-x: auto;
+  max-height: 340px;
+}
+/* A thin edge rather than a red panel: a traceback is information, not an
+   alarm, and a beginner meets plenty of them. */
+.bt-play__out--failed { box-shadow: inset 3px 0 0 var(--red-500); }
+
+.bt-play__help,
+.bt-play__note {
+  margin: 0 !important;
+  padding: 12px 16px 14px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--ink-400);
+}
+.bt-play__help a { color: var(--accent-600); }
+
+@media (max-width: 640px) {
+  .bt-play__code { font-size: 12px; padding: 14px 12px; }
+  .bt-play__bar { padding: 10px 12px; }
+}
+
+/* ── The forest vote ──────────────────────────────────────────────────────
+   Nine trees' calls as nine small tiles, with the one the reader is
+   following outlined rather than recoloured — the colours are already doing
+   the work of saying which way each tree went. */
+.bt-fv__scores {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-subtle);
+}
+.bt-fv__scores b {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--ink-900);
+  margin-top: 8px;
+}
+.bt-fv__scores b span { font-size: 16px; color: var(--ink-300); }
+
+.bt-fv__trees { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(62px, 1fr)); gap: 7px; }
+.bt-fv__tree {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--paper-0);
+  padding: 9px 6px 8px;
+  text-align: center;
+}
+.bt-fv__n { display: block; font-family: var(--font-mono); font-size: 10px; color: var(--ink-300); }
+.bt-fv__call { display: block; margin-top: 3px; font-family: var(--font-display); font-size: 11.5px; font-weight: 800; letter-spacing: -0.01em; }
+.bt-fv__tree--cancel .bt-fv__call { color: var(--cat-2); }
+.bt-fv__tree--stay .bt-fv__call { color: var(--cat-3); }
+/* Outlined, not filled: which tree you are following is a different kind of
+   fact from which way it voted, so it gets a different channel. */
+.bt-fv__tree--followed { border-color: var(--ink-900); box-shadow: inset 0 0 0 1px var(--ink-900); }
+.bt-fv__tree--followed .bt-fv__n { color: var(--ink-900); font-weight: 700; }
+
+.bt-fv__tally { margin-top: 16px; }
+
+/* A disabled pill looked exactly like a live one, so the last "Next" in a
+   stepper invited a click that did nothing. The walk nav already solved this
+   locally; stated once here for every button in the system. */
+.bt-btn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
+.bt-btn:disabled:hover { background: var(--accent-500); }
+.bt-btn--tertiary:disabled:hover { background: transparent; }

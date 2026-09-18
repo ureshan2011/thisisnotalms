@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { FullPageSpinner } from './components/ui/LoadingSpinner';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import LessonPasswordGate from './components/layout/LessonPasswordGate';
+import PageMeta from './components/layout/PageMeta';
 import { ToastProvider } from './components/ui/ToastProvider';
 import { PLATFORM_ACTIVE } from './config/platform';
 import ShutdownPage from './pages/ShutdownPage';
@@ -244,6 +245,7 @@ export default function App() {
   if (!PLATFORM_ACTIVE) {
     return (
       <HashRouter>
+        <PageMeta />
         <LessonPasswordGate>
           <ShutdownRoutes />
         </LessonPasswordGate>
@@ -254,6 +256,7 @@ export default function App() {
     <AuthProvider>
       <ToastProvider>
         <HashRouter>
+          <PageMeta />
           <LessonPasswordGate>
             <AppRoutes />
           </LessonPasswordGate>

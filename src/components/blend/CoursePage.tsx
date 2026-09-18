@@ -1,7 +1,8 @@
 import { type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import CourseBrand from './CourseBrand';
 import PillNav, { type NavItem } from './PillNav';
+import { COURSE_CODES, courseHomePath, type CourseHomeCode } from '../../content/courses';
 import '../../styles/blend.css';
 
 // The whole outer frame of a Blend course page: brand header, floating pill
@@ -10,6 +11,11 @@ import '../../styles/blend.css';
 //
 // Everything lives inside `.bt`, so the theme's tokens and classes never
 // reach the rest of the app.
+//
+// The course code in the header is a link back to that course's home page
+// whenever one exists, so every Blend page — including any added later — has
+// a way up to its own index without each page wiring one itself. On the home
+// page itself the link would point at the page you are on, so it stays text.
 
 export type BlendAccent = 'default' | 'analytics' | 'planning' | 'project';
 
@@ -34,6 +40,12 @@ export default function CoursePage({
   footerNote?: string;
   children: ReactNode;
 }) {
+  const { pathname } = useLocation();
+  const home = COURSE_CODES.includes(courseCode as CourseHomeCode)
+    ? courseHomePath(courseCode as CourseHomeCode)
+    : null;
+  const showHomeLink = home !== null && home !== pathname;
+
   return (
     <div className={`bt${accent === 'default' ? '' : ` bt--${accent}`}`} style={{ minHeight: '100vh' }}>
       <header style={{ borderBottom: '1px solid var(--border-subtle)' }}>
@@ -44,9 +56,19 @@ export default function CoursePage({
           <Link to="/home" style={{ textDecoration: 'none' }} aria-label="Back to the home page">
             <CourseBrand size={28} />
           </Link>
-          <span style={{ fontSize: 12.5, color: 'var(--ink-400)' }}>
-            {courseCode} · {courseName}
-          </span>
+          {showHomeLink ? (
+            <Link
+              to={home}
+              style={{ fontSize: 12.5, color: 'var(--ink-400)', textDecoration: 'none' }}
+              title={`All ${courseCode} lessons`}
+            >
+              <span style={{ borderBottom: '1px solid var(--border-subtle)' }}>{courseCode}</span> · {courseName}
+            </Link>
+          ) : (
+            <span style={{ fontSize: 12.5, color: 'var(--ink-400)' }}>
+              {courseCode} · {courseName}
+            </span>
+          )}
         </div>
       </header>
 

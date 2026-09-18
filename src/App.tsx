@@ -10,6 +10,7 @@ import ShutdownPage from './pages/ShutdownPage';
 import XRExplorerPage from './pages/XRExplorerPage';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
+const CourseHomePage = lazy(() => import('./pages/CourseHomePage'));
 const IntroToDBMSPage = lazy(() => import('./pages/IntroToDBMSPage'));
 const IntroToBusinessAnalyticsPage = lazy(() => import('./pages/IntroToBusinessAnalyticsPage'));
 const IntroToSISPPage = lazy(() => import('./pages/IntroToSISPPage'));
@@ -98,6 +99,12 @@ function AppRoutes() {
       <Routes>
         <Route path="/"             element={<RootRedirect />} />
         <Route path="/home"         element={<Suspense fallback={null}><HomePage /></Suspense>} />
+        {/* The four course home pages — public, ungated, and the index each
+            public lesson page links back to. See LessonPasswordGate. */}
+        <Route path="/mbi800"       element={<Suspense fallback={null}><CourseHomePage code="MBI800" /></Suspense>} />
+        <Route path="/mbi802"       element={<Suspense fallback={null}><CourseHomePage code="MBI802" /></Suspense>} />
+        <Route path="/mbi804"       element={<Suspense fallback={null}><CourseHomePage code="MBI804" /></Suspense>} />
+        <Route path="/mbi806b"      element={<Suspense fallback={null}><CourseHomePage code="MBI806B" /></Suspense>} />
         <Route path="/intro-to-dbms" element={<Suspense fallback={null}><IntroToDBMSPage /></Suspense>} />
         <Route path="/intro-to-business-analytics" element={<Suspense fallback={null}><IntroToBusinessAnalyticsPage /></Suspense>} />
         <Route path="/intro-to-sisp" element={<Suspense fallback={null}><IntroToSISPPage /></Suspense>} />
@@ -188,6 +195,11 @@ function ShutdownRoutes() {
       {/* Home is the public entry point */}
       <Route path="/" element={<Suspense fallback={null}><HomePage /></Suspense>} />
       <Route path="/home" element={<Suspense fallback={null}><HomePage /></Suspense>} />
+      {/* The four course home pages — public, ungated. */}
+      <Route path="/mbi800" element={<Suspense fallback={null}><CourseHomePage code="MBI800" /></Suspense>} />
+      <Route path="/mbi802" element={<Suspense fallback={null}><CourseHomePage code="MBI802" /></Suspense>} />
+      <Route path="/mbi804" element={<Suspense fallback={null}><CourseHomePage code="MBI804" /></Suspense>} />
+      <Route path="/mbi806b" element={<Suspense fallback={null}><CourseHomePage code="MBI806B" /></Suspense>} />
       <Route path="/intro-to-dbms" element={<Suspense fallback={null}><IntroToDBMSPage /></Suspense>} />
       <Route path="/intro-to-business-analytics" element={<Suspense fallback={null}><IntroToBusinessAnalyticsPage /></Suspense>} />
       <Route path="/intro-to-sisp" element={<Suspense fallback={null}><IntroToSISPPage /></Suspense>} />

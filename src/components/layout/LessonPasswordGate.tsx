@@ -6,7 +6,29 @@ import { LESSON_ACCESS_PASSWORD, LESSON_ACCESS_STORAGE_KEY } from '../../config/
 // Route prefixes that are already behind Firebase auth (or are functional
 // utility links like QR attendance / certificate verification) — the lesson
 // password popup does not apply to these.
-const EXCLUDED_PREFIXES = ['/login', '/register', '/student', '/lecturer', '/attend', '/certificate', '/intro-to-dbms', '/intro-to-business-analytics', '/intro-to-sisp', '/intro-to-project-management', '/power-bi-setup'];
+//
+// The four course home pages (/mbi800, /mbi802, /mbi804, /mbi806b) are here
+// for the same reason as the public lesson pages they index: they are the
+// link handed to somebody deciding whether to take the course, so a password
+// box is the wrong first thing to meet. They list every lesson either way and
+// mark which ones need the code, so nothing gated is reachable through them.
+const EXCLUDED_PREFIXES = [
+  '/login',
+  '/register',
+  '/student',
+  '/lecturer',
+  '/attend',
+  '/certificate',
+  '/intro-to-dbms',
+  '/intro-to-business-analytics',
+  '/intro-to-sisp',
+  '/intro-to-project-management',
+  '/power-bi-setup',
+  '/mbi800',
+  '/mbi802',
+  '/mbi804',
+  '/mbi806b',
+];
 
 function requiresGate(pathname: string): boolean {
   return !EXCLUDED_PREFIXES.some(prefix => pathname === prefix || pathname.startsWith(`${prefix}/`));

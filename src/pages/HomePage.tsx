@@ -9,6 +9,7 @@ import {
   type Variants,
 } from 'framer-motion';
 import BrandLogo from '../components/ui/BrandLogo';
+import { COURSES, COURSE_CODES, courseHomePath } from '../content/courses';
 
 // ─── Home / launchpad (Not a LMS) ───────────────────────────────────────────
 // A single entry point that introduces the project and lets you jump into each
@@ -304,6 +305,17 @@ const LESSONS: {
   },
 ];
 
+// The four course home pages. Built from the same registry the pages
+// themselves read, so adding a course is one entry in src/content/courses.ts
+// and it turns up here too. Each course's hue is the accent its Blend page
+// runs on (see src/styles/blend.css).
+const COURSE_ACCENT: Record<string, string> = {
+  MBI800: '#514ca8',
+  MBI802: '#f4551e',
+  MBI804: '#ab355c',
+  MBI806B: '#0f766e',
+};
+
 const stagger: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
@@ -458,6 +470,88 @@ export default function HomePage() {
           className="absolute bottom-9 left-1/2 -translate-x-1/2 text-[13px] font-medium text-[#aeaeb2]"
         >
           Scroll to begin
+        </motion.div>
+      </section>
+
+      {/* ── COURSE HOME PAGES ──────────────────────────────────────────────── */}
+      <section className="border-y border-black/[0.06] bg-[#fafafa] px-6 py-20 sm:py-24">
+        <div className="mx-auto mb-12 max-w-3xl text-center">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.7, ease: EASE }}
+            className="mb-3 text-[15px] font-semibold tracking-tight text-[#0071e3]"
+          >
+            By course
+          </motion.p>
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.8, ease: EASE, delay: 0.05 }}
+            className="text-[34px] font-semibold leading-[1.06] tracking-tight sm:text-[48px]"
+          >
+            Four courses, four home pages
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.8, ease: EASE, delay: 0.1 }}
+            className="mx-auto mt-5 max-w-xl text-[17px] leading-relaxed text-[#6e6e73]"
+          >
+            Every lesson in a course, in the order it is taught, with a board you can tick off as you go.
+            Nothing to sign into.
+          </motion.p>
+        </div>
+
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-60px' }}
+          className="mx-auto grid max-w-5xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {COURSE_CODES.map((code) => {
+            const course = COURSES[code];
+            const accent = COURSE_ACCENT[code];
+            const open = course.lessons.filter((l) => l.access === 'open').length;
+            return (
+              <motion.div key={code} variants={card}>
+                <Link to={courseHomePath(code)} className="group block h-full">
+                  <motion.div
+                    whileHover={{ y: -6 }}
+                    transition={{ duration: 0.4, ease: EASE }}
+                    className="flex h-full flex-col rounded-[24px] border border-black/[0.07] bg-white p-7 transition group-hover:shadow-[0_24px_60px_-24px_rgba(0,0,0,0.22)]"
+                  >
+                    <span
+                      className="inline-block h-1.5 w-10 rounded-full"
+                      style={{ background: accent }}
+                      aria-hidden="true"
+                    />
+                    <p
+                      className="mt-5 text-[13px] font-semibold uppercase tracking-[0.14em]"
+                      style={{ color: accent }}
+                    >
+                      {course.code}
+                    </p>
+                    <h3 className="mt-2 text-[21px] font-semibold leading-[1.14] tracking-tight text-[#1d1d1f]">
+                      {course.name}
+                    </h3>
+                    <p className="mt-3 flex-1 text-[15px] leading-relaxed text-[#6e6e73]">
+                      {course.lessons.length} {course.lessons.length === 1 ? 'lesson' : 'lessons'} · {open} open
+                      with no code
+                    </p>
+                    <span className="mt-6 inline-flex items-center gap-1 text-[15px] font-medium text-[#0071e3]">
+                      Course home
+                      <span className="transition-transform duration-300 group-hover:translate-x-1">›</span>
+                    </span>
+                  </motion.div>
+                </Link>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </section>
 

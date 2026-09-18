@@ -1,26 +1,22 @@
 import { useState } from 'react';
 
-// ─── Pick the question, then meet the trap ────────────────────────────────
-// Fourteen gym members, each with two facts about them and whether they went
-// on to cancel. The reader chooses which question the tree should ask first,
-// and the widget shows what that question does to the group: where it cuts,
-// who ends up on each side, and how many members it would get wrong.
+// ─── Pick the first question, then meet the trap ──────────────────────────
+// Fourteen gym members. The reader picks which question the tree asks first
+// and sees what it does to the group: where it cuts, who lands on each side,
+// how many it gets wrong.
 //
-// That is exactly how a decision tree chooses a split — try every question,
-// keep whichever leaves the two sides tidiest — with the arithmetic swapped
-// for counting. A real tree scores a split with entropy or Gini impurity;
-// here it is "how many of these fourteen would we call wrong", which ranks
-// the four candidates in the same order and needs no explaining.
+// That is how a real decision tree picks a question — try them all, keep the
+// one that splits the group best. Real ones score a split with entropy or
+// Gini; counting mistakes ranks these four the same way and needs no
+// explaining.
 //
-// The second half is the part that matters. Once they find the good split
-// there is one member left over on the wrong side, and the widget offers to
-// add a question that catches him. Taking the offer produces a rule that is
-// perfect on these fourteen and useless on anybody else. Overfitting is much
-// easier to believe once you have personally caused it, which is why the
-// button is there to be pressed rather than warned about.
+// Then the trap. One member is still on the wrong side, and the widget
+// offers to add a question that catches him. Press it and you get a rule
+// that is perfect here and useless anywhere else. Overfitting is much easier
+// to believe once you have caused it yourself.
 //
-// Same fourteen members as the Python playground on this page, so the split
-// their code finds — visits under 4 — is the one they found by hand here.
+// Same fourteen members as the Python playground, so the split their code
+// finds — visits under 4 — is the one they found by hand here.
 
 type Member = { visits: number; months: number; cancelled: boolean; name: string };
 
@@ -57,28 +53,28 @@ const QUESTIONS: Question[] = [
     label: 'Do they come fewer than 4 times a month?',
     field: 'visits',
     threshold: 4,
-    why: 'This is the one. Everybody on the yes side cancelled — all five of them — and the no side is almost entirely people who stayed. One question, and you have separated the group nearly cleanly.',
+    why: 'This is the best one. All five on the yes side cancelled. Almost everyone on the no side stayed. One question has nearly sorted the whole group.',
   },
   {
     id: 'v8',
     label: 'Do they come fewer than 8 times a month?',
     field: 'visits',
     threshold: 8,
-    why: 'The right idea, cut in the wrong place. The no side is clean, but the yes side is a genuine mix of people who cancelled and people who stayed, so for ten of the fourteen you have learned very little.',
+    why: 'Right idea, wrong place to cut. The no side is clean, but the yes side is still a mix. For ten of the fourteen you have learned almost nothing.',
   },
   {
     id: 'm6',
     label: 'Have they been a member less than 6 months?',
     field: 'months',
     threshold: 6,
-    why: 'Newer members do cancel more often, so this is not a silly question — but both sides come out mixed. A question that leaves you unsure on both sides has not earned its place at the top of the tree.',
+    why: 'Not a silly question — new members do cancel more. But both sides come out mixed, so you are still guessing either way.',
   },
   {
     id: 'm15',
     label: 'Have they been a member less than 15 months?',
     field: 'months',
     threshold: 15,
-    why: 'The worst of the four. The yes side is a dead-even split, five and five, which is the same as not asking at all. How long somebody has been a member matters far less than whether they actually turn up.',
+    why: 'The worst of the four. The yes side splits five and five, which is no better than tossing a coin. How often they come matters much more than how long they have been here.',
   },
 ];
 
@@ -163,7 +159,7 @@ export default function GrowTheTree() {
                 >
                   <b>{q.label}</b>
                   <span>
-                    {q.field === 'visits' ? 'Splits on how often they turn up' : 'Splits on how long they have been a member'}
+                    {q.field === 'visits' ? 'About how often they come' : 'About how long they have been a member'}
                   </span>
                 </button>
               </li>
@@ -277,16 +273,15 @@ export default function GrowTheTree() {
             <div className="bt-card">
               <h4>Yes — {parts!.yes.length} members</h4>
               <p>
-                {verdict(parts!.yes).cancelled} cancelled, {verdict(parts!.yes).stayed} stayed. So for anybody landing
-                here the tree says <b>{verdict(parts!.yes).call}</b>, and is wrong about {verdict(parts!.yes).wrong} of
-                them.
+                {verdict(parts!.yes).cancelled} cancelled, {verdict(parts!.yes).stayed} stayed. So the tree says{' '}
+                <b>{verdict(parts!.yes).call}</b>. It gets {verdict(parts!.yes).wrong} of them wrong.
               </p>
             </div>
             <div className="bt-card">
               <h4>No — {parts!.no.length} members</h4>
               <p>
                 {verdict(parts!.no).cancelled} cancelled, {verdict(parts!.no).stayed} stayed. So the tree says{' '}
-                <b>{verdict(parts!.no).call}</b>, and is wrong about {verdict(parts!.no).wrong} of them.
+                <b>{verdict(parts!.no).call}</b>. It gets {verdict(parts!.no).wrong} of them wrong.
               </p>
             </div>
           </div>
@@ -295,11 +290,10 @@ export default function GrowTheTree() {
 
       {foundBest && !greedy && (
         <div className="bt-caution" style={{ marginTop: 20 }}>
-          <p className="bt-eyebrow">One left over</p>
+          <p className="bt-eyebrow">One person left over</p>
           <p>
-            {farid.name} comes {farid.visits} times a month, which lands him on the &ldquo;probably fine&rdquo; side,
-            and he cancelled anyway. He is the single member this tree calls wrong. You could add a second question to
-            catch him — trees are allowed to keep asking until nobody is left over.{' '}
+            {farid.name} comes {farid.visits} times a month, so the tree says he will stay. He cancelled. He is the one
+            member it gets wrong. A tree is allowed to keep asking questions until nobody is left over. Shall we?{' '}
             <button
               type="button"
               className="bt-btn bt-btn--sm"
@@ -315,17 +309,11 @@ export default function GrowTheTree() {
 
       {greedy && (
         <div className="bt-verdict bt-verdict--bad" style={{ marginTop: 20 }}>
-          <strong>Now it gets all fourteen right, and it has learned nothing.</strong> The new branch reads: comes
-          fewer than 5 times a month <em>and</em> has been a member less than 20 months. The first half is arguable.
-          The second half is there for exactly one reason — {grace.name} also comes {grace.visits} times a month and
-          did not cancel, and {grace.months} months is <em>her</em> membership length. The tree has not discovered
-          something about gym members. It has found where {grace.name} sits on this chart and drawn a line just
-          underneath her, so that {farid.name} falls on one side and she falls on the other.
-          {' '}
-          The next quiet member who happens to be in their twenty-first month will be called wrong for a reason nobody
-          could defend out loud. Left to grow until it is perfect, a tree ends up with a branch per customer: right
-          about everyone it has met, and no use at all for anyone it has not. That failure has a name — overfitting —
-          and it is what the next section exists to fix.
+          <strong>Now it gets all fourteen right, and it has learned nothing.</strong> The new question is: has he been a
+          member less than 20 months? That 20 is not a fact about gyms. It is {grace.name}&rsquo;s membership length —
+          she comes just as often as {farid.name} and did not cancel, so the tree drew a line between the two of them.
+          Keep going and you end up with one branch per person. Perfect on these fourteen. Useless on the next one
+          through the door. That is called overfitting, and the next model fixes it.
         </div>
       )}
     </div>

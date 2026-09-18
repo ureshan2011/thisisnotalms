@@ -2881,3 +2881,58 @@ a.bt-btn { text-decoration: none; }
 .bt-btn:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: none; }
 .bt-btn:disabled:hover { background: var(--accent-500); }
 .bt-btn--tertiary:disabled:hover { background: transparent; }
+
+/* ── Three models, side by side ───────────────────────────────────────────
+   Three columns of short cells that align across the row on desktop, and
+   stack into three self-labelling cards on a phone. Each cell carries its
+   own label for exactly that reason: once stacked, a bare value with its
+   heading three screens up is unreadable. */
+.bt-cmp {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+.bt-cmp__col {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--paper-0);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.bt-cmp__head { padding-bottom: 16px; border-bottom: 1px solid var(--border-subtle); }
+/* The picture is a reminder, not the subject — at full column width it
+   swamped the five rows that people actually came to compare. */
+.bt-cmp__head svg { max-width: 148px; margin: 0 auto; }
+.bt-cmp__head h4 { font-size: 17px; font-weight: 800; letter-spacing: -0.025em; margin-top: 14px; }
+.bt-cmp__head p { margin-top: 6px !important; font-size: 13px; line-height: 1.45; color: var(--ink-400); }
+
+/* A fixed floor per row is what keeps the three columns lined up without a
+   table. Every cell here is under ten words, so nothing overflows it. */
+.bt-cmp__row {
+  padding: 13px 0;
+  border-bottom: 1px solid var(--paper-200);
+  min-height: 64px;
+}
+.bt-cmp__row:last-child { border-bottom: none; padding-bottom: 0; }
+.bt-cmp__label {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-300);
+}
+.bt-cmp__val { display: block; margin-top: 6px; font-size: 14px; line-height: 1.45; color: var(--ink-700); }
+
+.bt-cmp__flag { display: inline-flex; align-items: flex-start; gap: 7px; font-weight: 700; }
+.bt-cmp__flag--yes { color: #186845; }
+.bt-cmp__flag--no { color: #8f2318; }
+.bt-cmp__flag svg { flex: 0 0 auto; margin-top: 3px; }
+
+@media (max-width: 860px) {
+  .bt-cmp { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .bt-cmp__row { min-height: 0; }
+}

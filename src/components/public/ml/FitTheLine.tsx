@@ -1,24 +1,18 @@
 import { useState } from 'react';
 
-// ─── Fit the line yourself, then let the computer do it ───────────────────
-// Twelve flats, size against monthly rent. Two sliders move a straight line
-// over them, and the readout is the total miss in dollars — the money the
-// line would be wrong by, added up across all twelve.
+// ─── Move the line yourself, then let the computer do it ──────────────────
+// Twelve flats, size against rent. Two sliders move a straight line over
+// them, and the readout is how much money the line is wrong by in total.
 //
-// Dollars rather than squared error on purpose. "Sum of squared residuals"
-// is the real objective and it means nothing to somebody who has never met
-// it; "you would be out by $310 in total" means something immediately, and
-// it moves in the same direction, which is all the intuition needs to do.
-// The page says plainly that the real method squares the misses and why.
+// Dollars rather than squared error, because dollars mean something to
+// somebody who has never met a residual, and they move the same way.
 //
-// The point of making them drag it: by the time they press the button, they
-// have felt that there is a best answer and that finding it by hand is
-// tedious. That is the whole argument for fitting a model, and it lands in
-// about forty seconds of sliding.
-//
-// The data is the same twelve flats as the Python playground further down
-// the page, so the slope the button finds — $7.07 a square metre — is the
-// number their own code prints.
+// "Let the computer do it" runs the same search the reader has been doing by
+// hand, only faster: it tries thousands of lines and keeps the one that
+// misses least. That is also what the Python playground on this page does,
+// so the two agree to the cent. Real software uses a shortcut formula and
+// squares the misses first, which lands on a slightly different line — the
+// lesson says so in one sentence and leaves it there.
 
 export const FLATS: [number, number][] = [
   [28, 410], [35, 430], [41, 505], [46, 520],
@@ -26,10 +20,10 @@ export const FLATS: [number, number][] = [
   [76, 760], [84, 780], [91, 870], [98, 880],
 ];
 
-// The least-squares answer, to two decimals. Worked out from the array above
-// rather than typed in: see the playground, which prints exactly these.
-const BEST_SLOPE = 7.07;
-const BEST_START = 204;
+// The least-wrong line, found by trying every combination on a fine grid.
+// The playground prints exactly these two numbers.
+const BEST_SLOPE = 6.72;
+const BEST_START = 222;
 
 const W = 520;
 const H = 320;
@@ -68,10 +62,13 @@ export default function FitTheLine() {
       <div className="bt-sim__grid">
         <div>
           <p className="bt-sim__label">Move the line</p>
+          <p className="bt-note" style={{ marginTop: 6, marginBottom: 4 }}>
+            Get it as close to all twelve dots as you can.
+          </p>
 
           <div className="bt-sim__range">
             <label htmlFor="fit-start" style={{ fontSize: 13.5, color: 'var(--ink-600)' }}>
-              Rent for a flat of no size at all: <b className="bt-tnum">${start}</b>
+              Starting rent: <b className="bt-tnum">${start}</b>
             </label>
             <input
               id="fit-start"
@@ -89,7 +86,7 @@ export default function FitTheLine() {
 
           <div className="bt-sim__range">
             <label htmlFor="fit-slope" style={{ fontSize: 13.5, color: 'var(--ink-600)' }}>
-              Added for each extra square metre: <b className="bt-tnum">${slope.toFixed(2)}</b>
+              Extra per square metre: <b className="bt-tnum">${slope.toFixed(2)}</b>
             </label>
             <input
               id="fit-slope"
@@ -106,7 +103,7 @@ export default function FitTheLine() {
           </div>
 
           <div className="bt-counter" style={{ marginTop: 22 }}>
-            <span className="bt-sim__label">Total miss, all twelve flats</span>
+            <span className="bt-sim__label">How wrong the line is, in total</span>
             <b className="bt-tnum" style={{ fontSize: 34, color: close ? 'var(--green-500)' : 'var(--ink-900)' }}>
               ${Math.round(total).toLocaleString()}
             </b>
@@ -114,10 +111,10 @@ export default function FitTheLine() {
 
           <p className="bt-note" style={{ marginTop: 10 }}>
             {snapped
-              ? 'This is the best straight line there is for these twelve flats. No other pair of numbers misses by less.'
+              ? 'That is the best line. No other pair of numbers gets closer.'
               : close
-                ? `Close. The best possible is $${Math.round(bestTotal)} — you are within $${Math.round(gap)} of it.`
-                : `The best possible is $${Math.round(bestTotal)}. You are $${Math.round(gap)} above it.`}
+                ? `Very close. The best possible is $${Math.round(bestTotal)}.`
+                : `The best possible is $${Math.round(bestTotal)}. You are $${Math.round(gap)} away.`}
           </p>
 
           <button
@@ -190,7 +187,7 @@ export default function FitTheLine() {
             ))}
           </svg>
           <p className="bt-sim__caption">
-            Twelve flats. Dotted lines are how far the rule is wrong about each one.
+            Each dotted line is how wrong the line is about that flat.
           </p>
         </div>
       </div>

@@ -5,15 +5,21 @@
 // A public, self-contained, highly interactive lesson. It teaches absolute
 // beginners what runs on YOUR computer vs. the company's computer, how a website
 // talks to a database, and why validating data is the single most important
-// security habit a developer can build. Pseudo-3D animated journeys, sorting
-// games, a live database search, and a safe-by-design "attack lab" that shows
-// exactly why input validation matters.
+// security habit a developer can build. A sorting game, one animated round trip
+// that carries a real search all the way to the database and back, and a
+// safe-by-design "attack lab" that shows exactly why input validation matters.
+//
+// Part 2 used to be two things: a journey animation that only mentioned SQL in
+// its caption, and a separate panel re-explaining the same round trip in words.
+// RoundTrip (../webarch/RoundTrip.tsx) now does both, with the server's code on
+// screen and the line running the query lit up as it runs.
 //
 // House style matches SystemsSecurityLesson: white canvas, soft cards,
 // reveal-on-scroll, Apple-like type.
 
 import { useState, useEffect, useRef } from 'react';
 import type { ReactNode, CSSProperties } from 'react';
+import RoundTrip from '../webarch/RoundTrip';
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 
@@ -285,209 +291,10 @@ function SortingGame() {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//  2 · THE JOURNEY OF A REQUEST  (pseudo-3D animated pipeline)
-// ════════════════════════════════════════════════════════════════════════════
-
-const NODES = [
-  { x: 7,  icon: '💻', label: 'Browser', color: CLIENT },
-  { x: 37, icon: '🌐', label: 'Internet', color: '#64748b' },
-  { x: 66, icon: '🖥️', label: 'Server', color: SERVER },
-  { x: 93, icon: '🗄️', label: 'Database', color: DB },
-];
-
-// node index the packet sits on at each step + the narration
-const STEPS = [
-  { node: 0, color: CLIENT, phase: 'request',  title: '1 · You click "Search"', text: 'Your browser packages a request — basically a polite note: "GET me the users named Ava." This note is an HTTP request.' },
-  { node: 1, color: '#64748b', phase: 'request', title: '2 · Across the internet', text: 'The request travels through the internet. DNS acts like a phone book, turning the website name into the server\'s real address (an IP).' },
-  { node: 2, color: SERVER, phase: 'request',  title: '3 · The server wakes up', text: 'The web server receives the note and runs the app\'s code. It works out what you asked for and whether you\'re allowed to have it.' },
-  { node: 3, color: DB, phase: 'query',        title: '4 · Asking the database', text: 'The server doesn\'t store the data itself — it asks the database with a query: SELECT * FROM users WHERE name = \'Ava\'.' },
-  { node: 2, color: DB, phase: 'response',     title: '5 · Rows come back', text: 'The database finds the matching rows and hands them back to the server. The server wraps them into a response (HTML or JSON).' },
-  { node: 1, color: '#64748b', phase: 'response', title: '6 · The reply travels back', text: 'The response heads back across the internet to your device — the same road, the other direction.' },
-  { node: 0, color: CLIENT, phase: 'response',  title: '7 · You see the page', text: 'Your browser reads the response and paints the result on screen. The whole round trip usually takes a fraction of a second.' },
-];
-
-function RequestJourney() {
-  const [step, setStep] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const s = STEPS[step];
-  const pos = NODES[s.node].x;
-
-  useEffect(() => {
-    if (!playing) return;
-    if (step >= STEPS.length - 1) { setPlaying(false); return; }
-    const t = setTimeout(() => setStep(v => v + 1), 1700);
-    return () => clearTimeout(t);
-  }, [playing, step]);
-
-  function play() {
-    if (step >= STEPS.length - 1) setStep(0);
-    setPlaying(true);
-  }
-
-  return (
-    <Card style={{ padding: 0, overflow: 'hidden' }}>
-      {/* 3D stage */}
-      <div style={{ perspective: 900, background: 'linear-gradient(180deg,#f6f8ff,#eef1fb)', padding: '40px 20px 28px' }}>
-        <div style={{
-          position: 'relative', height: 150, maxWidth: 760, margin: '0 auto',
-          transform: 'rotateX(20deg)', transformStyle: 'preserve-3d',
-        }}>
-          {/* the road */}
-          <div style={{
-            position: 'absolute', top: '50%', left: '7%', right: '7%', height: 6,
-            transform: 'translateY(-50%)', borderRadius: 999,
-            background: 'linear-gradient(90deg,#0071e3,#64748b,#7c3aed,#0d9488)',
-            boxShadow: '0 10px 25px -8px rgba(0,0,0,0.4)',
-          }} />
-          {/* nodes */}
-          {NODES.map((n, i) => {
-            const active = s.node === i;
-            return (
-              <div key={i} style={{
-                position: 'absolute', top: '50%', left: `${n.x}%`,
-                transform: `translate(-50%,-50%) translateZ(${active ? 36 : 12}px)`,
-                transition: 'transform 0.4s ease',
-              }}>
-                <div style={{
-                  width: 64, height: 64, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 30, background: '#fff',
-                  border: `2px solid ${active ? n.color : 'rgba(0,0,0,0.1)'}`,
-                  boxShadow: active ? `0 16px 30px -10px ${n.color}99` : '0 8px 18px -10px rgba(0,0,0,0.3)',
-                }}>{n.icon}</div>
-                <div style={{ textAlign: 'center', fontSize: 11.5, fontWeight: 700, marginTop: 6, color: active ? n.color : '#aeaeb2' }}>{n.label}</div>
-              </div>
-            );
-          })}
-          {/* the travelling packet */}
-          <div style={{
-            position: 'absolute', top: '50%', left: `${pos}%`,
-            transform: 'translate(-50%,-50%) translateZ(50px)',
-            transition: 'left 1.1s cubic-bezier(.5,0,.2,1)',
-          }}>
-            <div style={{
-              width: 26, height: 26, borderRadius: '50%', background: s.color,
-              boxShadow: `0 0 0 6px ${s.color}33, 0 6px 16px ${s.color}aa`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 13, color: '#fff', fontWeight: 800,
-            }}>{s.phase === 'response' ? '↩' : '✉'}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* narration */}
-      <div style={{ padding: 24 }}>
-        <div style={{ display: 'inline-block', fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#fff', background: s.color, padding: '3px 12px', borderRadius: 999 }}>
-          {s.phase}
-        </div>
-        <h3 key={step} style={{ margin: '12px 0 6px', fontSize: 19, fontWeight: 700, color: '#1d1d1f', animation: 'waFade 0.3s ease' }}>{s.title}</h3>
-        <p key={'p' + step} style={{ margin: 0, fontSize: 15.5, lineHeight: 1.6, color: '#444', minHeight: 72, animation: 'waFade 0.3s ease' }}>{s.text}</p>
-
-        {/* progress dots */}
-        <div style={{ display: 'flex', gap: 6, margin: '16px 0' }}>
-          {STEPS.map((_, i) => (
-            <button key={i} onClick={() => { setPlaying(false); setStep(i); }}
-              style={{ flex: 1, height: 6, borderRadius: 999, border: 'none', cursor: 'pointer', padding: 0,
-                background: i <= step ? s.color : 'rgba(0,0,0,0.1)', transition: 'background 0.3s ease' }} />
-          ))}
-        </div>
-
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <button onClick={play} style={navBtn(true)}>{playing ? '⏸ Playing…' : step >= STEPS.length - 1 ? '↻ Replay' : '▶ Play the journey'}</button>
-          <button onClick={() => { setPlaying(false); setStep(Math.max(0, step - 1)); }} style={navBtn(false)}>‹ Back</button>
-          <button onClick={() => { setPlaying(false); setStep(Math.min(STEPS.length - 1, step + 1)); }} style={navBtn(false)}>Step ›</button>
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//  3 · HOW A DATABASE CONNECTS — live "user search"
-// ════════════════════════════════════════════════════════════════════════════
-
-const PEOPLE = [
-  { id: 1, name: 'Ava Perera',  city: 'Auckland' },
-  { id: 2, name: 'Ben Silva',   city: 'Wellington' },
-  { id: 3, name: 'Chloe Fonseka', city: 'Christchurch' },
-  { id: 4, name: 'Ava Jayasuriya', city: 'Hamilton' },
-  { id: 5, name: 'Dilan Mendis', city: 'Dunedin' },
-];
-
-function DatabaseConnect() {
-  const [term, setTerm] = useState('Ava');
-  const [stage, setStage] = useState<'idle' | 'sending' | 'querying' | 'done'>('done');
-  const [results, setResults] = useState<typeof PEOPLE>(PEOPLE.filter(p => p.name.toLowerCase().includes('ava')));
-
-  const query = `SELECT id, name, city\nFROM users\nWHERE name LIKE '%${term || ''}%';`;
-
-  function run() {
-    setStage('sending');
-    setTimeout(() => setStage('querying'), 650);
-    setTimeout(() => {
-      const t = term.trim().toLowerCase();
-      setResults(t ? PEOPLE.filter(p => p.name.toLowerCase().includes(t)) : PEOPLE);
-      setStage('done');
-    }, 1400);
-  }
-
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 18 }}>
-      {/* the website */}
-      <Card style={{ background: CLIENT + '07', borderColor: CLIENT + '2a' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: CLIENT }}>① The website (client)</div>
-        <p style={{ margin: '8px 0 14px', fontSize: 14, lineHeight: 1.5, color: '#6e6e73' }}>A simple "find a user" box. Type a name and search.</p>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <input value={term} onChange={e => setTerm(e.target.value)} onKeyDown={e => e.key === 'Enter' && run()}
-            placeholder="e.g. Ava"
-            style={{ flex: 1, font: 'inherit', fontSize: 15, padding: '10px 14px', borderRadius: 12, border: '1.5px solid rgba(0,0,0,0.15)', outline: 'none' }} />
-          <button onClick={run} style={navBtn(true, CLIENT)}>Search</button>
-        </div>
-
-        {/* rendered results */}
-        <div style={{ marginTop: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#aeaeb2', marginBottom: 8 }}>Results shown to the user:</div>
-          {stage !== 'done' ? (
-            <div style={{ fontSize: 14, color: SERVER, fontWeight: 600 }}>⏳ {stage === 'sending' ? 'Asking the server…' : 'Server querying the database…'}</div>
-          ) : results.length ? results.map(r => (
-            <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: '#fff', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 10, marginBottom: 6, fontSize: 14 }}>
-              <b style={{ color: '#1d1d1f' }}>{r.name}</b><span style={{ color: '#6e6e73' }}>{r.city}</span>
-            </div>
-          )) : <div style={{ fontSize: 14, color: '#aeaeb2' }}>No users found.</div>}
-        </div>
-      </Card>
-
-      {/* the server + database */}
-      <Card style={{ background: DB + '07', borderColor: DB + '2a' }}>
-        <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: DB }}>② Server → Database</div>
-        <p style={{ margin: '8px 0 14px', fontSize: 14, lineHeight: 1.5, color: '#6e6e73' }}>
-          The server turns your search into a <b>query</b> — a sentence in SQL, the language databases speak — and sends it to the database.
-        </p>
-        <pre style={{
-          margin: 0, padding: '14px 16px', borderRadius: 12, background: '#0f172a', color: '#e2e8f0',
-          fontSize: 13.5, lineHeight: 1.6, overflowX: 'auto', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-          border: stage === 'querying' ? `1.5px solid ${DB}` : '1.5px solid transparent', transition: 'border-color 0.3s',
-        }}>
-          <span style={{ color: '#7dd3fc' }}>SELECT</span> id, name, city{'\n'}
-          <span style={{ color: '#7dd3fc' }}>FROM</span> users{'\n'}
-          <span style={{ color: '#7dd3fc' }}>WHERE</span> name <span style={{ color: '#7dd3fc' }}>LIKE</span> <span style={{ color: '#86efac' }}>'%{term || ''}%'</span>;
-        </pre>
-        <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 10, fontSize: 13.5, color: '#444' }}>
-          <span style={{ fontSize: 22 }}>🗄️</span>
-          The database scans the <b>users</b> table, keeps the matching rows, and sends them back to the server — which forwards them to the page.
-        </div>
-        <div style={{ marginTop: 12, padding: '10px 14px', borderRadius: 12, background: '#fff', border: `1px solid ${DB}22`, fontSize: 13, lineHeight: 1.5, color: '#6e6e73' }}>
-          The browser <b>never</b> talks to the database directly. The server sits in the middle as a gatekeeper — which is exactly where validation belongs (next section).
-        </div>
-      </Card>
-    </div>
-  );
-}
-
-// ════════════════════════════════════════════════════════════════════════════
 //  4 · WHY DATA VALIDATION MATTERS  (the safe-by-design attack lab)
 // ════════════════════════════════════════════════════════════════════════════
 
-// 4a · Client-only validation can be bypassed
+// 3a · Client-only validation can be bypassed
 function BypassDemo() {
   const [age, setAge] = useState('15');
   const [tampered, setTampered] = useState(false);
@@ -552,7 +359,7 @@ function ValBox({ title, color, pass, good, line, note }: { title: string; color
   );
 }
 
-// 4b · SQL Injection — string-built query vs parameterised
+// 3b · SQL Injection — string-built query vs parameterised
 type LoginMode = 'naive' | 'safe';
 
 function SqlInjectionDemo() {
@@ -647,7 +454,7 @@ const presetBtn: CSSProperties = {
   borderRadius: 999, border: '1px solid rgba(0,0,0,0.12)', background: '#fff', color: '#444',
 };
 
-// 4c · XSS — escaping user content (simulated safely, nothing really runs)
+// 3c · XSS — escaping user content (simulated safely, nothing really runs)
 function XssDemo() {
   const [comment, setComment] = useState('<img src=x onerror="stealCookies()">');
   const [mode, setMode] = useState<'naive' | 'safe'>('naive');
@@ -701,7 +508,7 @@ function XssDemo() {
   );
 }
 
-// 4d · validation checklist
+// 3d · validation checklist
 const VALIDATION_RULES = [
   { icon: '✅', t: 'Validate on the server', d: 'The browser can be edited by anyone. The server is the only place a check truly counts.' },
   { icon: '🎯', t: 'Allow-list, don\'t deny-list', d: 'Say exactly what good looks like ("digits only, 1–3 of them"), instead of trying to ban every bad thing.' },
@@ -853,10 +660,10 @@ export default function WebArchitectureLesson() {
             with a <b style={{ color: DB }}>database</b> behind it remembering everything.
           </p>
           <p style={{ fontSize: 16, lineHeight: 1.7, color: '#6e6e73', maxWidth: 720, marginTop: 16 }}>
-            This lesson is built to be <i>played with</i>. You'll sort jobs between the two computers, watch a request
-            travel there and back in 3D, run a live database search, and step into a safe "attack lab" that shows — with
-            your own hands — why <b>validating data</b> is the most important security habit you can build. No setup,
-            no logins. Start anywhere.
+            This lesson is built to be <i>played with</i>. You'll sort jobs between the two computers, follow one
+            search all the way to the database and back, then step into a safe "attack lab" where you break a careless
+            app with your own hands and find out why <b>checking what people type</b> matters so much. No setup, no
+            logins. Start anywhere.
           </p>
         </Reveal>
       </Section>
@@ -865,37 +672,29 @@ export default function WebArchitectureLesson() {
       <Section>
         <SectionHeader kicker="Part 1 · The two computers" color={CLIENT}
           title="Client and server — who does what?"
-          blurb="The single most useful idea in web development. Tap each machine to see its job, then play the sorting game to lock it in." />
+          blurb="Two computers, and each has its own job. Tap each one to see what it does, then try sorting a few jobs between them." />
         <ClientServerScene />
         <Reveal style={{ marginTop: 18 }}>
           <SortingGame />
         </Reveal>
       </Section>
 
-      {/* 2 — request journey */}
+      {/* 2 — the round trip, database and all */}
       <Section>
         <SectionHeader kicker="Part 2 · The round trip" color={SERVER}
-          title="The journey of a single request"
-          blurb="What actually happens between tapping a button and seeing the result? Press play and follow one request from your browser, to the server, into the database, and all the way back." />
-        <RequestJourney />
-      </Section>
-
-      {/* 3 — database connect */}
-      <Section>
-        <SectionHeader kicker="Part 3 · Meet the database" color={DB}
-          title="How a website talks to a database"
-          blurb="The server keeps nothing in its head — it asks a database. Type a name and watch the website turn your search into a query, send it to the database, and render the rows that come back." />
-        <DatabaseConnect />
+          title="What happens when you press Search"
+          blurb="Type a name, press play, and follow it the whole way — out of your browser, into the server, down to the database and back. Keep an eye on the server's code: the line that runs the SQL lights up as it runs." />
+        <RoundTrip />
       </Section>
 
       {/* 4 — validation lab */}
       <Section>
-        <SectionHeader kicker="Part 4 · The security lab" color={DANGER}
+        <SectionHeader kicker="Part 3 · The security lab" color={DANGER}
           title="Why data validation matters — try to break it"
-          blurb="Here's the heart of the lesson. Untrusted data is the source of most web hacks. These three hands-on demos let you safely attack a careless app, then watch a validated one shrug the attack off." />
+          blurb="Most web hacks start with something a person typed into a box. In these three demos you break a careless app yourself, then watch the same attack bounce off one that checks what it is given." />
 
         <Reveal>
-          <h3 style={{ fontSize: 19, fontWeight: 700, color: '#1d1d1f', margin: '8px 0 4px' }}>4a · Client checks can be bypassed</h3>
+          <h3 style={{ fontSize: 19, fontWeight: 700, color: '#1d1d1f', margin: '8px 0 4px' }}>3a · Client checks can be bypassed</h3>
           <p style={{ fontSize: 14.5, color: '#6e6e73', lineHeight: 1.6, margin: '0 0 14px', maxWidth: 700 }}>
             Why a check in the browser is never enough on its own.
           </p>
@@ -903,7 +702,7 @@ export default function WebArchitectureLesson() {
         <BypassDemo />
 
         <Reveal style={{ marginTop: 28 }}>
-          <h3 style={{ fontSize: 19, fontWeight: 700, color: '#1d1d1f', margin: '8px 0 4px' }}>4b · SQL injection</h3>
+          <h3 style={{ fontSize: 19, fontWeight: 700, color: '#1d1d1f', margin: '8px 0 4px' }}>3b · SQL injection</h3>
           <p style={{ fontSize: 14.5, color: '#6e6e73', lineHeight: 1.6, margin: '0 0 14px', maxWidth: 700 }}>
             What happens when user text is glued straight into a database query — and the one-line fix that stops it cold.
           </p>
@@ -911,7 +710,7 @@ export default function WebArchitectureLesson() {
         <SqlInjectionDemo />
 
         <Reveal style={{ marginTop: 28 }}>
-          <h3 style={{ fontSize: 19, fontWeight: 700, color: '#1d1d1f', margin: '8px 0 4px' }}>4c · Cross-site scripting (XSS)</h3>
+          <h3 style={{ fontSize: 19, fontWeight: 700, color: '#1d1d1f', margin: '8px 0 4px' }}>3c · Cross-site scripting (XSS)</h3>
           <p style={{ fontSize: 14.5, color: '#6e6e73', lineHeight: 1.6, margin: '0 0 14px', maxWidth: 700 }}>
             When a page prints user input as HTML instead of text, attackers can run code in other people's browsers.
           </p>
@@ -919,7 +718,7 @@ export default function WebArchitectureLesson() {
         <XssDemo />
 
         <Reveal style={{ marginTop: 28 }}>
-          <h3 style={{ fontSize: 19, fontWeight: 700, color: '#1d1d1f', margin: '8px 0 10px' }}>4d · The validation checklist</h3>
+          <h3 style={{ fontSize: 19, fontWeight: 700, color: '#1d1d1f', margin: '8px 0 10px' }}>3d · The validation checklist</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10 }}>
             {VALIDATION_RULES.map(r => (
               <div key={r.t} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: '#fafafa', border: '1px solid rgba(0,0,0,0.07)', borderRadius: 14, padding: '14px 16px' }}>
@@ -938,15 +737,15 @@ export default function WebArchitectureLesson() {
       <Section>
         <SectionHeader kicker="Final challenge" color={ACCENT}
           title="Prove it. Five quick questions."
-          blurb="Pull it together — client vs server, the round trip, databases, and validation. Answer all five, then submit for instant feedback." />
+          blurb="Five questions covering the whole lesson. Answer them all, then submit and see how you went." />
         <FinalQuiz />
       </Section>
 
       {/* 6 — resources */}
       <Section style={{ marginBottom: 40 }}>
         <SectionHeader kicker="Keep going" color={SAFE}
-          title="More to explore"
-          blurb="Hand-picked, beginner-friendly resources and live simulators — to watch, to read, and to safely practise on." />
+          title="Where to go next"
+          blurb="Things to watch, read and play with if you want to keep going. All free, and all written for beginners." />
         <Resources />
       </Section>
 

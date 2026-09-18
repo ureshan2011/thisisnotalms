@@ -1,22 +1,16 @@
 import { useState } from 'react';
 
 // ─── One tree, or all nine? ───────────────────────────────────────────────
-// Five members the model has never seen. Nine trees each make a call, and
-// the reader watches two scores at once: what the first tree alone would
-// have got, and what the nine of them got by majority.
+// Five new members. Nine trees each make a call. Two scores run side by
+// side: what tree 1 alone would have scored, and what the nine got by vote.
 //
-// The first tree is a perfectly reasonable tree. It is right three times out
-// of five, which is roughly what any single tree manages here. The vote gets
-// all five. Nothing about the first tree is rigged to be bad — the point is
-// that you cannot tell in advance which of your trees is the good one, and
-// voting means you do not have to.
+// Tree 1 is not rigged to be bad. It gets three of five, which is about what
+// any one tree manages here. The vote gets all five. The point is that you
+// cannot tell in advance which tree is the good one, so you stop trying.
 //
-// The nine sets of calls below are written by hand rather than computed, so
-// the sequence teaches in a sensible order: an easy case, a case the first
-// tree gets wrong while the crowd holds, an easy one back, a genuinely close
-// call, and a unanimous one. The Python playground on this page does the
-// same thing for real, on 160 members, and lands in the same place: the
-// average tree in the forest is well behind the vote.
+// The nine calls per case are written by hand, so the five run in a useful
+// order: an easy one, one tree 1 gets wrong, an easy one back, a close call,
+// and a unanimous one.
 
 type Call = 'cancel' | 'stay';
 
@@ -41,7 +35,7 @@ const CASES: Case[] = [
     months: 4,
     truth: 'cancel',
     calls: [C, C, C, C, S, C, C, C, C],
-    note: 'Barely turns up, barely joined. This is the easy end of the problem, and eight of the nine trees say so.',
+    note: 'Hardly ever comes, only just joined. An easy one, and eight of the nine say so.',
   },
   {
     name: 'Bo',
@@ -49,7 +43,7 @@ const CASES: Case[] = [
     months: 3,
     truth: 'cancel',
     calls: [S, C, C, S, C, S, C, S, C],
-    note: 'Right on the edge: five visits is just above the line most trees draw. The first tree calls it wrong. The crowd scrapes in at five to four — and is right.',
+    note: 'Right on the edge. Tree 1 gets it wrong. The vote scrapes home five to four, and is right.',
   },
   {
     name: 'Cam',
@@ -57,7 +51,7 @@ const CASES: Case[] = [
     months: 14,
     truth: 'stay',
     calls: [S, S, S, C, S, S, S, S, S],
-    note: 'A regular of over a year. Almost nobody gets this wrong, and the one tree that does was trained on a slice of members that happened to contain two lapsed regulars.',
+    note: 'A regular of over a year. Almost nobody gets this one wrong.',
   },
   {
     name: 'Dee',
@@ -65,7 +59,7 @@ const CASES: Case[] = [
     months: 22,
     truth: 'stay',
     calls: [C, S, S, C, S, S, C, S, S],
-    note: 'The hard one. Four visits looks like somebody on the way out, but she has been a member nearly two years. The first tree only ever learned to ask about visits, so it calls her wrong. Trees that also learned to ask about membership length carry the vote.',
+    note: 'The hard one. Four visits looks like somebody on the way out, but she has been here nearly two years. Tree 1 only ever asks about visits, so it gets her wrong.',
   },
   {
     name: 'Eve',
@@ -73,7 +67,7 @@ const CASES: Case[] = [
     months: 2,
     truth: 'cancel',
     calls: [C, C, C, C, C, C, C, C, C],
-    note: 'New, and hardly ever comes. All nine agree, which is its own kind of information: when the forest is unanimous you can act on it with more confidence than when it is five to four.',
+    note: 'New, and hardly ever comes. All nine agree. When they all agree, you can be more confident than when it is five to four.',
   },
 ];
 
@@ -106,7 +100,7 @@ export default function ForestVote() {
     <div className="bt-sim">
       <div className="bt-sim__grid">
         <div>
-          <p className="bt-sim__label">Member {at + 1} of {CASES.length}, never seen before</p>
+          <p className="bt-sim__label">New member {at + 1} of {CASES.length}</p>
           <p style={{ fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--ink-900)', marginTop: 8 }}>
             {now.name}
           </p>
@@ -192,11 +186,10 @@ export default function ForestVote() {
 
       {allDone && (
         <div className="bt-verdict bt-verdict--good" style={{ marginTop: 20 }}>
-          <strong>Three out of five on its own. Five out of five together.</strong> Tree 1 was not a bad tree — it was
-          an ordinary one, and every tree in the forest has its own two or three blind spots. What makes the vote work
-          is that those blind spots are in different places, so no two trees are wrong about the same person. The
-          mistakes cancel out; the signal, which every tree picked up, does not. You would have had no way of knowing in
-          advance that Tree 1 was the one to avoid — and with a forest you never have to know.
+          <strong>Tree 1 got three. The nine of them got five.</strong> Tree 1 is not a bad tree. Every tree has two
+          or three blind spots — they are just in different places, so no two trees are wrong about the same person.
+          The mistakes cancel out. The bit they all agree on does not. And you had no way of knowing in advance that
+          tree 1 was the one to avoid.
         </div>
       )}
     </div>

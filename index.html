@@ -4,8 +4,17 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/thisisnotalms/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Not a LMS — a hands-on Extended Reality lesson (AR, VR and Mixed Reality) by Dr. Yasas Sri Wickramasinghe. Try the demos right in your browser." />
-    <title>Not a LMS · Extended Reality lesson</title>
+    <!-- The site-wide fallback. It was one lesson's title for a long time,
+         which every route then inherited — a single-page app never reloads
+         this file. PageMeta (src/components/layout/PageMeta.tsx) overwrites
+         both of these per route once the app boots; what is here is what a
+         crawler and a link preview see before that happens, so it has to
+         describe the site rather than any one page. -->
+    <meta name="description" content="Hands-on, interactive lessons in databases, information systems planning, IT project management and business analytics, by Yasas Sri Wickramasinghe. No logins, no busywork — everything runs in your own browser." />
+    <meta property="og:title" content="Not a LMS · Yasas Sri Wickramasinghe" />
+    <meta property="og:description" content="Hands-on, interactive lessons in databases, information systems planning, IT project management and business analytics. No logins — everything runs in your own browser." />
+    <meta property="og:type" content="website" />
+    <title>Not a LMS · Yasas Sri Wickramasinghe</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- Inter drives the app. Manrope / DM Sans / JetBrains Mono are the

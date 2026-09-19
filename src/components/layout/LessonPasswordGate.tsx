@@ -23,6 +23,7 @@ const EXCLUDED_PREFIXES = [
   '/intro-to-business-analytics',
   '/intro-to-sisp',
   '/intro-to-project-management',
+  '/project-methodologies',
   '/power-bi-setup',
   '/predicting-with-data',
   '/web-architecture',

@@ -2936,3 +2936,57 @@ a.bt-btn { text-decoration: none; }
   .bt-cmp { grid-template-columns: minmax(0, 1fr); gap: 12px; }
   .bt-cmp__row { min-height: 0; }
 }
+
+/* ── Five rules, and what they scored ─────────────────────────────────────
+   One row per rule: the sentence, a bar, the score. The vote sits at the
+   bottom where a total belongs and is the only row in the accent, because
+   it is the only row the section is arguing for. */
+.bt-rv { display: flex; flex-direction: column; gap: 2px; }
+.bt-rv__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px 54px;
+  gap: 8px 16px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.bt-rv__row:last-child { border-bottom: none; }
+.bt-rv__name { font-size: 14px; line-height: 1.4; color: var(--ink-600); }
+.bt-rv__name b { color: var(--accent-700); font-weight: 700; }
+.bt-rv__score { font-size: 14px; font-weight: 700; color: var(--ink-900); text-align: right; }
+.bt-rv__row .bt-bar > i { background: var(--ink-300); }
+
+.bt-rv__row--mine { box-shadow: inset 2px 0 0 var(--ink-900); }
+.bt-rv__row--mine .bt-rv__name { color: var(--ink-900); }
+
+.bt-rv__row--vote {
+  margin-top: 8px;
+  border-top: 2px solid var(--ink-900);
+  border-bottom: none;
+  padding-top: 14px;
+}
+.bt-rv__row--vote .bt-rv__name { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.015em; color: var(--ink-900); }
+.bt-rv__row--vote .bt-bar > i { background: var(--accent-500); }
+.bt-rv__row--vote .bt-rv__score { font-size: 17px; color: var(--accent-600); }
+
+/* The twenty members as twenty marks, so a score can be checked rather than
+   taken on trust. Shape carries quit/stayed; the ring carries "your rule got
+   this one wrong". */
+.bt-rv__dots { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 7px; }
+.bt-rv__dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  color: var(--ink-300);
+}
+.bt-rv__dot--quit { color: var(--cat-2); }
+.bt-rv__dot--wrong { border-color: var(--red-500); box-shadow: 0 0 0 2px var(--red-50); }
+
+@media (max-width: 640px) {
+  .bt-rv__row { grid-template-columns: minmax(0, 1fr) 54px; }
+  .bt-rv__row .bt-bar { grid-column: 1 / -1; order: 3; }
+}

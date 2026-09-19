@@ -1,7 +1,7 @@
 import { LessonHeader, Quiz, Recap, Reveal, SectionHead, type QuizQuestion } from '../blend';
 import FitTheLine from './ml/FitTheLine';
 import GrowTheTree from './ml/GrowTheTree';
-import ForestVote from './ml/ForestVote';
+import FiveRules from './ml/FiveRules';
 import ModelCompare from './ml/ModelCompare';
 import RuleVsExamples from './ml/RuleVsExamples';
 import PythonPlayground, { COLAB_URL } from './ml/PythonPlayground';
@@ -141,41 +141,47 @@ def how_many_wrong(cut_off):
 for cut_off in range(2, 10):
     print("visits < %d   ->  gets %d of 14 wrong" % (cut_off, how_many_wrong(cut_off)))`;
 
-const PLAY_FOREST = `import random
-random.seed(1)
+const PLAY_FOREST = `# The same 20 members from the box above.
+# visits a month, months a member, and 1 if they quit.
+members = [
+    (1,  2, 1), (1,  9, 1), (2,  3, 1), (2, 18, 0), (3,  1, 1),
+    (3,  7, 1), (3, 26, 0), (4,  4, 1), (4, 11, 1), (4, 30, 0),
+    (5,  2, 1), (5, 13, 0), (6,  5, 1), (6, 20, 0), (7,  3, 0),
+    (8, 10, 0), (9,  2, 0), (9, 22, 0), (11, 6, 0), (12, 15, 0),
+]
 
-# 200 gym members. Most cancel if they come less than 5 times a month.
-# But 1 in 5 people do their own thing.
-members = []
-for i in range(200):
-    visits = random.randint(0, 12)
-    cancelled = 1 if visits < 5 else 0
-    if random.random() < 0.2:
-        cancelled = 1 - cancelled
-    members.append((visits, cancelled))
+# The same five rules. Each looks at ONE thing. None of them is perfect.
+# (which fact to look at, the cut-off, what to call it)
+rules = [
+    (0,  3, "comes less than 3 times a month"),
+    (0,  5, "comes less than 5 times a month"),
+    (0,  7, "comes less than 7 times a month"),
+    (1,  6, "joined less than 6 months ago"),
+    (1, 12, "joined less than a year ago"),
+]
 
-# Nine rules. Nobody knows the right cut-off, so each one guesses.
-rules = [2, 3, 4, 5, 5, 6, 6, 7, 8]
+
+def says_quit(rule, member):
+    fact, cut_off, name = rule
+    return 1 if member[fact] < cut_off else 0
 
 
 def score(guess):
-    right = sum(1 for visits, cancelled in members if guess(visits) == cancelled)
-    return right * 100 // len(members)
+    return sum(1 for m in members if guess(m) == m[2])
 
 
 print("Each rule on its own:")
-for cut in rules:
-    print("   cancels if visits < %d   ->  %d%% right"
-          % (cut, score(lambda v, c=cut: 1 if v < c else 0)))
+for rule in rules:
+    print("   %-34s %2d / 20" % (rule[2], score(lambda m, r=rule: says_quit(r, m))))
 
 
-def vote(visits):
-    yes = sum(1 for cut in rules if visits < cut)
-    return 1 if yes * 2 > len(rules) else 0
+def vote(member):
+    quit_votes = sum(says_quit(r, member) for r in rules)
+    return 1 if quit_votes > len(rules) / 2 else 0
 
 
 print()
-print("ALL NINE VOTING            ->  %d%% right" % score(vote))`;
+print("   %-34s %2d / 20" % ("ALL FIVE VOTING", score(vote)))`;
 
 function Code({ title, children }: { title: string; children: string }) {
   return (
@@ -394,54 +400,22 @@ export default function PredictingWithDataLesson() {
               middle guess was 1,207 pounds, and the ox weighed 1,198.
             </p>
             <p>
-              The guesses were wrong in both directions. They cancelled each other out. A random forest does this on
-              purpose.
+              The guesses were wrong in both directions. They cancelled each other out. A random forest does the same
+              thing on purpose: instead of trusting one rule, build a lot of them and let them vote.
             </p>
           </div>
         </Reveal>
 
         <Reveal delay={0.05}>
-          <ul className="bt-flow" style={{ marginTop: 24 }}>
-            <li>
-              <span className="bt-flow__n">1</span>
-              <div>
-                <h4>Build hundreds of trees instead of one</h4>
-                <p>Three hundred is normal. They are cheap.</p>
-              </div>
-            </li>
-            <li>
-              <span className="bt-flow__n">2</span>
-              <div>
-                <h4>Give each one a different slice of the data</h4>
-                <p>So no two trees see quite the same thing.</p>
-              </div>
-            </li>
-            <li>
-              <span className="bt-flow__n">3</span>
-              <div>
-                <h4>Only let each one ask about a few of the facts</h4>
-                <p>Picked at random, so they do not all start with the same obvious question.</p>
-              </div>
-            </li>
-            <li>
-              <span className="bt-flow__n">4</span>
-              <div>
-                <h4>Take the vote</h4>
-                <p>Steps 2 and 3 are the whole trick. Identical trees would all be wrong together, and voting would do nothing.</p>
-              </div>
-            </li>
-          </ul>
-        </Reveal>
-
-        <Reveal delay={0.05}>
           <h3 style={{ fontSize: 19, marginTop: 34 }}>Your turn</h3>
           <p className="bt-note" style={{ maxWidth: '58ch' }}>
-            Five new members. Nine trees each make a call. Watch both scores.
+            Here are five rules of thumb instead of five trees — easier to read, same idea. Pick the one you would
+            trust, then see how it did.
           </p>
         </Reveal>
 
         <Reveal delay={0.05}>
-          <ForestVote />
+          <FiveRules />
         </Reveal>
 
         <Reveal delay={0.05}>
@@ -545,10 +519,10 @@ export default function PredictingWithDataLesson() {
 
         <Reveal delay={0.05}>
           <PythonPlayground
-            label="3 — nine rules, then a vote"
+            label="3 — five rules, then a vote"
             code={PLAY_FOREST}
             rows={20}
-            note="Look at the spread: some rules get 68%, the best gets 85%. You would have no way of knowing which. The vote gets you 85% anyway."
+            note="Try adding a sixth rule to the list, or taking one away. The vote is hard to make worse — that is the useful part."
           />
         </Reveal>
 

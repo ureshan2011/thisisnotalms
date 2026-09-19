@@ -355,7 +355,7 @@ const MBI804: Course = {
   headline: ['IT project', 'management'],
   accent: 'project',
   lede:
-    'What is really fixed on a project, what a delay actually costs, and which method the work in front of you is asking for. Four of the six lessons here open for anybody, with no code.',
+    'What is really fixed on a project, what a delay actually costs, and which method the work in front of you is asking for. Five of the six lessons here open for anybody, with no code.',
   meta: 'Yasas Sri Wickramasinghe · 15 credits, Level 8 · prerequisites MBI800 and MBI801',
   keyline:
     'The course keeps returning to one question: which of the three constraints are you willing to move? Every estimate, every risk and every conflict on this page is another way of asking it.',
@@ -431,7 +431,7 @@ const MBI804: Course = {
       blurb:
         "Three hand-picked credentials: Atlassian's own Jira learning path, a LinkedIn Agile Professional Certificate, and a quick free completion cert.",
       to: '/jira-certifications',
-      access: 'code',
+      access: 'open',
       kind: 'Reference',
     },
   ],

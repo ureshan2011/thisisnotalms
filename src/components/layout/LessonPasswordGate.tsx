@@ -24,6 +24,7 @@ const EXCLUDED_PREFIXES = [
   '/intro-to-sisp',
   '/intro-to-project-management',
   '/project-methodologies',
+  '/peer-audit',
   '/jira-certifications',
   '/power-bi-setup',
   '/predicting-with-data',

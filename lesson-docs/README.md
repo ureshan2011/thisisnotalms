@@ -106,11 +106,13 @@ Fundamentals Exam + certificate.
 Lesson plans (1): consolidated MBI802 8-class lecturer lesson-plan series
 (`public/lesson-plans/class-1.html` … `class-8.html`).
 
-### MBI804 — IT Project Management (8 lessons)
-Public (5): Project Cost Management (`/cost-management`), Free Jira & Agile Certifications
+### MBI804 — IT Project Management (9 lessons)
+Public (6): Project Cost Management (`/cost-management`), Free Jira & Agile Certifications
 (`/jira-certifications`), Conflict Swap classroom activity (static, own Firebase
 collection), The Collaboration Reflex lecture (static slides on conflict theory),
-Waterfall/Spiral/PRINCE2/Agile and Scrum (`/project-methodologies`).
+Waterfall/Spiral/PRINCE2/Agile and Scrum (`/project-methodologies`), The outside auditor
+peer audit round (`/peer-audit` — the public training and brief; the activity itself runs
+on a separate Flask app the lecturer deploys, which holds the real student submissions).
 
 Gated only (3): Agile Scrum Process in IT slide deck, Agile Scrum Knowledge Check quiz
 (30Q), Free Agile & Scrum Certifications resource list.

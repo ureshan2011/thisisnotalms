@@ -355,7 +355,7 @@ const MBI804: Course = {
   headline: ['IT project', 'management'],
   accent: 'project',
   lede:
-    'What is really fixed on a project, what a delay actually costs, and which method the work in front of you is asking for. Five of the six lessons here open for anybody, with no code.',
+    'What is really fixed on a project, what a delay actually costs, and which method the work in front of you is asking for. Six of the seven lessons here open for anybody, with no code.',
   meta: 'Yasas Sri Wickramasinghe · 15 credits, Level 8 · prerequisites MBI800 and MBI801',
   keyline:
     'The course keeps returning to one question: which of the three constraints are you willing to move? Every estimate, every risk and every conflict on this page is another way of asking it.',
@@ -397,6 +397,15 @@ const MBI804: Course = {
       to: '/project-methodologies',
       access: 'open',
       kind: 'Lesson',
+    },
+    {
+      id: 'pm-peer-audit',
+      title: 'The outside auditor: peer audit round',
+      blurb:
+        'The class swaps post-mortems — you audit a project you did not run, and nobody gets their own back. Practise the four audit questions on a fictional scenario whose author is confident and wrong about all of them, sort eight sentences into restating, asserting and auditing, choose a risk response where mitigating is the wrong answer, then build the one-page Corrective Action Plan and export it.',
+      to: '/peer-audit',
+      access: 'open',
+      kind: 'Practice',
     },
     {
       id: 'cost-management',

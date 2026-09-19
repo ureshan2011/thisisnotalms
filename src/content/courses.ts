@@ -355,7 +355,7 @@ const MBI804: Course = {
   headline: ['IT project', 'management'],
   accent: 'project',
   lede:
-    'What is really fixed on a project, what a delay actually costs, and which method the work in front of you is asking for. Three of the five lessons here open for anybody, with no code.',
+    'What is really fixed on a project, what a delay actually costs, and which method the work in front of you is asking for. Four of the six lessons here open for anybody, with no code.',
   meta: 'Yasas Sri Wickramasinghe · 15 credits, Level 8 · prerequisites MBI800 and MBI801',
   keyline:
     'The course keeps returning to one question: which of the three constraints are you willing to move? Every estimate, every risk and every conflict on this page is another way of asking it.',
@@ -386,6 +386,15 @@ const MBI804: Course = {
       blurb:
         'The whole of Lesson 1: pin two corners of the constraint triangle and watch the third move, slide a delay along a real schedule to find which tasks the launch date cares about, choose between Agile, Waterfall and PRINCE2 across four project shapes, then price a risk on the grid.',
       to: '/intro-to-project-management',
+      access: 'open',
+      kind: 'Lesson',
+    },
+    {
+      id: 'pm-methodologies',
+      title: 'Waterfall, Spiral, PRINCE2 and Agile — and Scrum up close',
+      blurb:
+        'Lesson 2, and the one the 60% case study leans on. Four lifecycles drawn rather than described, a change dragged along the cost-of-change curve, Boehm’s spiral walked loop by loop, PRINCE2’s seven principles, themes and processes opened one at a time, then the whole Agile family — and Scrum in full: a clickable framework diagram, twelve “whose job is this?” situations, timeboxes that scale with the Sprint, and a board with a live burndown.',
+      to: '/project-methodologies',
       access: 'open',
       kind: 'Lesson',
     },

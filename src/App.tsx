@@ -20,6 +20,7 @@ const ProjectMethodologiesPage = lazy(() => import('./pages/ProjectMethodologies
 const PeerAuditPage = lazy(() => import('./pages/PeerAuditPage'));
 const PowerBISetupPage = lazy(() => import('./pages/PowerBISetupPage'));
 const MySQLSetupPage = lazy(() => import('./pages/MySQLSetupPage'));
+const PythonSetupPage = lazy(() => import('./pages/PythonSetupPage'));
 const PredictingWithDataPage = lazy(() => import('./pages/PredictingWithDataPage'));
 const PreClassSwarmPage = lazy(() => import('./pages/PreClassSwarmPage'));
 const SQLReelsPage = lazy(() => import('./pages/SQLReelsPage'));
@@ -118,6 +119,7 @@ function AppRoutes() {
         <Route path="/peer-audit" element={<Suspense fallback={null}><PeerAuditPage /></Suspense>} />
         <Route path="/power-bi-setup" element={<Suspense fallback={null}><PowerBISetupPage /></Suspense>} />
         <Route path="/mysql-setup" element={<Suspense fallback={null}><MySQLSetupPage /></Suspense>} />
+        <Route path="/python-setup" element={<Suspense fallback={null}><PythonSetupPage /></Suspense>} />
         <Route path="/predicting-with-data" element={<Suspense fallback={null}><PredictingWithDataPage /></Suspense>} />
         <Route path="/xr-explorer"  element={<XRExplorerPage />} />
         <Route path="/normalisation" element={<Suspense fallback={null}><NormalizationExplorerPage /></Suspense>} />
@@ -217,6 +219,7 @@ function ShutdownRoutes() {
       <Route path="/peer-audit" element={<Suspense fallback={null}><PeerAuditPage /></Suspense>} />
       <Route path="/power-bi-setup" element={<Suspense fallback={null}><PowerBISetupPage /></Suspense>} />
       <Route path="/mysql-setup" element={<Suspense fallback={null}><MySQLSetupPage /></Suspense>} />
+      <Route path="/python-setup" element={<Suspense fallback={null}><PythonSetupPage /></Suspense>} />
       <Route path="/predicting-with-data" element={<Suspense fallback={null}><PredictingWithDataPage /></Suspense>} />
       <Route path="/xr-explorer" element={<XRExplorerPage />} />
       <Route path="/normalisation" element={<Suspense fallback={null}><NormalizationExplorerPage /></Suspense>} />

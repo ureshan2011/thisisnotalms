@@ -210,6 +210,15 @@ const MBI802: Course = {
       kind: 'Lesson',
     },
     {
+      id: 'mysql-setup',
+      title: 'Setting up MySQL',
+      blurb:
+        'Two short guide videos — one for MacOS, one for Windows — so your MySQL client and Workbench are installed and ready before the first hands-on class.',
+      to: '/mysql-setup',
+      access: 'open',
+      kind: 'Video',
+    },
+    {
       id: 'sql-programming',
       title: 'Introduction to SQL with MySQL',
       blurb:

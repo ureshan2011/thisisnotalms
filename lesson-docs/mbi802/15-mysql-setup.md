@@ -1,20 +1,32 @@
 # MySQL Development Environment Setup — MBI802
 
 - **Subject:** MBI802 — Database Management Systems
-- **Gating:** Gated (student/staff login required)
-- **Route(s):** `/student/course-resources` (no dedicated route — rendered inline as the first
-  lesson row of the MBI802 tab; lesson `id: 'setup'`)
+- **Gating:** Both — a gated copy inside Course Resources, and (since this audit) a public
+  standalone page at `/mysql-setup` carrying the same two guide videos with no login required.
+- **Route(s):**
+  - `/student/course-resources` (no dedicated route — rendered inline as the first lesson row of
+    the MBI802 tab; lesson `id: 'setup'`)
+  - `/mysql-setup` — public, listed as the `mysql-setup` lesson (`access: 'open'`) in the MBI802
+    entry of `src/content/courses.ts`, right after the intro lesson and before the SQL
+    programming lesson, and consequently on the `/mbi802` course home page too. Registered in
+    `src/App.tsx` in both route lists (`AppRoutes` and `ShutdownRoutes`), and excluded from the
+    lesson password gate in `src/components/layout/LessonPasswordGate.tsx`.
 - **Source files:**
-  - `src/pages/student/CourseResources.tsx` — the entire lesson lives here. The lesson metadata
+  - `src/pages/student/CourseResources.tsx` — the gated copy. The lesson metadata
     (title/subtitle/icon) is the first entry in the MBI802 `lessons` array (lines 188–195), and
     the content renderer is the inline function component `SetupLesson()` (lines 288–413), which
     is mounted at line 1752 via `{lesson.id === 'setup' && <SetupLesson />}`.
-  - No separate component file exists for this lesson — unlike every other MBI802 lesson, it is
-    not imported from `src/components/`.
+  - `src/pages/MySQLSetupPage.tsx` — the public copy, built on `PublicLessonShell` (the same
+    "Let's make sense of…" shell used by the other standalone public lessons). Independent
+    component with its own copy of the video URLs and body text — not a shared import from
+    `CourseResources.tsx` — so the two can drift; keep both in sync by hand if the videos or
+    copy change.
+  - No separate component file exists for the gated copy — unlike every other MBI802 lesson, it
+    is not imported from `src/components/`.
 - **Depends on:** `lucide-react` icons (`Video`, `Sparkles`, `Apple`, `MonitorSmartphone`,
   `Laptop`, `Monitor`, `ExternalLink`), and two external SharePoint video links plus one
   Microsoft-hosted Visual C++ redistributable link (all listed in full below). No Firestore
-  reads/writes are performed by this lesson.
+  reads/writes are performed by either copy of this lesson.
 
 ## 1. Purpose & learning objectives
 
@@ -163,3 +175,8 @@ support links (Visual C++ redistributable).
 - Tone/voice ("Ayubowan", first-person lecturer voice, informal sign-off "Happy learning!") is
   intentional and should be preserved verbatim in any rebuild — it is stylistically distinct from
   every other lesson in the app, which are written as neutral instructional slide decks.
+- **The public copy (`MySQLSetupPage.tsx`) drops the "Please avoid posting errors here" sentence**
+  — that line only made sense against the comments thread on the original gated post it was
+  adapted from (see the note above), and the public page has no comments surface at all, so
+  keeping it there would be a dangling reference with nothing to point at. The rest of the copy,
+  both video links, and the Visual C++ link are otherwise identical between the two copies.

@@ -175,6 +175,16 @@ export default function ScrumRoleSort() {
         {ROLES.map(r => {
           const isAnswer = r.key === c.answer;
           const wrongPick = picked === r.key && !isAnswer;
+          // blend.css paints a pressed choice's label white. Correct on the
+          // dark pressed state, unreadable on a light reveal tint — so a
+          // tinted button carries its own ink.
+          const tint = !picked
+            ? null
+            : isAnswer
+              ? { bg: 'var(--green-50)', border: 'rgba(47, 163, 107, 0.34)', ink: '#186845' }
+              : wrongPick
+                ? { bg: 'var(--red-50)', border: 'rgba(217, 58, 43, 0.28)', ink: '#8f2318' }
+                : null;
           return (
             <button
               key={r.key}
@@ -183,18 +193,16 @@ export default function ScrumRoleSort() {
               aria-pressed={picked === r.key}
               disabled={picked !== null}
               style={
-                picked && isAnswer
-                  ? { background: 'var(--green-50)', borderColor: 'rgba(47, 163, 107, 0.34)', cursor: 'default' }
-                  : wrongPick
-                    ? { background: 'var(--red-50)', borderColor: 'rgba(217, 58, 43, 0.28)', cursor: 'default' }
-                    : picked
-                      ? { opacity: 0.55, cursor: 'default' }
-                      : undefined
+                tint
+                  ? { background: tint.bg, borderColor: tint.border, cursor: 'default' }
+                  : picked
+                    ? { opacity: 0.55, cursor: 'default' }
+                    : undefined
               }
               onClick={() => choose(r.key)}
             >
-              <b>{r.label}{picked && isAnswer ? ' ✓' : ''}</b>
-              <span>{wrongPick ? 'Not this one' : r.sub}</span>
+              <b style={tint ? { color: tint.ink } : undefined}>{r.label}{picked && isAnswer ? ' ✓' : ''}</b>
+              <span style={tint ? { color: tint.ink, opacity: 0.85 } : undefined}>{wrongPick ? 'Not this one' : r.sub}</span>
             </button>
           );
         })}

@@ -14,7 +14,6 @@ const NAV = [
   { id: 'blocks', label: 'The nine blocks' },
   { id: 'example', label: 'Worked example' },
   { id: 'activity', label: 'Group activity' },
-  { id: 'present', label: 'Present it' },
 ];
 
 export default function BusinessModelCanvasPage() {
@@ -33,7 +32,7 @@ export default function BusinessModelCanvasPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.75, ease: EASE, delay: 0.06 }}
             >
-              One page, nine <span className="bt-stop">questions.</span>
+              Business Model Canvas
             </motion.h1>
 
             <motion.p
@@ -42,8 +41,9 @@ export default function BusinessModelCanvasPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: EASE, delay: 0.14 }}
             >
-              How a business model actually works, laid out on one page. Then a 90-minute group
-              activity: six people, one real business idea, a canvas filled by hand.
+              A simple way to describe how a business creates value, in nine blocks on one page.
+              Then a 90-minute group activity: six people, one IT business idea, a canvas filled
+              in digitally and presented to the class.
             </motion.p>
 
             <motion.p
@@ -87,25 +87,22 @@ export default function BusinessModelCanvasPage() {
             transition={{ duration: 0.85, ease: EASE, delay: 0.18 }}
           >
             <span className="bt-heroart__lbl">The 90-minute activity</span>
-            <div className="bt-minichart">
-              {([['Form up, pick an idea', 15], ['Build the canvas', 50], ['Present and wrap up', 25]] as [string, number][]).map(([item, value], i) => (
-                <div className="bt-minichart__row" key={item}>
-                  <span className="bt-minichart__name">{item}</span>
-                  <span className="bt-minichart__track">
-                    <motion.i
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(value / 50) * 100}%` }}
-                      transition={{ duration: 0.7, ease: EASE, delay: 0.5 + i * 0.09 }}
-                      style={{ background: i === 1 ? 'var(--accent-500)' : 'var(--accent-200)' }}
-                    />
-                  </span>
-                  <span className="bt-minichart__val bt-tnum">{value} min</span>
-                </div>
-              ))}
+            <div className="bmc-mini">
+              <div style={{ gridColumn: 1, gridRow: '1 / span 2' }}>KP</div>
+              <div style={{ gridColumn: 2, gridRow: 1 }}>KA</div>
+              <div className="bmc-mini__vp" style={{ gridColumn: 3, gridRow: '1 / span 2' }}>VALUE</div>
+              <div style={{ gridColumn: 4, gridRow: 1 }}>CR</div>
+              <div style={{ gridColumn: 5, gridRow: '1 / span 2' }}>CS</div>
+              <div style={{ gridColumn: 2, gridRow: 2 }}>KR</div>
+              <div style={{ gridColumn: 4, gridRow: 2 }}>CH</div>
+            </div>
+            <div className="bmc-mini-bottom">
+              <div>COST STRUCTURE</div>
+              <div>REVENUE STREAMS</div>
             </div>
             <p className="bt-keyline">
               <span className="bt-keyline__swatch" aria-hidden="true" />
-              <span><b>90 minutes, start to finish.</b> Six people, one real business idea, a canvas filled in by hand.</span>
+              <span><b>90 minutes, start to finish.</b> Six people, one IT business idea, a canvas filled in digitally.</span>
             </p>
           </motion.div>
         </div>

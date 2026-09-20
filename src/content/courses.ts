@@ -18,11 +18,13 @@
 
 import type { BlendAccent } from '../components/blend';
 
-/** What a reader has to do to open a lesson, as of right now. */
+/** What a reader has to do to open a lesson. Every lesson on the site is
+ *  open — the shared class access code was retired, and nothing here is
+ *  gated any more. The type keeps a 'code' member so the (now unreachable)
+ *  UI branches that reference it still type-check. */
 export type LessonAccess =
   /** Opens for anybody with the link. No code, no login. */
   | 'open'
-  /** Behind the shared class access code (see LessonPasswordGate). */
   | 'code';
 
 /** The shape of a lesson, so a reader can tell a read from an hour's work. */
@@ -132,7 +134,7 @@ const MBI800: Course = {
       blurb:
         'Airbnb, Netflix, Xero, Canva and Alibaba — how each started from one frustration and built a platform that rewired its industry. IS architecture, growth figures and discussion questions for each.',
       to: '/five-stories',
-      access: 'code',
+      access: 'open',
       kind: 'Lesson',
     },
     {
@@ -141,7 +143,7 @@ const MBI800: Course = {
       blurb:
         'Why Uber owns no cars and the App Store writes no apps. Network effects, the chicken-and-egg problem, governance and boundary resources, Amazon against GE Predix — then a group research task and a knowledge check.',
       to: '/platform-strategy',
-      access: 'code',
+      access: 'open',
       kind: 'Lesson',
     },
     {
@@ -150,7 +152,7 @@ const MBI800: Course = {
       blurb:
         'What can go wrong, what it would cost, and how to defend and recover. Calculate real risk exposure, profile the attackers, tell malware apart, run a backup simulator and choose a disaster-recovery plan.',
       to: '/systems-security',
-      access: 'code',
+      access: 'open',
       kind: 'Lesson',
     },
     {
@@ -159,7 +161,7 @@ const MBI800: Course = {
       blurb:
         'A walk through AR, VR and mixed reality, with two demos that run in the browser. No headset needed, and no prior graphics knowledge assumed.',
       to: '/xr-explorer',
-      access: 'code',
+      access: 'open',
       kind: 'Lesson',
     },
     {
@@ -168,7 +170,7 @@ const MBI800: Course = {
       blurb:
         'The final lecture. Design a layout in Google Stitch, turn it into real code with Claude Code, and put it live on GitHub Pages. Includes a prompt generator for your own portfolio.',
       to: '/bonus-lecture',
-      access: 'code',
+      access: 'open',
       kind: 'Lab',
     },
     {
@@ -177,7 +179,7 @@ const MBI800: Course = {
       blurb:
         'The whole course rewritten as a properly typeset book: eleven chapters, worked examples, practice questions and answer keys. Yours to download and keep.',
       to: '/study-packs',
-      access: 'code',
+      access: 'open',
       kind: 'Pack',
     },
   ],
@@ -233,7 +235,7 @@ const MBI802: Course = {
       blurb:
         'The language databases actually speak. Create a database, build a table, insert real rows, then ask it questions — one interactive slide at a time.',
       to: '/sql-programming',
-      access: 'code',
+      access: 'open',
       kind: 'Lesson',
     },
     {
@@ -242,7 +244,7 @@ const MBI802: Course = {
       blurb:
         'One table, built up step by step: add a column, change a data type, set a primary key and auto-number it, back it up and restore it, then ORDER BY and count it. Finishes with a safe look at SQL injection.',
       to: '/database-concepts',
-      access: 'code',
+      access: 'open',
       kind: 'Lesson',
     },
     {
@@ -260,7 +262,7 @@ const MBI802: Course = {
       blurb:
         "Sketch the world before you build the tables. Entities, attributes and relationships in Chen's notation, and how to read cardinality at a glance.",
       to: '/er-diagrams',
-      access: 'code',
+      access: 'open',
       kind: 'Lesson',
     },
     {
@@ -269,7 +271,7 @@ const MBI802: Course = {
       blurb:
         'Model five real systems — a library, a university, a hospital, an online store and a hotel — then check your diagram against a worked answer.',
       to: '/er-activities',
-      access: 'code',
+      access: 'open',
       kind: 'Practice',
     },
     {
@@ -278,7 +280,7 @@ const MBI802: Course = {
       blurb:
         'Real data is messier than the textbook. Weak entities, identifying relationships, and multivalued or derived attributes, with two exercises to test yourself.',
       to: '/er-advanced',
-      access: 'code',
+      access: 'open',
       kind: 'Lesson',
     },
     {
@@ -287,7 +289,7 @@ const MBI802: Course = {
       blurb:
         'The details that decide whether a model is right or wrong. Break attributes into their parts, then read total against partial participation through guided activities.',
       to: '/er-attributes',
-      access: 'code',
+      access: 'open',
       kind: 'Lesson',
     },
     {
@@ -296,7 +298,7 @@ const MBI802: Course = {
       blurb:
         'Turn entity-relationship diagrams into real relational tables — entities, relationships, keys, and every tricky case in between.',
       to: '/er-mapping',
-      access: 'code',
+      access: 'open',
       kind: 'Lesson',
     },
     {
@@ -305,7 +307,7 @@ const MBI802: Course = {
       blurb:
         'From messy tables to clean ones. Spot the anomalies, then split a table step by step from 1NF all the way to 3NF.',
       to: '/normalisation',
-      access: 'code',
+      access: 'open',
       kind: 'Lesson',
     },
     {
@@ -314,7 +316,7 @@ const MBI802: Course = {
       blurb:
         'Seven short tables to practise on, mixed up and with no hints. Work out what normal form each is in and normalise it. The answers sit behind a password so you try it first.',
       to: '/normalisation-activities',
-      access: 'code',
+      access: 'open',
       kind: 'Practice',
     },
     {
@@ -323,7 +325,7 @@ const MBI802: Course = {
       blurb:
         'Prefer to watch? A short walkthrough series — why we normalise, functional dependencies, and First Normal Form — each as a clip you can play any time.',
       to: '/normalisation-videos',
-      access: 'code',
+      access: 'open',
       kind: 'Video',
     },
     {
@@ -332,7 +334,7 @@ const MBI802: Course = {
       blurb:
         'Change and remove rows with confidence. Short scrollable reels that show how to edit data without breaking everything around it.',
       to: '/sql-reels',
-      access: 'code',
+      access: 'open',
       kind: 'Video',
     },
     {
@@ -350,7 +352,7 @@ const MBI802: Course = {
       blurb:
         'Nine genuinely free credentials — Oracle badges, IBM digital badges, HackerRank exams, Cisco certs and more. No credit card for any of them.',
       to: '/sql-certifications',
-      access: 'code',
+      access: 'open',
       kind: 'Reference',
     },
     {
@@ -359,7 +361,7 @@ const MBI802: Course = {
       blurb:
         'The whole course rewritten as a properly typeset book: eight chapters, worked examples, practice questions and answer keys. Yours to download and keep.',
       to: '/study-packs',
-      access: 'code',
+      access: 'open',
       kind: 'Pack',
     },
   ],
@@ -373,7 +375,7 @@ const MBI804: Course = {
   headline: ['IT project', 'management'],
   accent: 'project',
   lede:
-    'What is really fixed on a project, what a delay actually costs, and which method the work in front of you is asking for. Six of the seven lessons here open for anybody, with no code.',
+    'What is really fixed on a project, what a delay actually costs, and which method the work in front of you is asking for. Every lesson here opens for anybody, with no code.',
   meta: 'Yasas Sri Wickramasinghe · 15 credits, Level 8 · prerequisites MBI800 and MBI801',
   keyline:
     'The course keeps returning to one question: which of the three constraints are you willing to move? Every estimate, every risk and every conflict on this page is another way of asking it.',
@@ -431,7 +433,7 @@ const MBI804: Course = {
       blurb:
         'Plan, estimate, budget — and avoid the traps that sink most IT projects. Seven interactive sections around the SecurePay NZ scenario: PERT calculator, budget builder, live S-curve and a closing challenge.',
       to: '/cost-management',
-      access: 'code',
+      access: 'open',
       kind: 'Lesson',
     },
     {
@@ -472,7 +474,7 @@ const MBI806B: Course = {
   headline: ['Business data analytics', 'with AI and ML'],
   accent: 'analytics',
   lede:
-    'What AI and ML actually mean, where you already rely on them without noticing, and how a real decision gets made step by step. Written for people who have never opened a data tool — both lessons open with no code.',
+    'What AI and ML actually mean, where you already rely on them without noticing, and how a real decision gets made step by step. Written for people who have never opened a data tool — every lesson opens with no code.',
   meta: 'Yasas Sri Wickramasinghe · 15 credits, Level 8 · prerequisite MBI801, co-requisite MBI805B',
   keyline:
     'Getting a number out is the easy half. Being able to defend the number, and say what it cannot tell you, is the job this course is actually about.',
@@ -548,7 +550,7 @@ export const GENERAL_RESOURCES: CourseLesson[] = [
     blurb:
       'Everything needed to cite correctly, from the first in-text citation to the last reference entry. Fourteen interactive slides and a practice quiz.',
     to: '/apa-referencing',
-    access: 'code',
+    access: 'open',
     kind: 'Reference',
   },
   {
@@ -557,7 +559,7 @@ export const GENERAL_RESOURCES: CourseLesson[] = [
     blurb:
       'A full-screen countdown for the minutes before class. Key concepts drift like a galaxy, then swarm together to reveal the course code right as we begin.',
     to: '/pre-class',
-    access: 'code',
+    access: 'open',
     kind: 'Reference',
   },
 ];

@@ -20,9 +20,8 @@ import { COURSES, type CourseHomeCode } from '../content/courses';
 //
 // These pages are ungated on purpose — they are the link I hand to somebody
 // deciding whether to take the course, and to a student who wants the whole
-// index rather than the one lesson they were sent. That is also why they are
-// listed in LessonPasswordGate's EXCLUDED_PREFIXES, alongside the four public
-// lesson pages they open onto.
+// index rather than the one lesson they were sent. Every lesson on the site
+// is ungated the same way; there is no access code any more.
 //
 // The hero object is the reader's own progress board rather than a picture of
 // the subject: on an index page, the useful thing to show somebody is where

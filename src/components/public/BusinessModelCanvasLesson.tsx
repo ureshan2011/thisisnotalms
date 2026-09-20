@@ -1,4 +1,4 @@
-import { ExternalLink } from 'lucide-react';
+import { Download } from 'lucide-react';
 import { LessonHeader, Recap, Reveal, SectionHead } from '../blend';
 
 // ─── MBI800 · The Business Model Canvas ────────────────────────────────────
@@ -9,13 +9,12 @@ import { LessonHeader, Recap, Reveal, SectionHead } from '../blend';
 // canvases.md — chapter 5 of 11 — so the lesson header reads 5 of 11, the
 // same way /intro-to-sisp reads 1 of 11.
 //
-// Deliberately not an interactive tool. The teaching request behind this
-// page was explicit: introduce the canvas, then hand the class a group
-// activity to run on paper or a whiteboard, not a fillable web form. So the
-// canvas diagram is read-only, and the activity brief below it is written
-// instructions with a timed agenda — nothing to click, nothing stored.
+// Deliberately not an interactive tool. Teams fill in the canvas on their
+// own device, in the downloadable .docx template linked below — not a
+// fillable web form on this page. The canvas diagram above the activity is
+// read-only; it's there to teach the layout before anyone fills one in.
 
-const BASE = import.meta.env.BASE_URL;
+const CANVAS_TEMPLATE_URL = 'https://neoschronos.com/assets/business-model-canvas.docx';
 
 const REVENUE_PATTERNS: [string, string, string][] = [
   ['Product & service sales', 'The customer pays directly for a good or a service', 'Automotive manufacturers'],
@@ -40,38 +39,27 @@ const COST_REVENUE: { n: string; name: string; ask: string }[] = [
   { n: '9', name: 'Revenue Streams', ask: 'How do you make money — and is there value beyond money?' },
 ];
 
-const COFFEE_CART_EXAMPLE: [string, string][] = [
-  ['Value Proposition', 'Good coffee, made fast, at the spot outside the station where nobody else sells it.'],
-  ['Customer Segments', 'Commuters walking to the station on weekday mornings.'],
-  ['Channels', 'The cart itself, in the same spot every day. A sign on the platform noticeboard.'],
-  ['Customer Relationships', 'Fast, friendly, the same face every morning. Regulars get remembered orders.'],
-  ['Revenue Streams', 'Cash and card sales, per cup. A loyalty stamp card for the tenth cup free.'],
-  ['Key Activities', 'Making coffee, restocking milk and cups, showing up on time, every day.'],
-  ['Key Resources', 'The cart, a coffee machine, a trading licence, an early alarm clock.'],
-  ['Key Partners', 'A local coffee roaster, the station for permission to trade there.'],
-  ['Cost Structure', 'Beans, milk, cups, the cart’s trading licence, fuel to tow it there each morning.'],
+// A small IT business, so the worked example matches what teams are about
+// to build one of: something with software in it.
+const APP_EXAMPLE: [string, string][] = [
+  ['Value Proposition', 'Split a shared bill in seconds, then get everyone reminded automatically until they’ve paid.'],
+  ['Customer Segments', 'Groups of friends, flatmates, and people who travel together.'],
+  ['Channels', 'The app itself, word of mouth, a listing in the App Store and Google Play.'],
+  ['Customer Relationships', 'Self-service — no support needed once it works. A help page for the rare question.'],
+  ['Revenue Streams', 'Free for small groups. A small monthly subscription for unlimited groups and spreadsheet export.'],
+  ['Key Activities', 'Building and maintaining the app, fixing bugs, adding the features people actually ask for.'],
+  ['Key Resources', 'Two developers, a designer, a small cloud hosting bill, the app store accounts.'],
+  ['Key Partners', 'A payment processor, the app stores that distribute it.'],
+  ['Cost Structure', 'Developer time, cloud hosting, app store fees, a bit of marketing.'],
 ];
 
 const AGENDA: [string, string, string][] = [
-  ['10 min', 'Form groups and pick an idea', 'Groups of six. Pick one real-world business idea — an existing company you know, or one you invent. Appoint a scribe to keep the canvas tidy.'],
+  ['10 min', 'Form groups and pick an IT idea', 'Groups of six. Pick one IT business idea — software, an app, a platform, or a digital service. Appoint a scribe to keep the canvas organised.'],
   ['5 min', 'Divide the nine blocks', 'Read the nine blocks again as a group. Spread them across the six of you — most people end up owning one or two.'],
-  ['40 min', 'Fill in the canvas', 'Work block by block. Say your idea out loud before anyone writes it down — the discussion is the point, not the paper.'],
-  ['10 min', 'Step back and tidy up', 'Read the whole canvas as a team. Fix anything that contradicts another block. Agree who says what in the presentation.'],
-  ['20 min', 'Present to the class', 'Each group presents. About three minutes each, plus one question from the room.'],
-  ['5 min', 'Wrap-up', 'The lecturer highlights two or three strong canvases and closes the session.'],
-];
-
-const PRESENT_TIPS: string[] = [
-  'Say the idea in one sentence first, before anything else.',
-  'Point at the canvas itself. No slides — it already fits on one page.',
-  'Walk left to right: who helps you, what you do, what it costs — then who pays you, why, and how they find you.',
-  'End with the block you’re least sure about. The class is a free second opinion — use it.',
-];
-
-const QUESTIONS_FOR_THE_ROOM: string[] = [
-  'Which block would break first if you were wrong about it?',
-  'Is there a cheaper way to reach the same customers?',
-  'Who else is already solving this?',
+  ['30 min', 'Fill in the canvas', 'Download the template and work through it block by block. Say your idea out loud before anyone types it in — the discussion is the point, not the document.'],
+  ['15 min', 'Create presentations (2–3 slides)', 'Turn your filled canvas into a short slide deck — just the highlights, two or three slides. This is what you’ll actually present from.'],
+  ['25 min', 'Present to the class', 'About five minutes per team, for roughly five teams. Keep to your two or three slides.'],
+  ['5 min', 'Wrap-up', 'The lecturer highlights a couple of strong presentations and closes the session.'],
 ];
 
 export default function BusinessModelCanvasLesson() {
@@ -95,8 +83,8 @@ export default function BusinessModelCanvasLesson() {
               'Name five common ways businesses make money',
               'Explain what each of the nine blocks on the canvas asks',
               'Read the canvas from cost, to value, to revenue',
-              'Fill in a canvas for a real business, working as a team',
-              'Present a finished canvas clearly, in under three minutes',
+              'Fill in a canvas for an IT business idea, working as a team',
+              'Present a short slide deck clearly, in about five minutes',
             ]}
           />
         </Reveal>
@@ -182,15 +170,15 @@ export default function BusinessModelCanvasLesson() {
         <Reveal>
           <SectionHead
             eyebrow="Seeing it filled in"
-            title="A worked example: a coffee cart"
+            title="A worked example: a bill-splitting app"
             aside="Before you fill one in yourselves, here's what a completed canvas actually looks like."
           />
         </Reveal>
         <Reveal delay={0.05}>
           <p className="bt-prose">
-            Not every canvas needs a billion-dollar company behind it. Here's one for a coffee
-            cart outside a train station — small, ordinary, and easy to check against your own
-            experience.
+            Not every canvas needs a billion-dollar company behind it. Here's one for a small,
+            ordinary app — easy to check against your own experience, and the same kind of IT
+            idea your team will pick.
           </p>
           <div className="bt-scroll">
             <table className="bt-plaintable">
@@ -198,7 +186,7 @@ export default function BusinessModelCanvasLesson() {
                 <tr><th>Block</th><th>Filled in</th></tr>
               </thead>
               <tbody>
-                {COFFEE_CART_EXAMPLE.map(([block, filled]) => (
+                {APP_EXAMPLE.map(([block, filled]) => (
                   <tr key={block}>
                     <td>{block}</td>
                     <td>{filled}</td>
@@ -209,7 +197,7 @@ export default function BusinessModelCanvasLesson() {
           </div>
           <p className="bt-note" style={{ marginTop: 16 }}>
             Notice the order it was actually filled in: value proposition and customers first,
-            then how they'd find out about it, then what it costs to run. Most groups find it
+            then how they'd find out about it, then what it costs to run. Most teams find it
             easier to work outward from the centre block rather than straight across.
           </p>
         </Reveal>
@@ -221,29 +209,40 @@ export default function BusinessModelCanvasLesson() {
           <SectionHead
             eyebrow="Now it's your turn"
             title="Group activity: build a canvas"
-            aside="Six people. One real-world business idea. 90 minutes, start to finish."
+            aside="Six people. One IT business idea. 90 minutes, start to finish."
           />
         </Reveal>
         <Reveal delay={0.05}>
           <p className="bt-prose">
-            This is a paper-and-pen activity, not a web tool. Draw a nine-block canvas on a large
-            sheet of paper or a whiteboard — the same layout as above — and fill it in together as
-            a group.
+            Download the blank canvas template and fill it in together as a team, then turn it
+            into a short slide deck to present.
           </p>
+          <a
+            className="bt-btn bt-btn--sm"
+            href={CANVAS_TEMPLATE_URL}
+            target="_blank"
+            rel="noreferrer"
+            style={{ marginTop: 4, textDecoration: 'none' }}
+          >
+            Download the canvas template (.docx)
+            <span className="bt-btn__badge" aria-hidden="true"><Download size={13} /></span>
+          </a>
 
-          <div className="bt-pairgrid" style={{ marginTop: 4 }}>
+          <div className="bt-pairgrid" style={{ marginTop: 22 }}>
             <div className="bt-card">
               <h4>What you need</h4>
               <p>
-                One blank canvas per group, drawn on a flip-chart sheet or whiteboard. Sticky
-                notes and pens are useful but not required. A timer, visible to everyone.
+                One laptop per team, the canvas template above, and a way to build a short slide
+                deck — Google Slides, PowerPoint, Canva, whatever's fastest. A timer, visible to
+                everyone.
               </p>
             </div>
             <div className="bt-card">
               <h4>Group and idea</h4>
               <p>
-                Groups of six. Each group picks one real-world business idea — a real company you
-                choose to model, or one your group invents. Keep it plausible, not sci-fi.
+                Groups of six. Each team picks one IT business idea — software, an app, a
+                platform, or a digital service. An existing one you know, or one you invent.
+                IT ideas only, not any other field.
               </p>
             </div>
           </div>
@@ -274,41 +273,8 @@ export default function BusinessModelCanvasLesson() {
               There's no single right split. Two pairs can each take two related blocks — Key
               Partners with Key Activities, say, or Cost Structure with Revenue Streams — while
               the rest take one each. The one rule: every block gets an owner, and nobody sits out
-              the discussion just because their name isn't on that sticky note.
+              the discussion just because their name isn't attached to that block.
             </p>
-          </div>
-        </Reveal>
-      </section>
-
-      {/* ══ Presenting ════════════════════════════════════════════════════ */}
-      <section id="present" className="bt-sec">
-        <Reveal>
-          <SectionHead
-            eyebrow="Present it"
-            title="Show the class your canvas"
-            aside="Three minutes. No slides needed — just point at the canvas."
-          />
-        </Reveal>
-        <Reveal delay={0.05}>
-          <ol className="bt-topics">
-            {PRESENT_TIPS.map((t, i) => (
-              <li key={t}>
-                <span className="bt-topics__n bt-tnum">{String(i + 1).padStart(2, '0')}</span>
-                {t}
-              </li>
-            ))}
-          </ol>
-
-          <div style={{ marginTop: 30 }}>
-            <p className="bt-eyebrow bt-eyebrow--quiet">Good questions for the room to ask</p>
-            <ol className="bt-topics" style={{ marginTop: 16 }}>
-              {QUESTIONS_FOR_THE_ROOM.map((q, i) => (
-                <li key={q}>
-                  <span className="bt-topics__n bt-tnum">{String(i + 1).padStart(2, '0')}</span>
-                  {q}
-                </li>
-              ))}
-            </ol>
           </div>
         </Reveal>
       </section>
@@ -319,37 +285,19 @@ export default function BusinessModelCanvasLesson() {
         points={[
           ['A business model is how an idea creates value.', 'Broad enough to cover a company, a class project, or a business idea you just invented.'],
           ['The canvas puts cost on the left, revenue on the right.', 'Value Proposition sits in the middle, because everything else on the page exists to support it.'],
-          ['Filling one in together, fast, surfaces disagreements a slide deck would hide.', 'Say the idea out loud before anyone writes it down.'],
-          ['A canvas is a draft, not a business plan.', 'The moment one block turns out to be wrong, the whole thing is meant to be redrawn.'],
+          ['Filling one in together, fast, surfaces disagreements a rehearsed pitch would hide.', 'Say the idea out loud before anyone types it into the template.'],
+          ['A canvas is a draft, not a business plan.', 'The moment one block turns out to be wrong, the whole thing is meant to be redone.'],
         ]}
       />
 
-      {/* ══ Sign off ═════════════════════════════════════════════════════ */}
       <section className="bt-sec">
         <Reveal>
-          <div className="bt-signoff">
-            <p className="bt-eyebrow">Your lecturer</p>
-            <h2>One page beats a slide deck<span className="bt-stop">.</span></h2>
-            <p className="bt-signoff__body">
-              If your group's canvas has a block you genuinely can't agree on, that's not a
-              failure — that's the canvas doing its job. Bring the disagreement to the
-              presentation rather than papering over it.
-            </p>
-            <p className="bt-signoff__name">
-              Yasas Sri Wickramasinghe
-              <a href="https://www.linkedin.com/in/yasassri/" target="_blank" rel="noreferrer">
-                MBI800 lecturer <ExternalLink size={12} aria-hidden="true" />
-              </a>
-            </p>
-            <p className="bt-note" style={{ marginTop: 20 }}>
-              The Business Model Canvas concept originates with Alexander Osterwalder. The canvas
-              layout used on this page is adapted from "Business Model &amp; Idea Canvasses" (MaRS
-              Discovery District / Ontario Network of Entrepreneurs), licensed under Creative
-              Commons Attribution–ShareAlike 4.0 International. The full chapter, with an Idea
-              Canvas variant for non-commercial projects, is in{' '}
-              <a href={`${BASE}#/study-packs`}>the written study pack</a>.
-            </p>
-          </div>
+          <p className="bt-note">
+            The Business Model Canvas concept originates with Alexander Osterwalder. The canvas
+            layout used on this page is adapted from "Business Model &amp; Idea Canvasses" (MaRS
+            Discovery District / Ontario Network of Entrepreneurs), licensed under Creative
+            Commons Attribution–ShareAlike 4.0 International.
+          </p>
         </Reveal>
       </section>
     </div>

@@ -29,6 +29,7 @@ const EXCLUDED_PREFIXES = [
   '/power-bi-setup',
   '/predicting-with-data',
   '/web-architecture',
+  '/mysql-setup',
   '/mbi800',
   '/mbi802',
   '/mbi804',

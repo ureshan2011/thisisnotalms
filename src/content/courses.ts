@@ -118,6 +118,15 @@ const MBI800: Course = {
       kind: 'Lesson',
     },
     {
+      id: 'business-model-canvas',
+      title: 'The Business Model Canvas',
+      blurb:
+        'How a business model works, laid out on one page in nine blocks. Then a 90-minute group activity: six people, one real business idea, a canvas filled in by hand and presented to the class.',
+      to: '/business-model-canvas',
+      access: 'open',
+      kind: 'Lesson',
+    },
+    {
       id: 'five-stories',
       title: 'Five stories that changed everything',
       blurb:

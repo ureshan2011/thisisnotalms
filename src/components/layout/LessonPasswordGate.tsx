@@ -27,6 +27,7 @@ const EXCLUDED_PREFIXES = [
   '/peer-audit',
   '/jira-certifications',
   '/power-bi-setup',
+  '/python-setup',
   '/predicting-with-data',
   '/web-architecture',
   '/mysql-setup',

@@ -499,6 +499,15 @@ const MBI806B: Course = {
       kind: 'Lesson',
     },
     {
+      id: 'python-setup',
+      title: 'Setting up Python',
+      blurb:
+        'No installing, no downloads. Open Google Colab in your browser — identical on Mac and Windows — and write your first line of Python in two minutes.',
+      to: '/python-setup',
+      access: 'open',
+      kind: 'Lab',
+    },
+    {
       id: 'ml-three-models',
       title: 'Three ways to predict things',
       blurb:

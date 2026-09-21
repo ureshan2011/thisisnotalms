@@ -3032,3 +3032,49 @@ a.bt-btn { text-decoration: none; }
   .bmc-kp, .bmc-ka, .bmc-kr, .bmc-vp, .bmc-cr, .bmc-ch, .bmc-cs { grid-column: 1; grid-row: auto; }
   .bmc-bottom { grid-template-columns: 1fr; }
 }
+
+/* A small version of the same canvas, sized for the hero card. */
+.bmc-mini {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-auto-rows: 38px;
+  gap: 1px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  overflow: hidden;
+}
+.bmc-mini > div {
+  background: var(--paper-0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-400);
+}
+.bmc-mini__vp { grid-row: 1 / span 2; background: var(--accent-500) !important; color: #fff !important; }
+.bmc-mini-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  overflow: hidden;
+}
+.bmc-mini-bottom > div {
+  background: var(--paper-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-400);
+  text-align: center;
+}

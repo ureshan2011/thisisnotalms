@@ -3,7 +3,6 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { FullPageSpinner } from './components/ui/LoadingSpinner';
 import ProtectedRoute from './components/layout/ProtectedRoute';
-import LessonPasswordGate from './components/layout/LessonPasswordGate';
 import PageMeta from './components/layout/PageMeta';
 import { ToastProvider } from './components/ui/ToastProvider';
 import { PLATFORM_ACTIVE } from './config/platform';
@@ -106,8 +105,7 @@ function AppRoutes() {
       <Routes>
         <Route path="/"             element={<RootRedirect />} />
         <Route path="/home"         element={<Suspense fallback={null}><HomePage /></Suspense>} />
-        {/* The four course home pages — public, ungated, and the index each
-            public lesson page links back to. See LessonPasswordGate. */}
+        {/* The four course home pages, and every lesson on the site, are public. */}
         <Route path="/mbi800"       element={<Suspense fallback={null}><CourseHomePage code="MBI800" /></Suspense>} />
         <Route path="/mbi802"       element={<Suspense fallback={null}><CourseHomePage code="MBI802" /></Suspense>} />
         <Route path="/mbi804"       element={<Suspense fallback={null}><CourseHomePage code="MBI804" /></Suspense>} />
@@ -264,9 +262,7 @@ export default function App() {
     return (
       <HashRouter>
         <PageMeta />
-        <LessonPasswordGate>
-          <ShutdownRoutes />
-        </LessonPasswordGate>
+        <ShutdownRoutes />
       </HashRouter>
     );
   }
@@ -275,9 +271,7 @@ export default function App() {
       <ToastProvider>
         <HashRouter>
           <PageMeta />
-          <LessonPasswordGate>
-            <AppRoutes />
-          </LessonPasswordGate>
+          <AppRoutes />
         </HashRouter>
       </ToastProvider>
     </AuthProvider>

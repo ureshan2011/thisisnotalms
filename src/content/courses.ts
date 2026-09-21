@@ -410,6 +410,15 @@ const MBI804: Course = {
       kind: 'Lesson',
     },
     {
+      id: 'business-model-canvas',
+      title: 'The Business Model Canvas',
+      blurb:
+        'How a business model works, laid out on one page in nine blocks. Then a 90-minute group activity: six people, one IT business idea, a canvas filled in digitally and presented as a short slide deck. Shared with MBI800.',
+      to: '/business-model-canvas-mbi804',
+      access: 'open',
+      kind: 'Lesson',
+    },
+    {
       id: 'pm-methodologies',
       title: 'Waterfall, Spiral, PRINCE2 and Agile — and Scrum up close',
       blurb:

@@ -1,15 +1,13 @@
 import { motion } from 'framer-motion';
 import { CoursePage } from '../components/blend';
-import BusinessModelCanvasLesson from '../components/public/BusinessModelCanvasLesson';
+import BusinessModelCanvasMBI804Lesson from '../components/public/BusinessModelCanvasMBI804Lesson';
 
-// ─── /business-model-canvas — MBI800, Lesson 5 of 11 ──────────────────────
-// Built on Blend (src/components/blend/README.md), on MBI800's indigo, next
-// to /intro-to-sisp. The lesson itself is documented at the top of
-// BusinessModelCanvasLesson.tsx.
-//
-// Also taught in MBI804, as its own separate page at
-// /business-model-canvas-mbi804 (BusinessModelCanvasMBI804Page.tsx) — a
-// duplicate with the course code and accent renamed, not a shared component.
+// ─── /business-model-canvas-mbi804 — MBI804's copy of the canvas lesson ───
+// Built on Blend (src/components/blend/README.md), on MBI804's plum. A
+// duplicate of BusinessModelCanvasPage.tsx (MBI800, at /business-model-
+// canvas) with the course code and accent renamed — see the top of
+// BusinessModelCanvasMBI804Lesson.tsx for why the two pages are kept
+// separate rather than sharing one parameterised component.
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -20,11 +18,11 @@ const NAV = [
   { id: 'activity', label: 'Group activity' },
 ];
 
-export default function BusinessModelCanvasPage() {
+export default function BusinessModelCanvasMBI804Page() {
   return (
     <CoursePage
-      accent="planning"
-      courseCode="MBI800"
+      accent="project"
+      courseCode="MBI804"
       courseName="The Business Model Canvas"
       nav={NAV}
       footerNote="Nothing on this page is tracked or collected. No login required to read it."
@@ -56,7 +54,7 @@ export default function BusinessModelCanvasPage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, ease: EASE, delay: 0.24 }}
             >
-              Yasas Sri Wickramasinghe, MBI800 lecturer
+              Yasas Sri Wickramasinghe, MBI804 lecturer
             </motion.p>
 
             <motion.div
@@ -112,7 +110,7 @@ export default function BusinessModelCanvasPage() {
         </div>
       }
     >
-      <BusinessModelCanvasLesson />
+      <BusinessModelCanvasMBI804Lesson />
     </CoursePage>
   );
 }

@@ -19,6 +19,7 @@ const ProjectMethodologiesPage = lazy(() => import('./pages/ProjectMethodologies
 const PeerAuditPage = lazy(() => import('./pages/PeerAuditPage'));
 const PowerBISetupPage = lazy(() => import('./pages/PowerBISetupPage'));
 const BusinessModelCanvasPage = lazy(() => import('./pages/BusinessModelCanvasPage'));
+const BusinessModelCanvasMBI804Page = lazy(() => import('./pages/BusinessModelCanvasMBI804Page'));
 const MySQLSetupPage = lazy(() => import('./pages/MySQLSetupPage'));
 const PythonSetupPage = lazy(() => import('./pages/PythonSetupPage'));
 const PredictingWithDataPage = lazy(() => import('./pages/PredictingWithDataPage'));
@@ -117,6 +118,7 @@ function AppRoutes() {
         <Route path="/project-methodologies" element={<Suspense fallback={null}><ProjectMethodologiesPage /></Suspense>} />
         <Route path="/peer-audit" element={<Suspense fallback={null}><PeerAuditPage /></Suspense>} />
         <Route path="/business-model-canvas" element={<Suspense fallback={null}><BusinessModelCanvasPage /></Suspense>} />
+        <Route path="/business-model-canvas-mbi804" element={<Suspense fallback={null}><BusinessModelCanvasMBI804Page /></Suspense>} />
         <Route path="/power-bi-setup" element={<Suspense fallback={null}><PowerBISetupPage /></Suspense>} />
         <Route path="/mysql-setup" element={<Suspense fallback={null}><MySQLSetupPage /></Suspense>} />
         <Route path="/python-setup" element={<Suspense fallback={null}><PythonSetupPage /></Suspense>} />
@@ -218,6 +220,7 @@ function ShutdownRoutes() {
       <Route path="/project-methodologies" element={<Suspense fallback={null}><ProjectMethodologiesPage /></Suspense>} />
       <Route path="/peer-audit" element={<Suspense fallback={null}><PeerAuditPage /></Suspense>} />
       <Route path="/business-model-canvas" element={<Suspense fallback={null}><BusinessModelCanvasPage /></Suspense>} />
+      <Route path="/business-model-canvas-mbi804" element={<Suspense fallback={null}><BusinessModelCanvasMBI804Page /></Suspense>} />
       <Route path="/power-bi-setup" element={<Suspense fallback={null}><PowerBISetupPage /></Suspense>} />
       <Route path="/mysql-setup" element={<Suspense fallback={null}><MySQLSetupPage /></Suspense>} />
       <Route path="/python-setup" element={<Suspense fallback={null}><PythonSetupPage /></Suspense>} />

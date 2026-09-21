@@ -1,23 +1,40 @@
 import { Download } from 'lucide-react';
-import { LessonHeader, Recap, Reveal, SectionHead } from '../blend';
+import { Recap, Reveal, SectionHead } from '../blend';
 
-// ─── MBI800 · The Business Model Canvas ────────────────────────────────────
+// ─── MBI804 · The Business Model Canvas ────────────────────────────────────
 // A public, ungated Blend page (src/components/blend/README.md), running on
-// MBI800's indigo through the `planning` accent set by the shell.
+// MBI804's plum through the `project` accent set by the shell.
 //
-// This follows study-pack/content/mbi800/lessons/05-business-model-idea-
-// canvases.md — chapter 5 of 11 — so the lesson header reads 5 of 11, the
-// same way /intro-to-sisp reads 1 of 11.
+// A duplicate of BusinessModelCanvasLesson.tsx (MBI800), with the course
+// code and accent renamed — same content otherwise, since the canvas itself
+// doesn't change between a database course and a project management one.
+// Kept as a separate page rather than one shared component so each course's
+// copy can drift independently later without the other noticing.
+//
+// One deliberate difference from the MBI800 copy: this page doesn't use the
+// shared LessonHeader component's "Lesson N of M" numbering. MBI800's copy
+// genuinely is chapter 5 of that course's 11-chapter study pack; MBI804 has
+// no written study pack and this lesson isn't one of the nine items in its
+// course descriptor, so claiming a position in that sequence would be
+// inventing one. The header below reuses the same classes and layout as
+// LessonHeader (bt-lessonhead, bt-objectives, …) with an honest eyebrow
+// instead.
 //
 // Deliberately not an interactive tool. Teams fill in the canvas on their
 // own device, in the downloadable .docx template linked below — not a
 // fillable web form on this page. The canvas diagram above the activity is
 // read-only; it's there to teach the layout before anyone fills one in.
-//
-// Also taught in MBI804 — see BusinessModelCanvasMBI804Lesson.tsx, a
-// duplicate of this file with the course code renamed.
 
 const CANVAS_TEMPLATE_URL = 'https://neoschronos.com/assets/business-model-canvas.docx';
+
+const OBJECTIVES = [
+  'Say what a business model is, in one sentence',
+  'Name five common ways businesses make money',
+  'Explain what each of the nine blocks on the canvas asks',
+  'Read the canvas from cost, to value, to revenue',
+  'Fill in a canvas for an IT business idea, working as a team',
+  'Present a short slide deck clearly, in about five minutes',
+];
 
 const REVENUE_PATTERNS: [string, string, string][] = [
   ['Product & service sales', 'The customer pays directly for a good or a service', 'Automotive manufacturers'],
@@ -65,31 +82,39 @@ const AGENDA: [string, string, string][] = [
   ['5 min', 'Wrap-up', 'The lecturer highlights a couple of strong presentations and closes the session.'],
 ];
 
-export default function BusinessModelCanvasLesson() {
+export default function BusinessModelCanvasMBI804Lesson() {
   return (
     <div>
       {/* ══ What it is ═══════════════════════════════════════════════════ */}
       <section id="what" className="bt-sec">
         <Reveal>
-          <LessonHeader
-            lesson={5}
-            of={11}
-            title="The Business Model Canvas"
-            lead="A business model is how an idea creates value. Before anyone commits to running it, testing it, or funding it, the whole thing fits on one page. That's what the canvas is for."
-            meta={[
-              ['Reading', '15 minutes'],
-              ['Assumes', 'nothing'],
-              ['Then', 'a 90-minute group activity'],
-            ]}
-            objectives={[
-              'Say what a business model is, in one sentence',
-              'Name five common ways businesses make money',
-              'Explain what each of the nine blocks on the canvas asks',
-              'Read the canvas from cost, to value, to revenue',
-              'Fill in a canvas for an IT business idea, working as a team',
-              'Present a short slide deck clearly, in about five minutes',
-            ]}
-          />
+          <section className="bt-lessonhead" aria-labelledby="lessonhead-title">
+            <div>
+              <p className="bt-eyebrow">Shared with MBI800</p>
+              <h2 id="lessonhead-title">The Business Model Canvas</h2>
+              <p className="bt-lessonhead__lead">
+                A business model is how an idea creates value. Before anyone commits to running
+                it, testing it, or funding it, the whole thing fits on one page. That's what the
+                canvas is for.
+              </p>
+              <p className="bt-lessonmeta">
+                <span>Reading <b>15 minutes</b></span>
+                <span>Assumes <b>nothing</b></span>
+                <span>Then <b>a 90-minute group activity</b></span>
+              </p>
+            </div>
+            <div>
+              <p className="bt-eyebrow bt-eyebrow--quiet">By the end of this lesson you can</p>
+              <ul className="bt-objectives">
+                {OBJECTIVES.map(o => (
+                  <li key={o}>
+                    <span className="bt-objectives__ring" aria-hidden="true" />
+                    <span>{o}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
         </Reveal>
 
         <Reveal delay={0.05}>

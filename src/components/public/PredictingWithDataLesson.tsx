@@ -1,7 +1,10 @@
 import { LessonHeader, Quiz, Recap, Reveal, SectionHead, type QuizQuestion } from '../blend';
 import FitTheLine from './ml/FitTheLine';
 import GrowTheTree from './ml/GrowTheTree';
-import FiveRules from './ml/FiveRules';
+import ForestSteps from './ml/ForestSteps';
+import ForestVote from './ml/ForestVote';
+import ForestScoreboard from './ml/ForestScoreboard';
+import RandomSamples from './ml/RandomSamples';
 import ModelCompare from './ml/ModelCompare';
 import RuleVsExamples from './ml/RuleVsExamples';
 import PythonPlayground, { COLAB_URL } from './ml/PythonPlayground';
@@ -150,8 +153,8 @@ members = [
     (8, 10, 0), (9,  2, 0), (9, 22, 0), (11, 6, 0), (12, 15, 0),
 ]
 
-# The same five rules. Each looks at ONE thing. None of them is perfect.
-# (which fact to look at, the cut-off, what to call it)
+# The same five tiny trees. Each asks ONE question. None of them is perfect.
+# (which fact to look at, the cut-off, what it asks)
 rules = [
     (0,  3, "comes less than 3 times a month"),
     (0,  5, "comes less than 5 times a month"),
@@ -170,7 +173,7 @@ def score(guess):
     return sum(1 for m in members if guess(m) == m[2])
 
 
-print("Each rule on its own:")
+print("Each tree on its own:")
 for rule in rules:
     print("   %-34s %2d / 20" % (rule[2], score(lambda m, r=rule: says_quit(r, m))))
 
@@ -389,49 +392,95 @@ export default function PredictingWithDataLesson() {
           <SectionHead
             eyebrow="Model 3 of 3"
             title="Random forest"
-            aside="Lots of trees. They vote. Use it when you mostly need the answer to be right."
+            aside="Many small trees. Each one votes. The answer with the most votes wins."
           />
         </Reveal>
 
         <Reveal delay={0.05}>
           <div className="bt-prose">
+            <p>One decision tree can be wrong.</p>
             <p>
-              In 1906, 787 people at a country fair guessed the weight of an ox. Almost nobody got it right. But the
-              middle guess was 1,207 pounds, and the ox weighed 1,198.
-            </p>
-            <p>
-              The guesses were wrong in both directions. They cancelled each other out. A random forest does the same
-              thing on purpose: instead of trusting one rule, build a lot of them and let them vote.
+              So make lots of small trees. Ask every one of them. Go with the answer most of them give. That is a
+              random forest.
             </p>
           </div>
         </Reveal>
 
         <Reveal delay={0.05}>
-          <h3 style={{ fontSize: 19, marginTop: 34 }}>Your turn</h3>
+          <ForestSteps />
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <h3 style={{ fontSize: 19, marginTop: 40 }}>Your turn: ask the trees</h3>
           <p className="bt-note" style={{ maxWidth: '58ch' }}>
-            Here are five rules of thumb instead of five trees — easier to read, same idea. Pick the one you would
-            trust, then see how it did.
+            The same gym. We want to know who will quit. Here are five tiny trees — each asks just one question, so you
+            can read them. Pick a member and watch each tree vote.
           </p>
         </Reveal>
 
         <Reveal delay={0.05}>
-          <FiveRules />
+          <ForestVote />
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <h3 style={{ fontSize: 19, marginTop: 40 }}>Now check all 20 at once</h3>
+          <p className="bt-note" style={{ maxWidth: '58ch' }}>
+            We already know who really quit. So we can mark every tree, and the forest, on every member.
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <ForestScoreboard />
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <div className="bt-verdict bt-verdict--good" style={{ marginTop: 26 }}>
+            <strong>The big idea:</strong> each tree makes mistakes, but on different people. When they vote, the
+            right answers outnumber the wrong ones.
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <h3 style={{ fontSize: 19, marginTop: 40 }}>Why is it called a random forest?</h3>
+          <div className="bt-pairgrid">
+            <div className="bt-card">
+              <h4>Forest</h4>
+              <p>Because it is lots of trees.</p>
+            </div>
+            <div className="bt-card">
+              <h4>Random</h4>
+              <p>
+                Because each tree learns from a random handful of the data. So every tree comes out a little
+                different — and makes different mistakes.
+              </p>
+            </div>
+          </div>
+          <p className="bt-note" style={{ maxWidth: '58ch' }}>
+            Above, we wrote the five questions by hand so you could read them. A real random forest does it for you:
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <RandomSamples />
         </Reveal>
 
         <Reveal delay={0.05}>
           <div className="bt-rows" style={{ marginTop: 30 }}>
             <div>
-              <h4>This is not a toy</h4>
+              <h4>Good: it is right more often</h4>
+              <p>One tree is easy to fool. It is much harder to fool most of them at the same time.</p>
+            </div>
+            <div>
+              <h4>Not so good: it is hard to explain</h4>
               <p>
-                The Xbox Kinect worked out where your arms and legs were, thirty times a second, for anyone who stood
-                in front of it. That was a random forest, in millions of living rooms.
+                You can read one tree. You cannot read 300. If you have to tell someone why, use one decision tree
+                instead.
               </p>
             </div>
             <div>
-              <h4>The catch: you cannot print 300 trees</h4>
+              <h4>In Python you only choose how many trees</h4>
               <p>
-                You can say which facts mattered most. You cannot tell one rejected customer why. If you need that
-                sentence, use a tree instead.
+                <code>n_estimators=300</code> just means 300 trees. The computer grows them and counts the votes.
               </p>
             </div>
           </div>
@@ -519,10 +568,10 @@ export default function PredictingWithDataLesson() {
 
         <Reveal delay={0.05}>
           <PythonPlayground
-            label="3 — five rules, then a vote"
+            label="3 — five tiny trees, then a vote"
             code={PLAY_FOREST}
             rows={20}
-            note="Try adding a sixth rule to the list, or taking one away. The vote is hard to make worse — that is the useful part."
+            note="Try adding a sixth tree to the list, or taking one away. The vote is hard to make worse — that is the useful part."
           />
         </Reveal>
 
@@ -551,7 +600,7 @@ export default function PredictingWithDataLesson() {
       <Recap
         title="Five things to remember"
         points={RECAP}
-        footnote="Sources: Galton's height study (1886) and his ox-weight note (1907); the Ottawa ankle rules (Stiell and colleagues, early 1990s); the Kinect pose work (Shotton and colleagues, 2011)."
+        footnote="Sources: Galton's height study (1886); the Ottawa ankle rules (Stiell and colleagues, early 1990s)."
       />
     </div>
   );

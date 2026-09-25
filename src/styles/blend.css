@@ -2937,58 +2937,169 @@ a.bt-btn { text-decoration: none; }
   .bt-cmp__row { min-height: 0; }
 }
 
-/* ── Five rules, and what they scored ─────────────────────────────────────
-   One row per rule: the sentence, a bar, the score. The vote sits at the
-   bottom where a total belongs and is the only row in the accent, because
-   it is the only row the section is arguing for. */
-.bt-rv { display: flex; flex-direction: column; gap: 2px; }
-.bt-rv__row {
+/* ── Random forest (MBI806B · predicting with data) ───────────────────────
+   Quit is always --cat-2 and a filled square; stay is always --cat-3 and a
+   hollow circle, matching the decision tree widget above it. Right and wrong
+   are green ticks and red crosses. Nothing else carries colour. */
+
+/* The three-step overview */
+.bt-rf-steps {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 150px 54px;
-  gap: 8px 16px;
-  align-items: center;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border-subtle);
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+  margin-top: 26px;
 }
-.bt-rv__row:last-child { border-bottom: none; }
-.bt-rv__name { font-size: 14px; line-height: 1.4; color: var(--ink-600); }
-.bt-rv__name b { color: var(--accent-700); font-weight: 700; }
-.bt-rv__score { font-size: 14px; font-weight: 700; color: var(--ink-900); text-align: right; }
-.bt-rv__row .bt-bar > i { background: var(--ink-300); }
-
-.bt-rv__row--mine { box-shadow: inset 2px 0 0 var(--ink-900); }
-.bt-rv__row--mine .bt-rv__name { color: var(--ink-900); }
-
-.bt-rv__row--vote {
-  margin-top: 8px;
-  border-top: 2px solid var(--ink-900);
-  border-bottom: none;
-  padding-top: 14px;
-}
-.bt-rv__row--vote .bt-rv__name { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.015em; color: var(--ink-900); }
-.bt-rv__row--vote .bt-bar > i { background: var(--accent-500); }
-.bt-rv__row--vote .bt-rv__score { font-size: 17px; color: var(--accent-600); }
-
-/* The twenty members as twenty marks, so a score can be checked rather than
-   taken on trust. Shape carries quit/stayed; the ring carries "your rule got
-   this one wrong". */
-.bt-rv__dots { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 7px; }
-.bt-rv__dot {
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-  display: grid;
-  place-items: center;
+.bt-rf-step {
+  position: relative;
   background: var(--paper-0);
   border: 1px solid var(--border-subtle);
-  color: var(--ink-300);
+  border-radius: var(--radius-card);
+  padding: 20px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
 }
-.bt-rv__dot--quit { color: var(--cat-2); }
-.bt-rv__dot--wrong { border-color: var(--red-500); box-shadow: 0 0 0 2px var(--red-50); }
+.bt-rf-step__n {
+  align-self: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-500);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 14px;
+}
+.bt-rf-step h4 { font-size: 15px; font-weight: 800; letter-spacing: -0.015em; color: var(--ink-900); }
+.bt-rf-step p { font-size: 13px; line-height: 1.45; color: var(--ink-400); margin-top: auto !important; }
+.bt-rf-step p b { color: var(--ink-900); }
+.bt-rf-step__art { display: flex; justify-content: center; align-items: flex-end; gap: 6px; flex-wrap: wrap; min-height: 34px; }
+.bt-rf-step__art--col { flex-direction: column; align-items: center; gap: 10px; }
+.bt-rf-step__voter { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bt-rf-step__arrow { align-self: center; color: var(--ink-300); display: grid; place-items: center; }
+.bt-rf-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--ink-900);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.bt-rf-tally { display: inline-flex; align-items: center; gap: 5px; }
+.bt-rf-tally b { margin-left: 6px; font-size: 13px; color: var(--ink-900); }
 
+/* Ask the trees */
+.bt-rf-chip { padding: 7px 13px; }
+.bt-rf-member {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 22px;
+  margin-top: 16px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  background: var(--paper-100);
+  font-size: 14.5px;
+  color: var(--ink-600);
+}
+.bt-rf-member span { display: inline-flex; align-items: center; gap: 7px; }
+.bt-rf-member svg { color: var(--accent-500); }
+.bt-rf-member b { color: var(--ink-900); }
+.bt-rf-member__name { font-family: var(--font-display); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+
+.bt-rf-trees { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.bt-rf-tree {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--paper-50);
+  padding: 10px 10px 12px;
+}
+.bt-rf-tree svg { display: block; width: 100%; height: auto; margin-top: 6px; }
+.bt-rf-tree__head { display: flex; justify-content: space-between; align-items: center; min-height: 20px; }
+.bt-rf-tree__head > span:first-child { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-400); }
+.bt-rf-tree__mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px 2px 6px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+}
+.bt-rf-tree__mark.is-right { background: var(--green-50); color: #186845; }
+.bt-rf-tree__mark.is-wrong { background: var(--red-50); color: #8f2318; }
+.bt-rf-tree__why { margin-top: 6px !important; font-size: 12px; line-height: 1.4; color: var(--ink-400); text-align: center; }
+.bt-rf-tree__why b { color: var(--ink-900); }
+
+.bt-rf-count {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 14px 30px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 16px 20px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--paper-50);
+}
+.bt-rf-count__side { display: flex; flex-direction: column; gap: 6px; }
+.bt-rf-count__marks { display: flex; gap: 5px; min-height: 22px; }
+.bt-rf-count__num { font-size: 14px; font-weight: 800; }
+.bt-rf-count__answer { justify-self: end; text-align: right; display: flex; flex-direction: column; gap: 2px; }
+.bt-rf-count__answer span { font-size: 12.5px; color: var(--ink-400); }
+.bt-rf-count__answer b { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+
+/* Every member, every tree */
+.bt-rf-board { margin-top: 14px; overflow-x: auto; }
+.bt-rf-board table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.bt-rf-board th, .bt-rf-board td { padding: 4px 6px; text-align: center; border-bottom: 1px solid var(--paper-200); }
+.bt-rf-board thead th { vertical-align: bottom; font-size: 11px; font-weight: 700; color: var(--ink-400); padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle); }
+.bt-rf-board thead th > span:last-child { display: block; margin-top: 3px; white-space: nowrap; }
+.bt-rf-board thead th svg { display: block; margin: 0 auto; }
+.bt-rf-board tbody th, .bt-rf-board tfoot th { text-align: left; font-weight: 700; color: var(--ink-900); white-space: nowrap; }
+.bt-rf-board tfoot th, .bt-rf-board tfoot td { border-bottom: none; border-top: 2px solid var(--ink-900); padding-top: 10px; font-weight: 800; color: var(--ink-900); }
+.bt-rf-board tfoot small { font-weight: 500; color: var(--ink-400); font-size: 10.5px; }
+.bt-rf-board .bt-rf-board__forest { background: var(--accent-50); }
+.bt-rf-board thead .bt-rf-board__forest { color: var(--accent-700); border-radius: 10px 10px 0 0; }
+.bt-rf-board tfoot .bt-rf-board__forest { color: var(--accent-700); font-size: 15px; border-radius: 0 0 10px 10px; }
+.bt-rf-board__many { display: flex; justify-content: center; gap: 1px; }
+.bt-rf-board__many svg { margin: 0 !important; }
+.bt-rf-cell { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 6px; }
+.bt-rf-cell.is-right { background: var(--green-50); color: var(--green-500); }
+.bt-rf-cell.is-wrong { background: var(--red-500); color: #fff; }
+
+/* Why "random" */
+.bt-rf-samples { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
+.bt-rf-samples__row { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center; }
+.bt-rf-samples__who { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--ink-900); }
+.bt-rf-samples ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.bt-rf-samples li {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--ink-200);
+  background: transparent;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.bt-rf-samples li.is-in { background: var(--accent-500); border-color: var(--accent-500); }
+
+@media (max-width: 900px) {
+  .bt-rf-steps { grid-template-columns: minmax(0, 1fr); }
+  .bt-rf-step__arrow { transform: rotate(90deg); }
+  .bt-rf-trees { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
 @media (max-width: 640px) {
-  .bt-rv__row { grid-template-columns: minmax(0, 1fr) 54px; }
-  .bt-rv__row .bt-bar { grid-column: 1 / -1; order: 3; }
+  .bt-rf-count { grid-template-columns: auto auto; }
+  .bt-rf-count__answer { grid-column: 1 / -1; justify-self: start; text-align: left; }
+  .bt-rf-samples__row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .bt-rf-board th, .bt-rf-board td { padding: 3px 2px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

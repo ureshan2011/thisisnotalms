@@ -111,7 +111,7 @@ Public (7): Project Cost Management (`/cost-management`), Free Jira & Agile Cert
 (`/jira-certifications`), Conflict Swap classroom activity (static, own Firebase
 collection), The Collaboration Reflex lecture (static slides on conflict theory),
 Waterfall/Spiral/PRINCE2/Agile and Scrum (`/project-methodologies`), The Scrum studio 3D
-simulation (`/scrum-simulation` — six miniatures build a drone through three Sprints), The
+simulation (`/scrum-simulation` — six miniatures refine, estimate and build a drone through three Sprints), The
 outside auditor peer audit round (`/peer-audit` — the public training and brief; the
 activity itself runs on a separate Flask app the lecturer deploys, which holds the real
 student submissions).

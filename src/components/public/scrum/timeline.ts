@@ -1,55 +1,88 @@
 // ─── The Scrum studio's clock, and everything derived from it ─────────────
-// MBI804 · Lesson 3 (/scrum-simulation). The 3D scene in ScrumStudio.tsx
+// MBI804 · Lesson 3 (/scrum-simulation). The 3D scene in StudioScene.tsx
 // does no bookkeeping of its own: every frame it asks this file "what does
 // the studio look like at t seconds?" and moves each miniature, card and
 // drone part toward the answer. Pure functions of time mean the reader can
-// scrub, jump to any event and change speed without the scene ever getting
-// into a state the timeline did not describe.
+// scrub, jump to any milestone and change speed without the scene ever
+// getting into a state the timeline did not describe.
+//
+// Each phase is also split into "beats" — the one thing happening right
+// now, in a sentence. The same beat drives the caption over the stage, the
+// highlighted step in the side panel and the spotlight ring in the scene,
+// so what a student reads and what they are looking at are always the same
+// thing.
 //
 // Facts — who attends what, the timeboxes, who owns which artefact — follow
 // the 2020 Scrum Guide and agree with Lesson 2's ScrumCycle widget. The
 // studio runs one-week Sprints of five working days, so Sprint Planning is
 // about two hours, the Review about one, the Retrospective about 45 minutes:
-// each is the Guide's one-month maximum scaled to a fifth, which is the
-// proportional rule Lesson 2 demonstrates.
+// each is the Guide's one-month maximum scaled to a fifth. Backlog
+// refinement and Planning Poker are shown as what they are: an ongoing
+// activity and a common practice, not Scrum events.
 
 export type PhaseKey =
   | 'intro'
   | 'backlog'
+  | 'refinement'
+  | 'estimation'
   | 'planning'
   | 'daily'
   | 'work'
+  | 'refine'
   | 'review'
   | 'retro'
   | 'shipped';
 
+/** What sort of time this is, for the colours on the timeline. */
+export type PhaseKind = 'quiet' | 'artefact' | 'refine' | 'event' | 'daily' | 'work';
+
 export interface Phase {
   key: PhaseKey;
-  /** 1-based Sprint number; 0 before the first Sprint starts. */
+  /** 1-based Sprint number; 0 before the first Sprint, SPRINTS + 1 after. */
   sprint: number;
-  /** Working day inside the Sprint, 1..DAYS, only for daily and work. */
+  /** Working day inside the Sprint, 1..DAYS, for daily, work and refine. */
   day?: number;
   start: number;
   end: number;
   dur: number;
-  /** Where the timeline chips send the reader. Every phase but the daily
-   *  and work ones, which are addressed by Sprint and day instead. */
   label: string;
+  index: number;
+  kind: PhaseKind;
+  /** In guided mode the studio pauses at the end of this phase so the
+   *  reader can finish the side panel before the next thing starts. */
+  hold: boolean;
 }
 
 export const DAYS = 5;
 export const SPRINTS = 3;
 
-/** Seconds at 1× speed. The whole run is about three and a half minutes. */
+/** Seconds at 1× speed. The whole run is a little over six minutes. */
 const DUR: Record<PhaseKey, number> = {
-  intro: 6,
-  backlog: 10,
-  planning: 10,
-  daily: 4.5,
-  work: 5,
-  review: 10,
-  retro: 8,
-  shipped: 10,
+  intro: 7,
+  backlog: 12,
+  refinement: 14,
+  estimation: 20,
+  planning: 16,
+  daily: 5,
+  work: 5.5,
+  refine: 9,
+  review: 14,
+  retro: 11,
+  shipped: 12,
+};
+
+const KIND: Record<PhaseKey, PhaseKind> = {
+  intro: 'quiet',
+  backlog: 'artefact',
+  refinement: 'refine',
+  estimation: 'refine',
+  planning: 'event',
+  daily: 'daily',
+  work: 'work',
+  refine: 'refine',
+  review: 'event',
+  retro: 'event',
+  shipped: 'quiet',
 };
 
 // ─── Product Backlog items ────────────────────────────────────────────────
@@ -63,7 +96,7 @@ export interface Item {
   title: string;
   /** The user story behind the card, shown when it is selected. */
   story: string;
-  /** Story points, as the Developers estimated them. */
+  /** Story points, as the Developers estimate them in Planning Poker. */
   points: number;
 }
 
@@ -82,7 +115,8 @@ export const ITEMS: Item[] = [
 
 /** Arrives during the Sprint 1 Review, from a stakeholder who watched the
  *  drone hover: “what happens when it rains?” The Product Owner orders it
- *  above Lights, and it is built in Sprint 3. */
+ *  above Lights, the Developers estimate it at the Sprint 2 refinement, and
+ *  it is built in Sprint 3. */
 export const REVIEW_ITEM: Item = {
   id: 'rain',
   title: 'Rain sensor',
@@ -105,7 +139,7 @@ export const SPRINT_GOALS = ['It lifts off', 'It finds the door', 'It survives t
 /** The one improvement each Retrospective sends into the next Sprint. */
 export const RETRO_IMPROVEMENTS = [
   'Pair on any item over 5 points',
-  'Refine the backlog on Wednesdays',
+  'Timebox refinement to one hour',
   'Demo on real parcels, not props',
 ];
 
@@ -123,34 +157,114 @@ export function backlogOrder(rainRaised: boolean): string[] {
 function buildPhases(): Phase[] {
   const out: Phase[] = [];
   let t = 0;
-  const push = (key: PhaseKey, sprint: number, label: string, day?: number) => {
+  const push = (key: PhaseKey, sprint: number, label: string, day?: number, hold = false) => {
     const dur = DUR[key];
-    out.push({ key, sprint, day, start: t, end: t + dur, dur, label });
+    out.push({ key, sprint, day, start: t, end: t + dur, dur, label, index: out.length, kind: KIND[key], hold });
     t += dur;
   };
-  push('intro', 0, 'The studio');
-  push('backlog', 0, 'Product Backlog');
+  push('intro', 0, 'The studio', undefined, true);
+  push('backlog', 0, 'Product Backlog', undefined, true);
+  push('refinement', 0, 'Backlog Refinement', undefined, true);
+  push('estimation', 0, 'Story estimation', undefined, true);
   for (let s = 1; s <= SPRINTS; s++) {
-    push('planning', s, `Sprint ${s} Planning`);
+    push('planning', s, `Sprint ${s} Planning`, undefined, true);
     for (let d = 1; d <= DAYS; d++) {
-      push('daily', s, `Day ${d} · Daily Scrum`, d);
+      // Hold after the very first Daily Scrum, and after every day-4 one,
+      // where the impediment is raised and cleared.
+      push('daily', s, `Day ${d} · Daily Scrum`, d, (s === 1 && d === 1) || d === 4);
       push('work', s, `Day ${d} · the work`, d);
+      if (d === 3) push('refine', s, `Sprint ${s} · Refinement`, d, true);
     }
-    push('review', s, `Sprint ${s} Review`);
-    push('retro', s, `Sprint ${s} Retrospective`);
+    push('review', s, `Sprint ${s} Review`, undefined, true);
+    push('retro', s, `Sprint ${s} Retrospective`, undefined, true);
   }
-  push('shipped', SPRINTS + 1, 'After three Sprints');
+  push('shipped', SPRINTS + 1, 'After three Sprints', undefined, true);
   return out;
 }
 
 export const PHASES: Phase[] = buildPhases();
 export const TOTAL = PHASES[PHASES.length - 1].end;
 
-export function phaseAt(t: number): Phase {
-  const tt = ((t % TOTAL) + TOTAL) % TOTAL;
-  for (const ph of PHASES) if (tt < ph.end) return ph;
-  return PHASES[PHASES.length - 1];
+const wrap = (t: number) => ((t % TOTAL) + TOTAL) % TOTAL;
+
+export function phaseIndexAt(t: number): number {
+  const tt = wrap(t);
+  for (const ph of PHASES) if (tt < ph.end) return ph.index;
+  return PHASES.length - 1;
 }
+
+export function phaseAt(t: number): Phase {
+  return PHASES[phaseIndexAt(t)];
+}
+
+const idxOf = (key: PhaseKey, sprint: number) => PHASES.findIndex(p => p.key === key && p.sprint === sprint);
+
+// ─── Timeline milestones (the strip under the stage) ──────────────────────
+
+export interface Block { n: number; label: string; start: number; end: number }
+export interface Milestone {
+  label: string;
+  sub: string;
+  start: number;
+  end: number;
+  kind: PhaseKind;
+  block: number;
+}
+
+export const blockOf = (ph: Phase): number => (ph.sprint > SPRINTS ? SPRINTS + 1 : ph.sprint);
+
+const BLOCK_LABEL = (n: number) => (n === 0 ? 'Before Sprint 1' : n > SPRINTS ? 'Release' : `Sprint ${n}`);
+
+export const BLOCKS: Block[] = Array.from({ length: SPRINTS + 2 }, (_, n) => {
+  const own = PHASES.filter(p => blockOf(p) === n);
+  return { n, label: BLOCK_LABEL(n), start: own[0].start, end: own[own.length - 1].end };
+});
+
+const DAY_SUB = ['', 'First Daily Scrum', 'First item Done', 'A blocker lands', 'Blocker cleared', 'Sprint Goal met'];
+const MS_SUB: Partial<Record<PhaseKey, string>> = {
+  intro: 'Meet the team',
+  backlog: 'PO orders the list',
+  refinement: 'Clarify & split',
+  estimation: 'Planning Poker',
+  planning: '≤ 8 h a month',
+  refine: '≤ 10% of capacity',
+  review: '≤ 4 h a month',
+  retro: '≤ 3 h a month',
+  shipped: 'Three Increments',
+};
+const MS_LABEL: Partial<Record<PhaseKey, string>> = {
+  intro: 'The team',
+  backlog: 'Product Backlog',
+  refinement: 'Refinement',
+  estimation: 'Estimation',
+  planning: 'Sprint Planning',
+  refine: 'Refinement',
+  review: 'Sprint Review',
+  retro: 'Retrospective',
+  shipped: 'Release',
+};
+
+function buildMilestones(): Milestone[] {
+  const out: Milestone[] = [];
+  for (const ph of PHASES) {
+    if (ph.key === 'work') {
+      // A day's work belongs to the day its Daily Scrum opened.
+      out[out.length - 1].end = ph.end;
+      continue;
+    }
+    out.push({
+      label: ph.key === 'daily' ? `Day ${ph.day}` : MS_LABEL[ph.key]!,
+      sub: ph.key === 'daily' ? DAY_SUB[ph.day!] : MS_SUB[ph.key]!,
+      start: ph.start,
+      end: ph.end,
+      kind: ph.kind,
+      block: blockOf(ph),
+    });
+  }
+  return out;
+}
+
+export const MILESTONES: Milestone[] = buildMilestones();
 
 // ─── Studio geometry: where things are ────────────────────────────────────
 // x runs left→right, z runs back→front (toward the default camera). y is up.
@@ -160,8 +274,8 @@ export type V2 = [number, number];
 export const SPOT = {
   backlogWall: [-5.3, -3.3] as V2,
   poDesk: [-4.3, -2.2] as V2,
-  poAtWall: [-4.6, -2.3] as V2,
-  table: [0, -2.4] as V2,
+  poAtWall: [-5.0, -2.35] as V2,
+  table: [0, -2.05] as V2,
   board: [3.4, -3.3] as V2,
   desks: [[-2.6, 0.9], [-0.9, 0.9], [0.8, 0.9], [2.5, 0.9]] as V2[],
   pedestal: [5.1, 0.7] as V2,
@@ -170,6 +284,23 @@ export const SPOT = {
   retroSpot: [5.4, -1.7] as V2,
   door: [-6.6, 4.4] as V2,
   smHome: [1.6, -0.9] as V2,
+};
+
+/** Where the Developers stand when they refine at the backlog wall. */
+const WALL_ARC: V2[] = [[-6.0, -1.55], [-5.3, -1.2], [-4.55, -1.3], [-3.85, -1.7]];
+
+/** The spotlight's stops: floor ring centre and radius, arrow height. */
+export type SpotKey = 'podesk' | 'wall' | 'table' | 'board' | 'desks' | 'desk2' | 'rug' | 'pedestal' | 'retro';
+export const SPOT_GEO: Record<SpotKey, { c: V2; r: number; h: number }> = {
+  podesk: { c: [-4.3, -2.2], r: 0.75, h: 1.55 },
+  wall: { c: [-5.1, -2.2], r: 1.15, h: 3.75 },
+  table: { c: [0, -2.05], r: 1.55, h: 2.5 },
+  board: { c: [3.4, -2.7], r: 1.35, h: 3.95 },
+  desks: { c: [0, 0.55], r: 2.9, h: 1.95 },
+  desk2: { c: [-0.9, 0.6], r: 0.8, h: 1.65 },
+  rug: { c: [-3.6, 2.6], r: 1.5, h: 1.95 },
+  pedestal: { c: [5.1, 0.7], r: 1.0, h: 2.95 },
+  retro: { c: [5.6, -1.7], r: 1.35, h: 2.6 },
 };
 
 /** Points on a circle, for people standing round something. */
@@ -208,22 +339,71 @@ export const ACTORS: ActorDef[] = [
 ];
 
 export const actorById = (id: ActorId): ActorDef => ACTORS.find(a => a.id === id)!;
+const DEVS: ActorId[] = ['d1', 'd2', 'd3', 'd4'];
 
-/** Which Developer picks up the n-th item of a Sprint. The fourth
- *  Developer pairs and tests, which is why an impediment on the second item
- *  is theirs to help with. */
-const ITEM_DEV: ActorId[] = ['d1', 'd2', 'd3'];
+// ─── Estimation and readiness ─────────────────────────────────────────────
+// Planning Poker at the pre-game estimation session: three stories are shown
+// round by round (Rotors needs a second round because the first votes
+// disagree), then the rest of the backlog is sized in quick rounds. The
+// Rain sensor is sized later, at the Sprint 2 refinement, because it did
+// not exist yet.
+
+export const POKER_DECK = [1, 2, 3, 5, 8, 13];
+
+interface PokerRound { at: [number, number]; votes: [number, number, number, number] }
+interface PokerStory { id: string; table: [number, number]; rounds: PokerRound[]; estimateAt: number }
+
+const POKER: PokerStory[] = [
+  { id: 'frame', table: [0.1, 0.28], rounds: [{ at: [0.16, 0.28], votes: [3, 3, 3, 3] }], estimateAt: 0.22 },
+  { id: 'rotors', table: [0.3, 0.63], rounds: [{ at: [0.36, 0.5], votes: [3, 5, 8, 5] }, { at: [0.52, 0.63], votes: [5, 5, 5, 5] }], estimateAt: 0.58 },
+  { id: 'battery', table: [0.65, 0.79], rounds: [{ at: [0.7, 0.79], votes: [3, 3, 2, 3] }], estimateAt: 0.75 },
+];
+const QUICK_ESTIMATE_AT = 0.86;
+const RAIN_ROUND: PokerRound = { at: [0.38, 0.66], votes: [3, 3, 3, 3] };
+const RAIN_ESTIMATE_AT = 0.55;
+
+/** When each card gets its green "ready for Sprint Planning" dot: which
+ *  refinement session, and how far through it. */
+const READY: Record<string, [PhaseKey, number, number]> = {
+  frame: ['refinement', 0, 0.55],
+  rotors: ['refinement', 0, 0.61],
+  battery: ['refinement', 0, 0.67],
+  camera: ['refinement', 0, 0.73],
+  gps: ['refine', 1, 0.45],
+  clamp: ['refine', 1, 0.53],
+  lights: ['refine', 1, 0.61],
+  rain: ['refine', 2, 0.66],
+  shell: ['refine', 2, 0.74],
+  speaker: ['refine', 3, 0.5],
+};
+
+const reached = (cur: number, p: number, idx: number, at: number) => cur > idx || (cur === idx && p >= at);
+
+function isEstimated(id: string, cur: number, p: number): boolean {
+  if (id === 'rain') return reached(cur, p, idxOf('refine', 2), RAIN_ESTIMATE_AT);
+  const est = idxOf('estimation', 0);
+  const detail = POKER.find(x => x.id === id);
+  return reached(cur, p, est, detail ? detail.estimateAt : QUICK_ESTIMATE_AT);
+}
+
+function isReady(id: string, cur: number, p: number): boolean {
+  const r = READY[id];
+  if (!r) return false;
+  return reached(cur, p, idxOf(r[0], r[1]), r[2]);
+}
 
 // ─── Derived world state ──────────────────────────────────────────────────
 
-export type CardLoc = 'hidden' | 'pile' | 'backlog' | 'todo' | 'doing' | 'done';
+export type CardLoc = 'hidden' | 'pile' | 'backlog' | 'table' | 'todo' | 'doing' | 'done';
 
 export interface CardState {
   loc: CardLoc;
   /** Row inside the location. */
   slot: number;
-  /** Which desk it is being worked on at, when doing. */
-  desk?: number;
+  /** Story points are known (Planning Poker has happened for it). */
+  pts: boolean;
+  /** Refined and ready to be pulled into a Sprint. */
+  ready: boolean;
 }
 
 export interface ActorState {
@@ -237,6 +417,17 @@ export interface ActorState {
 
 export type Impediment = 'none' | 'on-desk' | 'raised' | 'gone';
 
+export interface Beat {
+  /** Fraction of the phase at which this beat starts. */
+  at: number;
+  /** A few words, for the spotlight label and the bold lead-in. */
+  tag: string;
+  /** One sentence on what is happening right now. */
+  text: string;
+  /** Where the spotlight goes; null hides it. */
+  spot: SpotKey | null;
+}
+
 export interface World {
   t: number;
   phase: Phase;
@@ -248,112 +439,134 @@ export interface World {
   actors: Record<ActorId, ActorState>;
   /** Item ids bolted onto the drone, in build order. */
   parts: string[];
-  /** Parts fitted this Sprint but not yet shown at a Review. */
-  freshParts: string[];
   impediment: Impediment;
   /** 1 → 0 across the Daily Scrum. */
   standupTimer: number | null;
   goalLit: boolean;
   goalText: string;
-  stakeholders: boolean;
   /** Retro sticky pinned to the retro board. */
   retroNote: string | null;
   /** Improvement card sitting in the Sprint Backlog this Sprint. */
   improvement: string | null;
+  /** Planning Poker cards held up by the Developers right now. */
+  votes: Partial<Record<ActorId, number>> | null;
   /** Where the camera should be looking. */
   focus: [number, number, number];
+  /** Overrides the phase's camera position for a beat whose action happens
+   *  somewhere the phase camera cannot see. */
+  vantage: [number, number, number] | null;
   /** Drone lifted off the pedestal for a demonstration. */
   hover: number;
   rainRaised: boolean;
+  beats: Beat[];
+  beatIndex: number;
+  beat: Beat;
 }
 
 const smooth = (x: number) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+const within = (p: number, [a, b]: [number, number]) => p >= a && p < b;
 
-/** Where the item list of a Sprint sits on the days of that Sprint. Returns
- *  the location of each of the three items given the day and progress. */
+/** Where the three items of a Sprint sit on a given day. */
 function sprintCards(day: number, phase: PhaseKey, p: number): [CardLoc, CardLoc, CardLoc] {
   const w = phase === 'work';
   // Day 1: A starts. Day 2: A done, B starts. Day 3: B blocked (stays doing).
   // Day 4: B done after the impediment clears, C starts. Day 5: C done.
+  if (phase === 'refine') return ['done', 'doing', 'todo'];
   if (day === 1) return [w && p > 0.15 ? 'doing' : 'todo', 'todo', 'todo'];
-  if (day === 2) return ['doing', 'todo', 'todo'].map((_, i) => {
-    if (i === 0) return w && p > 0.3 ? 'done' : 'doing';
-    if (i === 1) return w && p > 0.55 ? 'doing' : 'todo';
-    return 'todo';
-  }) as [CardLoc, CardLoc, CardLoc];
+  if (day === 2) return [w && p > 0.3 ? 'done' : 'doing', w && p > 0.55 ? 'doing' : 'todo', 'todo'];
   if (day === 3) return ['done', 'doing', 'todo'];
   if (day === 4) return ['done', w && p > 0.45 ? 'done' : 'doing', w && p > 0.65 ? 'doing' : 'todo'];
   return ['done', 'done', w && p > 0.6 ? 'done' : 'doing'];
 }
 
 export function deriveWorld(t: number): World {
-  const phase = phaseAt(t);
-  const tt = ((t % TOTAL) + TOTAL) % TOTAL;
+  const tt = wrap(t);
+  const phase = phaseAt(tt);
   const p = Math.min(1, Math.max(0, (tt - phase.start) / phase.dur));
   const { key, sprint, day } = phase;
+  const cur = phase.index;
+  const inSprintKeys = key === 'planning' || key === 'daily' || key === 'work' || key === 'refine';
 
   // Which Sprints are entirely behind us, and what they built.
-  const sprintsDone = key === 'shipped' ? SPRINTS : key === 'review' || key === 'retro' ? sprint : sprint - 1;
-  const rainRaised = sprintsDone >= 1 && !(key === 'review' && sprint === 1 && p < 0.55);
+  const sprintsDone = key === 'shipped' ? SPRINTS : key === 'review' || key === 'retro' ? sprint : Math.max(0, sprint - 1);
+  // The new card appears a moment after the camera has panned to the wall.
+  const rainRaised = sprintsDone >= 1 && !(key === 'review' && sprint === 1 && p < 0.62);
   const order = backlogOrder(rainRaised);
 
-  const cards: Record<string, CardState> = {};
   const parts: string[] = [];
   for (let s = 1; s <= Math.min(sprintsDone, SPRINTS); s++) parts.push(...SPRINT_PLAN[s - 1]);
+  const doneIds = new Set(parts);
+  const inSprint = new Set<string>(inSprintKeys ? SPRINT_PLAN[sprint - 1] : []);
+
+  const cards: Record<string, CardState> = {};
+  const C = (id: string, loc: CardLoc, slot: number): CardState => ({ loc, slot, pts: isEstimated(id, cur, p), ready: isReady(id, cur, p) });
 
   // Everything still on the Product Backlog.
-  const doneIds = new Set(parts);
-  const inSprint = new Set<string>(key === 'planning' || key === 'daily' || key === 'work' ? SPRINT_PLAN[sprint - 1] : []);
   let slot = 0;
   for (const id of order) {
-    if (doneIds.has(id)) continue;
-    if (inSprint.has(id)) continue;
-    if (id === 'rain' && !rainRaised) { cards[id] = { loc: 'hidden', slot: 0 }; continue; }
-    if (key === 'intro') { cards[id] = { loc: 'pile', slot }; slot++; continue; }
+    if (doneIds.has(id) || inSprint.has(id)) continue;
+    if (id === 'rain' && !rainRaised) { cards[id] = C(id, 'hidden', 0); continue; }
+    if (key === 'intro') { cards[id] = C(id, 'pile', slot); slot++; continue; }
     if (key === 'backlog') {
       // Cards leave the pile one at a time and settle into order on the wall.
-      const arrive = 0.1 + (slot / order.length) * 0.8;
-      cards[id] = { loc: p >= arrive ? 'backlog' : 'pile', slot };
+      const arrive = 0.2 + (slot / order.length) * 0.5;
+      cards[id] = C(id, p >= arrive ? 'backlog' : 'pile', slot);
       slot++;
       continue;
     }
-    cards[id] = { loc: 'backlog', slot };
+    cards[id] = C(id, 'backlog', slot);
     slot++;
   }
-  for (const id of doneIds) cards[id] = { loc: 'hidden', slot: 0 };
+  for (const id of doneIds) cards[id] = C(id, 'hidden', 0);
+
+  // Planning Poker: the story being sized lies in the middle of the table.
+  let votes: World['votes'] = null;
+  if (key === 'estimation') {
+    for (const story of POKER) {
+      if (within(p, story.table)) cards[story.id] = { ...cards[story.id], loc: 'table' };
+      for (const r of story.rounds) {
+        if (within(p, r.at)) votes = Object.fromEntries(DEVS.map((d, i) => [d, r.votes[i]]));
+      }
+    }
+  }
+  if (key === 'refine' && sprint === 2 && within(p, RAIN_ROUND.at)) {
+    votes = Object.fromEntries(DEVS.map((d, i) => [d, RAIN_ROUND.votes[i]]));
+  }
 
   // The Sprint's own three items.
   let freshParts: string[] = [];
   if (key === 'planning') {
+    const remaining = order.filter(x => !doneIds.has(x));
     SPRINT_PLAN[sprint - 1].forEach((id, i) => {
-      const pull = 0.35 + i * 0.18;
-      const backlogSlot = order.filter(x => !doneIds.has(x)).indexOf(id);
-      cards[id] = p >= pull ? { loc: 'todo', slot: i } : { loc: 'backlog', slot: backlogSlot };
+      const pull = 0.4 + i * 0.1;
+      cards[id] = p >= pull ? C(id, 'todo', i) : C(id, 'backlog', remaining.indexOf(id));
     });
-  } else if (key === 'daily' || key === 'work') {
+  } else if (key === 'daily' || key === 'work' || key === 'refine') {
     const locs = sprintCards(day!, key, p);
     SPRINT_PLAN[sprint - 1].forEach((id, i) => {
-      cards[id] = { loc: locs[i], slot: i, desk: i };
+      cards[id] = C(id, locs[i], i);
       if (locs[i] === 'done') freshParts.push(id);
     });
   } else if (key === 'review' || key === 'retro') {
     freshParts = SPRINT_PLAN[sprint - 1];
-    for (const id of freshParts) cards[id] = { loc: key === 'review' && p < 0.8 ? 'done' : 'hidden', slot: SPRINT_PLAN[sprint - 1].indexOf(id) };
+    freshParts.forEach((id, i) => { cards[id] = C(id, key === 'review' && p < 0.8 ? 'done' : 'hidden', i); });
   }
   // Parts fitted so far this Sprint show on the drone straight away — an
   // Increment exists the moment an item is Done, not only at the Review.
   const partsNow = [...parts, ...freshParts.filter(id => !parts.includes(id))];
 
-  // ── Impediment: lands on the second item's desk on day 3, raised at the
-  //    day-4 Daily Scrum, removed by the Scrum Master during it.
+  // ── Impediment: lands on the second item's desk on day 3, sits there
+  //    through the refinement session, is raised at the day-4 Daily Scrum
+  //    and removed by the Scrum Master during it.
   let impediment: Impediment = 'none';
   if (key === 'work' && day === 3 && p > 0.4) impediment = 'on-desk';
+  if (key === 'refine') impediment = 'on-desk';
   if (key === 'daily' && day === 4) impediment = p < 0.45 ? 'on-desk' : p < 0.85 ? 'raised' : 'gone';
 
   // ── Sprint Goal sign and improvement card.
-  const goalLit = (key === 'planning' && p > 0.25) || key === 'daily' || key === 'work' || key === 'review';
+  const goalLit = (key === 'planning' && p > 0.2) || key === 'daily' || key === 'work' || key === 'refine' || key === 'review';
   const goalText = sprint >= 1 && sprint <= SPRINTS ? SPRINT_GOALS[sprint - 1] : '';
-  const improvement = sprint >= 2 && sprint <= SPRINTS && (key === 'daily' || key === 'work' || (key === 'planning' && p > 0.7))
+  const improvement = sprint >= 2 && sprint <= SPRINTS && (key === 'daily' || key === 'work' || key === 'refine' || (key === 'planning' && p > 0.82))
     ? RETRO_IMPROVEMENTS[sprint - 2] : null;
   const retroNote = key === 'retro' && p > 0.55 && sprint <= SPRINTS ? RETRO_IMPROVEMENTS[sprint - 1] : null;
 
@@ -362,23 +575,33 @@ export function deriveWorld(t: number): World {
   const FACE_CAM = 0; // yaw 0 looks toward +z, i.e. the reader
   const FACE_BACK = Math.PI;
   const actors = {} as Record<ActorId, ActorState>;
-  const devs: ActorId[] = ['d1', 'd2', 'd3', 'd4'];
 
   const atDesks = (anim: Anim) => {
-    devs.forEach((id, i) => { actors[id] = A([SPOT.desks[i][0], SPOT.desks[i][1] - 0.75], anim, FACE_CAM); });
+    DEVS.forEach((id, i) => { actors[id] = A([SPOT.desks[i][0], SPOT.desks[i][1] - 0.75], anim, FACE_CAM); });
   };
-  const stakeholdersAway = () => {
-    actors.s1 = A(SPOT.door, 'away', undefined, true);
-    actors.s2 = A([SPOT.door[0] - 0.6, SPOT.door[1] + 0.4], 'away', undefined, true);
-  };
-  const roundTable = (ids: ActorId[], anim: Anim, r = 1.35) => {
+  const roundTable = (ids: ActorId[], anim: (id: ActorId) => Anim) => {
     ids.forEach((id, i) => {
-      const pos = ring(SPOT.table, r, ids.length, Math.PI * 0.5 + 0.35, i);
-      actors[id] = A(pos, anim, Math.atan2(SPOT.table[0] - pos[0], SPOT.table[1] - pos[1]));
+      // An ellipse, flattened front-to-back, so nobody on the far side of
+      // the table ends up standing inside the back wall.
+      const a = Math.PI * 0.5 + 0.35 + (i / ids.length) * Math.PI * 2;
+      const pos: V2 = [SPOT.table[0] + Math.cos(a) * 1.4, SPOT.table[1] + Math.sin(a) * 1.08];
+      actors[id] = A(pos, anim(id), faceTo(pos, SPOT.table));
     });
   };
+  const atWall = (talking: boolean) => {
+    actors.po = A(SPOT.poAtWall, 'point', faceTo(SPOT.poAtWall, SPOT.backlogWall));
+    DEVS.forEach((id, i) => {
+      const pos = WALL_ARC[i];
+      const voting = votes && votes[id] !== undefined;
+      actors[id] = A(pos, voting ? 'point' : talking && i % 2 === 0 ? 'talk' : 'nod', faceTo(pos, SPOT.backlogWall));
+    });
+    const smPos: V2 = [-3.2, -2.5];
+    actors.sm = A(smPos, 'nod', faceTo(smPos, SPOT.poAtWall));
+  };
 
-  stakeholdersAway();
+  actors.s1 = A(SPOT.door, 'away', undefined, true);
+  actors.s2 = A([SPOT.door[0] - 0.6, SPOT.door[1] + 0.4], 'away', undefined, true);
+
   switch (key) {
     case 'intro': {
       actors.po = A(SPOT.poDesk, 'idle', FACE_CAM);
@@ -387,39 +610,52 @@ export function deriveWorld(t: number): World {
       break;
     }
     case 'backlog': {
-      actors.po = A(SPOT.poAtWall, 'point', Math.atan2(SPOT.backlogWall[0] - SPOT.poAtWall[0], SPOT.backlogWall[1] - SPOT.poAtWall[1]));
-      actors.sm = A([-3.2, -1.6], 'nod', Math.atan2(SPOT.backlogWall[0] + 3.2, SPOT.backlogWall[1] + 1.6));
+      actors.po = A(SPOT.poAtWall, 'point', faceTo(SPOT.poAtWall, SPOT.backlogWall));
+      actors.sm = A([-3.2, -1.6], 'nod', faceTo([-3.2, -1.6], SPOT.backlogWall));
       atDesks('work');
       break;
     }
+    case 'refinement':
+      atWall(p > 0.2 && p < 0.55);
+      break;
+    case 'refine':
+      atWall(p < 0.35 || p > 0.7);
+      break;
+    case 'estimation': {
+      const discussing = within(p, [0.42, 0.5]);
+      roundTable(['po', 'd1', 'd2', 'd3', 'd4', 'sm'], id => {
+        if (id === 'po') return POKER.some(s => within(p, [s.table[0], s.table[0] + 0.06])) ? 'talk' : 'nod';
+        if (id === 'sm') return 'nod';
+        if (discussing && (id === 'd1' || id === 'd3')) return 'talk';
+        return votes && votes[id] !== undefined ? 'point' : 'nod';
+      });
+      break;
+    }
     case 'planning': {
-      roundTable(['po', 'd1', 'd2', 'd3', 'd4', 'sm'], p < 0.3 ? 'talk' : 'nod');
+      roundTable(['po', 'd1', 'd2', 'd3', 'd4', 'sm'], id => (p < 0.35 ? (id === 'po' ? 'talk' : 'nod') : p < 0.72 ? (id === 'po' || id === 'sm' ? 'nod' : 'talk') : 'nod'));
       break;
     }
     case 'daily': {
       // Developers in a circle on the rug. The Scrum Master listens from
       // just outside it; the Product Owner is refining at the wall.
-      devs.forEach((id, i) => {
+      DEVS.forEach((id, i) => {
         const pos = ring(SPOT.rug, 0.85, 4, Math.PI * 0.25, i);
-        actors[id] = A(pos, id === 'd2' && impediment === 'raised' ? 'point' : 'talk', Math.atan2(SPOT.rug[0] - pos[0], SPOT.rug[1] - pos[1]));
+        actors[id] = A(pos, id === 'd2' && impediment === 'raised' ? 'point' : 'talk', faceTo(pos, SPOT.rug));
       });
       if (day === 4 && impediment !== 'none' && p > 0.5) {
-        // Sam goes to the desk to clear the blocker.
         const d = SPOT.desks[1];
         const smAtDesk: V2 = [d[0] - 0.7, d[1] + 0.2];
         actors.sm = A(smAtDesk, impediment === 'gone' ? 'celebrate' : 'work', faceTo(smAtDesk, d));
       } else {
         const smPos: V2 = [SPOT.rug[0] + 1.5, SPOT.rug[1] + 0.6];
-        actors.sm = A(smPos, 'nod', Math.atan2(SPOT.rug[0] - smPos[0], SPOT.rug[1] - smPos[1]));
+        actors.sm = A(smPos, 'nod', faceTo(smPos, SPOT.rug));
       }
-      actors.po = A(SPOT.poAtWall, 'work', Math.atan2(SPOT.backlogWall[0] - SPOT.poAtWall[0], SPOT.backlogWall[1] - SPOT.poAtWall[1]));
+      actors.po = A(SPOT.poAtWall, 'work', faceTo(SPOT.poAtWall, SPOT.backlogWall));
       break;
     }
     case 'work': {
       atDesks('work');
-      // The blocked Developer stops and scratches their head.
       if (impediment === 'on-desk') actors.d2 = { ...actors.d2, anim: 'idle' };
-      // Sam drifts between the board and the desks; Priya answers a question at desk 3 on day 2.
       const smPos: V2 = day! % 2 === 0 ? [SPOT.board[0] - 0.5, SPOT.board[1] + 1.0] : SPOT.smHome;
       actors.sm = A(smPos, day! % 2 === 0 ? 'point' : 'idle', day! % 2 === 0 ? FACE_BACK : FACE_CAM);
       if (day === 2 && p > 0.5) {
@@ -431,16 +667,18 @@ export function deriveWorld(t: number): World {
     }
     case 'review': {
       const c: V2 = [SPOT.pedestal[0] - 0.2, SPOT.pedestal[1] + 1.9];
-      const showing = p > 0.25;
-      actors.s1 = A(showing ? [c[0] - 0.9, c[1] + 0.2] : SPOT.door, showing ? (p > 0.5 ? 'clap' : 'nod') : 'idle', showing ? Math.atan2(SPOT.pedestal[0] - (c[0] - 0.9), SPOT.pedestal[1] - (c[1] + 0.2)) : undefined);
-      actors.s2 = A(showing ? [c[0] + 0.4, c[1] + 0.5] : [SPOT.door[0] - 0.6, SPOT.door[1] + 0.4], showing ? (p > 0.55 ? 'point' : 'nod') : 'idle', showing ? Math.atan2(SPOT.pedestal[0] - (c[0] + 0.4), SPOT.pedestal[1] - (c[1] + 0.5)) : undefined);
+      const showing = p > 0.2;
+      const s1Pos: V2 = [c[0] - 0.9, c[1] + 0.2];
+      const s2Pos: V2 = [c[0] + 0.4, c[1] + 0.5];
+      actors.s1 = A(showing ? s1Pos : SPOT.door, showing ? (p > 0.5 ? 'clap' : 'nod') : 'idle', showing ? faceTo(s1Pos, SPOT.pedestal) : undefined);
+      actors.s2 = A(showing ? s2Pos : [SPOT.door[0] - 0.6, SPOT.door[1] + 0.4], showing ? (p > 0.55 ? 'point' : 'nod') : 'idle', showing ? faceTo(s2Pos, SPOT.pedestal) : undefined);
       const poPos: V2 = [SPOT.pedestal[0] - 1.3, SPOT.pedestal[1] + 0.5];
       const smPos: V2 = [SPOT.pedestal[0] + 1.1, SPOT.pedestal[1] + 1.1];
       actors.po = A(poPos, p > 0.6 ? 'nod' : 'talk', faceTo(poPos, c));
       actors.sm = A(smPos, 'nod', faceTo(smPos, SPOT.pedestal));
-      devs.forEach((id, i) => {
+      DEVS.forEach((id, i) => {
         const pos: V2 = [SPOT.pedestal[0] - 1.6 + i * 0.75, SPOT.pedestal[1] - 1.1];
-        actors[id] = A(pos, i === 1 && p > 0.3 ? 'point' : 'talk', Math.atan2(SPOT.pedestal[0] - pos[0], SPOT.pedestal[1] + 0.6 - pos[1]));
+        actors[id] = A(pos, i === 1 && p > 0.3 ? 'point' : 'talk', faceTo(pos, [SPOT.pedestal[0], SPOT.pedestal[1] + 0.6]));
       });
       break;
     }
@@ -458,7 +696,7 @@ export function deriveWorld(t: number): World {
       const ids: ActorId[] = ['po', 'sm', 'd1', 'd2', 'd3', 'd4'];
       ids.forEach((id, i) => {
         const pos = ring(c, 1.5, 6, Math.PI * 0.45, i);
-        actors[id] = A(pos, 'celebrate', Math.atan2(SPOT.pedestal[0] - pos[0], SPOT.pedestal[1] - pos[1]));
+        actors[id] = A(pos, 'celebrate', faceTo(pos, SPOT.pedestal));
       });
       break;
     }
@@ -469,6 +707,8 @@ export function deriveWorld(t: number): World {
   const focus =
     key === 'intro' ? F(0, 0.6, 0)
     : key === 'backlog' ? F(SPOT.backlogWall[0] + 0.6, 1.7, SPOT.backlogWall[1] + 0.8)
+    : key === 'refinement' || key === 'refine' ? F(-4.8, 1.4, -2.2)
+    : key === 'estimation' ? F(0, 1.2, -2.5)
     : key === 'planning' ? F(1.5, 1.4, -2.8)
     : key === 'daily' ? F(SPOT.rug[0], 0.7, SPOT.rug[1])
     : key === 'work' ? F(1.4, 1.0, -0.6)
@@ -476,8 +716,20 @@ export function deriveWorld(t: number): World {
     : key === 'retro' ? F(SPOT.retroSpot[0] + 0.6, 1.1, SPOT.retroSpot[1])
     : F(SPOT.pedestal[0] - 0.4, 1.8, SPOT.pedestal[1] + 0.6);
 
-  const hover = key === 'review' ? smooth((p - 0.3) / 0.25) * (1 - smooth((p - 0.85) / 0.15))
+  // Two beats happen off the phase camera's frame: Planning Poker's quick
+  // rounds update the cards on the wall, and the Review's new card lands on
+  // the wall while everyone is at the pedestal. Those beats move the camera there.
+  let vantage: World['vantage'] = null;
+  let focusOut = focus;
+  if (key === 'estimation' && p >= 0.82) { vantage = [-1.6, 5.4, 4.6]; focusOut = [-2.6, 1.4, -2.4]; }
+  if (key === 'review' && p >= 0.55 && p < 0.8) { vantage = [-3.4, 4.4, 3.4]; focusOut = [-5.0, 1.8, -2.8]; }
+
+  const hover = key === 'review' ? smooth((p - 0.3) / 0.2) * (1 - smooth((p - 0.85) / 0.15))
     : key === 'shipped' ? smooth(p / 0.2) : 0;
+
+  const beats = beatsFor(phase);
+  let beatIndex = 0;
+  beats.forEach((b, i) => { if (p >= b.at) beatIndex = i; });
 
   return {
     t: tt,
@@ -488,17 +740,20 @@ export function deriveWorld(t: number): World {
     cards,
     actors,
     parts: partsNow,
-    freshParts,
     impediment,
     standupTimer: key === 'daily' ? 1 - p : null,
     goalLit,
     goalText,
-    stakeholders: key === 'review',
     retroNote,
     improvement,
-    focus,
+    votes,
+    focus: focusOut,
+    vantage,
     hover,
     rainRaised,
+    beats,
+    beatIndex,
+    beat: beats[beatIndex],
   };
 }
 
@@ -507,6 +762,9 @@ export function deriveWorld(t: number): World {
 export const VANTAGE: Record<PhaseKey, [number, number, number]> = {
   intro: [0.5, 7.5, 12.5],
   backlog: [-6.8, 4.0, 3.6],
+  refinement: [-3.0, 5.6, 4.4],
+  refine: [-3.0, 5.6, 4.4],
+  estimation: [0.5, 5.9, 4.2],
   planning: [1.2, 4.8, 4.6],
   daily: [-3.0, 4.6, 8.0],
   work: [1.4, 6.2, 9.6],
@@ -515,7 +773,135 @@ export const VANTAGE: Record<PhaseKey, [number, number, number]> = {
   shipped: [3.0, 4.4, 6.8],
 };
 
-// ─── Narration ────────────────────────────────────────────────────────────
+// ─── Beats: the one thing happening right now ─────────────────────────────
+
+const B = (at: number, tag: string, text: string, spot: SpotKey | null): Beat => ({ at, tag, text, spot });
+
+export function beatsFor(ph: Phase): Beat[] {
+  const s = ph.sprint;
+  const plan = s >= 1 && s <= SPRINTS ? SPRINT_PLAN[s - 1].map(id => itemById(id).title) : [];
+  const [A, Bt, C] = plan;
+  switch (ph.key) {
+    case 'intro':
+      return [
+        B(0, 'The Scrum Team', 'Priya is the Product Owner, Sam is the Scrum Master, and Aroha, Ben, Chen and Dee are the Developers.', 'desks'),
+        B(0.5, 'The product', 'They are building a parcel drone. It will grow on the pedestal, one Done item at a time.', 'pedestal'),
+      ];
+    case 'backlog':
+      return [
+        B(0, 'A pile of ideas', 'Priya starts with a pile of ideas from customers and stakeholders on her desk.', 'podesk'),
+        B(0.18, 'Ordering', 'She orders them into ONE list on the wall — the Product Backlog. The most valuable item goes on top.', 'wall'),
+        B(0.72, 'The Product Goal', 'Every card serves one Product Goal: a drone that delivers parcels to the door. The “? pts” means nobody has sized it yet.', 'wall'),
+      ];
+    case 'refinement':
+      return [
+        B(0, 'Refinement', 'Backlog Refinement (grooming): Priya and the Developers meet at the wall to work on the top of the list.', 'wall'),
+        B(0.2, 'Questions', 'The Developers ask what each story really means. Priya adds acceptance criteria: how will we know Frame is done?', 'wall'),
+        B(0.4, 'Clarify & split', 'Anything too big or too vague is clarified or split until it could be finished inside one Sprint.', 'wall'),
+        B(0.55, 'Ready', 'A green dot means “ready”: clear enough to pull into a Sprint. The top four cards get one.', 'wall'),
+        B(0.8, 'The bottom stays rough', 'Speaker and Solar skin are left vague on purpose — refining work nobody needs yet is waste.', 'wall'),
+      ];
+    case 'estimation':
+      return [
+        B(0, 'Planning Poker', 'Story estimation: the Developers sit down with cards numbered 1, 2, 3, 5, 8 and 13.', 'table'),
+        B(0.1, 'Frame', 'Priya reads the Frame story. Each Developer picks a card in secret, then all reveal together: 3, 3, 3, 3. Frame = 3 points.', 'table'),
+        B(0.3, 'Rotors · round 1', 'Rotors: the votes split 3, 5, 8, 5. When votes differ, nobody averages them.', 'table'),
+        B(0.42, 'Talk it out', 'Chen (8) and Aroha (3), the highest and lowest, explain what they each know that the others might not.', 'table'),
+        B(0.52, 'Rotors · round 2', 'Everyone votes again: 5, 5, 5, 5. Rotors = 5 points.', 'table'),
+        B(0.65, 'Battery', 'Battery: 3, 3, 2, 3 — close enough to agree on 3 points after a quick word.', 'table'),
+        B(0.82, 'Quick rounds', 'The rest are sized in quick rounds. Solar skin comes out at 13 — too big for one Sprint, so it will need splitting before anyone pulls it.', 'wall'),
+      ];
+    case 'planning':
+      return [
+        B(0, 'Topic 1 · WHY', `Priya explains why this Sprint matters. The team agrees the Sprint Goal: “${SPRINT_GOALS[s - 1]}”.`, 'table'),
+        B(0.35, 'Topic 2 · WHAT', `The Developers pull ready items from the top of the backlog: ${A}, ${Bt}, ${C} — only as much as they believe they can finish.`, 'board'),
+        B(0.72, 'Topic 3 · HOW', 'They break each item into tasks. Sprint Goal + selected items + the plan = the Sprint Backlog.', 'table'),
+        ...(s >= 2 ? [B(0.84, 'Last Retro’s change', `The green card — “${RETRO_IMPROVEMENTS[s - 2]}” — goes into the Sprint Backlog so it actually happens.`, 'board')] : []),
+      ];
+    case 'daily': {
+      const d = ph.day!;
+      const open = B(0, `Day ${d} · 9:00`, 'The Developers stand in a circle on the rug. Fifteen minutes, same time, same place, every day.', 'rug');
+      if (d === 4) {
+        return [
+          open,
+          B(0.25, 'Progress check', 'Each Developer says what moved toward the Sprint Goal yesterday and what they will do today.', 'rug'),
+          B(0.45, 'Blocker raised', 'Ben raises yesterday’s blocker: a supplier can’t ship his part. It is named here, not solved here.', 'rug'),
+          B(0.6, 'Scrum Master acts', 'Sam leaves the circle to remove the impediment. That is the Scrum Master’s job, not the Developers’.', 'desk2'),
+          B(0.85, 'Cleared', 'The blocker is gone and the Daily Scrum still ended on time.', 'desk2'),
+        ];
+      }
+      return [
+        open,
+        B(0.3, 'Progress check', 'Each says what moved toward the Sprint Goal and what is next. Sam listens from outside the circle; Priya is at the wall.', 'rug'),
+        B(0.7, 'Plan for today', 'The plan for the next 24 hours is set. Back to the desks.', 'desks'),
+      ];
+    }
+    case 'work': {
+      const d = ph.day!;
+      if (d === 1) return [
+        B(0, 'Start', `Aroha moves ${A} from To Do to Doing on the Sprint Backlog.`, 'board'),
+        B(0.4, 'Building', 'Heads down. Dee has no card of her own: she pairs with the others and tests their work.', 'desks'),
+      ];
+      if (d === 2) return [
+        B(0, 'Building', `Aroha is finishing ${A} and Dee is testing it against the Definition of Done.`, 'desks'),
+        B(0.3, 'Done!', `${A} meets the Definition of Done and moves to Done…`, 'board'),
+        B(0.36, 'Increment', `…and the part bolts onto the drone right away. The Increment exists now, not at the end of the Sprint.`, 'pedestal'),
+        B(0.55, 'PO nearby', `Ben starts ${Bt}. Priya walks over to answer Chen’s question — a Product Owner is one question away.`, 'desks'),
+      ];
+      if (d === 3) return [
+        B(0, 'Building', `Ben is working on ${Bt}.`, 'desk2'),
+        B(0.4, 'Blocked!', 'A red block lands on Ben’s desk: the supplier cannot ship a part. He stops and will raise it tomorrow morning.', 'desk2'),
+      ];
+      if (d === 4) return [
+        B(0, 'Unblocked', `With the blocker cleared, Ben finishes ${Bt}.`, 'desk2'),
+        B(0.45, 'Done!', `${Bt} is Done and another part joins the drone.`, 'pedestal'),
+        B(0.65, 'Next item', `Chen starts ${C}.`, 'board'),
+      ];
+      return [
+        B(0, 'Last day', `Chen finishes ${C}, with Dee testing.`, 'desks'),
+        B(0.6, 'Sprint Goal met', `${C} is Done. Sprint Goal met: “${SPRINT_GOALS[s - 1]}”.`, 'pedestal'),
+      ];
+    }
+    case 'refine': {
+      const middle =
+        s === 1 ? B(0.38, 'Next Sprint’s cards', 'They clarify GPS, Parcel clamp and Lights so next Sprint Planning can start fast. Green dots appear.', 'wall')
+        : s === 2 ? B(0.38, 'Estimate the new card', 'The Rain sensor card from the last Review has no size yet. Planning Poker: 3, 3, 3, 3 — it is 3 points.', 'wall')
+        : B(0.38, 'Speaker', 'They refine Speaker. Solar skin stays rough — nobody needs it yet.', 'wall');
+      return [
+        B(0, 'Mid-Sprint refinement', 'Wednesday afternoon: the team takes an hour away from building to prepare the NEXT Sprint’s items.', 'wall'),
+        middle,
+        B(0.72, 'Not an event', 'Refinement is an ongoing activity, not a Scrum event, and it never changes the Sprint that is running.', 'wall'),
+      ];
+    }
+    case 'review':
+      return [
+        B(0, 'Guests arrive', 'Mr Ngata and Ms Okafor, the stakeholders, are invited to the Sprint Review.', 'pedestal'),
+        B(0.28, 'Demo', 'The Developers show only what is Done: the drone lifts off the pedestal.', 'pedestal'),
+        s === 1
+          ? B(0.55, 'Feedback → backlog', 'Ms Okafor asks: “What happens in rain?” Priya adds a new Rain sensor card to the Product Backlog, above Lights.', 'wall')
+          : B(0.55, 'Feedback → backlog', 'The stakeholders say what they want next, and Priya reorders the Product Backlog in the room.', 'wall'),
+        B(0.8, 'Output', 'A revised Product Backlog. This is a working session, not a sign-off.', 'wall'),
+      ];
+    case 'retro':
+      return [
+        B(0, 'Team only', 'The stakeholders leave. Only the Scrum Team stays for the Sprint Retrospective.', 'retro'),
+        B(0.25, 'Look back', 'What went well? What got in the way? That day-3 blocker comes up.', 'retro'),
+        B(0.55, 'One change', `They agree ONE improvement: “${RETRO_IMPROVEMENTS[s - 1]}”.`, 'retro'),
+        s < SPRINTS
+          ? B(0.8, 'Into the next Sprint', 'It will go into the next Sprint Backlog as a green card, so it becomes work rather than a wish.', 'retro')
+          : B(0.8, 'No gap', 'The next Sprint starts right after this one ends — no cool-down week.', 'retro'),
+      ];
+    case 'shipped':
+    default:
+      return [
+        B(0, 'Three Increments', 'Three Sprints, three Increments: the drone flies with nine Done items.', 'pedestal'),
+        B(0.45, 'Never finished', 'Speaker and Solar skin are still on the wall. The backlog is never finished, and that is the point.', 'wall'),
+        B(0.8, 'A loop', 'The next Sprint starts immediately. Scrum is a loop, not a line.', 'pedestal'),
+      ];
+  }
+}
+
+// ─── Narration: the side panel's facts for each phase ─────────────────────
 
 export interface Narration {
   eyebrow: string;
@@ -524,8 +910,6 @@ export interface Narration {
   timebox: string;
   output: string;
   body: string;
-  /** What to look at in the scene right now. */
-  watch: string;
 }
 
 export function narrationFor(w: World): Narration {
@@ -535,11 +919,10 @@ export function narrationFor(w: World): Narration {
       return {
         eyebrow: 'Before the first Sprint',
         title: 'One Scrum Team, one drone',
-        who: 'Six people: a Product Owner, a Scrum Master and four Developers',
-        timebox: 'The whole run is three one-week Sprints',
+        who: 'A Product Owner, a Scrum Master and four Developers',
+        timebox: 'Three one-week Sprints',
         output: 'A parcel drone that grows on the pedestal, part by part',
-        body: 'Priya owns what gets built. Sam owns how well the team works. Aroha, Ben, Chen and Dee build it. Nobody in the room is anybody’s manager, and there is no project manager — which is the first thing that surprises people about Scrum.',
-        watch: 'Press play, or use the chips to jump to any event. Click any miniature or object for who it is and what it owns.',
+        body: 'Nobody in the room is anybody’s manager, and there is no project manager — which is the first thing that surprises people about Scrum. Click any miniature or object at any time for who it is and what it owns.',
       };
     case 'backlog':
       return {
@@ -548,8 +931,25 @@ export function narrationFor(w: World): Narration {
         who: 'Owned and ordered by the Product Owner',
         timebox: 'Never finished — refined continuously',
         output: 'One ordered list, the only source of work',
-        body: 'Priya turns a pile of ideas into a single ordered list on the wall. Not buckets, not “high, medium, low”: an order, so the top item is always unambiguous. Everything the drone might ever need is here, from the frame to a solar skin nobody will reach this quarter.',
-        watch: 'Watch the cards leave the pile one at a time and settle in order. The Scrum Master is watching too, but the order is Priya’s call alone.',
+        body: 'Not buckets, not “high, medium, low”: an order, so the top item is always unambiguous. Everything the drone might ever need is here, from the frame to a solar skin nobody will reach this quarter.',
+      };
+    case 'refinement':
+      return {
+        eyebrow: 'Activity · ongoing',
+        title: 'Backlog Refinement (grooming)',
+        who: 'The Product Owner and the Developers; the Scrum Master may facilitate',
+        timebox: 'Ongoing — usually no more than about 10% of the Developers’ time',
+        output: 'Top items small, clear and ready for Sprint Planning',
+        body: 'Refinement — often called backlog grooming — adds detail to Product Backlog items: what they mean, their acceptance criteria, their order and their size. It is not one of the five Scrum events. It happens all the time, usually as a short session each Sprint, so that Sprint Planning never starts with a question nobody can answer.',
+      };
+    case 'estimation':
+      return {
+        eyebrow: 'Practice · part of refinement',
+        title: 'Story estimation: Planning Poker',
+        who: 'The Developers — the people who will do the work',
+        timebox: 'A few minutes per story',
+        output: 'A size in story points on each card',
+        body: 'Everyone chooses a card privately and reveals at once, so nobody anchors on the loudest voice. If the votes differ, the highest and lowest explain, then everyone votes again. Points measure relative size, effort and uncertainty, not hours. The Product Owner answers questions but does not vote. Planning Poker is a common practice; the Scrum Guide does not require any particular estimation technique.',
       };
     case 'planning':
       return {
@@ -558,41 +958,35 @@ export function narrationFor(w: World): Narration {
         who: 'The whole Scrum Team',
         timebox: 'Max 8 hours for a one-month Sprint — about 2 hours for this one-week Sprint',
         output: `A Sprint Goal (“${SPRINT_GOALS[sprint - 1]}”) and a Sprint Backlog`,
-        body: 'Three questions in order. Why is this Sprint valuable — Priya proposes, the team shapes it into a Sprint Goal. What can be done — the Developers pull items from the top of the backlog until they are no longer confident of finishing. How will it be done — they break each item into tasks.',
-        watch: sprint === 1
-          ? 'The top three cards fly from the Product Backlog to the To Do column, and the Sprint Goal lights up over the board. Only the Developers decide how many cards move.'
-          : `Same three questions, and a green card too: the improvement the team chose in last Sprint’s Retrospective goes into this Sprint Backlog so it actually happens.`,
+        body: 'Three topics, in order: why this Sprint is valuable, what can be Done, and how the work will get done. Only the Developers decide how many items to take on. Because the top cards were refined and estimated beforehand, the meeting is quick.',
       };
-    case 'daily': {
-      const raised = day === 4;
+    case 'daily':
       return {
         eyebrow: `Event · Sprint ${sprint}, day ${day}`,
         title: 'The Daily Scrum',
         who: 'The Developers. The Scrum Master listens from outside the circle; the Product Owner is not required',
         timebox: '15 minutes, same time and place, every working day',
         output: 'An adapted plan for the next 24 hours',
-        body: 'The four Developers stand in a circle and check progress toward the Sprint Goal: what moved, what will move today, what is in the way. It is their meeting. Sam is outside the circle because the Scrum Master facilitates and coaches but does not run it, and Priya is at the wall refining because it is not a status report to her.',
-        watch: raised
-          ? 'Ben raises the blocker that landed on his desk yesterday. Watch Sam leave the circle to deal with it — removing impediments is the Scrum Master’s job, and the meeting stays fifteen minutes because the fix happens elsewhere.'
-          : 'The ring on the rug is the fifteen-minute timebox running out. Nothing gets solved in the circle; problems are named here and taken away.',
+        body: 'It is the Developers’ meeting, not a status report to a manager. Problems are named in the fifteen minutes and solved afterwards, which is why the meeting stays short all year.',
       };
-    }
-    case 'work': {
-      const blocked = w.impediment === 'on-desk';
+    case 'work':
       return {
         eyebrow: `Sprint ${sprint} · day ${day} of ${DAYS}`,
         title: 'The Sprint, from the inside',
         who: 'The Developers, with the Product Owner one question away',
         timebox: 'One week, and the same length every Sprint',
         output: 'A Done Increment — each item that reaches Done bolts a real part onto the drone',
-        body: 'Cards cross the Sprint Board from To Do to Doing to Done, and each one that reaches Done appears on the pedestal at once — an Increment exists the moment an item is Done, not at the end of the Sprint. The Sprint Backlog is the Developers’ plan and they change it daily.',
-        watch: blocked
-          ? 'A red block has landed on Ben’s desk: the rotors need a part the supplier cannot ship. He stops. Nobody adds work to the Sprint to fill the gap — it gets raised at tomorrow’s Daily Scrum.'
-          : day === 2 && sprint === 1
-            ? 'Priya walks over to answer Chen’s question about the battery. A Product Owner who is always one question away is what stops a team guessing.'
-            : 'Dee has no card of her own: she pairs and tests. On a Scrum Team the skills are collective, and “not my item” is not a sentence anyone says.',
+        body: 'Cards cross the Sprint Backlog from To Do to Doing to Done. The Sprint Backlog is the Developers’ plan and they change it daily. Nobody adds work that puts the Sprint Goal at risk.',
       };
-    }
+    case 'refine':
+      return {
+        eyebrow: `Activity · Sprint ${sprint}, day 3`,
+        title: 'Backlog Refinement, mid-Sprint',
+        who: 'The Product Owner and the Developers',
+        timebox: 'About an hour — well under 10% of the Sprint',
+        output: 'The next Sprint’s items ready; the current Sprint untouched',
+        body: 'Refinement happens during a Sprint, for future Sprints. It keeps the top of the Product Backlog ready so the next Sprint Planning is short. New cards — like the Rain sensor — are sized here.',
+      };
     case 'review':
       return {
         eyebrow: `Event · Sprint ${sprint}`,
@@ -600,10 +994,7 @@ export function narrationFor(w: World): Narration {
         who: 'The Scrum Team and its stakeholders',
         timebox: 'Max 4 hours for a one-month Sprint — about an hour here',
         output: 'A revised Product Backlog',
-        body: 'The drone lifts off the pedestal in front of the two people who asked for it. This is not a sign-off and not a performance: it is where the people who wanted the product see what is really Done and say what should happen next. The backlog changes in the room, on the evidence of a working Increment.',
-        watch: sprint === 1
-          ? 'Ms Okafor asks what happens in rain. Watch a brand-new card, “Rain sensor”, appear on the Product Backlog — and watch Priya order it above Lights. That card exists because a stakeholder saw a real Increment.'
-          : 'Only Done items are shown. A part that was built but never tested would not be on the drone at all — it would have gone back to the Product Backlog.',
+        body: 'The people who wanted the product see what is really Done and say what should happen next. Not a sign-off and not a performance: the backlog changes in the room, on the evidence of a working Increment.',
       };
     case 'retro':
       return {
@@ -612,8 +1003,7 @@ export function narrationFor(w: World): Narration {
         who: 'The Scrum Team only — the stakeholders have gone',
         timebox: 'Max 3 hours for a one-month Sprint — about 45 minutes here',
         output: 'One improvement, taken into the next Sprint',
-        body: 'The last event of the Sprint, and the only one about the team rather than the product. What went well, what got in the way, and one thing to do differently — one, so it happens. The Definition of Done can change here, deliberately, for future work.',
-        watch: `Watch the sticky go up: “${RETRO_IMPROVEMENTS[sprint - 1]}”. It will be a green card in the next Sprint Backlog, which is how a Retrospective becomes a change rather than a conversation.`,
+        body: 'The last event of the Sprint, and the only one about the team rather than the product. One change, not ten, so it actually happens. The Definition of Done can change here, deliberately, for future work.',
       };
     case 'shipped':
     default:
@@ -621,10 +1011,9 @@ export function narrationFor(w: World): Narration {
         eyebrow: 'After three Sprints',
         title: 'Three Increments, one flying drone',
         who: 'The Scrum Team',
-        timebox: 'Three weeks of a product that could have shipped after any one of them',
-        output: 'Nine Done items on the drone, two still on the backlog, and a team that got better each Sprint',
-        body: 'The drone that lifts off was never planned in full. Nine items were built in the order they were worth building, one card arrived from a stakeholder who watched it hover, and each Sprint ran a little better than the last. The speaker and the solar skin are still on the wall — the backlog is never finished, and that is the point.',
-        watch: 'Then it starts again: the next Sprint begins the moment this one ends. There is no gap, no cool-down week, and no phase called “done”.',
+        timebox: 'Three weeks, with a product that could have shipped after any one of them',
+        output: 'Nine Done items on the drone, two still on the backlog',
+        body: 'The drone that lifts off was never planned in full. Nine items were built in the order they were worth building, one card arrived from a stakeholder who watched it hover, and each Sprint ran a little better than the last.',
       };
   }
 }
@@ -679,7 +1068,7 @@ export function infoFor(id: SelectableId): SelectableInfo {
       return {
         eyebrow: 'Artefact · commitment: the Product Goal', title: 'The Product Backlog',
         lines: [['Owned by', 'The Product Owner'], ['Timebox', 'None — it is never finished'], ['Commitment', 'The Product Goal: a working parcel drone']],
-        body: 'The single ordered list of everything that might be needed. One list, one owner, refined continuously. It is the only source of work: if it is not on the wall, nobody builds it.',
+        body: 'The single ordered list of everything that might be needed. One list, one owner, refined continuously. It is the only source of work: if it is not on the wall, nobody builds it. “? pts” means the Developers have not estimated a card yet; a green dot means it has been refined and is ready for Sprint Planning.',
         trap: 'Ordered, not prioritised into buckets. The moment two items are “equally first”, somebody outside the team is choosing.',
       };
     case 'sprint-board':
@@ -705,10 +1094,10 @@ export function infoFor(id: SelectableId): SelectableInfo {
       };
     case 'table':
       return {
-        eyebrow: 'Events · Sprint Planning and the Review', title: 'The planning table',
-        lines: [['Sprint Planning', 'Whole Scrum Team · max 8 hours a month'], ['Sprint Review', 'Scrum Team and stakeholders · max 4 hours a month'], ['Both', 'Scale down with a shorter Sprint']],
-        body: 'Planning starts the Sprint: why, what, how. The Review closes the work: the Increment is shown to stakeholders and the backlog is adjusted on what they saw. Both produce a decision about the backlog, which is why they sit at the same table.',
-        trap: 'A Review with no stakeholders in the room is a demo to yourselves. The feedback loop the whole framework depends on is missing, and the team is running Waterfall with standups.',
+        eyebrow: 'Estimation and Sprint Planning', title: 'The planning table',
+        lines: [['Planning Poker', 'The Developers · a few minutes per story'], ['Sprint Planning', 'Whole Scrum Team · max 8 hours a month'], ['Scales', 'Planning shrinks with a shorter Sprint']],
+        body: 'Before the first Sprint the Developers size the backlog here with Planning Poker. Each Sprint then starts here too: why this Sprint matters, what can be Done, and how it will be done.',
+        trap: 'Only the Developers estimate and only they decide how much goes into a Sprint. A manager who sets the number has turned a forecast into a target.',
       };
     case 'retro-board':
       return {

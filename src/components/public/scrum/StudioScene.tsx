@@ -4,8 +4,8 @@ import { useMemo, useRef, useState, type ComponentProps, type MutableRefObject, 
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import {
-  ACTORS, ALL_ITEMS, DAYS, SPOT, TOTAL, VANTAGE,
-  deriveWorld, itemById,
+  ACTORS, ALL_ITEMS, DAYS, PHASES, SPOT, SPOT_GEO, TOTAL, VANTAGE,
+  deriveWorld, itemById, phaseIndexAt,
   type ActorDef, type ActorId, type CardLoc, type SelectableId, type World,
 } from './timeline';
 
@@ -30,10 +30,17 @@ export interface Sim {
   /** True for the frame after a jump, so objects snap instead of travel. */
   snap: boolean;
   lastT: number;
+  /** Pause at the end of every phase marked `hold`, so the reader can
+   *  finish the side panel before the next thing starts. */
+  guided: boolean;
+  /** Phase index the studio is currently paused at, waiting for Continue. */
+  held: number | null;
+  /** Phase index whose hold the reader has already released. */
+  holdDone: number;
 }
 
 export function makeSim(): Sim {
-  return { t: 0, playing: false, speed: 1, userUntil: 0, world: deriveWorld(0), snap: true, lastT: 0 };
+  return { t: 0, playing: false, speed: 1, userUntil: 0, world: deriveWorld(0), snap: true, lastT: 0, guided: true, held: null, holdDone: -1 };
 }
 
 export type SimRef = MutableRefObject<Sim>;
@@ -64,9 +71,10 @@ const shortest = (a: number, b: number) => {
 
 // ─── Director: clock, world, camera ───────────────────────────────────────
 
-export function Director({ sim, onTick, controls }: {
+export function Director({ sim, onTick, onHold, controls }: {
   sim: SimRef;
   onTick: (t: number) => void;
+  onHold: (phaseIndex: number) => void;
   controls: MutableRefObject<OrbitControlsImpl | null>;
 }) {
   const camera = useThree(s => s.camera);
@@ -77,7 +85,20 @@ export function Director({ sim, onTick, controls }: {
   useFrame((_, rawDt) => {
     const s = sim.current;
     const dt = Math.min(rawDt, 0.08);
-    if (s.playing) s.t = (s.t + dt * s.speed) % TOTAL;
+    if (s.playing) {
+      const i = phaseIndexAt(s.t);
+      const ph = PHASES[i];
+      let next = s.t + dt * s.speed;
+      // Guided mode: stop just short of the end of a milestone phase and
+      // wait for the reader to press Continue.
+      if (s.guided && ph.hold && s.holdDone !== i && next >= ph.end - 0.02) {
+        next = ph.end - 0.02;
+        s.playing = false;
+        s.held = i;
+        onHold(i);
+      }
+      s.t = next % TOTAL;
+    }
     s.snap = Math.abs(s.t - s.lastT) > 1.2 && !(s.lastT > TOTAL - 1.5 && s.t < 1.5);
     s.lastT = s.t;
     s.world = deriveWorld(s.t);
@@ -92,7 +113,7 @@ export function Director({ sim, onTick, controls }: {
     const userDriving = performance.now() < s.userUntil;
     tgt.set(...s.world.focus);
     if (!userDriving) {
-      vec.set(...VANTAGE[s.world.phase.key]);
+      vec.set(...(s.world.vantage ?? VANTAGE[s.world.phase.key]));
       if (s.snap) camera.position.copy(vec);
       else camera.position.lerp(vec, damp(dt, 1.4));
     }
@@ -177,11 +198,11 @@ function BacklogWall({ sim, onSelect, selected }: { sim: SimRef; onSelect: (id: 
         <boxGeometry args={[1.6, 3.0, 0.02]} />
         <meshStandardMaterial color={WOOD_DARK} />
       </mesh>
-      <Text position={[x, 3.22, z - 0.03]} fontSize={0.13} color={PLUM} anchorX="center" anchorY="middle" letterSpacing={0.06}>
+      <Text position={[x, 3.2, z - 0.03]} fontSize={0.165} color={PLUM} anchorX="center" anchorY="middle" letterSpacing={0.04}>
         PRODUCT BACKLOG
       </Text>
-      <Text position={[x - 0.62, 3.05, z - 0.03]} fontSize={0.075} color="#9a8f86" anchorX="left" anchorY="middle">
-        ordered · top = next
+      <Text position={[x, 3.04, z - 0.03]} fontSize={0.062} color="#8a7f76" anchorX="center" anchorY="middle">
+        owned by the Product Owner · top = next
       </Text>
       {/* The Product Owner's small desk beside it, where the pile lives. */}
       <Desk x={SPOT.poDesk[0]} z={SPOT.poDesk[1]} w={0.9} laptop={false} />
@@ -271,6 +292,7 @@ function SprintBoard({ sim, onSelect, selected }: { sim: SimRef; onSelect: (id: 
   });
 
   const cols: [string, number][] = [['TO DO', -0.85], ['DOING', 0], ['DONE', 0.85]];
+  const HEAD_Y = 2.66;
   return (
     <Selectable id="sprint-board" onSelect={onSelect} selected={selected} label="Sprint Backlog" labelPos={[x, 3.85, z]}>
       <mesh position={[x, 1.95, z - 0.07]} castShadow receiveShadow>
@@ -283,18 +305,29 @@ function SprintBoard({ sim, onSelect, selected }: { sim: SimRef; onSelect: (id: 
       </mesh>
       {cols.map(([name, dx]) => (
         <group key={name}>
-          <Text position={[x + dx, 2.92, z - 0.03]} fontSize={0.11} color={INK} anchorX="center" anchorY="middle" letterSpacing={0.08}>
+          <Text position={[x + dx, HEAD_Y, z - 0.03]} fontSize={0.1} color={INK} anchorX="center" anchorY="middle" letterSpacing={0.08}>
             {name}
           </Text>
-          <mesh position={[x + dx, 2.8, z - 0.03]}>
+          <mesh position={[x + dx, HEAD_Y - 0.1, z - 0.03]}>
             <boxGeometry args={[0.7, 0.012, 0.01]} />
             <meshStandardMaterial color={PLUM} />
           </mesh>
         </group>
       ))}
+      {/* The board's own name, so nobody mistakes it for the Product Backlog. */}
+      <Text position={[x, 2.98, z - 0.03]} fontSize={0.165} color={PLUM} anchorX="center" anchorY="middle" letterSpacing={0.04}>
+        SPRINT BACKLOG
+      </Text>
+      <Text position={[x, 2.83, z - 0.03]} fontSize={0.062} color="#8a7f76" anchorX="center" anchorY="middle">
+        owned by the Developers · updated every day
+      </Text>
+      <mesh position={[x, 2.75, z - 0.03]}>
+        <boxGeometry args={[2.5, 0.01, 0.01]} />
+        <meshStandardMaterial color="#e0d3c6" />
+      </mesh>
       {[-0.425, 0.425].map(dx => (
-        <mesh key={dx} position={[x + dx, 1.95, z - 0.03]}>
-          <boxGeometry args={[0.012, 2.1, 0.01]} />
+        <mesh key={dx} position={[x + dx, 1.72, z - 0.03]}>
+          <boxGeometry args={[0.012, 1.8, 0.01]} />
           <meshStandardMaterial color="#e0d3c6" />
         </mesh>
       ))}
@@ -309,7 +342,7 @@ function SprintBoard({ sim, onSelect, selected }: { sim: SimRef; onSelect: (id: 
         </Text>
       </group>
       {/* The green improvement card from the last Retrospective. */}
-      <group ref={impRef} position={[x - 0.85, 1.05, CARD_Z]} scale={0}>
+      <group ref={impRef} position={[x - 0.85, 1.08, CARD_Z]} scale={0}>
         <mesh castShadow>
           <boxGeometry args={[0.6, 0.26, 0.015]} />
           <meshStandardMaterial color="#c9efd3" />
@@ -348,6 +381,9 @@ function Rug({ sim, onSelect, selected }: { sim: SimRef; onSelect: (id: Selectab
       <mesh ref={ringRef} geometry={geo} position={[x, 0.02, z]} rotation={[-Math.PI / 2, 0, 0]}>
         <meshStandardMaterial color={PLUM} side={THREE.DoubleSide} />
       </mesh>
+      <Text position={[x, 0.025, z + 0.86]} rotation={[-Math.PI / 2, 0, 0]} fontSize={0.13} color={PLUM} anchorX="center" anchorY="middle" letterSpacing={0.08}>
+        DAILY SCRUM
+      </Text>
       {label && (
         <Billboard position={[x, 1.55, z]}>
           <Text fontSize={0.2} color={PLUM} anchorX="center" anchorY="middle" outlineWidth={0.02} outlineColor={PAPER}>
@@ -419,12 +455,14 @@ function cardPose(loc: CardLoc, slot: number): { p: [number, number, number]; r:
       };
     case 'backlog':
       return { p: [SPOT.backlogWall[0], 2.92 - slot * 0.235, CARD_Z], r: [0, 0, 0], s: 1 };
+    case 'table':
+      return { p: [SPOT.table[0], 0.83, SPOT.table[1] + 0.1], r: [-Math.PI / 2, 0, 0], s: 1.5 };
     case 'todo':
-      return { p: [SPOT.board[0] - 0.85, 2.55 - slot * 0.42, CARD_Z], r: [0, 0, 0], s: 1 };
+      return { p: [SPOT.board[0] - 0.85, 2.36 - slot * 0.4, CARD_Z], r: [0, 0, 0], s: 1 };
     case 'doing':
-      return { p: [SPOT.board[0], 2.55 - slot * 0.42, CARD_Z], r: [0, 0, 0], s: 1 };
+      return { p: [SPOT.board[0], 2.36 - slot * 0.4, CARD_Z], r: [0, 0, 0], s: 1 };
     case 'done':
-      return { p: [SPOT.board[0] + 0.85, 2.55 - slot * 0.42, CARD_Z], r: [0, 0, 0], s: 1 };
+      return { p: [SPOT.board[0] + 0.85, 2.36 - slot * 0.4, CARD_Z], r: [0, 0, 0], s: 1 };
     case 'hidden':
     default:
       return { p: [SPOT.board[0] + 0.85, 1.0, CARD_Z], r: [0, 0, 0], s: 0 };
@@ -438,9 +476,13 @@ function Card({ id, sim, index }: { id: string; sim: SimRef; index: number }) {
   const item = itemById(id);
   const color = CARD_COLORS[index % CARD_COLORS.length];
   const tmp = useMemo(() => ({ p: new THREE.Vector3(), e: new THREE.Euler() }), []);
+  const [pts, setPts] = useState(false);
+  const [ready, setReady] = useState(false);
   useFrame((_, dt) => {
     const w = sim.current.world;
-    const st = w.cards[id] ?? { loc: 'hidden' as CardLoc, slot: 0 };
+    const st = w.cards[id] ?? { loc: 'hidden' as CardLoc, slot: 0, pts: false, ready: false };
+    if (st.pts !== pts) setPts(st.pts);
+    if (st.ready !== ready) setReady(st.ready);
     const pose = cardPose(st.loc, st.slot);
     const o = g.current;
     if (!o) return;
@@ -470,9 +512,16 @@ function Card({ id, sim, index }: { id: string; sim: SimRef; index: number }) {
       <Text position={[-0.27, 0.02, 0.01]} fontSize={0.07} color={INK} anchorX="left" anchorY="middle" maxWidth={0.5}>
         {item.title}
       </Text>
-      <Text position={[0.27, -0.055, 0.01]} fontSize={0.045} color="#6b625b" anchorX="right" anchorY="middle">
-        {`${item.points} pts`}
+      <Text position={[0.27, -0.055, 0.01]} fontSize={0.05} color={pts ? INK : '#a0968e'} anchorX="right" anchorY="middle">
+        {pts ? `${item.points} pts` : '? pts'}
       </Text>
+      {/* Green dot: refined and ready to be pulled into a Sprint. */}
+      {ready && (
+        <mesh position={[0.25, 0.055, 0.009]}>
+          <circleGeometry args={[0.026, 16]} />
+          <meshBasicMaterial color="#16a34a" />
+        </mesh>
+      )}
     </group>
   );
 }
@@ -671,10 +720,13 @@ function Actor({ def, sim, onSelect, selected }: { def: ActorDef; sim: SimRef; o
   const yaw = useRef(0);
   const phase = useRef(Math.random() * 10);
   const [hover, setHover] = useState(false);
+  const [vote, setVote] = useState<number | null>(null);
   const isSel = selected === def.id;
 
   useFrame((_, dt) => {
     const w = sim.current.world;
+    const v = w.votes?.[def.id] ?? null;
+    if (v !== vote) setVote(v);
     const st = w.actors[def.id];
     const o = root.current;
     if (!o || !st) return;
@@ -823,6 +875,22 @@ function Actor({ def, sim, onSelect, selected }: { def: ActorDef; sim: SimRef; o
           )}
         </group>
       </group>
+      {/* Planning Poker: the card this Developer has just revealed. */}
+      {vote !== null && (
+        <Billboard position={[0, 1.72, 0]}>
+          <mesh>
+            <planeGeometry args={[0.26, 0.34]} />
+            <meshBasicMaterial color="#ffffff" />
+          </mesh>
+          <mesh position={[0, 0, -0.002]}>
+            <planeGeometry args={[0.3, 0.38]} />
+            <meshBasicMaterial color={PLUM} />
+          </mesh>
+          <Text position={[0, 0, 0.01]} fontSize={0.19} color={PLUM} anchorX="center" anchorY="middle">
+            {String(vote)}
+          </Text>
+        </Billboard>
+      )}
       {/* Name tag: always on for the team, so a reader can follow who is where. */}
       <Billboard position={[0, 1.38, 0]}>
         <Text
@@ -838,13 +906,68 @@ function Actor({ def, sim, onSelect, selected }: { def: ActorDef; sim: SimRef; o
   );
 }
 
+// ─── Spotlight: where the thing being narrated is happening ───────────────
+// A pulsing ring on the floor and a bobbing arrow with the beat's tag, moved
+// to whichever part of the studio the current beat names. It is the link
+// between the caption the reader is reading and the place they should look.
+
+function Spotlight({ sim }: { sim: SimRef }) {
+  const g = useRef<THREE.Group>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
+  const mat = useRef<THREE.MeshBasicMaterial>(null);
+  const arrow = useRef<THREE.Group>(null);
+  const clock = useRef(0);
+  const [tag, setTag] = useState('');
+  useFrame((_, dt) => {
+    const w = sim.current.world;
+    const o = g.current, r = ringRef.current, a = arrow.current, m = mat.current;
+    if (!o || !r || !a || !m) return;
+    clock.current += dt;
+    if (w.beat.tag !== tag) setTag(w.beat.tag);
+    const geo = w.beat.spot ? SPOT_GEO[w.beat.spot] : null;
+    const show = geo ? 1 : 0;
+    if (geo) {
+      const k = sim.current.snap ? 1 : damp(dt, 4);
+      o.position.x += (geo.c[0] - o.position.x) * k;
+      o.position.z += (geo.c[1] - o.position.z) * k;
+      r.scale.setScalar(THREE.MathUtils.lerp(r.scale.x, geo.r, k));
+      a.position.y = THREE.MathUtils.lerp(a.position.y, geo.h, k);
+    }
+    o.scale.setScalar(THREE.MathUtils.lerp(o.scale.x || 0.001, show || 0.001, damp(dt, 6)));
+    m.opacity = 0.35 + 0.25 * Math.sin(clock.current * 4);
+    a.children[0].position.y = Math.sin(clock.current * 3) * 0.07;
+  });
+  return (
+    <group ref={g}>
+      <mesh ref={ringRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.035, 0]}>
+        <ringGeometry args={[0.9, 1, 56]} />
+        <meshBasicMaterial ref={mat} color={PLUM} transparent opacity={0.45} depthWrite={false} side={THREE.DoubleSide} />
+      </mesh>
+      <group ref={arrow} position={[0, 2, 0]}>
+        <group>
+          <mesh rotation={[Math.PI, 0, 0]}>
+            <coneGeometry args={[0.09, 0.22, 16]} />
+            <meshStandardMaterial color={PLUM} emissive={PLUM} emissiveIntensity={0.35} />
+          </mesh>
+          <Billboard position={[0, 0.3, 0]}>
+            <Text fontSize={0.15} color={PLUM} anchorX="center" anchorY="middle" outlineWidth={0.022} outlineColor={PAPER}>
+              {tag}
+            </Text>
+          </Billboard>
+        </group>
+      </group>
+    </group>
+  );
+}
+
 // ─── The scene ────────────────────────────────────────────────────────────
 
-export function Studio({ sim, onSelect, selected, onTick }: {
+export function Studio({ sim, onSelect, selected, onTick, onHold }: {
   sim: SimRef;
   onSelect: (id: SelectableId) => void;
   selected: SelectableId | null;
   onTick: (t: number) => void;
+  onHold: (phaseIndex: number) => void;
 }) {
   const controls = useRef<OrbitControlsImpl | null>(null);
   const items = useMemo(() => ALL_ITEMS.map(i => i.id), []);
@@ -868,7 +991,7 @@ export function Studio({ sim, onSelect, selected, onTick }: {
       />
       <directionalLight position={[-6, 6, -4]} intensity={0.35} />
 
-      <Director sim={sim} onTick={onTick} controls={controls} />
+      <Director sim={sim} onTick={onTick} onHold={onHold} controls={controls} />
       <OrbitControls
         ref={controls}
         makeDefault
@@ -890,6 +1013,7 @@ export function Studio({ sim, onSelect, selected, onTick }: {
       <Rug sim={sim} onSelect={onSelect} selected={selected} />
       <RetroCorner sim={sim} onSelect={onSelect} selected={selected} />
       <Impediment sim={sim} />
+      <Spotlight sim={sim} />
       {items.map((id, i) => <Card key={id} id={id} sim={sim} index={i} />)}
       {ACTORS.map(a => <Actor key={a.id} def={a} sim={sim} onSelect={onSelect} selected={selected} />)}
     </>

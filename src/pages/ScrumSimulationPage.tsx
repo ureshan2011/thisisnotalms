@@ -84,8 +84,9 @@ export default function ScrumSimulationPage() {
               transition={{ duration: 0.7, ease: EASE, delay: 0.14 }}
             >
               Six miniatures, one parcel drone, three one-week Sprints in a 3D studio you can pause, scrub and orbit.
-              The Product Backlog becomes a Sprint Backlog, the Daily Scrum runs every morning, an impediment lands
-              and gets cleared, stakeholders watch the drone lift off — and the whole loop goes round three times.
+              The Product Backlog is ordered, refined and estimated with Planning Poker, becomes a Sprint Backlog,
+              the Daily Scrum runs every morning, an impediment lands and gets cleared, stakeholders watch the drone
+              lift off — and the whole loop goes round three times.
             </motion.p>
 
             <motion.p

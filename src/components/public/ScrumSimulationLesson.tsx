@@ -20,7 +20,7 @@ const ScrumStudio = lazy(() => import('./scrum/ScrumStudio'));
 const BASE = import.meta.env.BASE_URL;
 
 const LESSON_META: [string, string][] = [
-  ['Time', '35 minutes'],
+  ['Time', '40 minutes'],
   ['Follows', 'Lesson 2, Scrum up close'],
   ['Needs', 'A browser with WebGL — any laptop or phone from the last few years'],
 ];
@@ -29,6 +29,7 @@ const OBJECTIVES = [
   'Name the three accountabilities on a Scrum Team and say what each one owns — and what it does not',
   'Walk the five events of a Sprint in order, with who attends and the timebox on each',
   'Explain the three artefacts and the commitment attached to each one',
+  'Explain backlog refinement and story estimation with Planning Poker, and why neither is a Scrum event',
   'Trace one backlog item from the Product Backlog to a Done Increment, and say who decides at every step',
   'Spot the common ways a team breaks Scrum: the standup that became a status report, the manager who set the Sprint scope, the item accepted without being Done',
 ];
@@ -65,12 +66,26 @@ const EVENTS: [string, string, string, string, string][] = [
   ['Sprint Retrospective', 'The Scrum Team only', 'Max 3 hours a month', 'One improvement, into the next Sprint', 'The only event about the team rather than the product. What went well, what got in the way, one thing to change.'],
 ];
 
+const NOT_EVENTS: [string, string, string][] = [
+  [
+    'Backlog Refinement (grooming)', 'Product Owner + Developers · ongoing, about 10% of capacity',
+    'Adding detail, acceptance criteria, order and size to Product Backlog items so the top of the list is ready before Sprint Planning. The Scrum Guide describes it as an ongoing activity, not an event, and most teams hold a short session each Sprint — in the studio, on day three.',
+  ],
+  [
+    'Story estimation (Planning Poker)', 'The Developers · a few minutes per story',
+    'Each Developer reveals a card at once — 1, 2, 3, 5, 8, 13 — so nobody anchors on the loudest voice. Differences are discussed, then everyone re-votes. Points are relative size and uncertainty, not hours. It is a popular practice; Scrum does not require any particular estimation method.',
+  ],
+];
+
 const LOOP: [string, string][] = [
-  ['The Product Owner orders the Product Backlog', 'One list, one owner. The top item is always unambiguous. In the studio, the pile on Priya’s desk becomes the wall of ordered cards.'],
-  ['Sprint Planning pulls the top items into a Sprint Backlog', 'The Product Owner proposes why the Sprint is valuable; the Developers decide how much they can finish and how; the team writes the Sprint Goal. Cards fly from the wall to To Do.'],
+  ['The Product Owner orders the Product Backlog', 'One list, one owner. The top item is always unambiguous. In the studio, the pile on Priya’s desk becomes the wall of ordered cards, each one marked “? pts” because nobody has sized it yet.'],
+  ['Refinement gets the top of the list ready', 'Priya and the Developers stand at the wall. Questions are asked, acceptance criteria written, big items split. Cards that could be finished in one Sprint get a green “ready” dot; the bottom of the list stays rough on purpose.'],
+  ['The Developers estimate with Planning Poker', 'Everyone reveals a card at once. Frame: 3, 3, 3, 3. Rotors: 3, 5, 8, 5 — so the highest and lowest explain, and the re-vote is 5 across the board. Points are relative size, and only the people doing the work estimate.'],
+  ['Sprint Planning pulls the top items into a Sprint Backlog', 'Three topics. Why: the Product Owner proposes and the team writes the Sprint Goal. What: the Developers pull ready items until they are no longer confident of finishing. How: they break the items into tasks. Cards fly from the wall to the Sprint Backlog’s To Do column.'],
   ['Every day, a fifteen-minute Daily Scrum', 'The Developers stand in a circle and re-plan the day. On day four Ben raises the red block on his desk and Sam, the Scrum Master, leaves the circle to clear it.'],
   ['The work moves To Do → Doing → Done', 'Each item that meets the Definition of Done bolts a part onto the drone at once. The Sprint Backlog is the Developers’ plan and they change it daily; nobody adds work that risks the Sprint Goal.'],
   ['The Sprint Review shows a real Increment to real stakeholders', 'The drone lifts off in front of the two people who asked for it. A new card, “Rain sensor”, arrives from what they saw, and the Product Owner orders it above Lights.'],
+  ['Mid-Sprint, a short refinement for the next Sprint', 'On day three the team spends about an hour at the wall getting the next Sprint’s cards ready. In Sprint 2 that is where the new Rain sensor card gets its 3 points. The running Sprint is not touched.'],
   ['The Retrospective picks one improvement', 'Team only. One change goes on a sticky, and it becomes a green card in the next Sprint Backlog so that it happens rather than is admired.'],
   ['The next Sprint starts immediately', 'No gap, no cool-down week, no phase called “done”. After three Sprints there are nine items on the drone and two still on the wall — the backlog is never finished.'],
 ];
@@ -114,6 +129,16 @@ const QUESTIONS: QuizQuestion[] = [
       { text: 'Yes — an Increment exists as soon as an item meets the Definition of Done, whether or not the Sprint has ended', why: 'Correct. Done is a quality standard, not a date. The Review is where stakeholders see the Increments; it is not the gate that makes them real.' },
       { text: 'Yes, but only because the Product Owner accepted it early', why: 'The Product Owner accepts value; the Definition of Done is the Developers’ standard. An item that meets it is Done regardless of who has looked at it.' },
       { text: 'No — parts should be added in a batch at the Review so stakeholders see them together', why: 'Batching for a demo is theatre. The Increment is whatever is Done, whenever it became Done.' },
+    ],
+  },
+  {
+    q: 'In Planning Poker the first votes on Rotors are 3, 5, 8 and 5. What should happen next?',
+    answer: 1,
+    options: [
+      { text: 'Take the average and record 5 points', why: 'Averaging hides the reason the votes differed. Chen’s 8 and Aroha’s 3 each knew something — the discussion is where that knowledge surfaces.' },
+      { text: 'The highest and lowest voters explain their thinking, then everyone votes again', why: 'Yes. The spread is information, not noise. After Chen and Aroha explain, the re-vote is 5, 5, 5, 5 — and now the whole team knows why.' },
+      { text: 'The Product Owner decides the size, because she owns the backlog', why: 'The Product Owner owns the order and answers questions about the story, but the people who will do the work size it.' },
+      { text: 'The Scrum Master picks the middle value to keep the meeting moving', why: 'The Scrum Master facilitates; the estimate belongs to the Developers.' },
     ],
   },
   {
@@ -168,7 +193,7 @@ export default function ScrumSimulationLesson() {
           lesson={3}
           of={9}
           title="The Scrum studio: a Sprint you can watch, pause and orbit"
-          lead="Lesson 2 gave you Scrum as a diagram and a list of definitions. This one gives you the same framework as a place. Six miniatures build a parcel drone through three one-week Sprints — every event, every artefact and every decision happening in front of you, with a narration that says who is doing what and why. Scrub it, jump about in it, click anyone, and by the end you will have watched the whole loop go round three times."
+          lead="Lesson 2 gave you Scrum as a diagram and a list of definitions. This one gives you the same framework as a place. Six miniatures order a backlog, refine it, estimate it with Planning Poker, then build a parcel drone through three one-week Sprints — every event, every artefact and every decision happening in front of you, with a caption that says what is happening and a timeline of every milestone. Scrub it, jump about in it, click anyone, and by the end you will have watched the whole loop go round three times."
           meta={LESSON_META}
           objectives={OBJECTIVES}
         />
@@ -181,7 +206,7 @@ export default function ScrumSimulationLesson() {
             eyebrow="Section 3.1 · The simulation"
             title="Three Sprints, on a tabletop"
             stop="."
-            aside="It plays itself. Pause it, drag to orbit, scroll to zoom, and click any miniature or object for what it owns and the trap people fall into with it."
+            aside="It plays itself and pauses after each step so you can read. The caption says what is happening, the panel lists the steps, and the ring on the floor shows where to look."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -272,7 +297,7 @@ export default function ScrumSimulationLesson() {
             eyebrow="Section 3.4 · The meetings"
             title="Five events, one of them a container"
             stop="."
-            aside="Timeboxes are the Guide’s maxima for a one-month Sprint. The studio runs one-week Sprints, so Planning, Review and Retrospective scale to about a fifth. The Daily Scrum does not scale — it is per day."
+            aside="Timeboxes are the Guide’s maxima for a one-month Sprint. The studio runs one-week Sprints, so Planning, Review and Retrospective scale to about a fifth. The Daily Scrum does not scale — it is per day. Refinement and estimation are not events at all."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -295,6 +320,18 @@ export default function ScrumSimulationLesson() {
             </table>
           </div>
         </Reveal>
+        <Reveal delay={0.05}>
+          <p className="bt-eyebrow bt-eyebrow--quiet" style={{ marginTop: 30 }}>Two things every team does that are not events</p>
+          <div className="bt-pairgrid">
+            {NOT_EVENTS.map(([name, sub, body]) => (
+              <div key={name} className="bt-card">
+                <h4>{name}</h4>
+                <p className="bt-eyebrow bt-eyebrow--quiet" style={{ marginBottom: 8 }}>{sub}</p>
+                <p>{body}</p>
+              </div>
+            ))}
+          </div>
+        </Reveal>
       </section>
 
       {/* ══ 3.5 The loop ═════════════════════════════════════════════════ */}
@@ -304,7 +341,7 @@ export default function ScrumSimulationLesson() {
             eyebrow="Section 3.5 · The whole process"
             title="One item, from the wall to the drone"
             stop="."
-            aside="This is the studio written down: the seven things that happen every Sprint, in order, and who decides at each one."
+            aside="This is the studio written down: every step an item goes through, in order, and who decides at each one."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -327,7 +364,7 @@ export default function ScrumSimulationLesson() {
         <Reveal>
           <SectionHead
             eyebrow="Check yourself"
-            title="Six things the studio showed you"
+            title="Seven things the studio showed you"
             stop="."
             aside="Every question is about something that happened in the simulation. If one catches you out, jump back to that moment with the chips and watch it again."
           />
@@ -335,7 +372,7 @@ export default function ScrumSimulationLesson() {
         <Reveal delay={0.05}>
           <Quiz
             questions={QUESTIONS}
-            closing="Six for six means you can narrate the studio yourself, which is most of what the 60% case study asks when it says “recommend Scrum and justify it”."
+            closing="Seven for seven means you can narrate the studio yourself, which is most of what the 60% case study asks when it says “recommend Scrum and justify it”."
           />
         </Reveal>
       </section>

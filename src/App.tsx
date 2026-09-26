@@ -16,6 +16,7 @@ const IntroToBusinessAnalyticsPage = lazy(() => import('./pages/IntroToBusinessA
 const IntroToSISPPage = lazy(() => import('./pages/IntroToSISPPage'));
 const IntroToProjectManagementPage = lazy(() => import('./pages/IntroToProjectManagementPage'));
 const ProjectMethodologiesPage = lazy(() => import('./pages/ProjectMethodologiesPage'));
+const ScrumSimulationPage = lazy(() => import('./pages/ScrumSimulationPage'));
 const PeerAuditPage = lazy(() => import('./pages/PeerAuditPage'));
 const PowerBISetupPage = lazy(() => import('./pages/PowerBISetupPage'));
 const BusinessModelCanvasPage = lazy(() => import('./pages/BusinessModelCanvasPage'));
@@ -116,6 +117,7 @@ function AppRoutes() {
         <Route path="/intro-to-sisp" element={<Suspense fallback={null}><IntroToSISPPage /></Suspense>} />
         <Route path="/intro-to-project-management" element={<Suspense fallback={null}><IntroToProjectManagementPage /></Suspense>} />
         <Route path="/project-methodologies" element={<Suspense fallback={null}><ProjectMethodologiesPage /></Suspense>} />
+        <Route path="/scrum-simulation" element={<Suspense fallback={null}><ScrumSimulationPage /></Suspense>} />
         <Route path="/peer-audit" element={<Suspense fallback={null}><PeerAuditPage /></Suspense>} />
         <Route path="/business-model-canvas" element={<Suspense fallback={null}><BusinessModelCanvasPage /></Suspense>} />
         <Route path="/business-model-canvas-mbi804" element={<Suspense fallback={null}><BusinessModelCanvasMBI804Page /></Suspense>} />
@@ -218,6 +220,7 @@ function ShutdownRoutes() {
       <Route path="/intro-to-sisp" element={<Suspense fallback={null}><IntroToSISPPage /></Suspense>} />
       <Route path="/intro-to-project-management" element={<Suspense fallback={null}><IntroToProjectManagementPage /></Suspense>} />
       <Route path="/project-methodologies" element={<Suspense fallback={null}><ProjectMethodologiesPage /></Suspense>} />
+      <Route path="/scrum-simulation" element={<Suspense fallback={null}><ScrumSimulationPage /></Suspense>} />
       <Route path="/peer-audit" element={<Suspense fallback={null}><PeerAuditPage /></Suspense>} />
       <Route path="/business-model-canvas" element={<Suspense fallback={null}><BusinessModelCanvasPage /></Suspense>} />
       <Route path="/business-model-canvas-mbi804" element={<Suspense fallback={null}><BusinessModelCanvasMBI804Page /></Suspense>} />

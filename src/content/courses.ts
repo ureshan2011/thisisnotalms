@@ -428,6 +428,15 @@ const MBI804: Course = {
       kind: 'Lesson',
     },
     {
+      id: 'scrum-simulation',
+      title: 'The Scrum studio: a Sprint you can watch, pause and orbit',
+      blurb:
+        'Lesson 3. Six 3D miniatures build a parcel drone through three one-week Sprints while a narration says who is doing what and why: the Product Backlog ordered on the wall, Sprint Planning pulling cards to the board, a fifteen-minute Daily Scrum every morning, an impediment landing and being cleared, stakeholders watching the drone lift off at the Review, one improvement from each Retrospective. Scrub it, jump to any event, click anyone, then a six-question check.',
+      to: '/scrum-simulation',
+      access: 'open',
+      kind: 'Lesson',
+    },
+    {
       id: 'pm-peer-audit',
       title: 'The outside auditor: peer audit round',
       blurb:

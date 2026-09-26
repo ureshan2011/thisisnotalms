@@ -1,5 +1,6 @@
 import { useRef, useState, type KeyboardEvent } from 'react';
 import { getPyodide, isPyodideReady } from '../../../lib/pyodide';
+import { highlight } from './pyHighlight';
 
 // ─── A space to actually run the Python ───────────────────────────────────
 // Editable, runnable, and honest: the code in the box is the code that runs,
@@ -22,8 +23,39 @@ import { getPyodide, isPyodideReady } from '../../../lib/pyodide';
 // editor's line numbers and autocomplete would be furniture rather than
 // help. Tab inserts four spaces, because Python and because otherwise Tab
 // walks the reader out of the box mid-thought.
+//
+// Given notes, it opens on a read-only view instead: the original program
+// with each important line numbered and explained beside it, so a beginner
+// reads before they edit. That view always shows the program as written;
+// edits live in the editor, and Run runs whatever is in the editor.
 
 type Status = 'idle' | 'starting' | 'running' | 'done' | 'failed';
+type Mode = 'read' | 'edit';
+
+function Annotated({ code, notes }: { code: string; notes: string[] }) {
+  let n = 0;
+  return (
+    <ol className="bt-ann">
+      {code.split('\n').map((line, i) => {
+        const note = notes[i];
+        if (note) n += 1;
+        return (
+          <li key={i} className={note ? 'has-note' : undefined}>
+            <code className="bt-ann__code">{highlight(line)}</code>
+            {note ? (
+              <p className="bt-ann__note">
+                <b aria-hidden="true">{n}</b>
+                <span>{note}</span>
+              </p>
+            ) : (
+              <span className="bt-ann__blank" />
+            )}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
 
 /** A new, empty Colab notebook. Where this code goes once it needs the
  *  libraries this page deliberately does not ship. */
@@ -33,6 +65,7 @@ export default function PythonPlayground({
   label,
   code: initial,
   note,
+  notes,
   rows = 16,
 }: {
   /** What this space is for, in the bar above the code. */
@@ -41,12 +74,15 @@ export default function PythonPlayground({
   code: string;
   /** One line under the output on what to try changing. */
   note?: string;
+  /** One note per line of `code`, '' for none. Turns on the read view. */
+  notes?: string[];
   rows?: number;
 }) {
   const [code, setCode] = useState(initial);
   const [output, setOutput] = useState('');
   const [status, setStatus] = useState<Status>('idle');
   const [copied, setCopied] = useState(false);
+  const [mode, setMode] = useState<Mode>(notes ? 'read' : 'edit');
   const box = useRef<HTMLTextAreaElement>(null);
 
   async function run() {
@@ -128,6 +164,25 @@ export default function PythonPlayground({
         </button>
       </div>
 
+      {notes && (
+        <div className="bt-play__modes" role="tablist" aria-label="How to view the code">
+          <button type="button" role="tab" aria-selected={mode === 'read'} onClick={() => setMode('read')}>
+            Read it line by line
+          </button>
+          <button type="button" role="tab" aria-selected={mode === 'edit'} onClick={() => setMode('edit')}>
+            Edit and run
+          </button>
+        </div>
+      )}
+
+      {mode === 'read' && notes ? (
+        <>
+          <Annotated code={initial} notes={notes} />
+          {code !== initial && (
+            <p className="bt-play__note">You have changed the code. This view shows the original — your version is under Edit and run, and that is what Run runs.</p>
+          )}
+        </>
+      ) : (
       <textarea
         ref={box}
         className="bt-play__code"
@@ -140,6 +195,7 @@ export default function PythonPlayground({
         onChange={e => setCode(e.target.value)}
         onKeyDown={onKeyDown}
       />
+      )}
 
       <div className="bt-play__run">
         <button type="button" className="bt-btn bt-btn--md" onClick={run} disabled={busy}>

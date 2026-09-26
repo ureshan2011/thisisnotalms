@@ -129,6 +129,15 @@ const MBI800: Course = {
       kind: 'Lesson',
     },
     {
+      id: 'threats-to-strategy',
+      title: 'Threats to opportunities to strategy',
+      blurb:
+        'How a business capitalises on its threats. Netflix, Apple, Adobe, Microsoft, NZ Post and Google each turned a threat into a strategy, Kodak and Fujifilm took the same threat two ways, then you flip six threats yourself.',
+      to: '/threats-to-strategy',
+      access: 'open',
+      kind: 'Lesson',
+    },
+    {
       id: 'five-stories',
       title: 'Five stories that changed everything',
       blurb:

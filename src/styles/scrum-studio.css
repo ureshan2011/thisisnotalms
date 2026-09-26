@@ -1,0 +1,95 @@
+/* ─── The Scrum studio (MBI804 · /scrum-simulation) ────────────────────────
+   A 3D diorama with a transport bar, a narration panel and a timeline of
+   chips. Sits inside .bt, so every colour, radius and duration is a Blend
+   token; nothing here is a literal the accent could not swap. */
+
+.sst { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; align-items: stretch; margin-top: 22px; }
+
+.sst__stage {
+  position: relative; overflow: hidden; border-radius: var(--radius-card);
+  border: 1px solid var(--border-subtle); background: #f3e9df;
+  height: 62vh; min-height: 520px; max-height: 700px;
+  box-shadow: var(--shadow-md);
+}
+.sst__stage canvas { display: block; touch-action: none; outline: none; }
+
+.sst__status, .sst__hint {
+  position: absolute; top: 14px; z-index: 2; pointer-events: none;
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.02em;
+  padding: 7px 12px; border-radius: var(--radius-pill);
+}
+.sst__status { left: 14px; background: var(--ink-900); color: #fff; }
+.sst__status b { color: var(--accent-200, #f3c6dd); font-weight: 600; }
+.sst__hint { right: 14px; background: rgba(255, 255, 255, 0.78); color: var(--ink-400); }
+
+.sst__transport {
+  position: absolute; left: 14px; right: 14px; bottom: 14px; z-index: 2;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px 8px 8px; border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.86); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: var(--shadow-sm);
+}
+.sst__tbtn {
+  flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%; border: 0;
+  background: var(--ink-900); color: #fff; display: grid; place-items: center;
+  cursor: pointer; transition: transform var(--dur-base) var(--ease), background var(--dur-fast) var(--ease);
+}
+.sst__tbtn--quiet { background: var(--paper-200); color: var(--ink-900); }
+.sst__tbtn:hover { transform: translateY(-2px); }
+.sst__tbtn:active { transform: scale(0.97); }
+.sst__speed { display: flex; gap: 3px; padding: 3px; border-radius: var(--radius-pill); background: var(--paper-200); }
+.sst__speed button {
+  border: 0; background: transparent; color: var(--ink-400); font: 700 11.5px var(--font-body);
+  padding: 5px 9px; border-radius: var(--radius-pill); cursor: pointer;
+}
+.sst__speed button[aria-pressed='true'] { background: var(--ink-900); color: #fff; }
+.sst__scrub { flex: 1; min-width: 60px; accent-color: var(--accent-500); margin: 0; }
+.sst__clock { flex: 0 0 auto; font-family: var(--font-mono); font-size: 11px; color: var(--ink-400); min-width: 64px; text-align: right; }
+
+.sst__panel {
+  border-radius: var(--radius-card); background: var(--paper-50); border: 1px solid var(--border-subtle);
+  padding: 22px 22px 20px; display: flex; flex-direction: column; gap: 12px; min-width: 0;
+}
+.sst__panel h3 { font-family: var(--font-display); font-size: 21px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; color: var(--ink-900); margin: 0; }
+.sst__panel p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-600); }
+.sst__facts { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 7px; }
+.sst__facts li { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; font-size: 13px; line-height: 1.4; color: var(--ink-600); }
+.sst__facts b { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-400); font-weight: 700; padding-top: 3px; }
+.sst__watch {
+  border-left: 3px solid var(--accent-500); background: var(--accent-50); color: var(--ink-900);
+  padding: 10px 13px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 13.5px; line-height: 1.5;
+}
+.sst__watch b { display: block; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-700); margin-bottom: 3px; }
+.sst__trap { border-top: 1px dashed var(--border-subtle); padding-top: 10px; font-size: 13px; line-height: 1.5; color: var(--ink-600); }
+.sst__trap b { display: block; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--red-500); margin-bottom: 3px; }
+.sst__back { align-self: flex-start; margin-top: auto; }
+
+.sst__timeline { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
+.sst__group { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; padding: 6px 8px 6px 10px; border-radius: var(--radius-md); background: var(--paper-100); border: 1px solid var(--border-subtle); }
+.sst__group--live { border-color: var(--accent-300, var(--accent-500)); }
+.sst__glabel { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-400); font-weight: 700; margin-right: 4px; }
+.sst__chip {
+  border: 1px solid var(--border-subtle); background: #fff; color: var(--ink-600);
+  font: 600 12px var(--font-body); padding: 6px 11px; border-radius: var(--radius-pill); cursor: pointer;
+  transition: transform var(--dur-base) var(--ease), background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.sst__chip:hover { transform: translateY(-2px); }
+.sst__chip[aria-current='step'] { background: var(--ink-900); color: #fff; border-color: var(--ink-900); }
+.sst__chip--day { padding-inline: 9px; font-family: var(--font-mono); font-weight: 500; }
+
+.sst__fallback { display: grid; place-items: center; height: 100%; padding: 32px; text-align: center; color: var(--ink-600); font-size: 14px; line-height: 1.55; }
+.sst__loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink-400); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; }
+
+@media (max-width: 960px) {
+  .sst { grid-template-columns: minmax(0, 1fr); }
+  .sst__stage { height: 56vh; min-height: 400px; }
+  .sst__hint { display: none; }
+}
+@media (max-width: 520px) {
+  .sst__transport { gap: 6px; padding: 6px 8px 6px 6px; }
+  .sst__clock { display: none; }
+  .sst__speed button { padding: 5px 7px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sst__tbtn, .sst__chip { transition: none; }
+}

@@ -8,6 +8,10 @@ import RandomSamples from './ml/RandomSamples';
 import ModelCompare from './ml/ModelCompare';
 import RuleVsExamples from './ml/RuleVsExamples';
 import PythonPlayground, { COLAB_URL } from './ml/PythonPlayground';
+import CodeWalk from './ml/CodeWalk';
+import ModelSwap from './ml/ModelSwap';
+import PythonWords from './ml/PythonWords';
+import { PLAY_FOREST, PLAY_LINE, PLAY_TREE } from './ml/playgrounds';
 
 // ─── MBI806B · Three ways to predict things ───────────────────────────────
 // For postgraduates with no maths, coding or data background. Pitched at
@@ -71,132 +75,6 @@ const RECAP: [string, string][] = [
   ['A random forest is lots of trees voting.', 'More accurate, but you cannot print it. Good when being right matters more than explaining.'],
   ['Try the simple one first.', 'A line takes ten minutes and tells you if there is anything there at all.'],
 ];
-
-const SKLEARN_SHAPE = `model = SomeModel()      # 1. pick a model
-model.fit(X, y)          # 2. show it the examples
-model.predict(new)       # 3. ask about someone new`;
-
-const SKLEARN_THREE = `# A number, like rent
-from sklearn.linear_model import LinearRegression
-model = LinearRegression()
-
-# A choice, with a flowchart you can print
-from sklearn.tree import DecisionTreeClassifier
-model = DecisionTreeClassifier(max_depth=3)
-
-# A choice, as accurate as you can get
-from sklearn.ensemble import RandomForestClassifier
-model = RandomForestClassifier(n_estimators=300)`;
-
-const PLAY_LINE = `# Twelve flats: size in square metres, and monthly rent.
-size = [28, 35, 41, 46, 52, 58, 63, 70, 76, 84, 91, 98]
-rent = [410, 430, 505, 520, 585, 600, 665, 690, 760, 780, 870, 880]
-
-
-def how_wrong(start, per_metre):
-    """Add up how far this line misses all twelve flats."""
-    total = 0
-    for i in range(len(size)):
-        guess = start + per_metre * size[i]
-        total = total + abs(rent[i] - guess)
-    return total
-
-
-# Try thousands of lines. Keep the best one.
-# This is exactly what you were doing with the sliders.
-best = None
-for start in range(150, 300):
-    for cents in range(500, 900):
-        miss = how_wrong(start, cents / 100)
-        if best is None or miss < best[0]:
-            best = (miss, start, cents / 100)
-
-miss, start, per_metre = best
-print("Best line: $%d, plus $%.2f for every square metre" % (start, per_metre))
-print("It is wrong by $%d in total, across all twelve flats." % miss)
-print()
-print("A 65 m2 flat  ->  about $%.0f a month" % (start + per_metre * 65))`;
-
-const PLAY_TREE = `# Fourteen gym members.
-# visits a month, months as a member, and 1 if they cancelled.
-members = [
-    (1,  3, 1), (2,  5, 1), (2, 14, 1), (3,  2, 1),
-    (3,  9, 1), (4,  4, 1), (4, 20, 0), (5,  6, 0),
-    (6, 11, 0), (7,  3, 0), (8, 18, 0), (9,  7, 0),
-    (11, 2, 0), (12, 25, 0),
-]
-
-
-def how_many_wrong(cut_off):
-    """Split on 'visits < cut_off'. Guess the majority on each side.
-    How many people do we get wrong?"""
-    wrong = 0
-    for group in [[m for m in members if m[0] <  cut_off],
-                  [m for m in members if m[0] >= cut_off]]:
-        if group:
-            cancelled = sum(m[2] for m in group)
-            stayed = len(group) - cancelled
-            wrong = wrong + min(cancelled, stayed)
-    return wrong
-
-
-# Try every cut-off. Keep the best. That is all a tree does.
-for cut_off in range(2, 10):
-    print("visits < %d   ->  gets %d of 14 wrong" % (cut_off, how_many_wrong(cut_off)))`;
-
-const PLAY_FOREST = `# The same 20 members from the box above.
-# visits a month, months a member, and 1 if they quit.
-members = [
-    (1,  2, 1), (1,  9, 1), (2,  3, 1), (2, 18, 0), (3,  1, 1),
-    (3,  7, 1), (3, 26, 0), (4,  4, 1), (4, 11, 1), (4, 30, 0),
-    (5,  2, 1), (5, 13, 0), (6,  5, 1), (6, 20, 0), (7,  3, 0),
-    (8, 10, 0), (9,  2, 0), (9, 22, 0), (11, 6, 0), (12, 15, 0),
-]
-
-# The same five tiny trees. Each asks ONE question. None of them is perfect.
-# (which fact to look at, the cut-off, what it asks)
-rules = [
-    (0,  3, "comes less than 3 times a month"),
-    (0,  5, "comes less than 5 times a month"),
-    (0,  7, "comes less than 7 times a month"),
-    (1,  6, "joined less than 6 months ago"),
-    (1, 12, "joined less than a year ago"),
-]
-
-
-def says_quit(rule, member):
-    fact, cut_off, name = rule
-    return 1 if member[fact] < cut_off else 0
-
-
-def score(guess):
-    return sum(1 for m in members if guess(m) == m[2])
-
-
-print("Each tree on its own:")
-for rule in rules:
-    print("   %-34s %2d / 20" % (rule[2], score(lambda m, r=rule: says_quit(r, m))))
-
-
-def vote(member):
-    quit_votes = sum(says_quit(r, member) for r in rules)
-    return 1 if quit_votes > len(rules) / 2 else 0
-
-
-print()
-print("   %-34s %2d / 20" % ("ALL FIVE VOTING", score(vote)))`;
-
-function Code({ title, children }: { title: string; children: string }) {
-  return (
-    <div className="bt-code">
-      <div className="bt-code__bar">
-        <span style={{ background: 'var(--green-500)', width: 6, height: 6, borderRadius: 999, display: 'inline-block' }} />
-        {title}
-      </div>
-      <pre>{children}</pre>
-    </div>
-  );
-}
 
 export default function PredictingWithDataLesson() {
   return (
@@ -514,71 +392,95 @@ export default function PredictingWithDataLesson() {
         <Reveal>
           <SectionHead
             eyebrow="The code"
-            title="Three lines each"
-            aside="This is the part people expect to be hard. Swapping one model for another is a one-word change."
+            title="Six lines of Python"
+            aside="You do not need to be a programmer. Every model is the same few lines, and we will read them together."
           />
         </Reveal>
 
         <Reveal delay={0.05}>
-          <Code title="every model looks like this">{SKLEARN_SHAPE}</Code>
-          <p className="bt-note">
-            <code>X</code> is your table of facts, one row per thing. <code>y</code> is the column of answers. Same
-            for all three.
-          </p>
-        </Reveal>
-
-        <Reveal delay={0.05}>
-          <Code title="the three models">{SKLEARN_THREE}</Code>
-          <p className="bt-note">
-            Only the name changes. That is why people just try all three.{' '}
-            <a href={COLAB_URL} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-600)' }}>
-              Open a free Colab notebook
-            </a>{' '}
-            to run these — it has the libraries already.
-          </p>
-        </Reveal>
-
-        <Reveal delay={0.05}>
-          <h3 style={{ fontSize: 19, marginTop: 40 }}>Or run it right here</h3>
           <div className="bt-prose">
             <p>
-              These three boxes run real Python in your browser. Change a number, press Run, see what happens. The
-              first press takes about twenty seconds to fetch Python. After that it is instant.
+              Here is a whole, real program. It trains a random forest on the 20 gym members you just met, then asks
+              about two new people.
+            </p>
+            <p>Press <b>Next line</b> to walk through it. Watch the picture underneath change as you go.</p>
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <CodeWalk />
+          <p className="bt-note">
+            Want to run it? Press <b>Copy</b>, then{' '}
+            <a href={COLAB_URL} target="_blank" rel="noreferrer" style={{ color: 'var(--accent-600)' }}>
+              open a free Colab notebook
+            </a>
+            , paste it into the box and press ▶. Colab already has scikit-learn, so there is nothing to install.
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <h3 style={{ fontSize: 19, marginTop: 40 }}>Swap one word, get a different model</h3>
+          <p className="bt-note" style={{ maxWidth: '58ch' }}>
+            Pick a model. Only the highlighted words change. The last two lines are the same for all three.
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <ModelSwap />
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <h3 style={{ fontSize: 19, marginTop: 40 }}>Look inside: run it right here</h3>
+          <div className="bt-prose">
+            <p>
+              scikit-learn hides the work inside <code>fit</code>. The three boxes below do that work by hand, in
+              plain Python, so you can see it. They run in your browser — nothing to install.
+            </p>
+            <p>
+              Read each one line by line first. Then switch to <b>Edit and run</b>, change a number, and press Run.
             </p>
           </div>
         </Reveal>
 
         <Reveal delay={0.05}>
+          <h4 style={{ fontSize: 15, marginTop: 26 }}>The only Python you need for them</h4>
+          <PythonWords />
+        </Reveal>
+
+        <Reveal delay={0.05}>
           <PythonPlayground
             label="1 — finding the best line"
-            code={PLAY_LINE}
-            rows={20}
-            note="Try this: change one rent to $2,000 and run it again. One odd flat drags the whole line."
+            code={PLAY_LINE.code}
+            notes={PLAY_LINE.notes}
+            rows={22}
+            note="Try this: change my_start and my_per_m2 and get your miss as low as you can. Can you beat the computer's $164?"
           />
         </Reveal>
 
         <Reveal delay={0.05}>
           <PythonPlayground
             label="2 — a tree picking its first question"
-            code={PLAY_TREE}
-            rows={20}
-            note="Try this: which cut-off wins? It should match the one you picked in the widget above."
+            code={PLAY_TREE.code}
+            notes={PLAY_TREE.notes}
+            rows={22}
+            note="Try this: does the winning cut-off match the question you picked in the tree widget above?"
           />
         </Reveal>
 
         <Reveal delay={0.05}>
           <PythonPlayground
             label="3 — five tiny trees, then a vote"
-            code={PLAY_FOREST}
-            rows={20}
-            note="Try adding a sixth tree to the list, or taking one away. The vote is hard to make worse — that is the useful part."
+            code={PLAY_FOREST.code}
+            notes={PLAY_FOREST.notes}
+            rows={22}
+            note="Try this: change a cut-off in one of the trees, or change votes >= 3 to votes >= 2. The vote is hard to make worse — that is the useful part."
           />
         </Reveal>
 
         <Reveal delay={0.05}>
           <p className="bt-note" style={{ marginTop: 22 }}>
-            One warning: <code>while True:</code> will freeze the page, because Python is running in this tab. Just
-            reload.
+            Stuck? Press Reset to get the original back. And <code>while True:</code> will freeze the page, because
+            Python is running in this tab — just reload.
           </p>
         </Reveal>
       </section>

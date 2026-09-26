@@ -2832,6 +2832,308 @@ a.bt-btn { text-decoration: none; }
   .bt-play__bar { padding: 10px 12px; }
 }
 
+/* Read it line by line / Edit and run */
+.bt-play__modes { display: flex; gap: 4px; padding: 8px 12px 0; background: var(--paper-50); border-bottom: 1px solid var(--border-subtle); }
+.bt-play__modes button {
+  border: 1px solid transparent;
+  border-bottom: none;
+  background: transparent;
+  border-radius: 10px 10px 0 0;
+  padding: 8px 14px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-400);
+  cursor: pointer;
+}
+.bt-play__modes button:hover { color: var(--ink-900); }
+.bt-play__modes button[aria-selected='true'] { background: var(--ink-900); color: #fff; }
+
+/* The annotated listing: the program on dark, a note beside each line that
+   matters. The list is one grid and each row is display: contents, so the
+   code column is exactly as wide as the longest line and every note starts
+   at the same edge. */
+.bt-ann {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: max-content minmax(240px, 1fr);
+  overflow-x: auto;
+  background: var(--paper-0);
+}
+.bt-ann li { display: contents; }
+.bt-ann__code {
+  display: block;
+  background: var(--ink-900);
+  color: #ede6e2;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.75;
+  white-space: pre;
+  padding: 0 18px 0 16px;
+  box-shadow: inset 3px 0 0 transparent;
+}
+.bt-ann li:first-child .bt-ann__code { padding-top: 14px; }
+.bt-ann li:last-child .bt-ann__code { padding-bottom: 14px; }
+.bt-ann li.has-note .bt-ann__code { background: var(--ink-800); box-shadow: inset 3px 0 0 var(--accent-400); }
+.bt-ann__note {
+  margin: 0 !important;
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  padding: 3px 16px 7px 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-600);
+  border-top: 1px solid var(--paper-200);
+}
+.bt-ann__note b {
+  flex: 0 0 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-500);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+.bt-ann__blank { display: block; }
+
+@media (max-width: 760px) {
+  .bt-ann { display: block; }
+  .bt-ann li { display: block; }
+  .bt-ann__code { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11.5px; padding: 0 12px; }
+  .bt-ann__note { border-top: none; padding: 8px 12px 10px; background: var(--accent-50); }
+  .bt-ann__blank { display: none; }
+}
+
+/* Python, coloured just enough to read. Only ever on the dark surface. */
+.py-com { color: #9b918d; font-style: italic; }
+.py-str { color: #9fdfb0; }
+.py-kw { color: #ffa47e; font-weight: 700; }
+.py-fn { color: #8ecbff; }
+.py-num { color: #ffd479; }
+
+/* ── The code walkthrough (MBI806B) ─────────────────────────────────────── */
+.bt-cw__top { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(280px, 1fr); gap: 22px; align-items: start; }
+.bt-cw-code { background: var(--ink-900); border-radius: var(--radius-md); overflow: hidden; }
+.bt-cw-code__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px 10px 16px;
+  border-bottom: 1px solid var(--border-dark);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-300);
+}
+.bt-cw-code__bar > span { margin-right: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bt-cw-code__btn {
+  border: 1px solid var(--ink-600);
+  background: transparent;
+  color: var(--ink-200);
+  border-radius: var(--radius-pill);
+  padding: 4px 11px;
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.bt-cw-code__btn:hover { background: var(--ink-700); color: #fff; }
+.bt-cw-lines { list-style: none; margin: 0; padding: 10px 0 12px; overflow-x: auto; }
+.bt-cw-lines li {
+  display: flex;
+  gap: 14px;
+  padding: 0 16px 0 0;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: #ede6e2;
+  opacity: 0.4;
+  transition: opacity var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
+  box-shadow: inset 3px 0 0 transparent;
+}
+.bt-cw-lines li.is-step { cursor: pointer; }
+.bt-cw-lines li.is-step:hover { opacity: 0.75; }
+.bt-cw-lines li.is-lit { opacity: 1; background: rgba(255, 255, 255, 0.07); box-shadow: inset 3px 0 0 var(--accent-400); }
+.bt-cw-lines__n { flex: 0 0 34px; text-align: right; color: var(--ink-400); user-select: none; }
+.bt-cw-lines code { white-space: pre; }
+
+.bt-cw-explain h4 { margin-top: 6px; font-size: 21px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink-900); }
+.bt-cw-explain__body { margin-top: 8px !important; font-size: 15px; line-height: 1.55; color: var(--ink-600); }
+.bt-cw-words { margin: 8px 0 0; display: flex; flex-direction: column; gap: 8px; }
+.bt-cw-words > div { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: 4px 12px; align-items: baseline; }
+.bt-cw-words dt { margin: 0; }
+.bt-cw-words dt code {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 7px;
+  background: var(--ink-900);
+  color: #ffd9c7;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.bt-cw-words dd { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--ink-600); }
+.bt-cw-nav { display: flex; align-items: center; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+.bt-cw-back {
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  border-radius: var(--radius-pill);
+  height: 40px;
+  padding: 0 18px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink-900);
+  cursor: pointer;
+}
+.bt-cw-back:disabled { opacity: 0.4; cursor: default; }
+.bt-cw-dots { display: flex; gap: 6px; margin-top: 14px; }
+.bt-cw-dots button {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--paper-300);
+  cursor: pointer;
+  transition: width var(--dur-base) var(--ease), background var(--dur-base) var(--ease);
+}
+.bt-cw-dots button[aria-current='step'] { width: 26px; background: var(--accent-500); }
+
+/* The picture under the code: data in, model, answer out. */
+.bt-cw-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr) 58px minmax(0, 1.15fr) 72px minmax(0, 1.2fr);
+  grid-template-areas: 'x y a1 m a2 n';
+  gap: 10px;
+  align-items: stretch;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-subtle);
+}
+.bt-cw-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--paper-50);
+  padding: 12px 12px 10px;
+  transition: opacity var(--dur-base) var(--ease), border-color var(--dur-base) var(--ease), box-shadow var(--dur-base) var(--ease);
+}
+.bt-cw-card--off { opacity: 0.35; border-style: dashed; background: transparent; }
+.bt-cw-card--focus { border-color: var(--accent-500); box-shadow: 0 0 0 4px var(--accent-50); background: var(--paper-0); }
+.bt-cw-card__label { font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--ink-900); }
+.bt-cw-card__more { margin-top: 6px !important; font-size: 11.5px; color: var(--ink-400); }
+.bt-cw-card__more b { color: var(--ink-900); }
+.bt-cw-mini { margin-top: 8px; border-collapse: collapse; font-family: var(--font-mono); font-size: 12px; width: 100%; }
+.bt-cw-mini th { font-family: var(--font-body); font-size: 10.5px; font-weight: 600; color: var(--ink-400); text-align: left; padding: 0 6px 3px 0; }
+.bt-cw-mini td { padding: 2px 6px 2px 0; color: var(--ink-900); border-top: 1px solid var(--paper-200); }
+.bt-cw-answers { list-style: none; margin: 8px 0 0; padding: 0; }
+.bt-cw-answers li { display: flex; align-items: center; gap: 6px; font-size: 12px; line-height: 1.7; color: var(--ink-600); padding-top: 1px; }
+.bt-cw-tool { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 90px; text-align: center; font-size: 12.5px; color: var(--ink-600); }
+.bt-cw-tool svg { color: var(--accent-500); }
+.bt-cw-forest { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-top: 10px; justify-items: center; }
+.bt-cw-forest.is-trained svg { animation: bt-cw-grow 420ms var(--ease) both; }
+@keyframes bt-cw-grow { from { transform: scale(0.6); opacity: 0.3; } to { transform: scale(1); opacity: 1; } }
+.bt-cw-new { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+.bt-cw-new li { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.bt-cw-new code { font-family: var(--font-mono); font-size: 12px; color: var(--ink-900); background: var(--paper-200); padding: 2px 7px; border-radius: 6px; }
+.bt-cw-new__arrow { color: var(--ink-300); }
+.bt-cw-new__ans { display: inline-flex; align-items: center; gap: 5px; font-weight: 800; }
+.bt-cw-new__ans--q {
+  width: 22px;
+  height: 22px;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  border: 1.5px dashed var(--ink-300);
+  color: var(--ink-400);
+}
+.bt-cw-console { margin: 10px 0 0; padding: 7px 10px; border-radius: 8px; background: var(--ink-900); color: #9fdfb0; font-family: var(--font-mono); font-size: 13px; }
+.bt-cw-arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--ink-200); transition: color var(--dur-base) var(--ease); }
+.bt-cw-arrow code { font-family: var(--font-mono); font-size: 11px; color: var(--ink-300); }
+.bt-cw-arrow.is-lit { color: var(--accent-500); }
+.bt-cw-arrow.is-lit code { color: var(--accent-700); font-weight: 700; }
+.bt-cw-arrow__down { display: none; }
+
+@media (max-width: 960px) {
+  .bt-cw__top { grid-template-columns: minmax(0, 1fr); }
+  .bt-cw-stage {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: 'x y' 'a1 a1' 'm m' 'a2 a2' 'n n';
+  }
+  .bt-cw-arrow { flex-direction: row; gap: 6px; }
+  .bt-cw-arrow__side { display: none; }
+  .bt-cw-arrow__down { display: grid; }
+}
+@media (max-width: 640px) {
+  .bt-cw-lines li { font-size: 11px; gap: 8px; }
+  .bt-cw-lines__n { flex-basis: 22px; }
+  .bt-cw-words > div { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ── Swap one word ──────────────────────────────────────────────────────── */
+.bt-ms { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 20px; margin-top: 16px; align-items: start; }
+.bt-ms__code { background: var(--ink-900); border-radius: var(--radius-md); padding: 12px 0; overflow-x: auto; }
+.bt-ms__line { display: flex; align-items: center; gap: 12px; padding: 5px 14px 5px 16px; }
+.bt-ms__line code { font-family: var(--font-mono); font-size: 13px; color: #ede6e2; white-space: pre; margin-right: auto; }
+.bt-ms__line mark { background: rgba(255, 164, 126, 0.2); color: #ffc2a6; border-radius: 4px; padding: 1px 3px; font-weight: 700; }
+.bt-ms__line mark.bt-ms__set { background: rgba(255, 212, 121, 0.18); color: #ffd479; }
+.bt-ms__line--same code { opacity: 0.5; }
+.bt-ms__tag { flex: 0 0 auto; font-family: var(--font-body); font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-400); }
+.bt-ms__tag--hot { color: #ffa47e; }
+.bt-ms__side { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 16px; align-items: start; }
+.bt-ms__text { margin-top: 4px !important; font-size: 14px; line-height: 1.5; color: var(--ink-600); }
+.bt-sim__label code { text-transform: none; letter-spacing: 0; font-size: 11.5px; color: var(--accent-700); }
+.bt-ms__recipe { list-style: none; margin: 20px 0 0; padding: 14px 0 0; border-top: 1px solid var(--border-subtle); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.bt-ms__recipe li { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-600); line-height: 1.35; }
+.bt-ms__recipe b {
+  flex: 0 0 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-500);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+}
+@media (max-width: 860px) {
+  .bt-ms { grid-template-columns: minmax(0, 1fr); }
+  .bt-ms__recipe { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .bt-ms__line { flex-wrap: wrap; gap: 2px 10px; }
+  .bt-ms__line code { font-size: 11.5px; }
+  .bt-ms__side { grid-template-columns: 80px minmax(0, 1fr); }
+}
+
+/* ── Python words ───────────────────────────────────────────────────────── */
+.bt-pw { list-style: none; margin: 12px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; }
+.bt-pw li {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--paper-0);
+}
+.bt-pw code {
+  align-self: flex-start;
+  padding: 4px 9px;
+  border-radius: 7px;
+  background: var(--ink-900);
+  color: #ede6e2;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  white-space: pre;
+}
+.bt-pw li > span { font-size: 13px; line-height: 1.45; color: var(--ink-600); }
+
 /* ── The forest vote ──────────────────────────────────────────────────────
    Nine trees' calls as nine small tiles, with the one the reader is
    following outlined rather than recoloured — the colours are already doing

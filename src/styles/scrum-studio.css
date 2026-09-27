@@ -160,6 +160,24 @@
 .sst__legend li { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--ink-600); }
 .sst__legend .sst__seg { width: 14px; height: 10px; border-radius: 3px; flex: 0 0 14px; }
 
+.sst__tbtn--quiet.is-on { background: var(--accent-100); color: var(--accent-700); }
+
+.sst__brief {
+  position: absolute; inset: 0; z-index: 4; display: grid; place-items: center; padding: 18px; overflow-y: auto;
+  background: rgba(243, 233, 223, 0.72); backdrop-filter: blur(3px);
+}
+.sst__briefcard {
+  width: min(460px, 100%); border-radius: var(--radius-card); background: #fff; border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-lg); padding: 22px 24px 20px;
+}
+.sst__briefcard h3 { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; margin: 6px 0 14px; color: var(--ink-900); }
+.sst__brieffacts { margin: 0; display: grid; gap: 9px; }
+.sst__brieffacts div { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; }
+.sst__brieffacts dt { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-400); font-weight: 700; padding-top: 3px; }
+.sst__brieffacts dd { margin: 0; font-size: 14px; line-height: 1.45; color: var(--ink-900); }
+.sst__briefcta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.sst__briefnote { margin: 12px 0 0; font-size: 12.5px; line-height: 1.5; color: var(--ink-400); }
+
 .sst__fallback { display: grid; place-items: center; height: 100%; padding: 32px; text-align: center; color: var(--ink-600); font-size: 14px; line-height: 1.55; }
 .sst__loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink-400); font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; }
 
@@ -170,6 +188,10 @@
   .sst__hint { display: none; }
 }
 @media (max-width: 520px) {
+  .sst__briefcard { padding: 16px 16px 14px; }
+  .sst__briefcard h3 { font-size: 18px; }
+  .sst__brieffacts div { grid-template-columns: 1fr; gap: 1px; }
+  .sst__briefcta .bt-btn { width: 100%; justify-content: space-between; }
   .sst__transport { gap: 5px; padding: 6px 8px 6px 6px; }
   .sst__clock { display: none; }
   .sst__speed button { padding: 5px 6px; }

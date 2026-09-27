@@ -22,7 +22,7 @@ const BASE = import.meta.env.BASE_URL;
 const LESSON_META: [string, string][] = [
   ['Time', '40 minutes'],
   ['Follows', 'Lesson 2, Scrum up close'],
-  ['Needs', 'A browser with WebGL — any laptop or phone from the last few years'],
+  ['Needs', 'A browser with WebGL, and sound on for the voice narration'],
 ];
 
 const OBJECTIVES = [
@@ -206,7 +206,7 @@ export default function ScrumSimulationLesson() {
             eyebrow="Section 3.1 · The simulation"
             title="Three Sprints, on a tabletop"
             stop="."
-            aside="It plays itself and pauses after each step so you can read. The caption says what is happening, the panel lists the steps, and the ring on the floor shows where to look."
+            aside="Start it from the project brief. A voice narrates every step and the studio waits for it; the caption says what is happening, the panel lists the steps, and the ring on the floor shows where to look."
           />
         </Reveal>
         <Reveal delay={0.05}>

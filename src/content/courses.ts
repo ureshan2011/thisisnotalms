@@ -440,7 +440,7 @@ const MBI804: Course = {
       id: 'scrum-simulation',
       title: 'The Scrum studio: a Sprint you can watch, pause and orbit',
       blurb:
-        'Lesson 3. Six 3D miniatures build a parcel drone through three one-week Sprints while a caption says what is happening and a timeline marks every milestone: the Product Backlog ordered on the wall, refined and estimated with Planning Poker, Sprint Planning pulling cards into the Sprint Backlog, a fifteen-minute Daily Scrum every morning, an impediment landing and being cleared, stakeholders watching the drone lift off at the Review, one improvement from each Retrospective. It pauses after each step so you can read, then a seven-question check.',
+        'Lesson 3. Six 3D miniatures build a parcel drone through three one-week Sprints while a caption says what is happening and a timeline marks every milestone: the Product Backlog ordered on the wall, refined and estimated with Planning Poker, Sprint Planning pulling cards into the Sprint Backlog, a fifteen-minute Daily Scrum every morning, an impediment landing and being cleared, stakeholders watching the drone lift off at the Review, one improvement from each Retrospective. Voice-narrated, it pauses after each step so you can read, then a seven-question check.',
       to: '/scrum-simulation',
       access: 'open',
       kind: 'Lesson',

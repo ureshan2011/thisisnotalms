@@ -58,7 +58,7 @@ export const SPRINTS = 3;
 
 /** Seconds at 1× speed. The whole run is a little over six minutes. */
 const DUR: Record<PhaseKey, number> = {
-  intro: 7,
+  intro: 18,
   backlog: 12,
   refinement: 14,
   estimation: 20,
@@ -90,6 +90,16 @@ const KIND: Record<PhaseKey, PhaseKind> = {
 // Increment grow visibly on its pedestal: every item that reaches Done bolts
 // a part on. The order is the Product Owner's, and the last two are never
 // reached — a backlog is never finished, and a Sprint Review adds to it.
+
+/** What the team is building. Shown on the brief before the studio starts,
+ *  on the poster on the back wall, and narrated in the intro. */
+export const PROJECT = {
+  name: 'SkyDrop',
+  what: 'a parcel-delivery drone',
+  client: 'a local courier depot',
+  goal: 'a drone that delivers a one-kilogram parcel to the customer’s door, in any weather',
+  goalShort: 'Deliver a 1 kg parcel to the customer’s door, in any weather',
+};
 
 export interface Item {
   id: string;
@@ -222,7 +232,7 @@ export const BLOCKS: Block[] = Array.from({ length: SPRINTS + 2 }, (_, n) => {
 
 const DAY_SUB = ['', 'First Daily Scrum', 'First item Done', 'A blocker lands', 'Blocker cleared', 'Sprint Goal met'];
 const MS_SUB: Partial<Record<PhaseKey, string>> = {
-  intro: 'Meet the team',
+  intro: 'SkyDrop & the team',
   backlog: 'PO orders the list',
   refinement: 'Clarify & split',
   estimation: 'Planning Poker',
@@ -233,7 +243,7 @@ const MS_SUB: Partial<Record<PhaseKey, string>> = {
   shipped: 'Three Increments',
 };
 const MS_LABEL: Partial<Record<PhaseKey, string>> = {
-  intro: 'The team',
+  intro: 'The project',
   backlog: 'Product Backlog',
   refinement: 'Refinement',
   estimation: 'Estimation',
@@ -275,6 +285,8 @@ export const SPOT = {
   backlogWall: [-5.3, -3.3] as V2,
   poDesk: [-4.3, -2.2] as V2,
   poAtWall: [-5.0, -2.35] as V2,
+  /** Behind her desk, facing the room — not standing inside it. */
+  poHome: [-4.3, -2.8] as V2,
   table: [0, -2.05] as V2,
   board: [3.4, -3.3] as V2,
   desks: [[-2.6, 0.9], [-0.9, 0.9], [0.8, 0.9], [2.5, 0.9]] as V2[],
@@ -286,8 +298,11 @@ export const SPOT = {
   smHome: [1.6, -0.9] as V2,
 };
 
+/** The planning table's radius; the scene and the path-finder read it too. */
+export const TABLE_R = 0.95;
+
 /** Where the Developers stand when they refine at the backlog wall. */
-const WALL_ARC: V2[] = [[-6.0, -1.55], [-5.3, -1.2], [-4.55, -1.3], [-3.85, -1.7]];
+const WALL_ARC: V2[] = [[-6.3, -1.6], [-5.65, -1.2], [-4.2, -1.25], [-3.55, -1.7]];
 
 /** The spotlight's stops: floor ring centre and radius, arrow height. */
 export type SpotKey = 'podesk' | 'wall' | 'table' | 'board' | 'desks' | 'desk2' | 'rug' | 'pedestal' | 'retro';
@@ -426,6 +441,9 @@ export interface Beat {
   text: string;
   /** Where the spotlight goes; null hides it. */
   spot: SpotKey | null;
+  /** What the voice says, when it should differ from tag + text — shorter
+   *  for moments that repeat every day, so the narration does not drone. */
+  say?: string;
 }
 
 export interface World {
@@ -458,6 +476,8 @@ export interface World {
   /** Drone lifted off the pedestal for a demonstration. */
   hover: number;
   rainRaised: boolean;
+  /** 0..1: the hologram of the finished product over the pedestal. */
+  ghost: number;
   beats: Beat[];
   beatIndex: number;
   beat: Beat;
@@ -581,10 +601,9 @@ export function deriveWorld(t: number): World {
   };
   const roundTable = (ids: ActorId[], anim: (id: ActorId) => Anim) => {
     ids.forEach((id, i) => {
-      // An ellipse, flattened front-to-back, so nobody on the far side of
-      // the table ends up standing inside the back wall.
-      const a = Math.PI * 0.5 + 0.35 + (i / ids.length) * Math.PI * 2;
-      const pos: V2 = [SPOT.table[0] + Math.cos(a) * 1.4, SPOT.table[1] + Math.sin(a) * 1.08];
+      // Just outside the table's edge (radius 0.95), and close enough to the
+      // back wall that the far-side seat is still in the room.
+      const pos = ring(SPOT.table, TABLE_R + 0.3, ids.length, Math.PI * 0.5 + 0.35, i);
       actors[id] = A(pos, anim(id), faceTo(pos, SPOT.table));
     });
   };
@@ -604,7 +623,7 @@ export function deriveWorld(t: number): World {
 
   switch (key) {
     case 'intro': {
-      actors.po = A(SPOT.poDesk, 'idle', FACE_CAM);
+      actors.po = A(SPOT.poHome, 'idle', FACE_CAM);
       actors.sm = A(SPOT.smHome, 'idle', FACE_CAM);
       atDesks('idle');
       break;
@@ -644,7 +663,8 @@ export function deriveWorld(t: number): World {
       });
       if (day === 4 && impediment !== 'none' && p > 0.5) {
         const d = SPOT.desks[1];
-        const smAtDesk: V2 = [d[0] - 0.7, d[1] + 0.2];
+        // Beside Ben, on the working side of his desk.
+        const smAtDesk: V2 = [d[0] - 0.72, d[1] - 0.72];
         actors.sm = A(smAtDesk, impediment === 'gone' ? 'celebrate' : 'work', faceTo(smAtDesk, d));
       } else {
         const smPos: V2 = [SPOT.rug[0] + 1.5, SPOT.rug[1] + 0.6];
@@ -661,7 +681,7 @@ export function deriveWorld(t: number): World {
       if (day === 2 && p > 0.5) {
         actors.po = A([SPOT.desks[2][0] + 0.8, SPOT.desks[2][1] - 0.75], 'talk', -Math.PI / 2);
       } else {
-        actors.po = A(SPOT.poDesk, 'work', FACE_CAM);
+        actors.po = A(SPOT.poHome, 'work', FACE_CAM);
       }
       break;
     }
@@ -692,10 +712,10 @@ export function deriveWorld(t: number): World {
       break;
     }
     case 'shipped': {
-      const c: V2 = [SPOT.pedestal[0] - 0.4, SPOT.pedestal[1] + 1.6];
+      // Everyone round the pedestal, arms up, the drone flying above them.
       const ids: ActorId[] = ['po', 'sm', 'd1', 'd2', 'd3', 'd4'];
       ids.forEach((id, i) => {
-        const pos = ring(c, 1.5, 6, Math.PI * 0.45, i);
+        const pos = ring(SPOT.pedestal, 1.35, 6, Math.PI * 0.5, i);
         actors[id] = A(pos, 'celebrate', faceTo(pos, SPOT.pedestal));
       });
       break;
@@ -721,6 +741,8 @@ export function deriveWorld(t: number): World {
   // the wall while everyone is at the pedestal. Those beats move the camera there.
   let vantage: World['vantage'] = null;
   let focusOut = focus;
+  // The intro opens on the hologram of the goal, then pulls back to the team.
+  if (key === 'intro' && p < 0.55) { vantage = [1.4, 3.3, -1.1]; focusOut = [5.0, 1.75, 1.1]; }
   if (key === 'estimation' && p >= 0.82) { vantage = [-1.6, 5.4, 4.6]; focusOut = [-2.6, 1.4, -2.4]; }
   if (key === 'review' && p >= 0.55 && p < 0.8) { vantage = [-3.4, 4.4, 3.4]; focusOut = [-5.0, 1.8, -2.8]; }
 
@@ -751,6 +773,7 @@ export function deriveWorld(t: number): World {
     vantage,
     hover,
     rainRaised,
+    ghost: key === 'intro' ? 1 : 0,
     beats,
     beatIndex,
     beat: beats[beatIndex],
@@ -775,7 +798,7 @@ export const VANTAGE: Record<PhaseKey, [number, number, number]> = {
 
 // ─── Beats: the one thing happening right now ─────────────────────────────
 
-const B = (at: number, tag: string, text: string, spot: SpotKey | null): Beat => ({ at, tag, text, spot });
+const B = (at: number, tag: string, text: string, spot: SpotKey | null, say?: string): Beat => ({ at, tag, text, spot, say });
 
 export function beatsFor(ph: Phase): Beat[] {
   const s = ph.sprint;
@@ -784,14 +807,17 @@ export function beatsFor(ph: Phase): Beat[] {
   switch (ph.key) {
     case 'intro':
       return [
-        B(0, 'The Scrum Team', 'Priya is the Product Owner, Sam is the Scrum Master, and Aroha, Ben, Chen and Dee are the Developers.', 'desks'),
-        B(0.5, 'The product', 'They are building a parcel drone. It will grow on the pedestal, one Done item at a time.', 'pedestal'),
+        B(0, 'The project', `Meet ${PROJECT.name}: ${PROJECT.what} for ${PROJECT.client}. The hologram over the pedestal is what they are aiming for.`, 'pedestal'),
+        B(0.3, 'The Product Goal', `One sentence the whole team works toward: ${PROJECT.goal}. Every piece of work will be judged against it.`, 'pedestal'),
+        B(0.55, 'The Scrum Team', 'Priya is the Product Owner, Sam is the Scrum Master, and Aroha, Ben, Chen and Dee are the Developers. The badge under each name says their role.', 'desks'),
+        B(0.8, 'The plan', 'Nobody writes the whole design up front. They will build it in three one-week Sprints, most valuable parts first, and the real drone will grow on this pedestal one Done item at a time.', 'pedestal'),
       ];
     case 'backlog':
       return [
         B(0, 'A pile of ideas', 'Priya starts with a pile of ideas from customers and stakeholders on her desk.', 'podesk'),
         B(0.18, 'Ordering', 'She orders them into ONE list on the wall — the Product Backlog. The most valuable item goes on top.', 'wall'),
-        B(0.72, 'The Product Goal', 'Every card serves one Product Goal: a drone that delivers parcels to the door. The “? pts” means nobody has sized it yet.', 'wall'),
+        B(0.72, 'The Product Goal', 'Every card serves one Product Goal: a drone that delivers parcels to the door. The “? pts” means nobody has sized it yet.', 'wall',
+          'Every card serves one Product Goal: a drone that delivers parcels to the door. The question mark where the points should be means nobody has sized that card yet.'),
       ];
     case 'refinement':
       return [
@@ -820,7 +846,8 @@ export function beatsFor(ph: Phase): Beat[] {
       ];
     case 'daily': {
       const d = ph.day!;
-      const open = B(0, `Day ${d} · 9:00`, 'The Developers stand in a circle on the rug. Fifteen minutes, same time, same place, every day.', 'rug');
+      const open = B(0, `Day ${d} · 9:00`, 'The Developers stand in a circle on the rug. Fifteen minutes, same time, same place, every day.', 'rug',
+        s === 1 && d === 1 ? undefined : `Day ${d}. Daily Scrum.`);
       if (d === 4) {
         return [
           open,
@@ -845,7 +872,8 @@ export function beatsFor(ph: Phase): Beat[] {
       if (d === 2) return [
         B(0, 'Building', `Aroha is finishing ${A} and Dee is testing it against the Definition of Done.`, 'desks'),
         B(0.3, 'Done!', `${A} meets the Definition of Done and moves to Done…`, 'board'),
-        B(0.36, 'Increment', `…and the part bolts onto the drone right away. The Increment exists now, not at the end of the Sprint.`, 'pedestal'),
+        B(0.36, 'Increment', `…and the part bolts onto the drone right away. The Increment exists now, not at the end of the Sprint.`, 'pedestal',
+          'Increment. The part bolts onto the drone right away. The Increment exists now, not at the end of the Sprint.'),
         B(0.55, 'PO nearby', `Ben starts ${Bt}. Priya walks over to answer Chen’s question — a Product Owner is one question away.`, 'desks'),
       ];
       if (d === 3) return [
@@ -917,12 +945,12 @@ export function narrationFor(w: World): Narration {
   switch (key) {
     case 'intro':
       return {
-        eyebrow: 'Before the first Sprint',
-        title: 'One Scrum Team, one drone',
-        who: 'A Product Owner, a Scrum Master and four Developers',
+        eyebrow: 'The project',
+        title: `${PROJECT.name}: ${PROJECT.what}`,
+        who: 'A Product Owner, a Scrum Master and four Developers, for the courier depot',
         timebox: 'Three one-week Sprints',
-        output: 'A parcel drone that grows on the pedestal, part by part',
-        body: 'Nobody in the room is anybody’s manager, and there is no project manager — which is the first thing that surprises people about Scrum. Click any miniature or object at any time for who it is and what it owns.',
+        output: `Product Goal: ${PROJECT.goal}`,
+        body: 'Nobody in the room is anybody’s manager, and there is no project manager — which is the first thing that surprises people about Scrum. Click any miniature or object at any time, including the project poster on the back wall, for who it is and what it owns.',
       };
     case 'backlog':
       return {
@@ -1020,7 +1048,7 @@ export function narrationFor(w: World): Narration {
 
 // ─── The things the reader can click ──────────────────────────────────────
 
-export type SelectableId = ActorId | 'backlog-wall' | 'sprint-board' | 'drone' | 'rug' | 'table' | 'retro-board' | 'goal';
+export type SelectableId = ActorId | 'backlog-wall' | 'sprint-board' | 'drone' | 'rug' | 'table' | 'retro-board' | 'goal' | 'project';
 
 export interface SelectableInfo {
   eyebrow: string;
@@ -1105,6 +1133,13 @@ export function infoFor(id: SelectableId): SelectableInfo {
         lines: [['Who', 'The Scrum Team only'], ['Timebox', 'Max 3 hours for a one-month Sprint'], ['Output', 'One improvement, into the next Sprint Backlog']],
         body: 'The last event of the Sprint and the only one about the team. What went well, what hurt, and one thing to change. The improvement goes on a green card into the next Sprint so it becomes work rather than intention.',
         trap: 'Ten improvements is none. One, done, beats a list that is admired and forgotten.',
+      };
+    case 'project':
+      return {
+        eyebrow: 'The project', title: `${PROJECT.name} — ${PROJECT.what}`,
+        lines: [['Client', 'The courier depot, run by Mr Ngata'], ['Product Goal', PROJECT.goalShort], ['Plan', 'Three one-week Sprints, most valuable parts first']],
+        body: 'Nobody writes the whole specification up front. The Product Owner turns the goal into an ordered Product Backlog, and the team builds the most valuable slice first, so there is a working drone to show after every Sprint.',
+        trap: 'A Product Goal is not a list of features. “Frame, rotors, GPS…” is a backlog; “a parcel at the door in any weather” is a goal, and it is what every item is checked against.',
       };
     case 'goal':
     default:

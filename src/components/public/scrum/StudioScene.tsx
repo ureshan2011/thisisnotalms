@@ -4,10 +4,11 @@ import { useMemo, useRef, useState, type ComponentProps, type MutableRefObject, 
 import * as THREE from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import {
-  ACTORS, ALL_ITEMS, DAYS, PHASES, SPOT, SPOT_GEO, TOTAL, VANTAGE,
+  ACTORS, ALL_ITEMS, DAYS, PHASES, PROJECT, SPOT, SPOT_GEO, TABLE_R, TOTAL, VANTAGE,
   deriveWorld, itemById, phaseIndexAt,
-  type ActorDef, type ActorId, type CardLoc, type SelectableId, type World,
+  type ActorDef, type ActorId, type CardLoc, type SelectableId, type V2, type World,
 } from './timeline';
+import { findPath } from './nav';
 
 // ─── The studio in three dimensions ───────────────────────────────────────
 // Everything here is a reader of `sim.world`, which the Director rewrites
@@ -37,10 +38,13 @@ export interface Sim {
   held: number | null;
   /** Phase index whose hold the reader has already released. */
   holdDone: number;
+  /** A narration clip is playing: the clock waits at the end of the
+   *  current step until the voice has finished. */
+  speaking: boolean;
 }
 
 export function makeSim(): Sim {
-  return { t: 0, playing: false, speed: 1, userUntil: 0, world: deriveWorld(0), snap: true, lastT: 0, guided: true, held: null, holdDone: -1 };
+  return { t: 0, playing: false, speed: 1, userUntil: 0, world: deriveWorld(0), snap: true, lastT: 0, guided: true, held: null, holdDone: -1, speaking: false };
 }
 
 export type SimRef = MutableRefObject<Sim>;
@@ -89,6 +93,12 @@ export function Director({ sim, onTick, onHold, controls }: {
       const i = phaseIndexAt(s.t);
       const ph = PHASES[i];
       let next = s.t + dt * s.speed;
+      // Narration: never run past the end of the step being spoken.
+      if (s.speaking) {
+        const w = s.world;
+        const stepEnd = ph.start + (w.phase.index === i ? (w.beats[w.beatIndex + 1]?.at ?? 1) : 1) * ph.dur;
+        if (next >= stepEnd - 0.03) next = Math.max(s.t, stepEnd - 0.03);
+      }
       // Guided mode: stop just short of the end of a milestone phase and
       // wait for the reader to press Continue.
       if (s.guided && ph.hold && s.holdDone !== i && next >= ph.end - 0.02) {
@@ -248,7 +258,7 @@ function PlanningTable({ onSelect, selected }: { onSelect: (id: SelectableId) =>
   return (
     <Selectable id="table" onSelect={onSelect} selected={selected} label="Planning table" labelPos={[x, 1.5, z]}>
       <mesh position={[x, 0.78, z]} castShadow receiveShadow>
-        <cylinderGeometry args={[1.05, 1.05, 0.06, 40]} />
+        <cylinderGeometry args={[TABLE_R, TABLE_R, 0.06, 40]} />
         <meshStandardMaterial color={selected === 'table' ? PLUM_SOFT : WOOD} roughness={0.7} />
       </mesh>
       <mesh position={[x, 0.38, z]} castShadow>
@@ -476,6 +486,12 @@ function Card({ id, sim, index }: { id: string; sim: SimRef; index: number }) {
   const item = itemById(id);
   const color = CARD_COLORS[index % CARD_COLORS.length];
   const tmp = useMemo(() => ({ p: new THREE.Vector3(), e: new THREE.Euler() }), []);
+  /** Where the card is along its flight, without the arc. The arc is added
+   *  on top each frame from the distance still to go, so it shrinks to
+   *  nothing on arrival — an arc that was *accumulated* into the position
+   *  balanced against the easing at 60 fps and left cards hovering. */
+  const base = useRef(new THREE.Vector3());
+  const inited = useRef(false);
   const [pts, setPts] = useState(false);
   const [ready, setReady] = useState(false);
   useFrame((_, dt) => {
@@ -487,17 +503,21 @@ function Card({ id, sim, index }: { id: string; sim: SimRef; index: number }) {
     const o = g.current;
     if (!o) return;
     tmp.p.set(...pose.p);
-    if (sim.current.snap) {
+    if (sim.current.snap || !inited.current) {
+      inited.current = true;
+      base.current.copy(tmp.p);
       o.position.copy(tmp.p);
       o.rotation.set(...pose.r);
       o.scale.setScalar(pose.s);
       return;
     }
-    // Cards in flight arc upward a little so a move reads as a move.
-    const dist = o.position.distanceTo(tmp.p);
     const k = damp(dt, 5);
-    o.position.lerp(tmp.p, k);
-    if (dist > 0.15) o.position.y += Math.min(dist, 1.2) * 0.08;
+    base.current.lerp(tmp.p, k);
+    // Cards in flight lift a little so a move reads as a move; the lift is
+    // proportional to the distance left, so it is zero when they land.
+    const left = Math.hypot(base.current.x - tmp.p.x, base.current.z - tmp.p.z) + Math.abs(base.current.y - tmp.p.y) * 0.4;
+    o.position.copy(base.current);
+    o.position.y += Math.min(left, 1.6) * 0.3;
     o.rotation.x += shortest(o.rotation.x, pose.r[0]) * k;
     o.rotation.y += shortest(o.rotation.y, pose.r[1]) * k;
     o.rotation.z += shortest(o.rotation.z, pose.r[2]) * k;
@@ -707,7 +727,98 @@ function Drone({ sim, onSelect, selected }: { sim: SimRef; onSelect: (id: Select
   );
 }
 
+// ─── The project: a hologram of the goal, and a poster on the wall ───────
+// Before a single card is written, the studio shows what the team is
+// aiming for: a translucent drone turning over the empty pedestal. It fades
+// once the Product Backlog work starts, and the real drone grows in its
+// place part by part.
+
+function GhostDrone({ sim }: { sim: SimRef }) {
+  const g = useRef<THREE.Group>(null);
+  const spin = useRef(0);
+  const [x, z] = SPOT.pedestal;
+  useFrame((_, dt) => {
+    const o = g.current;
+    if (!o) return;
+    const target = sim.current.world.ghost;
+    const next = THREE.MathUtils.lerp(o.scale.x, target, damp(dt, 3));
+    o.scale.setScalar(next < 0.01 && target === 0 ? 0 : next);
+    spin.current += dt * 0.6;
+    o.rotation.y = spin.current;
+    o.position.y = Math.sin(spin.current * 2) * 0.06;
+  });
+  const mat = <meshStandardMaterial color="#7dd3fc" emissive="#38bdf8" emissiveIntensity={0.6} transparent opacity={0.42} depthWrite={false} />;
+  const arms: [number, number][] = [[1, 1], [-1, 1], [1, -1], [-1, -1]];
+  return (
+    <group position={[x, 1.95, z]}>
+      <group ref={g} scale={0}>
+        <mesh>{mat}<boxGeometry args={[0.5, 0.09, 0.36]} /></mesh>
+        {arms.map(([ax, az], i) => (
+          <group key={i}>
+            <mesh position={[ax * 0.34, 0, az * 0.3]} rotation={[0, Math.atan2(az, ax), 0]}>{mat}<boxGeometry args={[0.5, 0.05, 0.06]} /></mesh>
+            <mesh position={[ax * 0.52, 0.08, az * 0.44]}>{mat}<cylinderGeometry args={[0.2, 0.2, 0.01, 24]} /></mesh>
+          </group>
+        ))}
+        <mesh position={[0, -0.1, 0]}>{mat}<boxGeometry args={[0.28, 0.12, 0.2]} /></mesh>
+        <mesh position={[0, -0.02, 0.24]}>{mat}<sphereGeometry args={[0.07, 14, 14]} /></mesh>
+        <mesh position={[0, -0.34, 0]}>{mat}<boxGeometry args={[0.2, 0.14, 0.16]} /></mesh>
+        <mesh position={[0, 0.05, 0]} scale={[1, 0.55, 1]}>{mat}<sphereGeometry args={[0.36, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2]} /></mesh>
+        <Billboard position={[0, 0.62, 0]}>
+          <Text fontSize={0.15} color="#0369a1" anchorX="center" anchorY="middle" outlineWidth={0.02} outlineColor={PAPER}>
+            {`${PROJECT.name.toUpperCase()} · the goal`}
+          </Text>
+        </Billboard>
+      </group>
+    </group>
+  );
+}
+
+function ProjectPoster({ onSelect, selected }: { onSelect: (id: SelectableId) => void; selected: SelectableId | null }) {
+  const x = -2.75;
+  const z = WALL_Z + 0.02;
+  const sel = selected === 'project';
+  return (
+    <Selectable id="project" onSelect={onSelect} selected={selected} label="The project" labelPos={[x, 3.05, z + 0.3]}>
+      <mesh position={[x, 2.05, z - 0.005]} castShadow>
+        <boxGeometry args={[1.62, 1.12, 0.03]} />
+        <meshStandardMaterial color={INK} />
+      </mesh>
+      <mesh position={[x, 2.05, z + 0.012]}>
+        <planeGeometry args={[1.54, 1.04]} />
+        <meshStandardMaterial color={sel ? PLUM_SOFT : '#fffaf4'} />
+      </mesh>
+      <Text position={[x - 0.7, 2.47, z + 0.02]} fontSize={0.06} color="#8a7f76" anchorX="left" anchorY="middle" letterSpacing={0.1}>
+        THE PROJECT
+      </Text>
+      <Text position={[x - 0.7, 2.33, z + 0.02]} fontSize={0.15} color={PLUM} anchorX="left" anchorY="middle">
+        {PROJECT.name}
+      </Text>
+      <Text position={[x - 0.7, 2.2, z + 0.02]} fontSize={0.065} color={INK} anchorX="left" anchorY="middle">
+        {PROJECT.what}
+      </Text>
+      <Text position={[x - 0.7, 2.04, z + 0.02]} fontSize={0.052} color="#8a7f76" anchorX="left" anchorY="middle" letterSpacing={0.08}>
+        PRODUCT GOAL
+      </Text>
+      <Text position={[x - 0.7, 1.9, z + 0.02]} fontSize={0.062} color={INK} anchorX="left" anchorY="top" maxWidth={1.4} lineHeight={1.3}>
+        {PROJECT.goalShort}
+      </Text>
+      <Text position={[x - 0.7, 1.62, z + 0.02]} fontSize={0.05} color="#8a7f76" anchorX="left" anchorY="middle">
+        {`Client: ${PROJECT.client} · 3 one-week Sprints`}
+      </Text>
+    </Selectable>
+  );
+}
+
 // ─── Miniatures ───────────────────────────────────────────────────────────
+
+/** The role badge under every name. Colours match the shirts the roles
+ *  wear, so a reader learns the colour and stops needing the badge. */
+const ROLE_BADGE: Record<ActorDef['role'], { label: string; color: string; w: number }> = {
+  'Product Owner': { label: 'PRODUCT OWNER', color: '#7c2d5c', w: 0.62 },
+  'Scrum Master': { label: 'SCRUM MASTER', color: '#0f766e', w: 0.58 },
+  Developer: { label: 'DEVELOPER', color: '#1e40af', w: 0.46 },
+  Stakeholder: { label: 'STAKEHOLDER', color: '#475569', w: 0.52 },
+};
 
 function Actor({ def, sim, onSelect, selected }: { def: ActorDef; sim: SimRef; onSelect: (id: SelectableId) => void; selected: SelectableId | null }) {
   const root = useRef<THREE.Group>(null);
@@ -719,6 +830,9 @@ function Actor({ def, sim, onSelect, selected }: { def: ActorDef; sim: SimRef; o
   const legR = useRef<THREE.Mesh>(null);
   const yaw = useRef(0);
   const phase = useRef(Math.random() * 10);
+  /** Waypoints round the furniture to the current target (nav.ts). */
+  const path = useRef<V2[]>([]);
+  const goal = useRef<V2 | null>(null);
   const [hover, setHover] = useState(false);
   const [vote, setVote] = useState<number | null>(null);
   const isSel = selected === def.id;
@@ -732,22 +846,35 @@ function Actor({ def, sim, onSelect, selected }: { def: ActorDef; sim: SimRef; o
     if (!o || !st) return;
     phase.current += dt;
     const [tx, tz] = st.target;
-    const dx = tx - o.position.x;
-    const dz = tz - o.position.z;
-    const dist = Math.hypot(dx, dz);
     let walking = false;
     let yawTarget = yaw.current;
-    if (sim.current.snap) {
+    if (sim.current.snap || goal.current === null) {
+      // A jump (or the very first frame): be there, no walking.
       o.position.set(tx, 0, tz);
       yaw.current = st.face ?? yaw.current;
-    } else if (dist > 0.03) {
-      const step = Math.min(dist, 2.4 * dt);
-      o.position.x += (dx / dist) * step;
-      o.position.z += (dz / dist) * step;
-      yawTarget = Math.atan2(dx, dz);
-      walking = true;
-    } else if (st.face !== undefined) {
-      yawTarget = st.face;
+      path.current = [];
+      goal.current = [tx, tz];
+    } else {
+      if (Math.abs(goal.current[0] - tx) > 1e-3 || Math.abs(goal.current[1] - tz) > 1e-3) {
+        goal.current = [tx, tz];
+        path.current = findPath([o.position.x, o.position.z], [tx, tz]);
+      }
+      let budget = 2.4 * dt;
+      while (budget > 0 && path.current.length) {
+        const [wx, wz] = path.current[0];
+        const dx = wx - o.position.x;
+        const dz = wz - o.position.z;
+        const d = Math.hypot(dx, dz);
+        if (d < 0.02) { path.current.shift(); continue; }
+        const step = Math.min(d, budget);
+        o.position.x += (dx / d) * step;
+        o.position.z += (dz / d) * step;
+        budget -= step;
+        yawTarget = Math.atan2(dx, dz);
+        walking = true;
+        if (step >= d) path.current.shift();
+      }
+      if (!walking && st.face !== undefined) yawTarget = st.face;
     }
     yaw.current += shortest(yaw.current, yawTarget) * damp(dt, walking ? 10 : 6);
     o.rotation.y = yaw.current;
@@ -877,7 +1004,7 @@ function Actor({ def, sim, onSelect, selected }: { def: ActorDef; sim: SimRef; o
       </group>
       {/* Planning Poker: the card this Developer has just revealed. */}
       {vote !== null && (
-        <Billboard position={[0, 1.72, 0]}>
+        <Billboard position={[0, 1.86, 0]}>
           <mesh>
             <planeGeometry args={[0.26, 0.34]} />
             <meshBasicMaterial color="#ffffff" />
@@ -891,16 +1018,25 @@ function Actor({ def, sim, onSelect, selected }: { def: ActorDef; sim: SimRef; o
           </Text>
         </Billboard>
       )}
-      {/* Name tag: always on for the team, so a reader can follow who is where. */}
-      <Billboard position={[0, 1.38, 0]}>
+      {/* Name and role: always on, so a reader can follow who is who. */}
+      <Billboard position={[0, 1.44, 0]}>
         <Text
-          fontSize={hover || isSel ? 0.15 : 0.11}
+          fontSize={hover || isSel ? 0.14 : 0.115}
           color={isSel ? PLUM : INK}
           anchorX="center" anchorY="middle"
           outlineWidth={0.014} outlineColor={PAPER}
         >
-          {hover || isSel ? `${def.name} · ${def.role}` : def.name}
+          {def.name}
         </Text>
+        <group position={[0, -0.135, 0]} scale={hover || isSel ? 1.2 : 1}>
+          <mesh>
+            <planeGeometry args={[ROLE_BADGE[def.role].w, 0.105]} />
+            <meshBasicMaterial color={ROLE_BADGE[def.role].color} />
+          </mesh>
+          <Text position={[0, 0, 0.005]} fontSize={0.064} color="#ffffff" anchorX="center" anchorY="middle" letterSpacing={0.04}>
+            {ROLE_BADGE[def.role].label}
+          </Text>
+        </group>
       </Billboard>
     </group>
   );
@@ -1014,6 +1150,8 @@ export function Studio({ sim, onSelect, selected, onTick, onHold }: {
       <RetroCorner sim={sim} onSelect={onSelect} selected={selected} />
       <Impediment sim={sim} />
       <Spotlight sim={sim} />
+      <GhostDrone sim={sim} />
+      <ProjectPoster onSelect={onSelect} selected={selected} />
       {items.map((id, i) => <Card key={id} id={id} sim={sim} index={i} />)}
       {ACTORS.map(a => <Actor key={a.id} def={a} sim={sim} onSelect={onSelect} selected={selected} />)}
     </>

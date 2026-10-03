@@ -15,7 +15,7 @@ import '../../styles/regression-lab.css';
 // The hands-on follow-up to "Three ways to predict things". That lesson
 // taught linear regression on twelve made-up flats; this one has the
 // student do the whole job on a real public dataset, end to end, and hand
-// in a short report through Teams chat.
+// in a short report as a reply under the lab's announcement post in Teams.
 //
 // The dataset is Kaggle's "Medical Cost Personal Datasets" (Miri Choi,
 // mirichoi0218/insurance): 1,338 people, seven columns, one CSV, ODbL. It
@@ -285,7 +285,7 @@ const HELP: [string, ReactNode][] = [
   ['KeyError: \'Smoker\'', <>Column names are case-sensitive. It's {c('smoker')}, all lower case. Copy names exactly as they appear in {c('df.head()')}.</>],
   ['My numbers are slightly different from yours', <>Check you have 1,337 rows after dropping the duplicate, and that you used {c('random_state=42')}. A different shuffle means different test people and slightly different scores. That isn't wrong, but say so in your report.</>],
   ['Kaggle won\'t let me download', <>You need to be signed in. Sign in with Google, then click Download again.</>],
-  ['Still stuck', <>Message me in Teams with a screenshot of the whole error, top to bottom. "It doesn't work" I can't do much with. A screenshot I can usually sort in a minute.</>],
+  ['Still stuck', <>Reply under the announcement post in Teams, or message me, with a screenshot of the whole error, top to bottom. "It doesn't work" I can't do much with. A screenshot I can usually sort in a minute.</>],
 ];
 
 const LINKS: { href: string; label: string; note: string }[] = [
@@ -311,7 +311,7 @@ export default function LinearRegressionLabLesson() {
         meta={[
           ['Time', 'about 2 hours'],
           ['Needs', 'a laptop and a Google account'],
-          ['Hand in', 'a short report, in Teams'],
+          ['Hand in', 'a short report, as a reply in Teams'],
         ]}
         objectives={[
           'Find a dataset on Kaggle and judge it from its data card',
@@ -354,7 +354,7 @@ export default function LinearRegressionLabLesson() {
             <div><b className="bt-tnum">1,338</b><span>people in the dataset</span></div>
             <div><b className="bt-tnum">7</b><span>columns, one CSV file</span></div>
             <div><b className="bt-tnum">9</b><span>steps, each with a tick box</span></div>
-            <div><b className="bt-tnum">1</b><span>short report, sent to me in Teams</span></div>
+            <div><b className="bt-tnum">1</b><span>short report, posted as a reply in Teams</span></div>
           </div>
         </Reveal>
 
@@ -1416,7 +1416,7 @@ export default function LinearRegressionLabLesson() {
         <Reveal>
           <SectionHead
             eyebrow="Step 9 · the hand-in"
-            title="Write it up. Send it in Teams."
+            title="Write it up. Reply in Teams."
             aside="Short and specific beats long and vague. I'd rather read 700 words that are yours than 2,000 that aren't."
           />
         </Reveal>
@@ -1453,7 +1453,7 @@ export default function LinearRegressionLabLesson() {
                 <div><dt>Length</dt><dd>600 to 1,000 words, plus your screenshots</dd></div>
                 <div><dt>Format</dt><dd>PDF. In Word: File → Save As → PDF. A .docx is fine if PDF is a struggle.</dd></div>
                 <div><dt>File name</dt><dd><code>{REPORT_FILE}</code></dd></div>
-                <div><dt>Send to</dt><dd>{LECTURER}, in a Teams chat. Not the class channel.</dd></div>
+                <div><dt>Post it</dt><dd>As a <b>reply under my lab announcement post</b> in the class channel. Not a new post, and not a private message.</dd></div>
                 <div><dt>Due</dt><dd>{DUE[0].toUpperCase() + DUE.slice(1)}</dd></div>
               </dl>
               <div className="lr-facts__actions">
@@ -1467,7 +1467,10 @@ export default function LinearRegressionLabLesson() {
           </div>
         </Reveal>
         <Reveal delay={0.05}>
-          <h3 style={{ fontSize: 19, marginTop: 40 }}>Sending it in Teams</h3>
+          <h3 style={{ fontSize: 19, marginTop: 40 }}>Replying to the post in Teams</h3>
+          <p className="bt-note" style={{ maxWidth: '62ch' }}>
+            The announcement post is in the class channel. Your report goes <b>under</b> it as a reply, so every report sits in one thread and we can all see the lab is done.
+          </p>
           <TeamsDemo />
         </Reveal>
         <Reveal delay={0.05}>
@@ -1477,7 +1480,7 @@ export default function LinearRegressionLabLesson() {
               <li>Every number in the report came from your own notebook.</li>
               <li>At least four screenshots.</li>
               <li>Saved as a PDF called {c(REPORT_FILE)}, with your name in place of YourName.</li>
-              <li>Sent to me as a Teams chat message, with one line saying what it is.</li>
+              <li>Posted as a <b>reply under my announcement post</b> in Teams, with one line saying what it is.</li>
             </ul>
           </Task>
         </Reveal>

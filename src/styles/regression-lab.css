@@ -553,7 +553,7 @@
 .lr-ctx div.is-on { background: #d9e7ff; }
 
 /* Teams, drawn (the submission step). */
-.lr-teams { background: #f5f5f5; height: 330px; display: flex; font-family: 'Segoe UI', Arial, sans-serif; font-size: 12.5px; color: #242424; position: relative; }
+.lr-teams { background: #f5f5f5; height: 380px; display: flex; font-family: 'Segoe UI', Arial, sans-serif; font-size: 12.5px; color: #242424; position: relative; }
 .lr-teams__rail { width: 54px; flex: 0 0 54px; background: #ebebeb; display: flex; flex-direction: column; align-items: center; gap: 14px; padding-top: 14px; color: #616161; }
 .lr-teams__rail span { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 9.5px; }
 .lr-teams__rail span.is-on { color: #5b5fc7; }
@@ -561,6 +561,17 @@
 .lr-teams__list h5 { display: flex; align-items: center; justify-content: space-between; margin: 0 0 10px; font-family: 'Segoe UI', Arial, sans-serif; font-size: 14px; font-weight: 700; color: #242424; letter-spacing: 0; }
 .lr-teams__newchat { width: 26px; height: 26px; border-radius: 6px; display: grid; place-items: center; color: #424242; }
 .lr-teams__newchat.is-on { background: #e8ebfa; color: #5b5fc7; }
+.lr-teams__team { display: flex; align-items: center; gap: 8px; padding: 6px; font-weight: 600; }
+.lr-teams__channel { padding: 5px 6px 5px 40px; border-radius: 6px; color: #424242; }
+.lr-teams__channel.is-on { background: #e8ebfa; font-weight: 600; color: #3d3e78; }
+.lr-teams__newpost { margin-left: auto; background: #5b5fc7; color: #fff; border-radius: 4px; padding: 4px 10px; font-weight: 600; opacity: .55; }
+.lr-teams__feed { flex: 1; padding: 12px 14px; overflow: hidden; }
+.lr-teams__post { border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 10px; background: #fff; }
+.lr-teams__postrow { display: flex; gap: 10px; }
+.lr-teams__posttitle { font-weight: 700; font-size: 13.5px; margin: 2px 0; color: #242424; }
+.lr-teams__reply { display: flex; gap: 10px; padding-left: 36px; }
+.lr-teams__replylink { color: #5b5fc7; font-weight: 600; width: fit-content; padding: 2px 6px; border-radius: 4px; }
+.lr-teams__post .lr-teams__box { margin: 0 0 0 36px; min-height: 0; }
 .lr-teams__chat { display: flex; align-items: center; gap: 8px; padding: 6px; border-radius: 6px; }
 .lr-teams__chat.is-on { background: #e8ebfa; }
 .lr-teams__ava { width: 26px; height: 26px; flex: 0 0 26px; border-radius: 50%; background: #c7d9f0; color: #1f3d68; display: grid; place-items: center; font-size: 10px; font-weight: 700; }

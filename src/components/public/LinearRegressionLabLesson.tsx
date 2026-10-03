@@ -8,6 +8,7 @@ import DataCardQuestions from './regression/DataCardQuestions';
 import { BillBuilder, SplitDemo } from './regression/ModelWidgets';
 import { TeamsDemo, UnzipDemo, UploadDemo, REPORT_FILE } from './regression/Walkthroughs';
 import { Checklist, DoneButton } from './regression/Checklist';
+import { FilterDemo, ReadADot, ReadAloud, WhyBlock } from './regression/Teaching';
 import '../../styles/regression-lab.css';
 
 // ─── MBI806B · Linear regression lab ──────────────────────────────────────
@@ -68,7 +69,7 @@ function Answer({ label = 'Show the answer', children }: { label?: string; child
       <button type="button" className="lr-navbtn" aria-expanded={open} onClick={() => setOpen(o => !o)}>
         {open ? 'Hide the answer' : label}
       </button>
-      {open && <p className="lr-q__ans" style={{ marginLeft: 0 }}>{children}</p>}
+      {open && <div className="lr-q__ans" style={{ marginLeft: 0 }}>{children}</div>}
     </div>
   );
 }
@@ -166,6 +167,19 @@ const OUT_MAPPED: Output[] = [
   },
 ];
 
+const OUT_MASK = `0        True
+1       False
+2       False
+3       False
+4       False
+        ...
+1333    False
+1334    False
+1335    False
+1336    False
+1337     True
+Name: smoker, Length: 1337, dtype: bool`;
+
 const CHART = (src: string, alt: string): Output => ({ kind: 'image', src, alt, width: 848, height: 621 });
 
 /* ── The code, exactly as the student types it ─────────────────────────── */
@@ -181,8 +195,10 @@ const CODE = {
   showDupes: 'df[df.duplicated(keep=False)]',
   drop: 'df = df.drop_duplicates()\ndf.shape',
   map: 'df["smoker"] = df["smoker"].map({"yes": 1, "no": 0})\ndf.head()',
+  mask: 'df["smoker"] == 1',
   filter:
     'smokers = df[df["smoker"] == 1]\nnon_smokers = df[df["smoker"] == 0]\n\nprint(len(smokers), "smokers")\nprint(len(non_smokers), "non-smokers")',
+  means: 'print("Smokers:", round(smokers["charges"].mean()))\nprint("Non-smokers:", round(non_smokers["charges"].mean()))',
   groupby: 'df.groupby("smoker")["charges"].mean().round()',
   scatter:
     'import matplotlib.pyplot as plt\n\nplt.scatter(df["age"], df["charges"])\nplt.xlabel("Age")\nplt.ylabel("Charges ($)")\nplt.show()',
@@ -734,13 +750,33 @@ export default function LinearRegressionLabLesson() {
       <section id="step-clean" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="Step 6 · about 20 minutes"
-            title="Clean it, then filter it"
-            aside="Real data is rarely this tidy. That's lucky for a first go, but you still check. Every time."
+            eyebrow="Step 6 · about 30 minutes"
+            title="Clean it, filter it, look at it"
+            aside="Three jobs, each with a reason. Read the reason first. The code is the easy part."
           />
         </Reveal>
         <Reveal delay={0.05}>
-          <h3 style={{ fontSize: 19 }}>Check 1: is anything missing?</h3>
+          <div className="bt-prose">
+            <p>
+              A model learns from whatever you give it, mistakes included. So before any model, you do three things:
+              make sure the data is <b>clean</b>, <b>filter</b> it to compare groups, and <b>look</b> at it in a chart.
+              Each one answers a different question, and each one changes what you do next.
+            </p>
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <h3 style={{ fontSize: 19, marginTop: 40 }}>Check 1: is anything missing?</h3>
+          <WhyBlock
+            task={<p>Count the empty cells in every column.</p>}
+            why={
+              <p>
+                A model can't learn from a blank. Most Python tools either stop with an error or quietly skip rows that
+                have gaps, and then your numbers are based on fewer people than you think. So you look for gaps first
+                and decide what to do about them yourself, rather than letting the tool decide for you.
+              </p>
+            }
+          />
           <ColabCell
             label="Cell 6"
             code={CODE.missing}
@@ -753,8 +789,19 @@ export default function LinearRegressionLabLesson() {
             }
           />
         </Reveal>
+
         <Reveal delay={0.05}>
-          <h3 style={{ fontSize: 19, marginTop: 34 }}>Check 2: is anyone in here twice?</h3>
+          <h3 style={{ fontSize: 19, marginTop: 40 }}>Check 2: is anyone in here twice?</h3>
+          <WhyBlock
+            task={<p>Find any row that's an exact copy of another one, look at it, and remove the extra copy.</p>}
+            why={
+              <p>
+                If one person is in the data twice, they get two votes when the model learns, and your counts and
+                averages are slightly off. Here it's one row. In a real company, duplicates come from double-clicks,
+                re-imported files and system glitches, and they can be thousands of rows.
+              </p>
+            }
+          />
           <ColabCell
             label="Cell 7"
             code={CODE.dupes}
@@ -769,8 +816,8 @@ export default function LinearRegressionLabLesson() {
               <>
                 Rows 195 and 581 match down to the cent: 19, male, BMI 30.59, no children, doesn't smoke, northwest,
                 $1,639.56. Could two different people match that closely? Possible, but very unlikely. It's almost
-                certainly one record entered twice, and counting someone twice gives them twice the say in your model.
-                So it goes. ({c('keep=False')} means "show me both copies, not just the second one".)
+                certainly one record entered twice. ({c('keep=False')} means "show me both copies, not just the second
+                one".)
               </>
             }
           />
@@ -781,100 +828,382 @@ export default function LinearRegressionLabLesson() {
             after={<>1,337 now. Write that number down. Everything from here on is based on 1,337 people, not 1,338.</>}
           />
         </Reveal>
+
         <Reveal delay={0.05}>
-          <h3 style={{ fontSize: 19, marginTop: 34 }}>Check 3: can a model read every column you'll use?</h3>
+          <h3 style={{ fontSize: 19, marginTop: 40 }}>Check 3: can a model read every column you'll use?</h3>
+          <WhyBlock
+            task={<p>Turn the smoker column's "yes" and "no" into 1 and 0.</p>}
+            why={
+              <p>
+                A model is arithmetic. It multiplies each input by a number and adds them up. You can multiply 1 by
+                $23,000. You can't multiply "yes" by anything. So every column the model uses has to be a number. This
+                is also the fix for Kaggle's "100% mismatched" warning from step 2.
+              </p>
+            }
+            which={
+              <p>
+                Because it's the only text column we're going to give the model. The model will use age, bmi, children
+                and smoker. sex and region are text too, but we're leaving them out on purpose, and{' '}
+                <Jump to="limits">the limits section</Jump> explains why.
+              </p>
+            }
+            whichLabel="Why only smoker?"
+          />
           <ColabCell
             label="Cell 10 · run this once only"
             code={CODE.map}
             out={OUT_MAPPED}
             after={
               <>
-                This is the fix for Kaggle's "100% mismatched". The smoker column said yes and no; now it says 1 and 0,
-                which a model can multiply. We leave sex and region as they are, because we aren't going to use them.
-                There's more on why in <Jump to="limits">the limits section</Jump>.
-                Run this cell <b>once</b>. Run it twice and the whole column turns into NaN (see Stuck? at the bottom).
+                The smoker column said yes and no; now it says 1 and 0. Run this cell <b>once</b>. Run it twice and the
+                whole column turns into NaN, because the second run goes looking for "yes" and "no" and finds none (see
+                Stuck? at the bottom).
+              </>
+            }
+          />
+        </Reveal>
+
+        {/* ── Filter ─────────────────────────────────────────────────── */}
+        <Reveal delay={0.05}>
+          <h3 style={{ fontSize: 19, marginTop: 56 }}>Filter: keep only the rows you want</h3>
+          <WhyBlock
+            task={
+              <p>
+                Split the 1,337 people into two groups, smokers and non-smokers. Work out the average bill in each
+                group. Then compare the two numbers.
+              </p>
+            }
+            why={
+              <>
+                <p>
+                  Go back to the pricing manager's question: <i>what makes one customer's bill bigger than another's?</i>{' '}
+                  You can't answer that by staring at 1,337 rows. Nobody can. What you <b>can</b> do is compare groups.
+                  If one group's bills are much bigger than another group's, whatever makes those two groups different
+                  is a strong suspect.
+                </p>
+                <p>
+                  To compare groups, you first have to pull each group out of the big table. That's all filtering is:
+                  keep the rows that match a rule, and set the rest aside for now. Nothing gets deleted. The full table
+                  is still there in {c('df')}.
+                </p>
+                <p>
+                  You've probably done this in Excel already. Click the little arrow at the top of a column, untick
+                  everything except "yes", and only those rows stay on screen. Python does the same thing in one line,
+                  and you can rerun it any time.
+                </p>
+              </>
+            }
+            which={
+              <>
+                <p>Three reasons to start with <b>smoker</b>:</p>
+                <ul>
+                  <li>
+                    <b>It's the strongest suspect.</b> Smoking is one of the best-known causes of lung and heart
+                    disease, and those are expensive to treat. If anything in this table moves a medical bill, this
+                    should.
+                  </li>
+                  <li>
+                    <b>It splits people cleanly in two.</b> Smoker only has two values, 1 or 0, so it gives exactly two
+                    groups and two averages to compare. Age has 47 different values, so it would give 47 little groups.
+                    That's a job for a chart, which is the next part.
+                  </li>
+                  <li>
+                    <b>Both groups are big enough to trust.</b> Cell 5 showed 274 smokers and over a thousand
+                    non-smokers. An average of 274 people means something. An average of three people wouldn't.
+                  </li>
+                </ul>
               </>
             }
           />
         </Reveal>
 
         <Reveal delay={0.05}>
-          <h3 style={{ fontSize: 19, marginTop: 40 }}>Filter: keep only the rows you want</h3>
-          <div className="bt-prose">
-            <p>
-              Filtering means keeping the rows that match a rule. The pattern is always the same: {c('df[ the rule ]')}.
-              Read it out loud as "df, where…".
-            </p>
-          </div>
+          <div className="lr-substep"><span className="lr-substep__n">A</span><h4>See it first, on ten real people</h4></div>
+          <p className="bt-note" style={{ maxWidth: '64ch' }}>
+            Ten rows from your cleaned data, no code yet. Pick a rule. Every row gets asked the question, the rows that
+            answer False are set aside, and the average bill of the rows that are left updates. Try <b>Smokers</b>, then{' '}
+            <b>Non-smokers</b>, and watch the average.
+          </p>
+          <FilterDemo />
+          <p className="bt-note" style={{ maxWidth: '64ch' }}>
+            With no filter, the average mixes everybody together, about $22,600 here. Split them, and the smokers
+            average about $34,600 while the non-smokers average about $10,500. That gap is the reason we filter. Now do
+            the same thing for all 1,337 people.
+          </p>
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <div className="lr-substep"><span className="lr-substep__n">B</span><h4>Ask every row the question</h4></div>
+          <ReadAloud
+            lines={[
+              ['df["smoker"]', 'take the smoker column: one value for each of the 1,337 people'],
+              ['== 1', 'ask each value: are you equal to 1? (1 means they smoke)'],
+            ]}
+          />
           <ColabCell
             label="Cell 11"
+            code={CODE.mask}
+            out={[{ kind: 'text', text: OUT_MASK }]}
+            after={
+              <>
+                You get back one answer per person: True or False. Row 0 smokes, so True. Rows 1 to 4 don't, so False.
+                The {c('...')} is pandas saving space: there are 1,337 answers, it just shows the first five and the last
+                five. This column of True and False <i>is</i> the rule. It's what goes inside the square brackets next.
+                ({c('==')} has two equals signs because one equals sign already means "store this under that name".)
+              </>
+            }
+          />
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <div className="lr-substep"><span className="lr-substep__n">C</span><h4>Keep the rows that said True</h4></div>
+          <ReadAloud
+            lines={[
+              ['df[ ... ]', 'from df, keep only the rows where the rule inside the brackets is True'],
+              ['smokers =', 'save the rows you kept under a new name, so you can use them again. df itself is untouched'],
+              ['len(smokers)', 'count the rows in it'],
+            ]}
+          />
+          <ColabCell
+            label="Cell 12"
             code={CODE.filter}
             out={[{ kind: 'text', text: '274 smokers\n1063 non-smokers' }]}
             after={
               <>
-                {c('==')} means "is equal to". It's two equals signs because one equals sign already means "store this
-                under that name". 274 + 1,063 = 1,337. Good, nobody fell through the cracks.
+                Two new tables, made from the one you had. Now check them: 274 + 1,063 = 1,337. Every person landed in
+                exactly one group, so nobody fell through the cracks. Checking that the pieces add back up is the first
+                thing to do after any filter.
               </>
             }
+          />
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <div className="lr-substep"><span className="lr-substep__n">D</span><h4>Now compare the two groups</h4></div>
+          <ReadAloud
+            lines={[
+              ['smokers["charges"]', 'just the bills, from the smokers table'],
+              ['.mean()', 'add them all up and divide by how many there are: the average'],
+              ['round( )', 'drop the cents, so it’s easy to read'],
+            ]}
           />
           <ColabCell
-            label="Cell 12"
-            code={CODE.groupby}
-            out={[{ kind: 'text', text: 'smoker\n0     8441.0\n1    32050.0\nName: charges, dtype: float64' }]}
+            label="Cell 13"
+            code={CODE.means}
+            out={[{ kind: 'text', text: 'Smokers: 32050\nNon-smokers: 8441' }]}
             after={
               <>
-                This is the headline of the whole dataset. Smokers' bills average <b>$32,050</b>. Non-smokers' average{' '}
-                <b>$8,441</b>. Nearly four times as much. {c('groupby')} means "split the rows into groups by this column,
-                then do something to each group", which here is taking the mean of charges.
+                <div className="lr-compare" aria-hidden="true">
+                  <div className="lr-compare__row">
+                    <span>Smokers</span>
+                    <span className="lr-compare__bar"><i style={{ width: '100%', background: 'var(--cat-2)' }} /></span>
+                    <b>$32,050</b>
+                  </div>
+                  <div className="lr-compare__row">
+                    <span>Non-smokers</span>
+                    <span className="lr-compare__bar"><i style={{ width: `${(8441 / 32050) * 100}%`, background: 'var(--cat-3)' }} /></span>
+                    <b>$8,441</b>
+                  </div>
+                </div>
+                <p style={{ marginTop: 14 }}>
+                  This is the headline of the whole lab. On average a smoker's bill is <b>$32,050</b> and a non-smoker's
+                  is <b>$8,441</b>, nearly four times as much. One column, and the gap is enormous. That's your first
+                  real answer for the pricing manager, and it's why smoker will turn out to be the most important thing
+                  your model learns.
+                </p>
               </>
             }
           />
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <div className="lr-substep"><span className="lr-substep__n">E</span><h4>The shortcut you'll see everywhere</h4></div>
+          <p className="bt-note" style={{ maxWidth: '64ch' }}>
+            B, C and D in one line. {c('groupby("smoker")')} means "split the rows into groups by smoker", and the rest
+            means "then take the average of charges in each group". Same numbers as cell 13, which makes it a good check.
+            You'll see this in almost every notebook on Kaggle.
+          </p>
+          <ColabCell
+            label="Cell 14"
+            code={CODE.groupby}
+            out={[{ kind: 'text', text: 'smoker\n0     8441.0\n1    32050.0\nName: charges, dtype: float64' }]}
+            after={<>0 is non-smokers, 1 is smokers. $8,441 and $32,050, exactly what you worked out by hand.</>}
+          />
           <Task title="Your turn: two filters of your own" time="10 min">
+            <p style={{ fontSize: 14, lineHeight: 1.55, marginTop: 6 }}>
+              The first one practises asking two questions at once. The second one checks a hunch: does a high BMI make
+              smoking even more expensive?
+            </p>
             <ol>
               <li>
                 How many smokers are over 50? Try {c('df[(df["age"] > 50) & (df["smoker"] == 1)]')}. The {c('&')} means
-                "and both". Each rule needs its own brackets.
+                "both have to be True". Each question needs its own round brackets.
               </li>
               <li>
-                Do smokers with a high BMI cost more? Compare {c('smokers[smokers["bmi"] >= 30]["charges"].mean()')}{' '}
-                with the same thing for {c('< 30')}.
+                Compare {c('smokers[smokers["bmi"] >= 30]["charges"].mean()')} with the same thing using {c('< 30')}.
+                Notice you're filtering the smokers table this time, not df.
               </li>
             </ol>
             <Answer>
               64 smokers are over 50. Smokers with a BMI of 30 or more average <b>$41,558</b> (145 people), against{' '}
               <b>$21,363</b> for smokers under 30 (129 people). Smoking and a high BMI together cost about twice what
-              smoking alone does. Remember this. It comes back in the limits section.
+              smoking alone does. Remember this. It comes back in the chart below, and again in the limits section.
+            </Answer>
+          </Task>
+        </Reveal>
+
+        {/* ── Look ───────────────────────────────────────────────────── */}
+        <Reveal delay={0.05}>
+          <h3 style={{ fontSize: 19, marginTop: 56 }}>Look before you model</h3>
+          <WhyBlock
+            task={
+              <p>
+                Draw every person as a dot on a chart, with their age along the bottom and their bill up the side. Then
+                look at the shape the dots make.
+              </p>
+            }
+            why={
+              <>
+                <p>
+                  Your filter compared two averages. An average is useful, but it squashes 274 people into one number and
+                  hides everything else about them. A chart hides nothing. You see all 1,337 people at once, and your
+                  eyes find a pattern in a picture far faster than in a table.
+                </p>
+                <p>
+                  There's a bigger reason too. Linear regression draws <b>straight lines</b> through dots. Before you ask
+                  a computer to draw a line, look at whether the dots even look like a line. If they don't, you need to
+                  know why, because that tells you what the model has to be given.
+                </p>
+                <p>
+                  Statisticians learned this the hard way. In 1973 Francis Anscombe published four small datasets that
+                  had the same averages and the same best-fit line. Drawn as charts, they looked nothing alike: one a
+                  neat line, one a curve, two thrown off by a single odd point. The numbers couldn't tell them apart. The
+                  pictures could. It's known as{' '}
+                  <a href="https://en.wikipedia.org/wiki/Anscombe%27s_quartet" target="_blank" rel="noreferrer" style={{ color: 'var(--accent-600)' }}>
+                    Anscombe's quartet
+                  </a>
+                  .
+                </p>
+              </>
+            }
+            which={
+              <ul style={{ marginTop: 0 }}>
+                <li>
+                  <b>Charges goes up the side</b> because it's the thing we want to predict. By convention, the thing you
+                  predict always goes on the vertical axis.
+                </li>
+                <li>
+                  <b>Age goes along the bottom</b> because it has lots of different values, 18 to 64, so the dots spread
+                  out sideways and a trend can show. It's also the input most likely to push bills up steadily as people
+                  get older.
+                </li>
+                <li>
+                  <b>Smoker can't go along the bottom.</b> It only has two values, so you'd get two tall stacks of dots
+                  and learn nothing new. Instead you'll use it as <b>colour</b>: a third piece of information on the same
+                  chart.
+                </li>
+              </ul>
+            }
+            whichLabel="Why these columns?"
+          />
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <div className="lr-substep"><span className="lr-substep__n">A</span><h4>How to read a dot</h4></div>
+          <ReadADot />
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <div className="lr-substep"><span className="lr-substep__n">B</span><h4>Draw all 1,337</h4></div>
+          <ReadAloud
+            lines={[
+              ['import matplotlib.pyplot as plt', 'bring in Python’s drawing tool. plt is its nickname'],
+              ['plt.scatter(df["age"], df["charges"])', 'one dot per row. The first column goes along the bottom, the second goes up the side'],
+              ['plt.xlabel("Age")', 'write a label under the bottom axis. ylabel does the same for the side'],
+              ['plt.show()', 'put the finished chart on the screen'],
+            ]}
+          />
+          <ColabCell
+            label="Cell 15"
+            code={CODE.scatter}
+            out={[CHART('chart-age-charges.webp', 'Matplotlib scatter plot of age against charges. The dots form three separate upward-sloping bands: a dense one at the bottom from about $2,000 to $15,000, a scattered middle band, and a top band from about $35,000 to $50,000.')]}
+            after={
+              <>
+                Stop and look for ten seconds before you read on. What do you notice?
+                <br />
+                <br />
+                Here's what I see. Not one cloud of dots, but <b>three bands</b>, stacked on top of each other, all
+                climbing as people get older. Climbing with age makes sense. But why three separate bands? Something is
+                splitting these people into groups.
+              </>
+            }
+          />
+        </Reveal>
+
+        <Reveal delay={0.05}>
+          <div className="lr-substep"><span className="lr-substep__n">C</span><h4>Test your suspect with colour</h4></div>
+          <div className="bt-prose">
+            <p>
+              You already have a suspect. Your filter showed smokers' bills are nearly four times bigger. If smoking is
+              what splits the bands, then colouring every dot by smoker should make the colours line up with the bands.
+              If it isn't, the colours will be mixed up in every band. Either way, you learn something.
+            </p>
+          </div>
+          <ReadAloud
+            lines={[
+              ['c=df["smoker"]', 'colour each dot using that person’s smoker value'],
+              ['cmap="coolwarm"', 'the colour scheme: 0 comes out blue, 1 comes out red'],
+            ]}
+          />
+          <ColabCell
+            label="Cell 16"
+            code={CODE.scatterColour}
+            out={[CHART('chart-age-charges-smoker.webp', 'The same scatter plot coloured by smoker. The bottom band is all blue (non-smokers), the top band is all red (smokers), and the middle band is a mix of both.')]}
+            after={
+              <>
+                The colours line up with the bands. The bottom band is nearly all blue: people who don't smoke. The top
+                band is all red: smokers. The middle band is a mix, mostly smokers with a BMI under 30 plus a few
+                non-smokers with unusually big bills. That's the high-BMI hunch from your filter task, showing up in the
+                picture.
+                <br />
+                <br />
+                <b>What this tells you:</b> the model must be told who smokes. A straight line drawn through age alone
+                would run through the gap between the bands and fit almost nobody. You'll prove that in step 7.
+              </>
+            }
+          />
+          <Task title="Your turn: test a different suspect" time="5 min">
+            <p style={{ fontSize: 14, lineHeight: 1.55, marginTop: 6 }}>
+              Change {c('c=df["smoker"]')} to {c('c=df["children"]')} and run the cell again. Do the colours line up
+              with the bands now? Write one sentence about what that tells you.
+            </p>
+            <Answer>
+              <Figure
+                src="chart-age-charges-children.webp"
+                alt="The same scatter plot coloured by number of children. Every band contains every colour, with no pattern."
+                width={848}
+                height={621}
+                caption="Coloured by children. Every band has every colour in it."
+                narrow
+              />
+              <p style={{ marginTop: 10 }}>
+                No. Every band has every colour in it, so the number of children doesn't explain the bands. A chart can
+                rule a suspect <i>out</i> just as clearly as it rules one in. That's why smoker, not children, is the
+                column to watch.
+              </p>
             </Answer>
           </Task>
         </Reveal>
 
         <Reveal delay={0.05}>
-          <h3 style={{ fontSize: 19, marginTop: 40 }}>Look before you model</h3>
-          <div className="bt-prose">
-            <p>Numbers in a table hide patterns that a chart shows in a second. Draw one dot per person.</p>
-          </div>
-          <ColabCell
-            label="Cell 13"
-            code={CODE.scatter}
-            out={[CHART('chart-age-charges.webp', 'Matplotlib scatter plot of age against charges. The dots form three separate upward-sloping bands: a dense one at the bottom from about $2,000 to $15,000, a scattered middle band, and a top band from about $35,000 to $50,000.')]}
-            after={<>Not one cloud of dots. Three bands, stacked, all climbing with age. Something is splitting these people into groups.</>}
-          />
-          <ColabCell
-            label="Cell 14"
-            code={CODE.scatterColour}
-            out={[CHART('chart-age-charges-smoker.webp', 'The same scatter plot coloured by smoker. The bottom band is all blue (non-smokers), the top band is all red (smokers), and the middle band is a mix of both.')]}
-            after={<>{c('c=df["smoker"]')} colours each dot by its smoker value. Red smokes, blue doesn't. (Those are Colab's colours, not mine.) There's your answer: the top band is smokers.</>}
-          />
-        </Reveal>
-        <Reveal delay={0.05}>
-          <h3 style={{ fontSize: 19, marginTop: 40 }}>Play with the same dots</h3>
+          <h3 style={{ fontSize: 19, marginTop: 48 }}>Play with the same dots</h3>
           <p className="bt-note" style={{ maxWidth: '62ch' }}>
             All 1,337 people, from the cleaned data. Hover any dot to see who it is. Views 1 and 2 match your two charts.
             Views 3 and 4 are a preview of step 7, so have a look now and they'll make sense in ten minutes.
           </p>
           <BandsChart />
           <div className="lr-task__foot" style={{ marginTop: 18 }}>
-            <DoneButton stage="clean">My data is clean</DoneButton>
+            <DoneButton stage="clean">I've cleaned, filtered and looked</DoneButton>
           </div>
         </Reveal>
       </section>
@@ -898,7 +1227,7 @@ export default function LinearRegressionLabLesson() {
           </div>
           <SplitDemo />
           <ColabCell
-            label="Cell 15"
+            label="Cell 17"
             code={CODE.split}
             out={[{ kind: 'text', text: '1069 people to learn from\n268 people kept back for the test' }]}
             after={
@@ -914,7 +1243,7 @@ export default function LinearRegressionLabLesson() {
         <Reveal delay={0.05}>
           <h3 style={{ fontSize: 19, marginTop: 34 }}>First, a model that only knows age</h3>
           <ColabCell
-            label="Cell 16"
+            label="Cell 18"
             code={CODE.ageModel}
             out={[{ kind: 'text', text: 'Score: 0.1' }]}
             after={
@@ -928,7 +1257,7 @@ export default function LinearRegressionLabLesson() {
           />
           <h3 style={{ fontSize: 19, marginTop: 34 }}>Now give it all four inputs</h3>
           <ColabCell
-            label="Cell 17"
+            label="Cell 19"
             code={CODE.fullModel}
             out={[{ kind: 'text', text: 'Score: 0.8' }]}
             after={
@@ -942,7 +1271,7 @@ export default function LinearRegressionLabLesson() {
         <Reveal delay={0.05}>
           <h3 style={{ fontSize: 19, marginTop: 40 }}>Read what it learned</h3>
           <ColabCell
-            label="Cell 18"
+            label="Cell 20"
             code={CODE.coef}
             out={[{ kind: 'text', text: 'Starting point: -11257\nage           249.0\nbmi           305.0\nchildren      538.0\nsmoker      23043.0\ndtype: float64' }]}
             after={<>These five numbers <i>are</i> the model. Here they are in plain English.</>}
@@ -955,7 +1284,7 @@ export default function LinearRegressionLabLesson() {
             <div><h4>Starting point · −11,257</h4><p>Where the sum starts before any inputs are added. Nobody is aged 0 with a BMI of 0, so don't read meaning into it. It's just where the line has to start to fit everyone else.</p></div>
           </div>
           <ColabCell
-            label="Cell 19 · how far off is it, in dollars?"
+            label="Cell 21 · how far off is it, in dollars?"
             code={CODE.mae}
             out={[{ kind: 'text', text: 'Average miss in dollars: 4199' }]}
             after={
@@ -968,7 +1297,7 @@ export default function LinearRegressionLabLesson() {
             }
           />
           <ColabCell
-            label="Cell 20 · real against predicted"
+            label="Cell 22 · real against predicted"
             code={CODE.realVsPred}
             out={[CHART('chart-real-vs-predicted.webp', 'Scatter plot of real charges against predicted charges for the 268 test people, with a black diagonal line where a perfect prediction would sit. Most dots cluster near the line. A group of expensive real bills on the right sits well below it, and two predictions at the bottom left are below zero.')]}
             after={
@@ -984,7 +1313,7 @@ export default function LinearRegressionLabLesson() {
         <Reveal delay={0.05}>
           <Task title="Your turn: take one input away" time="10 min" foot={<DoneButton stage="model">I've trained and tested it</DoneButton>}>
             <p style={{ fontSize: 14, lineHeight: 1.55, marginTop: 6 }}>
-              Go back to cell 15 and take one name out of the X list, say {c('"bmi"')}. Then run cells 15 and 17 again
+              Go back to cell 17 and take one name out of the X list, say {c('"bmi"')}. Then run cells 17 and 19 again
               and write down the new score. Try each of the four in turn. Which one does the model miss most when it's
               gone? Put back all four when you're done.
             </p>
@@ -1017,7 +1346,7 @@ export default function LinearRegressionLabLesson() {
         <Reveal delay={0.05}>
           <h3 style={{ fontSize: 19, marginTop: 40 }}>Do it in your notebook</h3>
           <ColabCell
-            label="Cell 21"
+            label="Cell 23"
             code={CODE.predict}
             out={[{ kind: 'text', text: 'array([ 3851., 26893., 13293.])' }]}
             after={
@@ -1039,7 +1368,7 @@ export default function LinearRegressionLabLesson() {
           </div>
           <Task title="Your three customers" time="10 min" foot={<DoneButton stage="predict">I've made my predictions</DoneButton>}>
             <ol>
-              <li>Change the numbers in cell 21 to three customers you make up. Make them different from each other.</li>
+              <li>Change the numbers in cell 23 to three customers you make up. Make them different from each other.</li>
               <li>Run it, and copy the predictions into the table in your report.</li>
               <li>For each one, write whether the prediction looks sensible to you, and why. "It seems high because…" is fine.</li>
             </ol>
@@ -1064,7 +1393,7 @@ export default function LinearRegressionLabLesson() {
             </div>
             <div>
               <h4>It draws straight lines, and real life bends</h4>
-              <p>Smokers with a BMI of 30 or more average $41,558. Smokers under 30 average $21,363. The two together cost far more than you'd get by adding them up separately, which is exactly what a straight-line model does. So it under-guesses those people. You saw them, under the line on the right of cell 20.</p>
+              <p>Smokers with a BMI of 30 or more average $41,558. Smokers under 30 average $21,363. The two together cost far more than you'd get by adding them up separately, which is exactly what a straight-line model does. So it under-guesses those people. You saw them, under the line on the right of cell 22.</p>
             </div>
             <div>
               <h4>It will happily predict nonsense</h4>

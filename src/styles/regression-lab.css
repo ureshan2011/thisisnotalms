@@ -747,3 +747,128 @@
 
 /* ── Hero art ──────────────────────────────────────────────────────────── */
 .lr-hero svg { display: block; width: 100%; height: auto; margin-top: 12px; }
+
+/* ── The task / why / why this column ─────────────────────────────────────
+   Said before any code. Three labelled rows on a quiet panel, so a reader
+   who skims still catches the reason. ─────────────────────────────────── */
+.lr-why {
+  margin-top: 6px;
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-left: 4px solid var(--accent-500);
+  border-radius: var(--radius-md);
+  padding: 6px 20px;
+  max-width: 820px;
+}
+.lr-why__row {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--paper-200);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-600);
+}
+.lr-why__row:last-child { border-bottom: none; }
+.lr-why__row p + p { margin-top: 8px !important; }
+.lr-why__row ul { margin: 6px 0 0; padding-left: 20px; list-style: disc; display: flex; flex-direction: column; gap: 5px; }
+.lr-why__lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-600); padding-top: 4px; }
+@media (max-width: 640px) {
+  .lr-why { padding: 4px 14px; }
+  .lr-why__row { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+
+/* A sub-step heading inside a section: number, then the question it answers. */
+.lr-substep { display: flex; align-items: baseline; gap: 12px; margin-top: 30px; }
+.lr-substep__n { font-family: var(--font-mono); font-size: 12px; color: var(--accent-600); flex: 0 0 auto; }
+.lr-substep h4 { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink-900); }
+
+/* A line of code read out loud, word by word. */
+.lr-aloud { margin: 14px 0 0; display: flex; flex-direction: column; gap: 8px; max-width: 820px; }
+.lr-aloud > div { display: grid; grid-template-columns: minmax(0, auto) minmax(0, 1fr); gap: 4px 14px; align-items: baseline; }
+.lr-aloud dt { margin: 0; }
+.lr-aloud dt code {
+  display: inline-block;
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: var(--ink-900);
+  color: #ede6e2;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  white-space: pre;
+}
+.lr-aloud dd { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-600); }
+@media (max-width: 640px) { .lr-aloud > div { grid-template-columns: minmax(0, 1fr); } }
+
+/* ── The filter demo ───────────────────────────────────────────────────── */
+.lr-filter {
+  margin-top: 20px;
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: 22px;
+  box-shadow: var(--shadow-md);
+}
+.lr-filter__code {
+  margin: 16px 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.lr-filter__code code {
+  background: var(--ink-900);
+  color: #ede6e2;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  white-space: pre;
+  max-width: 100%;
+  overflow-x: auto;
+}
+.lr-filter__code span { font-size: 13px; color: var(--ink-400); }
+.lr-filter__ask { margin: 0 0 12px !important; font-size: 13.5px; line-height: 1.5; color: var(--ink-600); }
+.lr-filter__ask code { font-family: var(--font-mono); font-size: 12.5px; background: var(--accent-50); color: var(--accent-700); border-radius: 6px; padding: 2px 7px; }
+.lr-filter__table { width: 100%; }
+.lr-filter__table th:first-child { color: var(--ink-400); font-weight: 500; }
+.lr-filter__table tr.is-out td, .lr-filter__table tr.is-out th { text-decoration: line-through; text-decoration-color: var(--ink-300); }
+.lr-filter__table tr.is-out td:last-child { text-decoration: none; }
+.lr-filter__q { color: var(--accent-700) !important; font-family: var(--font-mono); font-size: 12px; }
+.lr-filter__table td.is-asked { background: var(--accent-50); color: var(--accent-700); font-weight: 700; }
+.lr-tf { display: inline-block; min-width: 46px; text-align: center; border-radius: var(--radius-pill); padding: 2px 9px; font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; background: var(--paper-200); color: var(--ink-500); }
+.lr-tf.is-true { background: var(--green-50); color: #186845; }
+.lr-tf.is-false { background: var(--red-50); color: #8f2318; }
+.lr-filter__read {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 22px;
+  align-items: center;
+}
+.lr-filter__read b { display: block; font-family: var(--font-display); font-size: 28px; font-weight: 800; letter-spacing: -0.03em; color: var(--ink-900); line-height: 1; }
+.lr-filter__read span { display: block; margin-top: 4px; font-size: 11.5px; color: var(--ink-400); }
+.lr-filter__read p { font-size: 14px; line-height: 1.55; color: var(--ink-600); }
+@media (max-width: 760px) {
+  .lr-filter { padding: 16px; }
+  .lr-filter__read { grid-template-columns: auto auto; }
+  .lr-filter__read p { grid-column: 1 / -1; }
+}
+
+/* Two numbers side by side, as bars, so "nearly four times" is seen. */
+.lr-compare { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; max-width: 640px; }
+.lr-compare__row { display: grid; grid-template-columns: 110px minmax(0, 1fr) 90px; gap: 12px; align-items: center; font-size: 13.5px; color: var(--ink-600); }
+.lr-compare__bar { height: 14px; border-radius: var(--radius-pill); background: var(--paper-200); overflow: hidden; }
+.lr-compare__bar i { display: block; height: 100%; border-radius: var(--radius-pill); }
+.lr-compare__row b { font-family: var(--font-display); font-size: 16px; color: var(--ink-900); text-align: right; }
+
+/* ── How to read one dot ───────────────────────────────────────────────── */
+.lr-dot { margin: 18px 0 0; display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 22px; align-items: center; }
+.lr-dot svg { display: block; width: 100%; height: auto; background: var(--paper-0); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+.lr-dot figcaption { font-size: 14.5px; line-height: 1.6; color: var(--ink-600); max-width: 40ch; }
+.lr-dot__small { font-family: var(--font-body); font-size: 11px; fill: var(--ink-400); }
+.lr-dot__tag { font-family: var(--font-mono); font-size: 11px; font-weight: 700; fill: var(--accent-700); }
+@media (max-width: 760px) { .lr-dot { grid-template-columns: minmax(0, 1fr); } }

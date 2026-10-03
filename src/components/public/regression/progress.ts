@@ -16,7 +16,7 @@ export const STAGES = [
   { id: 'clean', label: 'Cleaned and filtered it' },
   { id: 'model', label: 'Trained and tested a model' },
   { id: 'predict', label: 'Predicted three customers' },
-  { id: 'report', label: 'Sent my report in Teams' },
+  { id: 'report', label: 'Replied with my report in Teams' },
 ] as const;
 
 export type StageId = (typeof STAGES)[number]['id'];

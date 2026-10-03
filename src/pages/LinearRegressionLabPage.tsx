@@ -66,7 +66,7 @@ export default function LinearRegressionLabPage() {
               transition={{ duration: 0.7, ease: EASE, delay: 0.14 }}
             >
               Download 1,338 real insurance records from Kaggle, check and clean them in Google Colab, train a linear
-              regression model, and use it to predict a new customer's bill. Then send me a short report in Teams.
+              regression model, and use it to predict a new customer's bill. Then post a short report as a reply to my Teams announcement.
             </motion.p>
 
             <motion.p

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Bell, Calendar, Code, Eye, File, FileArchive, FileSpreadsheet, Folder, FolderPlus, HardDrive, Key, List,
-  MessageSquare, Paperclip, Plus, RefreshCw, Search, Send, SquarePen, Table, Upload, Users,
+  MessageSquare, Paperclip, Plus, RefreshCw, Search, Send, Table, Upload, Users,
 } from 'lucide-react';
 import Demo, { type DemoStep } from './Demo';
 
@@ -195,81 +195,102 @@ export function UploadDemo() {
   );
 }
 
-/* ── 3. Send the report in Teams ──────────────────────────────────────── */
+/* ── 3. Reply to the announcement post in Teams ──────────────────────── */
+
+const POST_TITLE = 'New lab: what makes a medical bill bigger?';
+const POST_BODY = 'Hi everyone, there’s a new hands-on lab up for MBI806B…';
+const REPLY_TEXT = 'Hi Yasas, here’s my linear regression lab report.';
 
 const TEAMS_STEPS: DemoStep[] = [
-  { caption: <>Open Microsoft <b>Teams</b> and click <b>Chat</b> on the left.</>, cursor: 'chat', click: true },
-  { caption: <>Click the <b>new chat</b> button, the square with a pencil, at the top of your chat list.</>, cursor: 'newchat', click: true },
-  { caption: <>In the <b>To</b> box, start typing my name and pick <b>Yasas Sri Wickramasinghe</b> when it comes up.</>, cursor: 'to', click: true },
-  { caption: <>Under the message box, click the <b>paperclip</b> (on newer Teams it's the <b>+</b>, then <b>Attach file</b>). Choose <b>Upload from this device</b>.</>, cursor: 'attach', click: true },
-  { caption: <>Pick your PDF. Then type one line so I know what it is, like the one below.</>, cursor: 'box' },
-  { caption: <>Press <b>Send</b>. When the file shows in the chat, you're done. Tick the last box on your checklist.</>, cursor: 'send', click: true },
+  { caption: <>Open Microsoft <b>Teams</b> and click <b>Teams</b> on the left, then your <b>MBI806B</b> class team.</>, cursor: 'teams', click: true },
+  { caption: <>Open the <b>General</b> channel. Look for my post called <b>“{POST_TITLE}”</b>. That’s the one the lab came from.</>, cursor: 'channel', click: true },
+  { caption: <>Don’t press <b>New post</b>. Your report goes <b>under my post</b>, so everyone’s sit together. Click <b>Reply</b>.</>, cursor: 'reply', click: true },
+  { caption: <>A reply box opens under the post. Click the <b>paperclip</b> (on newer Teams it’s the <b>+</b>, then <b>Attach file</b>).</>, cursor: 'attach', click: true },
+  { caption: <>Choose <b>Upload from this device</b>, then pick your PDF.</>, cursor: 'upload', click: true },
+  { caption: <>Your PDF shows in the box. Type one line, like this one, so I know whose it is.</>, cursor: 'box' },
+  { caption: <>Press <b>Send</b>.</>, cursor: 'send', click: true },
+  { caption: <>Your report now sits <b>under my post</b>, as a reply. If you can see it there, you’re done. Tick the last box on your checklist.</>, cursor: 'posted' },
 ];
 
 export function TeamsDemo() {
   return (
-    <Demo tag="Drawn for this lab · the layout of Teams chat, simplified" steps={TEAMS_STEPS}>
+    <Demo tag="Drawn for this lab · the layout of a Teams channel, simplified" steps={TEAMS_STEPS}>
       {step => (
         <div className="lr-teams">
           <div className="lr-teams__rail" aria-hidden="true">
             <span><Bell size={17} />Activity</span>
-            <span data-target="chat" className={step >= 0 ? 'is-on' : undefined}><MessageSquare size={17} />Chat</span>
-            <span><Users size={17} />Teams</span>
+            <span><MessageSquare size={17} />Chat</span>
+            <span data-target="teams" className={step >= 0 ? 'is-on' : undefined}><Users size={17} />Teams</span>
             <span><Calendar size={17} />Calendar</span>
           </div>
           <div className="lr-teams__list">
-            <h5>
-              Chat
-              <span className={`lr-teams__newchat${step === 1 ? ' is-on' : ''}`} data-target="newchat"><SquarePen size={15} /></span>
-            </h5>
-            {step >= 2 && (
-              <div className="lr-teams__chat is-on">
-                <span className="lr-teams__ava">YS</span> Yasas Sri W…
-              </div>
-            )}
-            <div className="lr-teams__chat"><span className="lr-teams__ava" style={{ background: '#f3d6c7', color: '#6b2c10' }}>MB</span> MBI806B class</div>
+            <h5>Teams</h5>
+            <div className="lr-teams__team"><span className="lr-teams__ava" style={{ background: '#f3d6c7', color: '#6b2c10' }}>MB</span> MBI806B class</div>
+            <div className={`lr-teams__channel${step >= 1 ? ' is-on' : ''}`} data-target="channel"># General</div>
+            <div className="lr-teams__channel"># Assignments</div>
           </div>
           <div className="lr-teams__main">
             <div className="lr-teams__to">
-              {step >= 1 && (
-                <>
-                  <span style={{ color: '#616161' }}>To:</span>
-                  <span data-target="to" style={{ flex: 1, minHeight: 20 }}>
-                    {step >= 2 && <span className="lr-teams__pill">Yasas Sri Wickramasinghe</span>}
-                  </span>
-                </>
-              )}
+              <b># General</b>
+              <span style={{ color: '#616161' }}>Posts · Files · Notes</span>
+              <span className="lr-teams__newpost">New post</span>
             </div>
-            <div className="lr-teams__conv">
-              {step >= 5 && (
-                <motion.div className="lr-teams__bubble" {...fade}>
-                  Hi Yasas, here's my linear regression lab report.
-                  <div className="lr-teams__file"><File size={16} color="#c4314b" /> {REPORT_FILE}</div>
+            <div className="lr-teams__feed">
+              {step >= 1 && (
+                <motion.div className="lr-teams__post" {...fade}>
+                  <div className="lr-teams__postrow">
+                    <span className="lr-teams__ava">YS</span>
+                    <div>
+                      <b>Yasas Sri Wickramasinghe</b>
+                      <div className="lr-teams__posttitle">{POST_TITLE}</div>
+                      <div style={{ color: '#616161' }}>{POST_BODY}</div>
+                    </div>
+                  </div>
+
+                  <AnimatePresence>
+                    {step >= 7 && (
+                      <motion.div key="r" className="lr-teams__reply" {...fade}>
+                        <span className="lr-teams__ava" style={{ background: '#d4ecd9', color: '#1d5a2f' }}>You</span>
+                        <div>
+                          <div className="lr-teams__bubble" data-target="posted">
+                            {REPLY_TEXT}
+                            <div className="lr-teams__file"><File size={16} color="#c4314b" /> {REPORT_FILE}</div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {step < 3 || step >= 7 ? (
+                    <span className="lr-teams__replylink" data-target="reply">↩ Reply</span>
+                  ) : (
+                    <div className="lr-teams__box" data-target="box">
+                      {step >= 5 ? (
+                        <>
+                          <motion.div className="lr-teams__file" style={{ marginTop: 0, alignSelf: 'flex-start' }} {...fade}>
+                            <File size={16} color="#c4314b" /> {REPORT_FILE}
+                          </motion.div>
+                          <span>{REPLY_TEXT}</span>
+                        </>
+                      ) : (
+                        <span style={{ color: '#9e9e9e' }}>Reply</span>
+                      )}
+                      <div className="lr-teams__boxrow" aria-hidden="true">
+                        <span data-target="attach" className={step === 3 || step === 4 ? 'is-on' : undefined}><Paperclip size={15} /></span>
+                        <span><Plus size={15} /></span>
+                        <span className={`lr-teams__send${step >= 6 ? ' is-on' : ''}`} data-target="send"><Send size={15} /></span>
+                      </div>
+                    </div>
+                  )}
                 </motion.div>
               )}
             </div>
-            <div className="lr-teams__box" data-target="box">
-              {step === 4 && (
-                <>
-                  <motion.div className="lr-teams__file" style={{ marginTop: 0, alignSelf: 'flex-start' }} {...fade}>
-                    <File size={16} color="#c4314b" /> {REPORT_FILE}
-                  </motion.div>
-                  <span>Hi Yasas, here's my linear regression lab report.</span>
-                </>
-              )}
-              {step !== 4 && <span style={{ color: '#9e9e9e' }}>Type a message</span>}
-              <div className="lr-teams__boxrow" aria-hidden="true">
-                <span data-target="attach" className={step === 3 ? 'is-on' : undefined}><Paperclip size={15} /></span>
-                <span><Plus size={15} /></span>
-                <span className={`lr-teams__send${step >= 4 ? ' is-on' : ''}`} data-target="send"><Send size={15} /></span>
-              </div>
-            </div>
           </div>
           <AnimatePresence>
-            {step === 3 && (
-              <motion.div key="menu" className="lr-teams__menu" style={{ right: 40 }} {...fade}>
+            {step === 4 && (
+              <motion.div key="menu" className="lr-teams__menu" style={{ left: '38%' }} {...fade}>
                 <div>Attach cloud files</div>
-                <div className="is-on"><Upload size={14} /> Upload from this device</div>
+                <div className="is-on" data-target="upload"><Upload size={14} /> Upload from this device</div>
               </motion.div>
             )}
           </AnimatePresence>

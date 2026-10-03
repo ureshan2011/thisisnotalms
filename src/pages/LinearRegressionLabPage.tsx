@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { CoursePage } from '../components/blend';
 import LinearRegressionLabLesson from '../components/public/LinearRegressionLabLesson';
 import { HeroBands } from '../components/public/regression/BandsChart';
+import { CountdownStrip } from '../components/public/regression/Countdown';
 
 // ─── /linear-regression-lab — MBI806B, public and ungated ─────────────────
 // Built on Blend (src/components/blend/README.md), on MBI806B's teal. What
@@ -100,6 +101,14 @@ export default function LinearRegressionLabPage() {
                 What to hand in
                 <span className="bt-btn__badge" aria-hidden="true">→</span>
               </button>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, ease: EASE, delay: 0.38 }}
+            >
+              <CountdownStrip />
             </motion.div>
           </div>
 

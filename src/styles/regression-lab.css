@@ -883,3 +883,65 @@
 .lr-dot__small { font-family: var(--font-body); font-size: 11px; fill: var(--ink-400); }
 .lr-dot__tag { font-family: var(--font-mono); font-size: 11px; font-weight: 700; fill: var(--accent-700); }
 @media (max-width: 760px) { .lr-dot { grid-template-columns: minmax(0, 1fr); } }
+
+/* ── The hand-in countdown ────────────────────────────────────────────────
+   Status shows as a dot and a word, never colour alone. The accent teal runs
+   while there is time; amber and red are Blend's status hues, used only for
+   the dot and a thin top rule, as the system asks. ──────────────────────── */
+.lr-cd, .lr-cdstrip { --cd: var(--accent-500); }
+.lr-cd--soon, .lr-cdstrip.lr-cd--soon { --cd: var(--amber-500); }
+.lr-cd--last, .lr-cdstrip.lr-cd--last { --cd: var(--red-500); }
+.lr-cd--closed, .lr-cdstrip.lr-cd--closed { --cd: var(--ink-300); }
+.lr-cd__dot { width: 9px; height: 9px; border-radius: 50%; background: var(--cd); flex: 0 0 9px; box-shadow: 0 0 0 4px color-mix(in srgb, var(--cd) 20%, transparent); }
+
+.lr-cdstrip {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 18px;
+  padding: 9px 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  background: var(--paper-0);
+  font-size: 13.5px;
+  color: var(--ink-600);
+}
+.lr-cdstrip__due { font-weight: 700; color: var(--ink-900); }
+.lr-cdstrip__left { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-500); }
+
+.lr-cd {
+  margin-top: 4px;
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-top: 4px solid var(--cd);
+  border-radius: var(--radius-panel);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-md);
+}
+.lr-cd__head { display: flex; align-items: center; gap: 12px; }
+.lr-cd__mood { font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-600); }
+.lr-cd__row { display: flex; align-items: center; gap: 22px 40px; flex-wrap: wrap; margin-top: 14px; }
+.lr-cd__cells { display: flex; gap: 10px; }
+.lr-cd__cell {
+  min-width: 82px;
+  text-align: center;
+  background: var(--paper-100);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 10px 10px;
+}
+.lr-cd__cell b { display: block; font-family: var(--font-display); font-size: 38px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; color: var(--ink-900); }
+.lr-cd__cell span { display: block; margin-top: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-400); }
+.lr-cd__when { min-width: 0; flex: 1 1 220px; }
+.lr-cd__date { font-family: var(--font-display); font-size: 19px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink-900); }
+.lr-cd__tz { margin-top: 4px !important; font-size: 13px; line-height: 1.5; color: var(--ink-400); }
+.lr-cd__hint { margin-top: 16px !important; padding-top: 14px; border-top: 1px solid var(--border-subtle); font-size: 13.5px; line-height: 1.55; color: var(--ink-600); max-width: 70ch; }
+.lr-cd--closed .lr-cd__cell b { color: var(--ink-300); }
+@media (max-width: 640px) {
+  .lr-cd { padding: 18px; }
+  .lr-cd__cells { width: 100%; gap: 6px; }
+  .lr-cd__cell { flex: 1 1 0; min-width: 0; padding: 10px 4px 8px; }
+  .lr-cd__cell b { font-size: 28px; }
+  .lr-cd__cell span { font-size: 9.5px; letter-spacing: 0.06em; }
+}

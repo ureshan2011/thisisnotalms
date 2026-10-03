@@ -555,6 +555,15 @@ const MBI806B: Course = {
       kind: 'Lesson',
     },
     {
+      id: 'linear-regression-lab',
+      title: 'Linear regression lab: what makes a medical bill bigger?',
+      blurb:
+        'The whole job on real data. Find a 1,338-person insurance dataset on Kaggle and read its data card, download it, load it into Google Colab, find and drop the duplicate, train a linear regression and test it fairly, then predict three customers’ bills. Real screenshots and walkthroughs for every click, and a short report to send in Teams.',
+      to: '/linear-regression-lab',
+      access: 'open',
+      kind: 'Lab',
+    },
+    {
       id: 'power-bi-setup',
       title: 'Setting up Power BI',
       blurb:

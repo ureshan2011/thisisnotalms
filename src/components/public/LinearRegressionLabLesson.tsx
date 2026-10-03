@@ -8,6 +8,7 @@ import DataCardQuestions from './regression/DataCardQuestions';
 import { BillBuilder, SplitDemo } from './regression/ModelWidgets';
 import { TeamsDemo, UnzipDemo, UploadDemo, REPORT_FILE } from './regression/Walkthroughs';
 import { Checklist, DoneButton } from './regression/Checklist';
+import Countdown, { DEADLINE_LABEL } from './regression/Countdown';
 import { FilterDemo, ReadADot, ReadAloud, WhyBlock } from './regression/Teaching';
 import '../../styles/regression-lab.css';
 
@@ -42,8 +43,6 @@ const DATASET_URL = 'https://www.kaggle.com/datasets/mirichoi0218/insurance';
 const COLAB_URL = 'https://colab.research.google.com';
 const KAGGLE_URL = 'https://www.kaggle.com';
 
-/** When reports are due. One place, so it is easy to change each intake. */
-const DUE = 'before our next class';
 const LECTURER = 'Yasas Sri Wickramasinghe';
 
 /* ── Small pieces used throughout ──────────────────────────────────────── */
@@ -1421,7 +1420,10 @@ export default function LinearRegressionLabLesson() {
           />
         </Reveal>
         <Reveal delay={0.05}>
-          <div className="bt-prose" style={{ marginBottom: 22 }}>
+          <Countdown />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <div className="bt-prose" style={{ margin: '26px 0 22px' }}>
             <p>
               Write it for the pricing manager from the start of the lab: someone smart who has never opened Python.
               Every number has to come from your own notebook, not from this page. If yours differ from mine, use yours
@@ -1454,7 +1456,7 @@ export default function LinearRegressionLabLesson() {
                 <div><dt>Format</dt><dd>PDF. In Word: File → Save As → PDF. A .docx is fine if PDF is a struggle.</dd></div>
                 <div><dt>File name</dt><dd><code>{REPORT_FILE}</code></dd></div>
                 <div><dt>Post it</dt><dd>As a <b>reply under my lab announcement post</b> in the class channel. Not a new post, and not a private message.</dd></div>
-                <div><dt>Due</dt><dd>{DUE[0].toUpperCase() + DUE.slice(1)}</dd></div>
+                <div><dt>Due</dt><dd>{DEADLINE_LABEL}, New Zealand time</dd></div>
               </dl>
               <div className="lr-facts__actions">
                 <a className="bt-btn" href={`${ASSETS}MBI806B-linear-regression-report-template.docx`} download style={{ textDecoration: 'none' }}>

@@ -1,18 +1,18 @@
 import { motion } from 'framer-motion';
 import { CoursePage } from '../components/blend';
-import LinearRegressionLabLesson from '../components/public/LinearRegressionLabLesson';
-import { HeroBands } from '../components/public/regression/BandsChart';
+import DecisionTreeLabLesson from '../components/public/DecisionTreeLabLesson';
+import { HeroPath } from '../components/public/tree/DepthWidgets';
 import { CountdownStrip } from '../components/public/lab/Countdown';
-import { LR_DEADLINE } from '../components/public/regression/deadline';
+import { DT_DEADLINE } from '../components/public/tree/deadline';
+import '../styles/tree-lab.css';
 
-// ─── /linear-regression-lab — MBI806B, public and ungated ─────────────────
-// Built on Blend (src/components/blend/README.md), on MBI806B's teal. What
-// the lab is and how it was put together is at the top of
-// LinearRegressionLabLesson.tsx.
+// ─── /decision-tree-lab — MBI806B, public and ungated ─────────────────────
+// Built on Blend (src/components/blend/README.md), on MBI806B's teal, as a
+// sibling of /linear-regression-lab. What the lab is and how it was put
+// together is at the top of DecisionTreeLabLesson.tsx.
 //
-// The hero shows where the student ends up: the real dataset, thinned out,
-// with the finished model's two lines drawn through it. The same picture
-// comes back, at full size and interactive, at the end of step 6.
+// The hero shows where the student ends up: the one path through the
+// finished tree that says "leaves", a question at a time.
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -24,7 +24,7 @@ const NAV = [
   { id: 'step-colab', label: '4 Colab' },
   { id: 'step-explore', label: '5 Explore' },
   { id: 'step-clean', label: '6 Clean' },
-  { id: 'step-model', label: '7 Model' },
+  { id: 'step-model', label: '7 Tree' },
   { id: 'step-predict', label: '8 Predict' },
   { id: 'limits', label: 'Limits' },
   { id: 'step-report', label: '9 Report' },
@@ -32,7 +32,7 @@ const NAV = [
   { id: 'help', label: 'Stuck?' },
 ];
 
-export default function LinearRegressionLabPage() {
+export default function DecisionTreeLabPage() {
   return (
     <CoursePage
       accent="analytics"
@@ -58,7 +58,7 @@ export default function LinearRegressionLabPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.75, ease: EASE, delay: 0.06 }}
             >
-              What makes a medical bill bigger<span className="bt-stop">?</span>
+              Who is about to cancel<span className="bt-stop">?</span>
             </motion.h1>
 
             <motion.p
@@ -67,8 +67,9 @@ export default function LinearRegressionLabPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: EASE, delay: 0.14 }}
             >
-              Download 1,338 real insurance records from Kaggle, check and clean them in Google Colab, train a linear
-              regression model, and use it to predict a new customer's bill. Then post a short report as a reply to my Teams announcement.
+              Download 7,043 phone and internet customers from Kaggle, find the dirty data hiding in them, and grow a
+              decision tree in Google Colab that tells a retention team exactly who to call. Then post a short report as
+              a reply to my Teams announcement.
             </motion.p>
 
             <motion.p
@@ -109,30 +110,30 @@ export default function LinearRegressionLabPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.65, ease: EASE, delay: 0.38 }}
             >
-              <CountdownStrip deadline={LR_DEADLINE} />
+              <CountdownStrip deadline={DT_DEADLINE} />
             </motion.div>
           </div>
 
           <motion.div
-            className="bt-heroart lr-hero"
+            className="bt-heroart"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.85, ease: EASE, delay: 0.18 }}
           >
-            <span className="bt-heroart__lbl">Where you'll end up</span>
-            <HeroBands />
+            <span className="bt-heroart__lbl">The rule you'll find</span>
+            <HeroPath />
             <p className="bt-keyline">
               <span className="bt-keyline__swatch" aria-hidden="true" />
               <span>
-                <b>Two lines, $23,043 apart.</b> That gap is the biggest single thing your model will find, and you'll
-                see it in the data before the model does.
+                <b>Three questions, one answer.</b> Your tree will find this rule in 5,634 customers, and you'll have
+                spotted most of it yourself before it does.
               </span>
             </p>
           </motion.div>
         </div>
       }
     >
-      <LinearRegressionLabLesson />
+      <DecisionTreeLabLesson />
     </CoursePage>
   );
 }

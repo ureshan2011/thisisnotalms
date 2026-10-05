@@ -1,0 +1,228 @@
+/* ─── MBI806B · Decision tree lab ──────────────────────────────────────────
+   The pieces only the decision tree lab has: the first-cut game, the drawn
+   tree you walk a customer down, the depth dial, the scoreboard and the
+   hero. Everything shared with the other labs (code cells, walkthroughs,
+   tasks, the report brief) lives in lab.css.
+
+   One colour job throughout: --cat-2 means "left", warm paper means
+   "stayed". The two lines on the depth dial use --cat-3 and --cat-1, and
+   both carry direct labels as well. ─────────────────────────────────── */
+
+.dt-panel,
+.dt-cut,
+.dt-walk {
+  margin-top: 22px;
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: 22px;
+  box-shadow: var(--shadow-md);
+}
+.dt-walk .lr-navbtn[aria-pressed='true'] { background: var(--ink-900); border-color: var(--ink-900); color: #fff; }
+
+/* ── Make the first cut yourself ──────────────────────────────────────── */
+.dt-cut__crowd { display: flex; flex-direction: column; gap: 6px; }
+.dt-cut__crowd p:last-child { font-size: 15px; color: var(--ink-600); }
+.dt-cut__crowd b { color: var(--ink-900); }
+.dt-cut .lr-pills button { text-align: left; }
+.dt-piles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.dt-pile { border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 14px; background: var(--paper-50); }
+.dt-pile__label { font-size: 13px; font-weight: 700; color: var(--ink-900); line-height: 1.35; min-height: 2.7em; }
+.dt-pile__n { margin-top: 4px; font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink-900); }
+.dt-pile__n span { font-family: var(--font-body); font-size: 12.5px; font-weight: 500; letter-spacing: 0; color: var(--ink-400); }
+.dt-stack { margin-top: 10px; height: 14px; border-radius: var(--radius-pill); background: var(--paper-300); overflow: hidden; }
+.dt-stack__leave { display: block; height: 100%; background: var(--cat-2); border-radius: var(--radius-pill) 0 0 var(--radius-pill); }
+.dt-pile__share { margin-top: 8px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13px; color: var(--ink-600); }
+.dt-pile__share b { font-family: var(--font-display); font-size: 18px; font-weight: 800; color: var(--cat-2); }
+.dt-pile__share > span:last-child { font-size: 12px; color: var(--ink-400); }
+.dt-score {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 16px;
+  align-items: center;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 14px;
+}
+.dt-score__bar { margin-top: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--paper-200); overflow: hidden; }
+.dt-score__bar i { display: block; height: 100%; background: var(--accent-500); border-radius: var(--radius-pill); transition: width var(--dur-slow) var(--ease-out); }
+.dt-score > b { font-family: var(--font-display); font-size: 34px; font-weight: 800; letter-spacing: -0.03em; color: var(--ink-900); line-height: 1; }
+.dt-score > b span { font-size: 14px; font-weight: 600; color: var(--ink-400); letter-spacing: 0; }
+.dt-score > p { grid-column: 1 / -1; font-size: 14px; line-height: 1.5; color: var(--ink-600); }
+
+/* An output printed inside an Answer, set like Colab's. */
+.lr-answer-pre {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  background: var(--ink-900);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #ede6e2;
+  overflow-x: auto;
+}
+
+/* ── The average of 1s and 0s ─────────────────────────────────────────── */
+.dt-ones__row { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; margin-top: 12px; }
+.dt-ones__row button {
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  border-radius: var(--radius-sm);
+  padding: 10px 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.dt-ones__row button:hover { border-color: var(--ink-300); }
+.dt-ones__row button b { font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: var(--ink-600); }
+.dt-ones__row button span { font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em; color: var(--ink-400); }
+.dt-ones__row button.is-left { background: #fdf0e9; border-color: var(--cat-2); }
+.dt-ones__row button.is-left b,
+.dt-ones__row button.is-left span { color: var(--cat-2); }
+.dt-ones__sum { margin-top: 14px; border-top: 1px solid var(--border-subtle); padding-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.dt-ones__sum p { font-size: 14px; color: var(--ink-600); }
+.dt-ones__sum p:not(.dt-ones__so) { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; }
+.dt-ones__sum code { font-family: var(--font-mono); font-size: 13px; color: var(--ink-900); overflow-wrap: anywhere; }
+.dt-ones__k { min-width: 150px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-400); }
+.dt-ones__so { font-size: 15px !important; line-height: 1.5; }
+.dt-ones__so b { color: var(--ink-900); }
+
+/* ── Walk a customer down the tree ────────────────────────────────────── */
+.dt-walk__controls { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
+.dt-walk__fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 26px; }
+.dt-tree { display: block; width: 100%; min-width: 760px; height: auto; margin-top: 22px; }
+.dt-tree text { font-family: var(--font-body); }
+.dt-tree__edge { stroke: var(--paper-300); stroke-width: 2; transition: stroke var(--dur-slow) var(--ease), stroke-width var(--dur-slow) var(--ease); }
+.dt-tree__yn { font-size: 11px; font-weight: 600; fill: var(--ink-300); }
+.is-lit .dt-tree__edge { stroke: var(--ink-900); stroke-width: 3; }
+.is-lit .dt-tree__yn { fill: var(--ink-900); font-weight: 700; }
+.dt-tree__node rect { fill: var(--paper-50); stroke: var(--border-subtle); stroke-width: 1.5; transition: fill var(--dur-slow) var(--ease), stroke var(--dur-slow) var(--ease); }
+.dt-tree__node text { font-size: 13px; font-weight: 700; fill: var(--ink-600); }
+.dt-tree__node.is-lit rect { fill: var(--ink-900); stroke: var(--ink-900); }
+.dt-tree__node.is-lit text { fill: #fff; }
+.dt-tree__leaf rect:first-child { fill: var(--paper-0); stroke: var(--border-subtle); stroke-width: 1.5; transition: stroke var(--dur-slow) var(--ease), fill var(--dur-slow) var(--ease); }
+.dt-tree__leaf.is-end rect:first-child { stroke: var(--ink-900); stroke-width: 3; fill: var(--paper-50); }
+.dt-tree__leaf.is-end.is-leave rect:first-child { stroke: var(--cat-2); fill: #fdf0e9; }
+.dt-tree__pct { font-size: 13px; font-weight: 800; fill: var(--ink-900); }
+.dt-tree__track { fill: var(--paper-300); }
+.dt-tree__fill { fill: var(--cat-2); }
+.dt-tree__says { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; fill: var(--ink-400); }
+.is-leave .dt-tree__says { fill: var(--cat-2); }
+.dt-tree__leaf:not(.is-lit) { opacity: 0.55; }
+.dt-tree__leaf { transition: opacity var(--dur-slow) var(--ease); }
+
+.dt-path { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.dt-path li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: baseline; font-size: 14.5px; line-height: 1.5; color: var(--ink-600); }
+.dt-path b { color: var(--ink-900); }
+.dt-path__n {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--ink-900);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+}
+.dt-path__end { background: var(--paper-50); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 10px 12px; }
+.dt-path__end .dt-path__n { background: var(--ink-400); }
+.dt-path__end.is-leave { background: #fdf0e9; border-color: #f3c4ab; }
+.dt-path__end.is-leave .dt-path__n { background: var(--cat-2); }
+
+/* ── The depth dial ───────────────────────────────────────────────────── */
+.dt-dialread {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 16px;
+}
+.dt-dialread > div { display: flex; flex-direction: column; gap: 2px; }
+.dt-dialread b { font-family: var(--font-display); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink-900); line-height: 1.1; }
+.dt-dialread span { font-size: 12px; color: var(--ink-400); line-height: 1.35; }
+.dt-dialread p { grid-column: 1 / -1; font-size: 14.5px; line-height: 1.55; color: var(--ink-600); max-width: 70ch; }
+
+/* ── Who did it catch? ────────────────────────────────────────────────── */
+.dt-caught { margin-top: 22px; }
+.dt-caught__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.dt-caught__tile {
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-0);
+}
+.dt-caught__tile b { font-family: var(--font-display); font-size: 30px; font-weight: 800; letter-spacing: -0.03em; color: var(--ink-900); line-height: 1; }
+.dt-caught__tile span { font-size: 13px; line-height: 1.45; color: var(--ink-400); }
+.dt-caught__tile .dt-caught__label { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-900); margin-top: 6px; }
+.dt-caught__tile.is-good { background: var(--accent-50); border-color: var(--accent-200); }
+.dt-caught__tile.is-good b { color: var(--accent-700); }
+.dt-caught__tile.is-bad { background: #fdf0e9; border-color: #f3c4ab; }
+.dt-caught__tile.is-bad b { color: var(--cat-2); }
+.dt-caught__so { margin-top: 14px; font-size: 14.5px; line-height: 1.6; color: var(--ink-600); max-width: 72ch; }
+.dt-caught__so b { color: var(--ink-900); }
+
+/* ── Hero: the one rule that says "leaves" ────────────────────────────── */
+.dt-hero { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+.dt-hero__q {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  background: var(--paper-50);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink-900);
+}
+.dt-hero__q b { font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-600); }
+.dt-hero__n {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--ink-900);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+.dt-hero__end {
+  margin-top: 4px;
+  background: var(--ink-900);
+  border-radius: var(--radius-card);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dt-hero__end p { color: var(--ink-200); font-size: 15px; }
+.dt-hero__end p b { font-family: var(--font-display); font-size: 26px; font-weight: 800; letter-spacing: -0.02em; color: #fff; margin-right: 4px; }
+.dt-hero__dots { display: flex; gap: 8px; flex-wrap: wrap; }
+.dt-hero__dots i { width: 22px; height: 22px; border-radius: 50%; background: var(--ink-600); }
+.dt-hero__dots i.is-left { background: #f08a5d; }
+
+@media (max-width: 760px) {
+  .dt-walk__fields { grid-template-columns: minmax(0, 1fr); }
+  .dt-dialread { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dt-caught__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dt-ones__row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .dt-panel, .dt-cut, .dt-walk { padding: 14px; }
+  .dt-piles { grid-template-columns: minmax(0, 1fr); }
+  .dt-pile__label { min-height: 0; }
+  .dt-caught__tile b { font-size: 26px; }
+}

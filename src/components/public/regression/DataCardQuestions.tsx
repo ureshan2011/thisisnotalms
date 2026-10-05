@@ -1,5 +1,4 @@
-import { useState, type ReactNode } from 'react';
-import { motion } from 'framer-motion';
+import Questions, { type QuestionItem } from '../lab/Questions';
 
 // ─── Eight questions you can answer from the data card alone ──────────────
 // The student answers on paper first, then opens the answer. Every answer
@@ -7,7 +6,7 @@ import { motion } from 'framer-motion';
 // finding it, not knowing it. The answers are checked against the live page
 // (October 2026) and against the CSV itself.
 
-const QS: { q: string; where: string; a: ReactNode }[] = [
+const QS: QuestionItem[] = [
   {
     q: 'How many people are in it, and how many columns?',
     where: 'Data Explorer, below the card',
@@ -51,41 +50,5 @@ const QS: { q: string; where: string; a: ReactNode }[] = [
 ];
 
 export default function DataCardQuestions() {
-  const [open, setOpen] = useState<Set<number>>(new Set());
-  const toggle = (i: number) =>
-    setOpen(prev => {
-      const next = new Set(prev);
-      if (next.has(i)) next.delete(i);
-      else next.add(i);
-      return next;
-    });
-
-  return (
-    <div className="lr-qs">
-      {QS.map((item, i) => (
-        <div key={item.q} className="lr-q">
-          <div className="lr-q__row">
-            <span className="lr-q__n bt-tnum">{String(i + 1).padStart(2, '0')}</span>
-            <h4>
-              {item.q}
-              <span className="lr-q__where">Where to look: {item.where}</span>
-            </h4>
-            <button type="button" className="lr-navbtn" aria-expanded={open.has(i)} onClick={() => toggle(i)}>
-              {open.has(i) ? 'Hide' : 'Check my answer'}
-            </button>
-          </div>
-          {open.has(i) && (
-            <motion.p
-              className="lr-q__ans"
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              {item.a}
-            </motion.p>
-          )}
-        </div>
-      ))}
-    </div>
-  );
+  return <Questions items={QS} />;
 }

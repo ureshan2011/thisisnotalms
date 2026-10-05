@@ -1,23 +1,29 @@
 import { useEffect, useState } from 'react';
-import '../../../styles/regression-lab.css';
+import '../../../styles/lab.css';
 
 // ─── The hand-in countdown ────────────────────────────────────────────────
-// One deadline, written once here, used by the hero strip and by step 9.
+// Each lab passes its own deadline, used by the hero strip and by the
+// hand-in step.
 //
-// The deadline is Friday 9 October 2026 at 11:59 pm New Zealand time. On
-// that date New Zealand is on daylight time (NZDT, UTC+13), so it is fixed
-// as an exact moment, "2026-10-09T23:59:00+13:00". That means every student
-// counts down to the same instant whatever their laptop's clock is set to.
-// For anyone whose own clock is somewhere else, the page also says what that
-// moment is on their clock, so nobody works out the conversion alone.
+// A deadline is written as an exact moment with its New Zealand offset, for
+// example "2026-10-09T23:59:00+13:00" (NZ is on daylight time, UTC+13, from
+// late September). That means every student counts down to the same instant
+// whatever their laptop's clock is set to. For anyone whose own clock is
+// somewhere else, the page also says what that moment is on their clock, so
+// nobody works out the conversion alone.
 //
 // The seconds tick once a second. Nothing here is announced to a screen
 // reader every second (role="timer" is silent by default); the container's
 // label carries the whole sentence for anyone who goes looking.
 
-export const DEADLINE = new Date('2026-10-09T23:59:00+13:00');
-export const DEADLINE_LABEL = 'Friday 9 October 2026, 11:59 pm';
-export const DEADLINE_SHORT = 'Fri 9 Oct, 11:59 pm';
+export interface Deadline {
+  /** The exact moment, with its New Zealand offset. */
+  at: Date;
+  /** "Friday 9 October 2026, 11:59 pm" */
+  label: string;
+  /** "Fri 9 Oct, 11:59 pm" */
+  short: string;
+}
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
@@ -61,17 +67,17 @@ function useNow() {
 
 /** What the deadline reads on this device's own clock, or null if that is
  *  the same wall-clock time as in New Zealand (so there is nothing to add). */
-function localNote(): string | null {
+function localNote(deadline: Deadline): string | null {
   try {
     const fmt = (tz?: string) =>
       new Intl.DateTimeFormat('en-NZ', {
         weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit', hour12: true,
         timeZone: tz,
-      }).format(DEADLINE);
+      }).format(deadline.at);
     const here = fmt();
     if (here === fmt('Pacific/Auckland')) return null;
     const zone = new Intl.DateTimeFormat('en-NZ', { timeZoneName: 'short' })
-      .formatToParts(DEADLINE)
+      .formatToParts(deadline.at)
       .find(p => p.type === 'timeZoneName')?.value;
     return `On your device's clock that's ${here}${zone ? ` (${zone})` : ''}.`;
   } catch {
@@ -79,23 +85,23 @@ function localNote(): string | null {
   }
 }
 
-function sentence(ms: number) {
-  if (ms <= 0) return `The deadline, ${DEADLINE_LABEL} New Zealand time, has passed.`;
+function sentence(ms: number, deadline: Deadline) {
+  if (ms <= 0) return `The deadline, ${deadline.label} New Zealand time, has passed.`;
   const t = split(ms);
-  return `${t.days} days, ${t.hours} hours, ${t.minutes} minutes and ${t.seconds} seconds left until ${DEADLINE_LABEL} New Zealand time.`;
+  return `${t.days} days, ${t.hours} hours, ${t.minutes} minutes and ${t.seconds} seconds left until ${deadline.label} New Zealand time.`;
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** One line, for the top of the page. */
-export function CountdownStrip() {
-  const ms = DEADLINE.getTime() - useNow();
+export function CountdownStrip({ deadline }: { deadline: Deadline }) {
+  const ms = deadline.at.getTime() - useNow();
   const mood = moodFor(ms);
   const t = split(ms);
   return (
-    <div className={`lr-cdstrip lr-cd--${mood}`} role="timer" aria-label={sentence(ms)}>
+    <div className={`lr-cdstrip lr-cd--${mood}`} role="timer" aria-label={sentence(ms, deadline)}>
       <span className="lr-cd__dot" aria-hidden="true" />
-      <span className="lr-cdstrip__due">Due {DEADLINE_SHORT}</span>
+      <span className="lr-cdstrip__due">Due {deadline.short}</span>
       <span className="lr-cdstrip__left bt-tnum" aria-hidden="true">
         {mood === 'closed'
           ? 'Deadline passed'
@@ -106,11 +112,11 @@ export function CountdownStrip() {
 }
 
 /** The big one, for the hand-in step. */
-export default function Countdown() {
-  const ms = DEADLINE.getTime() - useNow();
+export default function Countdown({ deadline }: { deadline: Deadline }) {
+  const ms = deadline.at.getTime() - useNow();
   const mood = moodFor(ms);
   const t = split(ms);
-  const note = localNote();
+  const note = localNote(deadline);
 
   const cells: [string, number][] = [
     ['Days', t.days],
@@ -126,7 +132,7 @@ export default function Countdown() {
         <p className="lr-cd__mood">{MOOD_TEXT[mood]}</p>
       </div>
       <div className="lr-cd__row">
-        <div className="lr-cd__cells" role="timer" aria-label={sentence(ms)}>
+        <div className="lr-cd__cells" role="timer" aria-label={sentence(ms, deadline)}>
           {cells.map(([label, n]) => (
             <div key={label} className="lr-cd__cell" aria-hidden="true">
               <b className="bt-tnum">{label === 'Days' ? n : pad(n)}</b>
@@ -135,7 +141,7 @@ export default function Countdown() {
           ))}
         </div>
         <div className="lr-cd__when">
-          <p className="lr-cd__date">{DEADLINE_LABEL}</p>
+          <p className="lr-cd__date">{deadline.label}</p>
           <p className="lr-cd__tz">New Zealand time. Clocks are on daylight saving by then.</p>
           {note && <p className="lr-cd__tz">{note}</p>}
         </div>

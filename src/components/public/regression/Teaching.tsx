@@ -1,14 +1,12 @@
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { highlight } from '../ml/pyHighlight';
 
-// ─── The teaching pieces for filtering and plotting ───────────────────────
+// ─── The regression lab's teaching pieces for filtering and plotting ──────
 // Written after students said the filter and chart steps told them *what*
-// to type but not *why*. Three pieces:
+// to type but not *why*. (The task/why block and the read-aloud code that go
+// with these live in ../lab/Bits, shared with the other labs.)
 //
-//   WhyBlock    — the task, why we do it, and why this column, said before
-//                 any code appears. Every step that asks a beginner to do
-//                 something unfamiliar opens with one.
 //   FilterDemo  — ten real rows from the cleaned data. Pick a rule and watch
 //                 every row get asked the question, the ones that answer
 //                 False drop away, and the average of what's left change.
@@ -19,48 +17,6 @@ import { highlight } from '../ml/pyHighlight';
 // Every row and number here is real: the rows are from insuranceData's
 // source (Kaggle's insurance.csv after the lab's cleaning), identified by
 // the row number pandas gives them.
-
-/* ── The task / why / why this column ──────────────────────────────────── */
-
-export function WhyBlock({ task, why, which, whichLabel = 'Why this column?' }: {
-  task: ReactNode;
-  why: ReactNode;
-  which?: ReactNode;
-  whichLabel?: string;
-}) {
-  return (
-    <div className="lr-why">
-      <div className="lr-why__row">
-        <span className="lr-why__lbl">The task</span>
-        <div>{task}</div>
-      </div>
-      <div className="lr-why__row">
-        <span className="lr-why__lbl">Why we do it</span>
-        <div>{why}</div>
-      </div>
-      {which && (
-        <div className="lr-why__row">
-          <span className="lr-why__lbl">{whichLabel}</span>
-          <div>{which}</div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/** A code line taken apart into its words, each with a plain meaning. */
-export function ReadAloud({ lines }: { lines: [string, ReactNode][] }) {
-  return (
-    <dl className="lr-aloud">
-      {lines.map(([code, meaning]) => (
-        <div key={code}>
-          <dt><code>{highlight(code)}</code></dt>
-          <dd>{meaning}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
 
 /* ── Filter, shown on ten real rows ───────────────────────────────────── */
 

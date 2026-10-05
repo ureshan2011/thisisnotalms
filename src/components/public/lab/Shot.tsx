@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useInView, useReducedMotion } from 'framer-motion';
 import { RotateCcw } from 'lucide-react';
+import { useAsset } from './LabContext';
 
 // ─── A real screenshot, with a cursor that shows you where to click ───────
 // The pictures are genuine captures of Kaggle and Colab taken for this lab.
@@ -26,7 +27,6 @@ export interface Mark {
   text: string;
 }
 
-const BASE = import.meta.env.BASE_URL;
 const STEP_MS = 1500;
 
 /** Render "Click **Download**" with the starred words in bold. */
@@ -34,9 +34,11 @@ export function rich(text: string) {
   return text.split('**').map((part, i) => (i % 2 ? <b key={i}>{part}</b> : <span key={i}>{part}</span>));
 }
 
-export default function Shot({ src, url, alt, width, height, marks, caption, maxWidth }: {
-  /** File name inside public/mbi806b/linear-regression/. */
+export default function Shot({ src, dir, url, alt, width, height, marks, caption, maxWidth }: {
+  /** File name inside the lab's asset folder (see LabContext). */
   src: string;
+  /** Another lab's folder instead, for screenshots the labs share. */
+  dir?: string;
   /** What the browser's address bar should say. */
   url: string;
   alt: string;
@@ -59,7 +61,7 @@ export default function Shot({ src, url, alt, width, height, marks, caption, max
   // stays bright and the others step back.
   const [picked, setPicked] = useState(false);
   const [clicks, setClicks] = useState(0);
-  const full = `${BASE}mbi806b/linear-regression/${src}`;
+  const full = useAsset(src, dir);
 
   useEffect(() => {
     if (reduce) {
@@ -182,17 +184,19 @@ export default function Shot({ src, url, alt, width, height, marks, caption, max
 }
 
 /** A plain "this is what you should see" picture, no marks. */
-export function Figure({ src, alt, width, height, caption, narrow }: {
+export function Figure({ src, dir, alt, width, height, caption, narrow }: {
   src: string;
+  dir?: string;
   alt: string;
   width: number;
   height: number;
   caption: string;
   narrow?: boolean;
 }) {
+  const url = useAsset(src, dir);
   return (
     <figure className={`lr-figure${narrow ? ' lr-figure--narrow' : ''}`}>
-      <img src={`${BASE}mbi806b/linear-regression/${src}`} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
+      <img src={url} alt={alt} width={width} height={height} loading="lazy" decoding="async" />
       <figcaption>{caption}</figcaption>
     </figure>
   );

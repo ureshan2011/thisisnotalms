@@ -1,28 +1,29 @@
 import { Check } from 'lucide-react';
-import { STAGES, useLabProgress, type StageId } from './progress';
+import { useLabProgress } from './progress';
 
 // ─── The lab's checklist, and the button that ticks one step ──────────────
 // The list sits near the top so a student can see the whole job before they
 // start. Each step of the page ends with a DoneButton for its own stage, and
-// both read the same store, so ticking one updates the other.
+// both read the same store, so ticking one updates the other. Which steps,
+// and where the ticks are stored, come from the lab's LabProvider.
 
 export function Checklist() {
-  const { done, clear } = useLabProgress();
-  const count = STAGES.filter(s => done.has(s.id)).length;
+  const { stages, done, clear } = useLabProgress();
+  const count = stages.filter(s => done.has(s.id)).length;
 
   return (
     <div className="lr-check">
       <div className="lr-check__top">
         <p className="bt-eyebrow">Your checklist</p>
         <span className="bt-bar" aria-hidden="true">
-          <i style={{ width: `${(count / STAGES.length) * 100}%` }} />
+          <i style={{ width: `${(count / stages.length) * 100}%` }} />
         </span>
         <span className="lr-check__count bt-tnum" aria-live="polite">
-          {count} of {STAGES.length} done
+          {count} of {stages.length} done
         </span>
       </div>
       <ul className="lr-check__list">
-        {STAGES.map((s, i) => {
+        {stages.map((s, i) => {
           const on = done.has(s.id);
           return (
             <li key={s.id}>
@@ -61,7 +62,7 @@ export function Checklist() {
   );
 }
 
-export function DoneButton({ stage, children }: { stage: StageId; children: string }) {
+export function DoneButton({ stage, children }: { stage: string; children: string }) {
   const { done, toggle } = useLabProgress();
   const on = done.has(stage);
   return (

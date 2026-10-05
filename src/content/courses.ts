@@ -564,6 +564,15 @@ const MBI806B: Course = {
       kind: 'Lab',
     },
     {
+      id: 'decision-tree-lab',
+      title: 'Decision tree lab: who is about to cancel?',
+      blurb:
+        'The same nine steps, a new model. Take 7,043 phone and internet customers from Kaggle, find the blank values that isnull() can’t see, compare who leaves, then grow a decision tree in Google Colab, beat the “guess the obvious” score and turn the tree into a rule a retention team can use. Real screenshots throughout, and a short report to post as a reply in Teams.',
+      to: '/decision-tree-lab',
+      access: 'open',
+      kind: 'Lab',
+    },
+    {
       id: 'power-bi-setup',
       title: 'Setting up Power BI',
       blurb:

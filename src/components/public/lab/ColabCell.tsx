@@ -1,12 +1,13 @@
 import { useState, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { highlight } from '../ml/pyHighlight';
+import { useLab } from './LabContext';
 
 // ─── One Colab code cell, and what it prints ──────────────────────────────
 // The code is exactly what the student types into their own notebook. The
 // output is exactly what Colab printed when this lab's notebook was run
 // under Colab's own library versions (pandas 2.2.3, scikit-learn 1.6.1) on
-// the real insurance.csv from Kaggle. Nothing here is invented, so a student
+// the lab's real CSV from Kaggle. Nothing here is invented, so a student
 // can hold their screen up against this one and expect them to match.
 //
 // The output stays hidden until the reader presses ▶, which is the point:
@@ -23,7 +24,16 @@ export type Output =
       /** [row, column] pairs to highlight, column counted after the index. */
       hot?: [number, number][];
     }
-  | { kind: 'image'; src: string; alt: string; width: number; height: number };
+  | {
+      kind: 'image';
+      src: string;
+      alt: string;
+      width: number;
+      height: number;
+      /** A detailed figure (a whole tree) shown at full width, and scrolled
+       *  sideways on a phone rather than shrunk past reading. */
+      wide?: boolean;
+    };
 
 let runCounter = 0;
 
@@ -70,6 +80,7 @@ export default function ColabCell({ code, out, label, after }: {
   const [state, setState] = useState<'idle' | 'busy' | 'done'>('idle');
   const [count, setCount] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const { assetDir } = useLab();
 
   function run() {
     if (state === 'busy') return;
@@ -144,14 +155,26 @@ export default function ColabCell({ code, out, label, after }: {
             <div key={i} style={{ marginTop: i ? 12 : 0 }}>
               {o.kind === 'text' && <pre>{o.text}</pre>}
               {o.kind === 'table' && <Table columns={o.columns} rows={o.rows} hot={o.hot} />}
-              {o.kind === 'image' && (
+              {o.kind === 'image' && !o.wide && (
                 <img
-                  src={`${BASE}mbi806b/linear-regression/${o.src}`}
+                  src={`${BASE}mbi806b/${assetDir}/${o.src}`}
                   alt={o.alt}
                   width={o.width}
                   height={o.height}
                   loading="lazy"
                 />
+              )}
+              {o.kind === 'image' && o.wide && (
+                <div className="lr-scroll">
+                  <img
+                    className="is-wide"
+                    src={`${BASE}mbi806b/${assetDir}/${o.src}`}
+                    alt={o.alt}
+                    width={o.width}
+                    height={o.height}
+                    loading="lazy"
+                  />
+                </div>
               )}
             </div>
           ))}

@@ -81,7 +81,7 @@ export default function PredictingWithDataLesson() {
     <div>
       <LessonHeader
         lesson={3}
-        of={4}
+        of={5}
         title="Three ways to predict things"
         lead="Linear regression, decision trees and random forests. These three do most of the work in business analytics. You will use all three without writing a single formula."
         meta={[

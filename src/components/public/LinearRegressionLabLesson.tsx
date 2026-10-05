@@ -1,16 +1,19 @@
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { LessonHeader, Quiz, Recap, Reveal, SectionHead, type QuizQuestion } from '../blend';
-import Shot, { Figure } from './regression/Shot';
-import ColabCell, { type Output } from './regression/ColabCell';
+import Shot, { Figure } from './lab/Shot';
+import ColabCell, { type Output } from './lab/ColabCell';
 import BandsChart from './regression/BandsChart';
 import DataCardQuestions from './regression/DataCardQuestions';
 import { BillBuilder, SplitDemo } from './regression/ModelWidgets';
-import { TeamsDemo, UnzipDemo, UploadDemo, REPORT_FILE } from './regression/Walkthroughs';
-import { Checklist, DoneButton } from './regression/Checklist';
-import Countdown, { DEADLINE_LABEL } from './regression/Countdown';
-import { FilterDemo, ReadADot, ReadAloud, WhyBlock } from './regression/Teaching';
-import '../../styles/regression-lab.css';
+import { TeamsDemo, UnzipDemo, UploadDemo } from './lab/Walkthroughs';
+import { Checklist, DoneButton } from './lab/Checklist';
+import { LabProvider, type LabConfig } from './lab/LabContext';
+import { Answer, c, Jump, ReadAloud, Task, WhyBlock } from './lab/Bits';
+import Countdown from './lab/Countdown';
+import { LR_DEADLINE } from './regression/deadline';
+import { FilterDemo, ReadADot } from './regression/Teaching';
+import '../../styles/lab.css';
 
 // ─── MBI806B · Linear regression lab ──────────────────────────────────────
 // The hands-on follow-up to "Three ways to predict things". That lesson
@@ -44,50 +47,33 @@ const COLAB_URL = 'https://colab.research.google.com';
 const KAGGLE_URL = 'https://www.kaggle.com';
 
 const LECTURER = 'Yasas Sri Wickramasinghe';
+const REPORT_FILE = 'MBI806B-LR-Lab-YourName.pdf';
 
-/* ── Small pieces used throughout ──────────────────────────────────────── */
+/** The announcement post students reply to with their report. */
+const TEAMS_POST = {
+  title: 'New lab: what makes a medical bill bigger?',
+  body: 'Hi everyone, there’s a new hands-on lab up for MBI806B…',
+  reply: 'Hi Yasas, here’s my linear regression lab report.',
+  file: REPORT_FILE,
+};
 
-function Task({ title, time, children, foot }: { title: string; time?: string; children: ReactNode; foot?: ReactNode }) {
-  return (
-    <div className="lr-task">
-      <div className="lr-task__head">
-        <span className="lr-task__tag">Do this now</span>
-        {time && <span className="lr-task__time">{time}</span>}
-      </div>
-      <h4>{title}</h4>
-      {children}
-      {foot && <div className="lr-task__foot">{foot}</div>}
-    </div>
-  );
-}
-
-function Answer({ label = 'Show the answer', children }: { label?: string; children: ReactNode }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div style={{ marginTop: 12 }}>
-      <button type="button" className="lr-navbtn" aria-expanded={open} onClick={() => setOpen(o => !o)}>
-        {open ? 'Hide the answer' : label}
-      </button>
-      {open && <div className="lr-q__ans" style={{ marginLeft: 0 }}>{children}</div>}
-    </div>
-  );
-}
-
-const c = (s: string) => <code className="lr-inline">{s}</code>;
-
-/** An in-page link. A plain hash link would be read by the HashRouter as a
- *  route and navigate away, so this scrolls instead. */
-function Jump({ to, children }: { to: string; children: ReactNode }) {
-  return (
-    <button
-      type="button"
-      className="lr-jump"
-      onClick={() => document.getElementById(to)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-    >
-      {children}
-    </button>
-  );
-}
+/** This lab's checklist and folders. The storage key predates the shared
+ *  lab parts; it must not change, or students lose the ticks they have. */
+const LAB: LabConfig = {
+  storageKey: 'mbi806b-regression-lab-progress',
+  assetDir: 'linear-regression',
+  stages: [
+    { id: 'find', label: 'Found the dataset on Kaggle' },
+    { id: 'card', label: 'Read the data card' },
+    { id: 'download', label: 'Downloaded and unzipped it' },
+    { id: 'colab', label: 'Loaded it into Colab' },
+    { id: 'explore', label: 'Got to know the data' },
+    { id: 'clean', label: 'Cleaned and filtered it' },
+    { id: 'model', label: 'Trained and tested a model' },
+    { id: 'predict', label: 'Predicted three customers' },
+    { id: 'report', label: 'Replied with my report in Teams' },
+  ],
+};
 
 /* ── The real outputs, as Colab printed them ───────────────────────────── */
 
@@ -301,10 +287,18 @@ const LINKS: { href: string; label: string; note: string }[] = [
 
 export default function LinearRegressionLabLesson() {
   return (
+    <LabProvider value={LAB}>
+      <LabBody />
+    </LabProvider>
+  );
+}
+
+function LabBody() {
+  return (
     <div className="lr-lab">
       <LessonHeader
         lesson={4}
-        of={4}
+        of={5}
         title="Linear regression on real data, start to finish"
         lead="Last lesson you fitted a line to twelve made-up flats. Today you do the whole job yourself, on a real public dataset of 1,338 people: find it, read it, clean it, model it, and use it to predict a medical bill. Then you write it up and send it to me."
         meta={[
@@ -589,7 +583,7 @@ export default function LinearRegressionLabLesson() {
         <Reveal delay={0.05}>
           <h3 style={{ fontSize: 19, marginTop: 34 }}>Unzip it</h3>
           <p className="bt-note" style={{ maxWidth: '58ch' }}>Pick your computer. The walkthrough plays once; use Back and Next to go at your own speed.</p>
-          <UnzipDemo />
+          <UnzipDemo files={{ zipSize: '16 KB', csvName: 'insurance.csv', csvSize: '55 KB' }} />
         </Reveal>
         <Reveal delay={0.05}>
           <Task title="Check what you've got" time="2 min" foot={<DoneButton stage="download">I've got insurance.csv</DoneButton>}>
@@ -640,7 +634,7 @@ export default function LinearRegressionLabLesson() {
         </Reveal>
         <Reveal delay={0.05}>
           <h3 style={{ fontSize: 19, marginTop: 40 }}>Upload the CSV</h3>
-          <UploadDemo />
+          <UploadDemo files={{ csvName: 'insurance.csv', csvSize: '55 KB', zipSize: '16 KB', notebookName: 'LR lab – your name' }} />
         </Reveal>
         <Reveal delay={0.05}>
           <h3 style={{ fontSize: 19, marginTop: 40 }}>Load it with pandas</h3>
@@ -1420,7 +1414,7 @@ export default function LinearRegressionLabLesson() {
           />
         </Reveal>
         <Reveal delay={0.05}>
-          <Countdown />
+          <Countdown deadline={LR_DEADLINE} />
         </Reveal>
         <Reveal delay={0.05}>
           <div className="bt-prose" style={{ margin: '26px 0 22px' }}>
@@ -1456,7 +1450,7 @@ export default function LinearRegressionLabLesson() {
                 <div><dt>Format</dt><dd>PDF. In Word: File → Save As → PDF. A .docx is fine if PDF is a struggle.</dd></div>
                 <div><dt>File name</dt><dd><code>{REPORT_FILE}</code></dd></div>
                 <div><dt>Post it</dt><dd>As a <b>reply under my lab announcement post</b> in the class channel. Not a new post, and not a private message.</dd></div>
-                <div><dt>Due</dt><dd>{DEADLINE_LABEL}, New Zealand time</dd></div>
+                <div><dt>Due</dt><dd>{LR_DEADLINE.label}, New Zealand time</dd></div>
               </dl>
               <div className="lr-facts__actions">
                 <a className="bt-btn" href={`${ASSETS}MBI806B-linear-regression-report-template.docx`} download style={{ textDecoration: 'none' }}>
@@ -1473,7 +1467,7 @@ export default function LinearRegressionLabLesson() {
           <p className="bt-note" style={{ maxWidth: '62ch' }}>
             The announcement post is in the class channel. Your report goes <b>under</b> it as a reply, so every report sits in one thread and we can all see the lab is done.
           </p>
-          <TeamsDemo />
+          <TeamsDemo post={TEAMS_POST} />
         </Reveal>
         <Reveal delay={0.05}>
           <Task title="Before you press Send" foot={<DoneButton stage="report">I've sent my report</DoneButton>}>

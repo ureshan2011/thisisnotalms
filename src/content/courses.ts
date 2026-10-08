@@ -202,7 +202,7 @@ const MBI802: Course = {
   headline: ['Database management', 'systems'],
   accent: 'default',
   lede:
-    'From a spreadsheet that contradicts itself to a normalised database you can query. Sixteen lessons, in the order the course teaches them — the first one opens for anybody, with nothing to install.',
+    'From a spreadsheet that contradicts itself to a normalised database you can query. Eighteen lessons, in the order the course teaches them — the first one opens for anybody, with nothing to install.',
   meta: 'Yasas Sri Wickramasinghe · 15 credits, Level 8, no prerequisites',
   keyline:
     'Each lesson assumes the one before it. SQL before diagrams, diagrams before mapping, mapping before normalisation — that order is the course, not a filing system.',
@@ -273,6 +273,15 @@ const MBI802: Course = {
       to: '/er-diagrams',
       access: 'open',
       kind: 'Lesson',
+    },
+    {
+      id: 'er-first-steps',
+      title: 'Your first ER diagrams',
+      blurb:
+        "Never drawn one before? Start here. Five short stories from a bank, a university and a hospital, two simple and three a bit bigger. Find the entities, attributes and relationships, draw it in Chen's notation, then check your answer one part at a time.",
+      to: '/er-first-steps',
+      access: 'open',
+      kind: 'Practice',
     },
     {
       id: 'er-activities',

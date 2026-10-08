@@ -42,6 +42,7 @@ const WebArchitecturePage = lazy(() => import('./pages/WebArchitecturePage'));
 const SQLProgrammingPage = lazy(() => import('./pages/SQLProgrammingPage'));
 const DatabaseConceptsPage = lazy(() => import('./pages/DatabaseConceptsPage'));
 const ERDiagramsPage = lazy(() => import('./pages/ERDiagramsPage'));
+const FirstERDiagramsPage = lazy(() => import('./pages/FirstERDiagramsPage'));
 const ERActivitiesPage = lazy(() => import('./pages/ERActivitiesPage'));
 const ERAdvancedPage = lazy(() => import('./pages/ERAdvancedPage'));
 const ERAttributesPage = lazy(() => import('./pages/ERAttributesPage'));
@@ -151,6 +152,7 @@ function AppRoutes() {
         <Route path="/sql-programming" element={<Suspense fallback={null}><SQLProgrammingPage /></Suspense>} />
         <Route path="/database-concepts" element={<Suspense fallback={null}><DatabaseConceptsPage /></Suspense>} />
         <Route path="/er-diagrams"  element={<Suspense fallback={null}><ERDiagramsPage /></Suspense>} />
+        <Route path="/er-first-steps" element={<Suspense fallback={null}><FirstERDiagramsPage /></Suspense>} />
         <Route path="/er-activities" element={<Suspense fallback={null}><ERActivitiesPage /></Suspense>} />
         <Route path="/er-advanced"  element={<Suspense fallback={null}><ERAdvancedPage /></Suspense>} />
         <Route path="/er-attributes" element={<Suspense fallback={null}><ERAttributesPage /></Suspense>} />
@@ -256,6 +258,7 @@ function ShutdownRoutes() {
       <Route path="/sql-programming" element={<Suspense fallback={null}><SQLProgrammingPage /></Suspense>} />
       <Route path="/database-concepts" element={<Suspense fallback={null}><DatabaseConceptsPage /></Suspense>} />
       <Route path="/er-diagrams" element={<Suspense fallback={null}><ERDiagramsPage /></Suspense>} />
+      <Route path="/er-first-steps" element={<Suspense fallback={null}><FirstERDiagramsPage /></Suspense>} />
       <Route path="/er-activities" element={<Suspense fallback={null}><ERActivitiesPage /></Suspense>} />
       <Route path="/er-advanced" element={<Suspense fallback={null}><ERAdvancedPage /></Suspense>} />
       <Route path="/er-attributes" element={<Suspense fallback={null}><ERAttributesPage /></Suspense>} />

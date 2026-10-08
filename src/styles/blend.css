@@ -3777,3 +3777,322 @@ a.bt-btn { text-decoration: none; }
   .tos-flow { flex-direction: column; align-items: flex-start; }
   .tos-flow__arrow { transform: rotate(90deg); margin-left: 20px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Your first ER diagrams (/er-first-steps) — MBI802
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Chen's notation, drawn (ChenDiagram.tsx) ─────────────────────────────
+   The four shapes the foundations lesson teaches and nothing else. The
+   diamond carries the page accent; the numbers on the lines are the thing a
+   first-timer most needs to notice, so they are the heaviest type in the
+   drawing, with a paper halo so a line never runs through one. */
+.erd { display: block; width: 100%; height: auto; }
+.erd-line { stroke: var(--ink-300); stroke-width: 1.6; }
+.erd-line--rel { stroke: var(--ink-500); stroke-width: 1.8; }
+.erd-ent { fill: var(--paper-0); stroke: var(--ink-900); stroke-width: 2; }
+.erd-ent__t { font-family: var(--font-display); font-weight: 800; font-size: 15px; letter-spacing: 0.02em; fill: var(--ink-900); }
+.erd-rel { fill: var(--accent-50); stroke: var(--accent-600); stroke-width: 2; }
+.erd-rel__t { font-family: var(--font-display); font-weight: 800; font-size: 12.5px; letter-spacing: 0.02em; fill: var(--accent-700); }
+.erd-attr { fill: var(--paper-0); stroke: var(--ink-400); stroke-width: 1.4; }
+.erd-attr--key { stroke: var(--ink-900); stroke-width: 1.8; }
+.erd-attr__t { font-family: var(--font-body); font-size: 13px; fill: var(--ink-700); }
+.erd-attr__t--key { font-weight: 700; fill: var(--ink-900); }
+.erd-card {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 17px;
+  fill: var(--ink-900);
+  paint-order: stroke;
+  stroke: var(--paper-0);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+.erd-fresh { animation: erd-in var(--dur-slow) var(--ease-out) both; }
+@keyframes erd-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .erd-fresh { animation: none; } }
+.erd--sample { max-width: 220px; margin: 0 auto; }
+
+/* ── Before you start ──────────────────────────────────────────────────── */
+.erf-hero { margin-top: 12px; }
+.erf-calm { margin-top: 30px; max-width: 70ch; }
+.erf-calm p:last-child { margin-top: 8px; font-size: 17px; line-height: 1.65; color: var(--ink-600); }
+
+.erf-shapes { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.erf-shape {
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 16px 20px 20px;
+  box-shadow: var(--shadow-sm);
+}
+.erf-shape h3 { font-size: 15px; font-weight: 800; letter-spacing: -0.015em; margin-top: 6px; }
+.erf-shape p { margin-top: 6px; font-size: 13.5px; line-height: 1.5; color: var(--ink-500); }
+.erf-shape .erf-shape__clue { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-subtle); color: var(--ink-900); }
+.erf-shape__clue span {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-600);
+  margin-bottom: 3px;
+}
+
+.erf-key { font-family: var(--font-mono); font-weight: 700; color: var(--ink-900); text-decoration: underline; text-underline-offset: 3px; }
+.erf-naming td { font-size: 13.5px; }
+.erf-naming .erf-naming__good { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-900); white-space: nowrap; }
+.erf-naming .erf-naming__bad { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-300); text-decoration: line-through; white-space: nowrap; }
+
+.erf-method { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+.erf-method .bt-flow { margin-top: 0; }
+.erf-method .bt-flow p { font-size: 14px; color: var(--ink-500); }
+.erf-twoqbox {
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+.erf-twoqbox h3 { font-size: 21px; font-weight: 800; letter-spacing: -0.025em; margin-top: 8px; }
+.erf-twoqbox > p { margin-top: 6px; font-size: 14px; color: var(--ink-500); }
+.erf-twoq { margin: 12px 0 0; }
+.erf-twoq > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.erf-twoq dt { font-size: 14px; color: var(--ink-600); }
+.erf-twoq dd { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 14px; color: var(--ink-900); text-align: right; }
+.erf-ratios { width: 100%; border-collapse: collapse; margin-top: 14px; }
+.erf-ratios td { padding: 7px 0; font-size: 14px; color: var(--ink-500); border-bottom: 1px solid var(--border-subtle); }
+.erf-ratios tr:last-child td { border-bottom: none; }
+.erf-ratios td:last-child { text-align: right; font-family: var(--font-display); font-weight: 800; font-size: 18px; color: var(--ink-900); }
+.erf-twoqbox .erf-twoqbox__where {
+  margin-top: 14px;
+  background: var(--paper-100);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-600);
+}
+.erf-twoqbox__where b { color: var(--ink-900); }
+
+/* ── A task (ERTask.tsx) ───────────────────────────────────────────────── */
+.erf-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.erf-chip {
+  border-radius: var(--radius-pill);
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--green-50);
+  color: #186845;
+}
+.erf-chip--mod { background: var(--amber-50); color: #7a5206; }
+.erf-chip--plain { background: var(--paper-0); border: 1px solid var(--border-subtle); color: var(--ink-400); }
+
+.erf-brief { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+.erf-story,
+.erf-ask {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 24px;
+}
+.erf-story { background: var(--paper-0); box-shadow: var(--shadow-sm); }
+.erf-ask { background: var(--paper-50); }
+.erf-story__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.erf-story__text p { font-size: 16.5px; line-height: 1.7; color: var(--ink-700); }
+.erf-story__text p + p { margin-top: 12px; }
+
+.erf-clue { background: none; color: var(--ink-900); padding: 0 1px; }
+.erf-clue--e { font-weight: 700; text-decoration: underline; text-decoration-color: var(--accent-500); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+.erf-clue--a { text-decoration: underline dotted; text-decoration-color: var(--ink-400); text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
+.erf-clue--r { background: var(--paper-200); border: 1px solid var(--paper-300); border-radius: 6px; padding: 0 5px; font-weight: 600; }
+.erf-cluekey {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 12.5px;
+  color: var(--ink-400);
+}
+
+.erf-ask__list { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.erf-ask__list li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 15px; line-height: 1.5; color: var(--ink-700); }
+.erf-ask__n {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  display: grid;
+  place-items: center;
+  background: var(--paper-200);
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--ink-600);
+}
+.erf-ask .erf-ask__paper { margin: 18px 0 14px; font-size: 13px; line-height: 1.5; color: var(--ink-400); }
+.erf-ask .erf-hint {
+  margin-top: 12px;
+  background: var(--accent-50);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-700);
+}
+
+.erf-idea { margin-top: 14px; background: var(--ink-900); border-radius: var(--radius-card); padding: 22px 24px; }
+.erf-idea .bt-eyebrow { color: var(--accent-300); }
+.erf-idea p:last-child { margin-top: 8px; font-size: 15px; line-height: 1.65; color: var(--paper-100); max-width: 74ch; }
+
+.erf-answer {
+  margin-top: 14px;
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: 26px;
+  box-shadow: var(--shadow-sm);
+}
+.erf-answer__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.erf-answer__title { font-size: 22px; font-weight: 800; letter-spacing: -0.025em; margin-top: 6px; }
+.erf-stages { display: flex; flex-wrap: wrap; gap: 6px; }
+.erf-stage {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-50);
+  border-radius: var(--radius-pill);
+  padding: 5px 14px 5px 5px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-400);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.erf-stage:hover { border-color: var(--ink-400); color: var(--ink-900); }
+.erf-stage:active { transform: scale(0.97); }
+.erf-stage__n {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-pill);
+  display: grid;
+  place-items: center;
+  background: var(--paper-200);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-500);
+}
+.erf-stage--on { background: var(--ink-900); border-color: var(--ink-900); color: #fff; }
+.erf-stage--on:hover { color: #fff; border-color: var(--ink-900); }
+.erf-stage--on .erf-stage__n { background: var(--accent-500); color: #fff; }
+
+.erf-wait { padding-top: 22px; }
+.erf-wait p { max-width: 62ch; font-size: 15px; line-height: 1.6; color: var(--ink-500); margin-bottom: 16px; }
+
+.erf-diagram { margin-top: 20px; border: 1px solid var(--border-subtle); border-radius: var(--radius-card); padding: 12px; }
+.erf-scrollnote { display: none; margin-top: 8px; font-size: 12px; color: var(--ink-300); }
+
+.erf-parts { margin-top: 8px; }
+.erf-part { padding: 20px 0 4px; }
+.erf-part + .erf-part { border-top: 1px solid var(--border-subtle); margin-top: 16px; }
+.erf-part__k { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 800; font-size: 16px; letter-spacing: -0.015em; color: var(--ink-900); }
+.erf-part__k span {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  display: grid;
+  place-items: center;
+  background: var(--accent-100);
+  color: var(--accent-700);
+  font-size: 11.5px;
+}
+.erf-part .erf-part__note { margin-top: 14px; font-size: 13.5px; line-height: 1.55; color: var(--ink-400); max-width: 74ch; }
+.erf-part__note b { color: var(--ink-900); }
+.erf-part .erf-part__lead { margin-top: 10px; font-size: 14.5px; line-height: 1.55; color: var(--ink-500); max-width: 66ch; }
+
+.erf-ents { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.erf-ents li { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 14px; align-items: center; font-size: 14px; line-height: 1.5; color: var(--ink-500); }
+.erf-ent {
+  justify-self: start;
+  border: 2px solid var(--ink-900);
+  padding: 4px 10px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-900);
+}
+.erf-attrtable td { font-size: 14px; }
+.erf-attrtable td:first-child { font-family: var(--font-mono); font-size: 12.5px; }
+
+.erf-rels { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; margin-top: 14px; }
+.erf-rel { background: var(--paper-50); border: 1px solid var(--border-subtle); border-radius: var(--radius-card); padding: 18px; }
+.erf-rel__top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.erf-relname { font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; color: var(--ink-900); }
+.erf-relname b { background: var(--accent-50); color: var(--accent-700); border-radius: 6px; padding: 2px 6px; }
+.erf-ratio { font-family: var(--font-display); font-weight: 800; font-size: 20px; letter-spacing: -0.02em; color: var(--ink-900); }
+/* Stacked rather than side by side: a card can be narrow, and an answer
+   like "Many. That's what joint means." would squeeze the question into a
+   one-word column. */
+.erf-rel .erf-twoq > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+.erf-rel .erf-twoq dt { font-size: 13.5px; }
+.erf-rel .erf-twoq dd { font-size: 13.5px; text-align: left; }
+.erf-rel .erf-rel__numbers { margin-top: 12px; font-size: 13.5px; font-weight: 600; color: var(--ink-700); }
+.erf-rel .erf-rel__attrs { margin-top: 6px; font-size: 13.5px; color: var(--ink-500); }
+.erf-rel__attrs b { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink-900); }
+.erf-rel .erf-rel__note { margin-top: 8px; font-size: 13px; line-height: 1.5; color: var(--ink-400); }
+
+.erf-aloud { list-style: none; margin: 14px 0 0; padding: 0; display: flex; flex-direction: column; gap: 9px; }
+.erf-aloud li {
+  padding-left: 14px;
+  border-left: 3px solid var(--accent-300);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  line-height: 1.45;
+  color: var(--ink-900);
+}
+.erf-check { margin-top: 20px; background: var(--paper-100); border-radius: var(--radius-md); padding: 16px 18px; }
+.erf-check__k { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-400); }
+.erf-check ul { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.erf-check li { display: grid; grid-template-columns: 15px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 14px; line-height: 1.5; color: var(--ink-600); }
+.erf-part .erf-cheer { margin-top: 18px; font-family: var(--font-display); font-weight: 800; font-size: 18px; letter-spacing: -0.02em; line-height: 1.35; color: var(--ink-900); max-width: 60ch; }
+
+.erf-answer__nav { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+
+.erf-flip__hint { margin-top: auto; font-size: 12px; font-weight: 600; color: var(--accent-600); }
+
+@media (max-width: 900px) {
+  .erf-brief,
+  .erf-method { grid-template-columns: minmax(0, 1fr); }
+  .erf-scrollnote { display: block; }
+}
+@media (max-width: 640px) {
+  .erf-story,
+  .erf-ask { padding: 18px; }
+  .erf-answer { padding: 18px; border-radius: var(--radius-card); }
+  .erf-ents li { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .erf-rels { grid-template-columns: minmax(0, 1fr); }
+  .erf-story__text p { font-size: 16px; }
+}

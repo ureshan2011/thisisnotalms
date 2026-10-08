@@ -1,34 +1,33 @@
 import type { DiagramSpec } from './ChenDiagram';
 
-// ─── The five tasks on /er-first-steps ─────────────────────────────────────
-// Two simple ones, then three moderate ones, for students drawing an ER
-// diagram for the very first time. Every story is short and written in
-// plain, short sentences. Two of them come back later, bigger: Mere's bank
-// in Task 1 grows into Task 4, and Southfield University in Task 2 comes
-// back in Task 5. Seeing a model they already drew change is the point —
-// in particular, CUSTOMER OWNS ACCOUNT is 1:N in Task 1 and M:N in Task 4,
-// because the story's rule changed, not the entities.
+// ─── The five tasks in the ER diagram tutorial ─────────────────────────────
+// Two simple tasks, then three moderate ones, for students drawing an ER
+// diagram for the first time. Used by the web page (/er-first-steps) and the
+// two printable PDFs (scripts/er-tutorial-pdf).
 //
-// Naming follows one convention throughout, and the lesson teaches it:
-//   • Entity — a singular noun in capitals: CUSTOMER, ASSIGNMENT
-//   • Relationship — a verb in capitals, words joined by _: OWNS, STAYS_IN
-//   • Attribute — starts with a capital, no spaces, each word capitalised:
-//     FirstName, DateOfBirth. The key attribute is underlined.
-// Cardinality is written as 1, N or M beside the entity it counts.
+// Task 4 reuses the bank from Task 1 with one rule changed, so CUSTOMER OWNS
+// ACCOUNT goes from 1:N to M:N. Task 5 returns to the university from Task 2.
 //
-// Story markup: {e|…} is an entity clue, {a|…} an attribute clue and
-// {r|…} a relationship clue. They show only when a student asks for the
-// clues; otherwise the story reads as plain text.
+// Naming follows one convention throughout (see NAMING in tutorial.ts):
+//   • Entity: singular noun in capitals, e.g. CUSTOMER, ASSIGNMENT
+//   • Relationship: verb in capitals, words joined by _, e.g. OWNS, STAYS_IN
+//   • Attribute: no spaces, each word capitalised, e.g. DateOfBirth.
+//     The key attribute is underlined.
+// Cardinality is written as 1, N or M next to the entity it counts.
+//
+// Scenario markup: {e|…} marks an entity word, {a|…} an attribute and
+// {r|…} a relationship. The page highlights them when asked; otherwise, and
+// in the PDF, they print as plain text.
 
 export interface RelAnswer {
-  /** The relationship as a sentence, entity – verb – entity. */
+  /** The relationship as ENTITY VERB ENTITY. */
   name: string;
   left: string;
   right: string;
   /** Asked from the left entity, then from the right one. */
   q: [string, string][];
   ratio: string;
-  /** Where the numbers go, in one short sentence. */
+  /** Where the numbers go. */
   numbers: string;
   attrs?: string[];
   note?: string;
@@ -41,23 +40,28 @@ export interface ERTaskSpec {
   place: string;
   time: string;
   title: string;
+  /** One or two sentences on what the task involves. */
   aside: string;
-  /** Paragraphs, with {e|…} {a|…} {r|…} clue markup. */
-  story: string[];
+  /** Paragraphs, with {e|…} {a|…} {r|…} markup. */
+  scenario: string[];
   questions: string[];
   hint: string;
-  /** A new idea this task introduces, shown before the student starts. */
+  /** A new idea this task needs, explained before the student starts. */
   newIdea?: { title: string; body: string };
   entities: { name: string; why: string }[];
   notEntities: string;
   attributes: { entity: string; key: string; others: string[] }[];
   attributesNote: string;
   rels: RelAnswer[];
-  relsNote?: string;
+  /** What the finished diagram says, one sentence per line. */
   readAloud: string[];
-  cheer: string;
   diagram: DiagramSpec;
   diagramLabel: string;
+}
+
+/** The scenario text with the markup removed. */
+export function plainScenario(text: string): string {
+  return text.replace(/\{[ear]\|([^}]+)\}/g, '$1');
 }
 
 export const TASKS: ERTaskSpec[] = [
@@ -68,50 +72,48 @@ export const TASKS: ERTaskSpec[] = [
     level: 'Simple',
     place: 'Bank',
     time: '10 minutes',
-    title: 'Customers and their accounts',
-    aside: 'Two entities and one relationship. Take your time with this one. Every other task on the page is built the same way.',
-    story: [
-      'Mere runs a small community bank in Hamilton. Right now she keeps everything in a big paper notebook. She wants a database instead.',
-      'The bank has {e|customers}. For each customer, Mere writes down a {a|customer ID}, a {a|first name}, a {a|last name} and a {a|phone number}. Every customer gets a different customer ID.',
-      'Customers open {e|accounts}. Each account has an {a|account number}, an {a|account type} (savings or everyday) and a {a|balance}. No two accounts have the same account number.',
-      'A customer {r|owns} one or more accounts. In Mere’s bank, each account belongs to just one customer.',
+    title: 'Customers and accounts',
+    aside: 'Two entities and one relationship. The other tasks follow the same steps.',
+    scenario: [
+      'Mere runs a small community bank in Hamilton. She keeps all her records in a paper notebook and wants to move them into a database.',
+      'The bank has {e|customers}. For each customer, Mere records a {a|customer ID}, {a|first name}, {a|last name} and {a|phone number}. Each customer has a different customer ID.',
+      'Customers open {e|accounts}. Each account has an {a|account number}, an {a|account type} (savings or everyday) and a {a|balance}. Each account has a different account number.',
+      'A customer {r|owns} one or more accounts. Each account belongs to only one customer.',
     ],
     questions: [
-      'What are the entities? There are two.',
-      'What attributes does each entity have? Which one is the key?',
-      'What is the relationship between them? What is its cardinality?',
-      'Draw the ER diagram in Chen’s notation.',
+      'List the entities. There are two.',
+      'List the attributes of each entity and identify the key attribute.',
+      'Identify the relationship and its cardinality.',
+      'Draw the ER diagram using Chen’s notation.',
     ],
-    hint: 'Look for nouns you could have many of. “Bank” is not one. The bank is the whole system, so it doesn’t get its own box.',
+    hint: 'Look for nouns that the bank stores many of. The bank itself is not an entity, because it is the whole system.',
     entities: [
-      { name: 'CUSTOMER', why: 'Mere keeps facts about each customer, and there are many customers.' },
-      { name: 'ACCOUNT', why: 'Each account has its own facts too, and there are many accounts.' },
+      { name: 'CUSTOMER', why: 'The bank stores details about many customers.' },
+      { name: 'ACCOUNT', why: 'The bank stores details about many accounts.' },
     ],
-    notEntities: 'The bank is not an entity. It’s where the database lives. Mere isn’t one either. She uses the database. She isn’t stored in it.',
+    notEntities: 'The bank is the whole system, so it is not drawn as an entity. Mere uses the database, so she is not an entity either.',
     attributes: [
       { entity: 'CUSTOMER', key: 'CustomerID', others: ['FirstName', 'LastName', 'PhoneNumber'] },
       { entity: 'ACCOUNT', key: 'AccountNumber', others: ['AccountType', 'Balance'] },
     ],
-    attributesNote: 'Two customers could both be called Sam Lee. They can’t share a CustomerID. That’s why the ID is the key, and not the name.',
+    attributesNote: 'Two customers can have the same name, but not the same CustomerID. That is why CustomerID is the key.',
     rels: [
       {
         name: 'CUSTOMER OWNS ACCOUNT',
         left: 'CUSTOMER',
         right: 'ACCOUNT',
         q: [
-          ['One CUSTOMER can own how many ACCOUNTs?', 'Many.'],
-          ['One ACCOUNT is owned by how many CUSTOMERs?', 'One. The story says so.'],
+          ['One CUSTOMER can own how many ACCOUNTs?', 'Many'],
+          ['One ACCOUNT is owned by how many CUSTOMERs?', 'One'],
         ],
         ratio: '1:N',
-        numbers: '1 goes beside CUSTOMER. N goes beside ACCOUNT.',
+        numbers: 'Write 1 next to CUSTOMER and N next to ACCOUNT.',
       },
     ],
     readAloud: [
       'One CUSTOMER OWNS many ACCOUNTs.',
       'Each ACCOUNT is owned by one CUSTOMER.',
-      'Every CUSTOMER has their own CustomerID. Every ACCOUNT has its own AccountNumber.',
     ],
-    cheer: 'That’s your first ER diagram. Really. Every bigger diagram is just more of this.',
     diagramLabel: 'Chen ER diagram: CUSTOMER, with key CustomerID and attributes FirstName, LastName and PhoneNumber, OWNS ACCOUNT, with key AccountNumber and attributes AccountType and Balance. 1 beside CUSTOMER, N beside ACCOUNT.',
     diagram: {
       w: 860,
@@ -142,55 +144,54 @@ export const TASKS: ERTaskSpec[] = [
     place: 'University',
     time: '10 minutes',
     title: 'Students and clubs',
-    aside: 'Still two entities. This time the link goes both ways, and one fact belongs to the link itself.',
-    story: [
-      'Sione works at the student centre at Southfield University. He looks after the student clubs. There’s a chess club, a hiking club, a cooking club and plenty more.',
-      'Each {e|student} has a {a|student ID}, a {a|first name}, a {a|last name} and an {a|email}. Each {e|club} has a {a|club ID}, a {a|club name} and a {a|meeting day}.',
-      'A student can {r|join} as many clubs as they like. A club has lots of students. Sione also wants to keep the {a|date} each student joined each club.',
+    aside: 'Two entities and a many-to-many relationship. One attribute belongs to the relationship.',
+    scenario: [
+      'Sione works in the student centre at Southfield University. He looks after the student clubs, such as the chess club, the hiking club and the cooking club.',
+      'Each {e|student} has a {a|student ID}, {a|first name}, {a|last name} and {a|email}. Each {e|club} has a {a|club ID}, {a|club name} and {a|meeting day}.',
+      'A student can {r|join} many clubs, and a club has many students. Sione also wants to record the {a|date} each student joined each club.',
     ],
     questions: [
-      'What are the entities?',
-      'What attributes does each entity have? Underline the key.',
-      'What is the relationship? What is its cardinality?',
-      'Where does the join date go?',
-      'Draw the ER diagram in Chen’s notation.',
+      'List the entities.',
+      'List the attributes of each entity and identify the key attribute.',
+      'Identify the relationship and its cardinality.',
+      'Decide where the join date belongs.',
+      'Draw the ER diagram using Chen’s notation.',
     ],
-    hint: 'Ask the two questions. One student can join how many clubs? One club can have how many students?',
+    hint: 'Ask two questions. How many clubs can one student join? How many students can one club have?',
     newIdea: {
-      title: 'New idea: a fact about the link',
-      body: 'Look at the join date. Is it a fact about the student? Not really. A student in three clubs has three join dates. Is it about the club? No. A club has a different join date for every member. It only makes sense for one student joining one club. So it hangs off the diamond, not off a rectangle.',
+      title: 'Attributes on a relationship',
+      body: 'Some facts do not belong to either entity on its own. The join date is one of them. A student in three clubs has three different join dates, and a club has a different join date for each member. The date only makes sense for one student and one club together, so it is connected to the relationship diamond.',
     },
     entities: [
-      { name: 'STUDENT', why: 'Sione keeps facts about each student, and there are many students.' },
-      { name: 'CLUB', why: 'Each club has its own facts, and there are many clubs.' },
+      { name: 'STUDENT', why: 'Sione stores details about many students.' },
+      { name: 'CLUB', why: 'Sione stores details about many clubs.' },
     ],
-    notEntities: 'The university and the student centre are not entities. Sione isn’t one either. Chess, hiking and cooking aren’t entities. They are examples of clubs, so they would be values of ClubName.',
+    notEntities: 'The university, the student centre and Sione are not entities. Chess, hiking and cooking are not entities either. They are examples of clubs, so they are values of ClubName.',
     attributes: [
       { entity: 'STUDENT', key: 'StudentID', others: ['FirstName', 'LastName', 'Email'] },
       { entity: 'CLUB', key: 'ClubID', others: ['ClubName', 'MeetingDay'] },
     ],
-    attributesNote: 'DateJoined isn’t in either list. It isn’t about the student alone or the club alone. It belongs to the relationship.',
+    attributesNote: 'DateJoined is not listed here because it belongs to the relationship, not to STUDENT or CLUB.',
     rels: [
       {
         name: 'STUDENT JOINS CLUB',
         left: 'STUDENT',
         right: 'CLUB',
         q: [
-          ['One STUDENT can join how many CLUBs?', 'Many.'],
-          ['One CLUB can have how many STUDENTs?', 'Many.'],
+          ['One STUDENT can join how many CLUBs?', 'Many'],
+          ['One CLUB can have how many STUDENTs?', 'Many'],
         ],
         ratio: 'M:N',
-        numbers: 'M goes beside STUDENT. N goes beside CLUB.',
+        numbers: 'Write M next to STUDENT and N next to CLUB.',
         attrs: ['DateJoined'],
-        note: 'Both answers were “many”, so it’s many-to-many. DateJoined sits on the JOINS diamond.',
+        note: 'Both answers are “many”, so the relationship is many-to-many. DateJoined is connected to the JOINS diamond.',
       },
     ],
     readAloud: [
       'A STUDENT JOINS many CLUBs.',
       'A CLUB has many STUDENTs.',
-      'Each time a student joins a club, we keep the DateJoined.',
+      'DateJoined records when a student joined a club.',
     ],
-    cheer: 'Two done. If you put DateJoined on the diamond, you’ve already got an idea a lot of people miss.',
     diagramLabel: 'Chen ER diagram: STUDENT, with key StudentID and attributes FirstName, LastName and Email, JOINS CLUB, with key ClubID and attributes ClubName and MeetingDay. DateJoined is an attribute of JOINS. M beside STUDENT, N beside CLUB.',
     diagram: {
       w: 860,
@@ -222,81 +223,80 @@ export const TASKS: ERTaskSpec[] = [
     place: 'Hospital',
     time: '20 minutes',
     title: 'Wards, nurses, doctors and patients',
-    aside: 'Four entities and three relationships. Nothing new to learn. There’s just more of it, so go one relationship at a time.',
-    story: [
-      'Priya is a charge nurse at Riverside Hospital. The hospital still keeps track of patients on whiteboards. She has been asked to help design a database.',
-      'The hospital has {e|wards}. Each ward has a {a|ward number}, a {a|ward name} and a {a|number of beds}.',
-      '{e|Patients} {r|stay in} a ward. Each patient stays in one ward. A ward has many patients. For each patient, the hospital keeps a {a|patient ID}, a {a|first name}, a {a|last name} and a {a|date of birth}.',
-      '{e|Nurses} {r|work in} wards. Each nurse works in one ward. A ward has many nurses. A nurse has a {a|nurse ID}, a {a|first name}, a {a|last name} and a {a|shift} (day or night).',
-      '{e|Doctors} {r|treat} patients. One doctor treats many patients. One patient can be treated by many doctors. A doctor has a {a|doctor ID}, a {a|first name}, a {a|last name} and a {a|specialty}. Each time a doctor treats a patient, the hospital writes down the {a|treatment date} and the {a|diagnosis}.',
+    aside: 'Four entities and three relationships. Work on one relationship at a time.',
+    scenario: [
+      'Priya is a charge nurse at Riverside Hospital. The hospital tracks patients on whiteboards, and Priya has been asked to help design a database.',
+      'The hospital has {e|wards}. Each ward has a {a|ward number}, {a|ward name} and {a|number of beds}.',
+      '{e|Patients} {r|stay in} wards. Each patient stays in one ward, and a ward has many patients. For each patient, the hospital records a {a|patient ID}, {a|first name}, {a|last name} and {a|date of birth}.',
+      '{e|Nurses} {r|work in} wards. Each nurse works in one ward, and a ward has many nurses. A nurse has a {a|nurse ID}, {a|first name}, {a|last name} and {a|shift} (day or night).',
+      '{e|Doctors} {r|treat} patients. A doctor treats many patients, and a patient can be treated by many doctors. A doctor has a {a|doctor ID}, {a|first name}, {a|last name} and {a|specialty}. Each time a doctor treats a patient, the hospital records the {a|treatment date} and the {a|diagnosis}.',
     ],
     questions: [
-      'What are the entities? There are four.',
-      'What attributes does each entity have? Underline each key.',
-      'Find the three relationships. Give each one its cardinality.',
-      'Which relationship has attributes of its own?',
-      'Draw the full ER diagram in Chen’s notation.',
+      'List the entities. There are four.',
+      'List the attributes of each entity and identify the key attributes.',
+      'Identify the three relationships and the cardinality of each.',
+      'Which relationship has its own attributes?',
+      'Draw the ER diagram using Chen’s notation.',
     ],
-    hint: 'Draw the four rectangles first, spread out. Then add one diamond, ask the two questions and write the numbers. Then do the next diamond.',
+    hint: 'Draw the four entities first and leave space between them. Then add one relationship at a time and work out its cardinality before moving to the next.',
     entities: [
-      { name: 'WARD', why: 'The hospital keeps facts about each ward.' },
-      { name: 'PATIENT', why: 'Many patients, each with their own facts.' },
-      { name: 'NURSE', why: 'Many nurses, each with their own facts.' },
-      { name: 'DOCTOR', why: 'Many doctors, each with their own facts.' },
+      { name: 'WARD', why: 'The hospital stores details about each ward.' },
+      { name: 'PATIENT', why: 'The hospital stores details about many patients.' },
+      { name: 'NURSE', why: 'The hospital stores details about many nurses.' },
+      { name: 'DOCTOR', why: 'The hospital stores details about many doctors.' },
     ],
-    notEntities: 'The hospital and the whiteboards are not entities. And Priya? She is a nurse, so she isn’t a new entity. She would be one of the nurses stored in NURSE.',
+    notEntities: 'The hospital and the whiteboards are not entities. Priya is a nurse, so she would be stored as one row in NURSE. She does not need her own entity.',
     attributes: [
       { entity: 'WARD', key: 'WardNumber', others: ['WardName', 'NumberOfBeds'] },
       { entity: 'PATIENT', key: 'PatientID', others: ['FirstName', 'LastName', 'DateOfBirth'] },
       { entity: 'NURSE', key: 'NurseID', others: ['FirstName', 'LastName', 'Shift'] },
       { entity: 'DOCTOR', key: 'DoctorID', others: ['FirstName', 'LastName', 'Specialty'] },
     ],
-    attributesNote: 'We keep DateOfBirth, not Age. A birthday never changes. An age changes every year. Also, NURSE and DOCTOR both have a FirstName. That’s fine. Each one belongs to its own entity.',
+    attributesNote: 'Store DateOfBirth, not Age. Age changes every year, but a date of birth does not. NURSE and DOCTOR both have FirstName and LastName. That is fine, because each attribute belongs to its own entity.',
     rels: [
       {
         name: 'PATIENT STAYS_IN WARD',
         left: 'PATIENT',
         right: 'WARD',
         q: [
-          ['One PATIENT stays in how many WARDs?', 'One.'],
-          ['One WARD has how many PATIENTs?', 'Many.'],
+          ['One PATIENT stays in how many WARDs?', 'One'],
+          ['One WARD has how many PATIENTs?', 'Many'],
         ],
         ratio: 'N:1',
-        numbers: 'N goes beside PATIENT. 1 goes beside WARD.',
-        note: 'N:1 is just 1:N read from the other end. One ward, many patients. Same thing.',
+        numbers: 'Write N next to PATIENT and 1 next to WARD.',
+        note: 'N:1 is the same as 1:N read from the other side: one ward, many patients.',
       },
       {
         name: 'NURSE WORKS_IN WARD',
         left: 'NURSE',
         right: 'WARD',
         q: [
-          ['One NURSE works in how many WARDs?', 'One.'],
-          ['One WARD has how many NURSEs?', 'Many.'],
+          ['One NURSE works in how many WARDs?', 'One'],
+          ['One WARD has how many NURSEs?', 'Many'],
         ],
         ratio: 'N:1',
-        numbers: 'N goes beside NURSE. 1 goes beside WARD.',
+        numbers: 'Write N next to NURSE and 1 next to WARD.',
       },
       {
         name: 'DOCTOR TREATS PATIENT',
         left: 'DOCTOR',
         right: 'PATIENT',
         q: [
-          ['One DOCTOR treats how many PATIENTs?', 'Many.'],
-          ['One PATIENT is treated by how many DOCTORs?', 'Many.'],
+          ['One DOCTOR treats how many PATIENTs?', 'Many'],
+          ['One PATIENT is treated by how many DOCTORs?', 'Many'],
         ],
         ratio: 'M:N',
-        numbers: 'M goes beside DOCTOR. N goes beside PATIENT.',
+        numbers: 'Write M next to DOCTOR and N next to PATIENT.',
         attrs: ['TreatmentDate', 'Diagnosis'],
-        note: 'A diagnosis isn’t about the doctor alone or the patient alone. It’s about this doctor seeing this patient. So both facts sit on TREATS.',
+        note: 'TreatmentDate and Diagnosis describe one doctor treating one patient, so they are connected to TREATS.',
       },
     ],
     readAloud: [
       'A PATIENT STAYS_IN one WARD. A WARD has many PATIENTs.',
       'A NURSE WORKS_IN one WARD. A WARD has many NURSEs.',
       'A DOCTOR TREATS many PATIENTs. A PATIENT can be treated by many DOCTORs.',
-      'Each treatment has a TreatmentDate and a Diagnosis.',
+      'Each treatment records a TreatmentDate and a Diagnosis.',
     ],
-    cheer: 'Four entities, three relationships. That’s a real hospital design. If your drawing is laid out differently, that’s fine. Same boxes, same links and same numbers means the same diagram.',
     diagramLabel: 'Chen ER diagram for the hospital: DOCTOR TREATS PATIENT, M to N, with TreatmentDate and Diagnosis on TREATS. PATIENT STAYS_IN WARD, N to 1. NURSE WORKS_IN WARD, N to 1. Keys DoctorID, PatientID, WardNumber and NurseID.',
     diagram: {
       w: 1190,
@@ -342,95 +342,94 @@ export const TASKS: ERTaskSpec[] = [
     level: 'Moderate',
     place: 'Bank',
     time: '25 minutes',
-    title: 'Mere’s bank grows',
-    aside: 'The bank from Task 1, a few years later. Watch what happens to OWNS when the rules change, and see two entities linked twice.',
-    story: [
-      'Remember Mere’s bank from Task 1? Business is going well. It now has three branches, and the old database is too small.',
-      'The bank has {e|branches}. Each branch has a {a|branch code}, a {a|branch name} and a {a|city}.',
-      '{e|Customers} still have a {a|customer ID}, a {a|first name}, a {a|last name} and a {a|phone number}. {e|Accounts} still have an {a|account number}, an {a|account type} and a {a|balance}.',
-      'Here’s the big change. The bank now offers joint accounts. A customer can {r|own} many accounts, and one account can be owned by more than one customer. For example, a couple can share an account. The bank keeps the {a|date each customer was added} to an account.',
+    title: 'Branches, employees and joint accounts',
+    aside: 'The bank from Task 1 with new rules. Two entities are connected by two different relationships.',
+    scenario: [
+      'This task uses Mere’s bank from Task 1. The bank now has three branches and needs a larger database.',
+      'The bank has {e|branches}. Each branch has a {a|branch code}, {a|branch name} and {a|city}.',
+      '{e|Customers} have a {a|customer ID}, {a|first name}, {a|last name} and {a|phone number}, as before. {e|Accounts} have an {a|account number}, {a|account type} and {a|balance}.',
+      'One rule has changed. The bank now offers joint accounts, so a customer can {r|own} many accounts and an account can be owned by more than one customer. For example, two partners can share one account. The bank records the {a|date each customer was added} to an account.',
       'Each account is opened at one branch. A branch {r|holds} many accounts.',
-      'The bank also has {e|employees}. Each employee has an {a|employee ID}, a {a|first name}, a {a|last name} and a {a|job title}. Each employee {r|works at} one branch. A branch has many employees. Each branch is {r|managed} by one employee. An employee can manage only one branch.',
+      'The bank also has {e|employees}. Each employee has an {a|employee ID}, {a|first name}, {a|last name} and {a|job title}. Each employee {r|works at} one branch, and a branch has many employees. Each branch is {r|managed} by one employee, and an employee can manage only one branch.',
     ],
     questions: [
-      'What are the four entities?',
-      'What attributes does each entity have? Underline each key.',
-      'Find all four relationships and give each one its cardinality.',
-      'CUSTOMER and ACCOUNT were 1:N in Task 1. What are they now, and why?',
-      'EMPLOYEE and BRANCH are linked in two different ways. Can you show both?',
-      'Draw the full ER diagram in Chen’s notation.',
+      'List the entities. There are four.',
+      'List the attributes of each entity and identify the key attributes.',
+      'Identify the four relationships and the cardinality of each.',
+      'In Task 1, OWNS was 1:N. What is it now, and why?',
+      'EMPLOYEE and BRANCH are connected in two ways. Show both relationships.',
+      'Draw the ER diagram using Chen’s notation.',
     ],
-    hint: 'Working at a branch and managing a branch are two different facts. Two different facts need two different diamonds, even between the same two entities.',
+    hint: 'Working at a branch and managing a branch are two different facts. Each one needs its own relationship, even though both connect EMPLOYEE and BRANCH.',
     entities: [
       { name: 'CUSTOMER', why: 'Same as Task 1.' },
       { name: 'ACCOUNT', why: 'Same as Task 1.' },
-      { name: 'BRANCH', why: 'New. The bank keeps facts about each branch.' },
-      { name: 'EMPLOYEE', why: 'New. Many employees, each with their own facts.' },
+      { name: 'BRANCH', why: 'The bank stores details about each branch.' },
+      { name: 'EMPLOYEE', why: 'The bank stores details about many employees.' },
     ],
-    notEntities: '“Joint account” is not a new entity. It’s still an ACCOUNT. Joint only means it has more than one owner, and that’s a cardinality, not a box. Manager isn’t a separate entity either. A manager is an EMPLOYEE who also MANAGES a branch.',
+    notEntities: 'A joint account is still an ACCOUNT. “Joint” means it can have more than one owner, and that is shown by the cardinality. A manager is not a separate entity either. A manager is an EMPLOYEE who also MANAGES a branch.',
     attributes: [
       { entity: 'CUSTOMER', key: 'CustomerID', others: ['FirstName', 'LastName', 'PhoneNumber'] },
       { entity: 'ACCOUNT', key: 'AccountNumber', others: ['AccountType', 'Balance'] },
       { entity: 'BRANCH', key: 'BranchCode', others: ['BranchName', 'City'] },
       { entity: 'EMPLOYEE', key: 'EmployeeID', others: ['FirstName', 'LastName', 'JobTitle'] },
     ],
-    attributesNote: 'DateAdded is missing from these lists on purpose. It’s about one customer and one account together, so it goes on the OWNS diamond.',
+    attributesNote: 'DateAdded is not listed here. It describes one customer and one account together, so it belongs to the OWNS relationship.',
     rels: [
       {
         name: 'CUSTOMER OWNS ACCOUNT',
         left: 'CUSTOMER',
         right: 'ACCOUNT',
         q: [
-          ['One CUSTOMER can own how many ACCOUNTs?', 'Many.'],
-          ['One ACCOUNT can be owned by how many CUSTOMERs?', 'Many. That’s what joint means.'],
+          ['One CUSTOMER can own how many ACCOUNTs?', 'Many'],
+          ['One ACCOUNT can be owned by how many CUSTOMERs?', 'Many (joint accounts)'],
         ],
         ratio: 'M:N',
-        numbers: 'M goes beside CUSTOMER. N goes beside ACCOUNT.',
+        numbers: 'Write M next to CUSTOMER and N next to ACCOUNT.',
         attrs: ['DateAdded'],
-        note: 'Same two entities as Task 1, but now M:N. The rule in the story changed, so the cardinality changed. Always go by the story, not by what you think banks usually do.',
+        note: 'The entities are the same as in Task 1, but the rule has changed, so the cardinality has changed from 1:N to M:N. Always use the rules given in the scenario.',
       },
       {
         name: 'BRANCH HOLDS ACCOUNT',
         left: 'BRANCH',
         right: 'ACCOUNT',
         q: [
-          ['One BRANCH holds how many ACCOUNTs?', 'Many.'],
-          ['One ACCOUNT is held at how many BRANCHes?', 'One.'],
+          ['One BRANCH holds how many ACCOUNTs?', 'Many'],
+          ['One ACCOUNT is held at how many BRANCHes?', 'One'],
         ],
         ratio: '1:N',
-        numbers: '1 goes beside BRANCH. N goes beside ACCOUNT.',
+        numbers: 'Write 1 next to BRANCH and N next to ACCOUNT.',
       },
       {
         name: 'EMPLOYEE WORKS_AT BRANCH',
         left: 'EMPLOYEE',
         right: 'BRANCH',
         q: [
-          ['One EMPLOYEE works at how many BRANCHes?', 'One.'],
-          ['One BRANCH has how many EMPLOYEEs?', 'Many.'],
+          ['One EMPLOYEE works at how many BRANCHes?', 'One'],
+          ['One BRANCH has how many EMPLOYEEs?', 'Many'],
         ],
         ratio: 'N:1',
-        numbers: 'N goes beside EMPLOYEE. 1 goes beside BRANCH.',
+        numbers: 'Write N next to EMPLOYEE and 1 next to BRANCH.',
       },
       {
         name: 'EMPLOYEE MANAGES BRANCH',
         left: 'EMPLOYEE',
         right: 'BRANCH',
         q: [
-          ['One EMPLOYEE manages how many BRANCHes?', 'One, at most.'],
-          ['One BRANCH is managed by how many EMPLOYEEs?', 'One.'],
+          ['One EMPLOYEE manages how many BRANCHes?', 'One at most'],
+          ['One BRANCH is managed by how many EMPLOYEEs?', 'One'],
         ],
         ratio: '1:1',
-        numbers: '1 goes on both sides.',
-        note: 'This is your first 1:1. Both answers were “one”.',
+        numbers: 'Write 1 on both sides.',
+        note: 'Both answers are “one”, so this relationship is one-to-one.',
       },
     ],
     readAloud: [
-      'A CUSTOMER OWNS many ACCOUNTs. An ACCOUNT can have many owners. Each owner has a DateAdded.',
+      'A CUSTOMER OWNS many ACCOUNTs, and an ACCOUNT can have many owners. DateAdded is recorded for each owner.',
       'A BRANCH HOLDS many ACCOUNTs. Each ACCOUNT is held at one BRANCH.',
       'An EMPLOYEE WORKS_AT one BRANCH. A BRANCH has many EMPLOYEEs.',
       'One EMPLOYEE MANAGES one BRANCH.',
     ],
-    cheer: 'Two diamonds between the same pair of boxes is the bit most people get stuck on. If you drew both, you’re doing well.',
     diagramLabel: 'Chen ER diagram for the bank: CUSTOMER OWNS ACCOUNT, M to N, with DateAdded on OWNS. BRANCH HOLDS ACCOUNT, 1 to N. EMPLOYEE WORKS_AT BRANCH, N to 1. EMPLOYEE MANAGES BRANCH, 1 to 1. Keys CustomerID, AccountNumber, BranchCode and EmployeeID.',
     diagram: {
       w: 1240,
@@ -476,93 +475,92 @@ export const TASKS: ERTaskSpec[] = [
     place: 'University',
     time: '25 minutes',
     title: 'Courses, lecturers and assignments',
-    aside: 'Back at Southfield University. You’ve handed in assignments yourself, so you already know how this one works. You just haven’t drawn it yet.',
-    story: [
-      'Dr Aroha Ngata teaches database design at Southfield University. She wants one database for her courses and the assignments in them.',
-      'Each {e|lecturer} has a {a|staff ID}, a {a|first name}, a {a|last name} and an {a|email}. A lecturer {r|teaches} many courses. Each course is taught by one lecturer.',
-      'Each {e|course} has a {a|course code}, a {a|title} and a number of {a|credits}.',
-      '{e|Students} have a {a|student ID}, a {a|first name}, a {a|last name} and an {a|email}. A student {r|takes} many courses. A course has many students. At the end, each student gets a {a|grade} for each course.',
-      'Each course {r|sets} several {e|assignments}. An assignment belongs to one course. Each assignment has an {a|assignment ID}, a {a|title}, a {a|due date} and a {a|weight} (how much it counts, like 40%).',
-      'Students {r|submit} assignments. A student submits many assignments. Each assignment is submitted by many students. For every submission, the university keeps the {a|date submitted} and the {a|mark}.',
+    aside: 'Four entities and four relationships. Three attributes belong to relationships.',
+    scenario: [
+      'Dr Aroha Ngata teaches database design at Southfield University. She wants a database for her courses and their assignments.',
+      'Each {e|lecturer} has a {a|staff ID}, {a|first name}, {a|last name} and {a|email}. A lecturer {r|teaches} many courses, and each course is taught by one lecturer.',
+      'Each {e|course} has a {a|course code}, {a|title} and number of {a|credits}.',
+      'Each {e|student} has a {a|student ID}, {a|first name}, {a|last name} and {a|email}. A student {r|takes} many courses, and a course has many students. Each student receives a {a|grade} for each course they take.',
+      'Each course {r|sets} several {e|assignments}, and each assignment belongs to one course. An assignment has an {a|assignment ID}, {a|title}, {a|due date} and {a|weight} (the percentage it counts towards the course).',
+      'Students {r|submit} assignments. A student submits many assignments, and each assignment is submitted by many students. For each submission, the university records the {a|date submitted} and the {a|mark}.',
     ],
     questions: [
-      'What are the four entities?',
-      'What attributes does each entity have? Underline each key.',
-      'Find all four relationships and give each one its cardinality.',
-      'Which relationships have attributes of their own?',
-      'Draw the full ER diagram in Chen’s notation.',
+      'List the entities. There are four.',
+      'List the attributes of each entity and identify the key attributes.',
+      'Identify the four relationships and the cardinality of each.',
+      'Which relationships have their own attributes?',
+      'Draw the ER diagram using Chen’s notation.',
     ],
-    hint: 'The grade is the tricky one. Is it about the student? About the course? Or about one student in one course? Ask the same thing about the mark.',
+    hint: 'Look at Grade. Does it describe a student, a course, or one student in one course? Ask the same question about Mark.',
     entities: [
-      { name: 'LECTURER', why: 'Facts about each lecturer.' },
-      { name: 'COURSE', why: 'Facts about each course.' },
-      { name: 'STUDENT', why: 'Facts about each student.' },
+      { name: 'LECTURER', why: 'The university stores details about each lecturer.' },
+      { name: 'COURSE', why: 'The university stores details about each course.' },
+      { name: 'STUDENT', why: 'The university stores details about each student.' },
       { name: 'ASSIGNMENT', why: 'Each assignment has its own ID, title, due date and weight.' },
     ],
-    notEntities: 'Dr Ngata is one LECTURER, not a new entity. And “submission” sounds like a noun, but here it means the act of submitting. It links one student to one assignment, so it’s the SUBMITS diamond.',
+    notEntities: 'Dr Ngata is one LECTURER, so she is not a separate entity. “Submission” is not an entity here either. It describes a student submitting an assignment, so it is shown as the SUBMITS relationship.',
     attributes: [
       { entity: 'LECTURER', key: 'StaffID', others: ['FirstName', 'LastName', 'Email'] },
       { entity: 'COURSE', key: 'CourseCode', others: ['Title', 'Credits'] },
       { entity: 'STUDENT', key: 'StudentID', others: ['FirstName', 'LastName', 'Email'] },
       { entity: 'ASSIGNMENT', key: 'AssignmentID', others: ['Title', 'DueDate', 'Weight'] },
     ],
-    attributesNote: 'Grade, DateSubmitted and Mark aren’t in these lists. Each of them needs two sides to make sense, so they go on diamonds.',
+    attributesNote: 'Grade, DateSubmitted and Mark are not listed here. Each one describes a student together with a course or an assignment, so they belong to relationships.',
     rels: [
       {
         name: 'LECTURER TEACHES COURSE',
         left: 'LECTURER',
         right: 'COURSE',
         q: [
-          ['One LECTURER teaches how many COURSEs?', 'Many.'],
-          ['One COURSE is taught by how many LECTURERs?', 'One.'],
+          ['One LECTURER teaches how many COURSEs?', 'Many'],
+          ['One COURSE is taught by how many LECTURERs?', 'One'],
         ],
         ratio: '1:N',
-        numbers: '1 goes beside LECTURER. N goes beside COURSE.',
+        numbers: 'Write 1 next to LECTURER and N next to COURSE.',
       },
       {
         name: 'STUDENT TAKES COURSE',
         left: 'STUDENT',
         right: 'COURSE',
         q: [
-          ['One STUDENT takes how many COURSEs?', 'Many.'],
-          ['One COURSE has how many STUDENTs?', 'Many.'],
+          ['One STUDENT takes how many COURSEs?', 'Many'],
+          ['One COURSE has how many STUDENTs?', 'Many'],
         ],
         ratio: 'M:N',
-        numbers: 'M goes beside STUDENT. N goes beside COURSE.',
+        numbers: 'Write M next to STUDENT and N next to COURSE.',
         attrs: ['Grade'],
-        note: 'You get a different grade in each course, and each course gives out many grades. A grade is about one student in one course.',
+        note: 'A student has a different grade in each course, and a course gives a grade to each student. So Grade belongs to TAKES.',
       },
       {
         name: 'COURSE SETS ASSIGNMENT',
         left: 'COURSE',
         right: 'ASSIGNMENT',
         q: [
-          ['One COURSE sets how many ASSIGNMENTs?', 'Many.'],
-          ['One ASSIGNMENT belongs to how many COURSEs?', 'One.'],
+          ['One COURSE sets how many ASSIGNMENTs?', 'Many'],
+          ['One ASSIGNMENT belongs to how many COURSEs?', 'One'],
         ],
         ratio: '1:N',
-        numbers: '1 goes beside COURSE. N goes beside ASSIGNMENT.',
+        numbers: 'Write 1 next to COURSE and N next to ASSIGNMENT.',
       },
       {
         name: 'STUDENT SUBMITS ASSIGNMENT',
         left: 'STUDENT',
         right: 'ASSIGNMENT',
         q: [
-          ['One STUDENT submits how many ASSIGNMENTs?', 'Many.'],
-          ['One ASSIGNMENT is submitted by how many STUDENTs?', 'Many.'],
+          ['One STUDENT submits how many ASSIGNMENTs?', 'Many'],
+          ['One ASSIGNMENT is submitted by how many STUDENTs?', 'Many'],
         ],
         ratio: 'M:N',
-        numbers: 'M goes beside STUDENT. N goes beside ASSIGNMENT.',
+        numbers: 'Write M next to STUDENT and N next to ASSIGNMENT.',
         attrs: ['DateSubmitted', 'Mark'],
       },
     ],
     readAloud: [
       'A LECTURER TEACHES many COURSEs. Each COURSE has one LECTURER.',
-      'A STUDENT TAKES many COURSEs. A COURSE has many STUDENTs. Each pair has a Grade.',
+      'A STUDENT TAKES many COURSEs. A COURSE has many STUDENTs. Each student gets a Grade for each course.',
       'A COURSE SETS many ASSIGNMENTs. Each ASSIGNMENT belongs to one COURSE.',
-      'A STUDENT SUBMITS many ASSIGNMENTs. Each submission has a DateSubmitted and a Mark.',
+      'A STUDENT SUBMITS many ASSIGNMENTs. Each submission records a DateSubmitted and a Mark.',
     ],
-    cheer: 'That’s all five. A week ago this would have looked like a maze. Now you can read every line of it.',
     diagramLabel: 'Chen ER diagram for the university: LECTURER TEACHES COURSE, 1 to N. STUDENT TAKES COURSE, M to N, with Grade on TAKES. COURSE SETS ASSIGNMENT, 1 to N. STUDENT SUBMITS ASSIGNMENT, M to N, with DateSubmitted and Mark on SUBMITS. Keys StaffID, CourseCode, StudentID and AssignmentID.',
     diagram: {
       w: 1290,
@@ -604,7 +602,7 @@ export const TASKS: ERTaskSpec[] = [
   },
 ];
 
-/** The small diagram in the hero: Task 1's answer, cut down. */
+/** The small diagram in the hero: part of Task 1's answer. */
 export const HERO_DIAGRAM: DiagramSpec = {
   w: 600,
   h: 232,

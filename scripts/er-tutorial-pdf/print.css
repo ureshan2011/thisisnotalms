@@ -1,0 +1,183 @@
+/* ─── ER Diagram Tutorial: print styles ──────────────────────────────────
+   A4 portrait for text, A4 landscape (the `wide` page) for drawing space
+   and wide diagrams. Black ink with one muted accent, so pages photocopy
+   cleanly. Fonts are inlined by build.mjs. */
+
+@font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 100 1000; src: url('fonts/DMSans-Variable.woff2') format('woff2'); }
+@font-face { font-family: 'DM Sans'; font-style: italic; font-weight: 100 1000; src: url('fonts/DMSans-Italic-Variable.woff2') format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 100 800; src: url('fonts/JetBrainsMono-Variable.woff2') format('woff2'); }
+
+:root {
+  --ink: #1c1917;
+  --ink-soft: #44403c;
+  --muted: #78716c;
+  --rule: #d6d3d1;
+  --rule-faint: #e7e5e4;
+  --tint: #f7f5f3;
+  --accent: #c2410c;
+
+  /* Names ChenDiagram's classes expect */
+  --font-display: 'DM Sans', Arial, sans-serif;
+  --font-body: 'DM Sans', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+@page {
+  size: A4;
+  margin: 16mm 17mm 18mm 17mm;
+  @bottom-left { font: 7.5pt 'DM Sans', Arial, sans-serif; color: #78716c; }
+  @bottom-center { content: "© Yasas Sri Wickramasinghe"; font: 7.5pt 'DM Sans', Arial, sans-serif; color: #78716c; }
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 7.5pt 'DM Sans', Arial, sans-serif; color: #78716c; }
+}
+@page wide {
+  size: A4 landscape;
+  margin: 14mm 16mm 16mm 16mm;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.5;
+  color: var(--ink);
+}
+p { margin: 0 0 2.4mm; }
+b { font-weight: 700; }
+.muted { color: var(--muted); }
+.mono { font-family: 'JetBrains Mono', monospace; font-size: 9pt; }
+.key { font-family: 'JetBrains Mono', monospace; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.strike { color: var(--muted); text-decoration: line-through; }
+
+.newpage { break-before: page; }
+.keep { break-inside: avoid; }
+h1, h2, h3 { break-after: avoid; }
+tr, figure, li { break-inside: avoid; }
+
+/* ── Title block ── */
+.titleblock { border-bottom: 1.2pt solid var(--ink); padding-bottom: 5mm; margin-bottom: 6mm; }
+.kicker { font-size: 8.5pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 2mm; }
+.titleblock h1 { font-size: 26pt; line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 1.5mm; }
+.subtitle { font-size: 12.5pt; color: var(--ink-soft); margin-bottom: 4mm; }
+.meta { display: flex; flex-wrap: wrap; gap: 1.5mm 9mm; margin: 0; }
+.meta div { display: flex; gap: 2mm; }
+.meta dt { color: var(--muted); }
+.meta dd { margin: 0; font-weight: 700; }
+
+/* ── Headings ── */
+.partlabel { font-size: 8.5pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+.h1 { font-size: 18pt; line-height: 1.2; font-weight: 700; letter-spacing: -0.015em; margin: 0 0 2.5mm; }
+.h2 { font-size: 12.5pt; font-weight: 700; margin: 6mm 0 2mm; }
+.h3 { font-size: 11pt; font-weight: 700; margin: 5mm 0 2mm; }
+
+.tasklabel { font-size: 8.5pt; color: var(--muted); margin-bottom: 1.5mm; }
+.tasklabel__n {
+  display: inline-block;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 1.2mm;
+  padding: 0.3mm 2mm;
+  margin-right: 2.5mm;
+}
+
+/* ── Boxes and lists ── */
+.box { border: 0.8pt solid var(--rule); background: var(--tint); border-radius: 2mm; padding: 4mm 5mm 2mm; margin: 4mm 0; }
+.boxtitle { font-size: 11pt; font-weight: 700; margin: 0 0 2mm; }
+.plainlist { margin: 0 0 2.4mm; padding-left: 5.5mm; }
+.plainlist li { margin-bottom: 1.4mm; padding-left: 1mm; }
+.bullets { margin: 0 0 2.4mm; padding-left: 5.5mm; }
+.bullets li { margin-bottom: 1mm; }
+.steps { margin: 0 0 3mm; padding-left: 5.5mm; }
+.steps li { margin-bottom: 2mm; padding-left: 1mm; }
+.checklist { list-style: none; margin: 0 0 3mm; padding: 0; }
+.checklist li { position: relative; padding-left: 7mm; margin-bottom: 2mm; }
+.checklist li::before { content: ''; position: absolute; left: 0; top: 0.8mm; width: 3.4mm; height: 3.4mm; border: 0.9pt solid var(--ink); border-radius: 0.6mm; }
+
+.contents { border-collapse: collapse; width: 100%; }
+.contents td { padding: 1.4mm 0; border-bottom: 0.5pt solid var(--rule-faint); vertical-align: top; }
+.contents td:first-child { width: 22mm; font-weight: 700; }
+
+/* ── Tables ── */
+.grid { width: 100%; border-collapse: collapse; margin: 1mm 0 2.5mm; font-size: 9.5pt; line-height: 1.4; }
+.grid th { text-align: left; font-weight: 700; border-bottom: 1pt solid var(--ink); padding: 1.6mm 3mm 1.6mm 0; vertical-align: bottom; }
+.grid td { border-bottom: 0.5pt solid var(--rule); padding: 1.5mm 3mm 1.5mm 0; vertical-align: top; }
+.grid tr:last-child td { border-bottom: 1pt solid var(--ink); }
+.shapes td { vertical-align: middle; }
+.shapes__draw { width: 50mm; }
+.shapes__draw svg { width: 46mm; height: auto; display: block; }
+.naming td:first-child { width: 24mm; }
+.naming td:nth-child(3), .naming td:nth-child(4) { width: 44mm; font-size: 8.5pt; }
+.qa { border-collapse: collapse; width: 100%; margin: 0 0 3mm; }
+.qa td { padding: 1.2mm 0; border-bottom: 0.5pt solid var(--rule); }
+.qa td:last-child { text-align: right; width: 22mm; }
+.rels td:first-child { width: 40mm; font-size: 8pt; }
+.rels td:nth-child(2) { font-size: 8.8pt; }
+.rels__q { display: flex; justify-content: space-between; gap: 3mm; margin: 0 0 0.8mm; }
+.rels__q b { white-space: nowrap; }
+.rels__ratio { font-size: 13pt; font-weight: 700; width: 30mm; }
+.rels__numbers { display: block; font-size: 7.5pt; font-weight: 400; line-height: 1.35; color: var(--muted); margin-top: 0.5mm; }
+.note { font-size: 9pt; line-height: 1.45; color: var(--ink-soft); }
+
+/* ── Tasks ── */
+.scenario { border-left: 1.4mm solid var(--rule); padding: 0.5mm 0 0.5mm 4.5mm; }
+.scenario p { margin-bottom: 2.2mm; }
+.questions li { margin-bottom: 1.2mm; }
+.hint { font-size: 9.5pt; color: var(--ink-soft); font-style: italic; }
+.hint b { font-style: normal; }
+
+/* Ruled working space for the written answers. */
+.working {
+  break-inside: avoid;
+  margin-top: 4mm;
+  border-top: 0.8pt solid var(--ink);
+  /* One 8mm tile with a line along its bottom edge, repeated down the box. */
+  background-image: linear-gradient(to bottom, transparent 7.7mm, var(--rule) 7.7mm);
+  background-size: 100% 8mm;
+  background-position: 0 6mm;
+  background-repeat: repeat-y;
+}
+.working { height: 60mm; }
+.working__label { font-size: 8.5pt; color: var(--muted); padding-top: 1mm; margin: 0; }
+
+/* A landscape page with a dotted box to draw in. */
+.drawpage { page: wide; }
+.drawbox {
+  height: 150mm;
+  border: 0.8pt solid var(--ink);
+  border-radius: 2mm;
+  background-image: radial-gradient(circle, #c7c3bf 0.5pt, transparent 0.7pt);
+  background-size: 6mm 6mm;
+  background-position: 3mm 3mm;
+}
+
+/* A landscape page for a wide answer diagram. */
+.widepage { page: wide; }
+.widepage > .h2 { margin-top: 2mm; }
+.widepage .figure svg { max-height: 122mm; }
+.widepage .h3 { margin-top: 3mm; }
+.bullets--two { columns: 2; column-gap: 10mm; font-size: 9.5pt; }
+.figure--narrow svg { max-width: 210mm; margin: 4mm auto 0; }
+
+.figure { margin: 1mm 0 0; }
+.figure svg { width: 100%; height: auto; display: block; }
+.figure figcaption { font-size: 8.5pt; color: var(--muted); margin-top: 2mm; text-align: center; }
+
+.endnote { margin-top: 5mm; font-weight: 700; }
+
+/* ── Chen's notation (ChenDiagram.tsx), in black and white ── */
+.erd { display: block; }
+.erd-line { stroke: #8a8580; stroke-width: 1.4; }
+.erd-line--rel { stroke: #1c1917; stroke-width: 1.6; }
+.erd-ent { fill: #fff; stroke: #1c1917; stroke-width: 2; }
+.erd-ent__t { font-family: 'DM Sans', Arial, sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.02em; fill: #1c1917; }
+.erd-rel { fill: #efedeb; stroke: #1c1917; stroke-width: 1.8; }
+.erd-rel__t { font-family: 'DM Sans', Arial, sans-serif; font-weight: 700; font-size: 12.5px; letter-spacing: 0.02em; fill: #1c1917; }
+.erd-attr { fill: #fff; stroke: #57534e; stroke-width: 1.3; }
+.erd-attr--key { stroke: #1c1917; stroke-width: 1.8; }
+.erd-attr__t { font-family: 'DM Sans', Arial, sans-serif; font-size: 13px; fill: #292524; }
+.erd-attr__t--key { font-weight: 700; fill: #1c1917; }
+.erd-card { font-family: 'DM Sans', Arial, sans-serif; font-weight: 700; font-size: 17px; fill: #1c1917; paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round; }

@@ -1,168 +1,97 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Download } from 'lucide-react';
 import { Quiz, Recap, Reveal, SectionHead, type QuizQuestion } from '../blend';
 import ERTask from './er/ERTask';
 import { ShapeSample } from './er/ChenDiagram';
 import { TASKS } from './er/firstTasks';
+import { CARDINALITY, MISTAKES, NAMING, PDF_ANSWERS, PDF_DIR, PDF_TUTORIAL, SHAPES, STEPS } from './er/tutorial';
 
-// ─── MBI802 · Your first ER diagrams ───────────────────────────────────────
+// ─── MBI802 · ER diagram tutorial ──────────────────────────────────────────
 // A public, ungated Blend page (src/components/blend/README.md) on MBI802's
-// warm orange. Practice for the ER diagram foundations lesson (/er-diagrams),
-// written for students drawing an ER diagram for the very first time.
+// warm orange. Practice for the ER diagrams lesson (/er-diagrams), for
+// students drawing an ER diagram for the first time.
 //
 // It only uses what that lesson teaches: Chen's notation, the four shapes
-// (entity, attribute, key attribute, relationship) and 1:1, 1:N and M:N.
-// The one idea it adds is an attribute on a relationship, introduced
-// gently in Task 2, because /er-activities expects it straight away.
+// (entity, attribute, key attribute, relationship) and 1:1, 1:N and M:N,
+// plus attributes on a relationship, introduced in Task 2.
 //
-// The tone is deliberate. Short sentences, one idea each, and a lot of
-// "this is normal". First-timers usually know more than they think; what
-// they lack is a routine, so the page gives them one (five steps and two
-// questions) and then has them run it five times, two simple stories and
-// three moderate ones. The answers open a part at a time, see ERTask.tsx.
+// The same content is available as two printable PDFs, the tutorial and the
+// answers, built from the same data by scripts/er-tutorial-pdf.
 
-const SHAPES: { kind: 'entity' | 'attr' | 'key' | 'rel'; label: string; name: string; what: string; clue: string }[] = [
-  {
-    kind: 'entity',
-    label: 'CUSTOMER',
-    name: 'Entity · rectangle',
-    what: 'A thing the business keeps data about. It becomes a table later.',
-    clue: 'A noun. You could have many of them.',
-  },
-  {
-    kind: 'attr',
-    label: 'FirstName',
-    name: 'Attribute · ellipse',
-    what: 'One fact about an entity. It becomes a column later.',
-    clue: '“Each customer has a…”',
-  },
-  {
-    kind: 'key',
-    label: 'CustomerID',
-    name: 'Key attribute · underlined',
-    what: 'The fact that’s different for every single one. It becomes the primary key.',
-    clue: 'Often an ID, a number or a code.',
-  },
-  {
-    kind: 'rel',
-    label: 'OWNS',
-    name: 'Relationship · diamond',
-    what: 'How two entities are linked.',
-    clue: 'A verb: owns, joins, treats, teaches.',
-  },
-];
-
-const NAMING: [string, string, string, string][] = [
-  ['Entity', 'One thing, so singular. All capitals. Join two words with _.', 'CUSTOMER, ID_CARD', 'Customers, customer'],
-  ['Relationship', 'A verb. All capitals. Join two words with _.', 'OWNS, WORKS_IN', 'Ownership, works in'],
-  ['Attribute', 'Starts with a capital. No spaces. Each new word starts with a capital.', 'FirstName, DateOfBirth', 'first name, DOB, fname'],
-  ['Key attribute', 'Same as an attribute, and underlined. Usually ends in ID, Number or Code.', 'CustomerID', 'id, Cust_No'],
-];
-
-const STEPS: [string, string][] = [
-  ['Read the story twice.', 'The first time, just read it. The second time, have a pencil in your hand.'],
-  ['Circle the nouns.', 'These are your entities. Leave out the business itself. The bank or the hospital is the whole system, not one box in it.'],
-  ['List the facts for each entity.', 'These are its attributes. Then pick the key: the one fact no two of them can share.'],
-  ['Underline the verbs that link two entities.', 'Each one is a relationship. Write it as ENTITY VERB ENTITY, like CUSTOMER OWNS ACCOUNT.'],
-  ['Ask the two questions, then draw.', 'The two questions give you the numbers. Then draw rectangles first, diamonds between them, and ellipses last.'],
-];
-
-const MISTAKES: { title: string; fix: string }[] = [
-  {
-    title: 'A box for the business itself',
-    fix: 'BANK or HOSPITAL in a rectangle. The business is the whole diagram, so it doesn’t need its own box.',
-  },
-  {
-    title: 'Plural entity names',
-    fix: 'CUSTOMERS. Name it for one of them: CUSTOMER. The table will hold many, but each one is a customer.',
-  },
-  {
-    title: 'An entity with no key',
-    fix: 'Every entity needs one underlined key. If nothing in the story is unique, add an ID. That’s allowed.',
-  },
-  {
-    title: 'A link fact on an entity',
-    fix: 'Grade on STUDENT. Ask “whose fact is this?” If it needs both sides to make sense, it goes on the diamond.',
-  },
-  {
-    title: 'Guessing the cardinality',
-    fix: 'Banks have joint accounts, so it must be M:N? Not in Task 1. Go by what the story says, every time.',
-  },
-  {
-    title: 'A noun in a diamond',
-    fix: 'OWNERSHIP or ENROLMENT. A relationship is something one entity does to another, so use a verb: OWNS, TAKES.',
-  },
-];
+const BASE = import.meta.env.BASE_URL;
+const TUTORIAL_PDF_URL = `${BASE}${PDF_DIR}/${PDF_TUTORIAL}`;
+const ANSWERS_PDF_URL = `${BASE}${PDF_DIR}/${PDF_ANSWERS}`;
 
 const QUIZ: QuizQuestion[] = [
   {
-    q: 'Which name follows the rules for an entity?',
+    q: 'Which name follows the naming rules for an entity?',
     answer: 2,
     options: [
-      { text: 'Customers', why: 'Close, but it’s plural and not in capitals. Name the entity for one of them.' },
-      { text: 'customer', why: 'Singular is right. Entities are written in capitals, though.' },
-      { text: 'CUSTOMER', why: 'Yes. One thing, so singular, and in capitals.' },
-      { text: 'CUSTOMER_TABLE', why: 'Leave “table” out. It’s an entity on a diagram. It only becomes a table later.' },
+      { text: 'Customers', why: 'This is plural and not in capitals. An entity name describes one instance.' },
+      { text: 'customer', why: 'Singular is correct, but entity names are written in capitals.' },
+      { text: 'CUSTOMER', why: 'Correct. A singular noun in capitals.' },
+      { text: 'CUSTOMER_TABLE', why: 'Leave out “table”. It is an entity on the diagram and only becomes a table later.' },
     ],
   },
   {
-    q: 'Which of these would you draw in a diamond?',
+    q: 'Which of these is drawn as a diamond?',
     answer: 1,
     options: [
-      { text: 'BRANCH', why: 'BRANCH is a noun, a thing the bank keeps data about. That’s a rectangle.' },
-      { text: 'WORKS_AT', why: 'Yes. It’s a verb that links EMPLOYEE and BRANCH, so it’s a relationship.' },
-      { text: 'BranchCode', why: 'That’s a fact about a branch, so it’s an attribute. It’s the key, so it’s underlined.' },
-      { text: 'City', why: 'City is a fact about a branch. That makes it an attribute, in an ellipse.' },
+      { text: 'BRANCH', why: 'BRANCH is a noun that the bank stores data about, so it is an entity (rectangle).' },
+      { text: 'WORKS_AT', why: 'Correct. It is a verb that connects EMPLOYEE and BRANCH, so it is a relationship.' },
+      { text: 'BranchCode', why: 'This is a fact about a branch, so it is an attribute. It is the key, so it is underlined.' },
+      { text: 'City', why: 'City is a fact about a branch, so it is an attribute (ellipse).' },
     ],
   },
   {
     q: 'One nurse works in one ward. One ward has many nurses. Where does the N go?',
     answer: 0,
     options: [
-      { text: 'Beside NURSE', why: 'Yes. There are many nurses for each ward, so the N goes next to NURSE. The 1 goes next to WARD.' },
-      { text: 'Beside WARD', why: 'Each nurse works in only one ward, so WARD gets the 1. The N goes beside NURSE, because there are many nurses.' },
-      { text: 'Inside the diamond', why: 'The diamond holds the verb, WORKS_IN. The numbers go on the lines, next to the entities.' },
-      { text: 'On both sides', why: 'That would mean many-to-many. Each nurse works in just one ward, so one side is a 1.' },
+      { text: 'Next to NURSE', why: 'Correct. There are many nurses for each ward, so N goes next to NURSE and 1 goes next to WARD.' },
+      { text: 'Next to WARD', why: 'Each nurse works in only one ward, so WARD gets the 1. N goes next to NURSE.' },
+      { text: 'Inside the diamond', why: 'The diamond holds the relationship name, WORKS_IN. The numbers go on the lines, next to the entities.' },
+      { text: 'On both sides', why: 'That would mean many-to-many. Each nurse works in only one ward, so one side is 1.' },
     ],
   },
   {
-    q: 'Each student gets a grade for each course they take. Where does Grade go?',
+    q: 'Each student gets a grade for each course they take. Where does Grade belong?',
     answer: 2,
     options: [
-      { text: 'On STUDENT', why: 'A student in four courses has four grades. So a grade isn’t a fact about the student alone.' },
-      { text: 'On COURSE', why: 'A course gives out a different grade to every student. So it isn’t about the course alone.' },
-      { text: 'On the TAKES diamond', why: 'Yes. A grade only makes sense for one student in one course, so it belongs to the link.' },
-      { text: 'In its own rectangle', why: 'A grade has no facts of its own to keep. It’s one fact, so it’s an attribute.' },
+      { text: 'On STUDENT', why: 'A student in four courses has four grades, so a grade does not describe the student alone.' },
+      { text: 'On COURSE', why: 'A course gives a different grade to each student, so a grade does not describe the course alone.' },
+      { text: 'On the TAKES relationship', why: 'Correct. A grade describes one student in one course, so it belongs to the relationship.' },
+      { text: 'As a separate entity', why: 'A grade is a single fact, not something with its own attributes, so it is an attribute.' },
     ],
   },
   {
     q: 'Which attribute is the best key for CUSTOMER?',
     answer: 2,
     options: [
-      { text: 'LastName', why: 'Lots of people share a last name. A key must be different for every customer.' },
-      { text: 'PhoneNumber', why: 'People change numbers, and families can share one. A key should never repeat and never change.' },
-      { text: 'CustomerID', why: 'Yes. The bank gives every customer their own ID, and it never changes.' },
-      { text: 'FirstName', why: 'There are a lot of Sams and Priyas. A name can’t tell two customers apart.' },
+      { text: 'LastName', why: 'Many people share a last name. A key must be different for every customer.' },
+      { text: 'PhoneNumber', why: 'People change numbers, and family members can share one. A key should not repeat or change.' },
+      { text: 'CustomerID', why: 'Correct. Each customer has their own ID, and it does not change.' },
+      { text: 'FirstName', why: 'Many customers can have the same first name, so it cannot identify one customer.' },
     ],
   },
   {
-    q: 'In Task 1, each account had one owner. In Task 4, an account can have many owners. What changed?',
+    q: 'In Task 1 each account had one owner. In Task 4 an account can have many owners. What changed?',
     answer: 1,
     options: [
-      { text: 'The entities', why: 'Still CUSTOMER and ACCOUNT. A joint account is still an ACCOUNT.' },
-      { text: 'The cardinality of OWNS', why: 'Yes. It went from 1:N to M:N, because the rule in the story changed.' },
-      { text: 'The key of ACCOUNT', why: 'AccountNumber is still the key. Every account still has its own number.' },
-      { text: 'Nothing', why: 'Something did change. One account can now have many customers, and that changes the numbers on the line.' },
+      { text: 'The entities', why: 'The entities are still CUSTOMER and ACCOUNT. A joint account is still an ACCOUNT.' },
+      { text: 'The cardinality of OWNS', why: 'Correct. It changed from 1:N to M:N because the rule in the scenario changed.' },
+      { text: 'The key of ACCOUNT', why: 'AccountNumber is still the key. Each account still has its own number.' },
+      { text: 'Nothing', why: 'One account can now have many customers, which changes the cardinality.' },
     ],
   },
   {
-    q: 'Which attribute name is written the right way?',
+    q: 'Which attribute name follows the naming rules?',
     answer: 2,
     options: [
-      { text: 'date of birth', why: 'No spaces in an attribute name. Spaces cause trouble when it becomes a column.' },
-      { text: 'DOB', why: 'Short forms are hard to read, and people guess them differently. Write the words out.' },
-      { text: 'DateOfBirth', why: 'Yes. A capital at the start of each word, and no spaces.' },
-      { text: 'DATE_OF_BIRTH', why: 'Capitals with _ are for entities and relationships. Attributes start with a capital, then each new word does too.' },
+      { text: 'date of birth', why: 'Attribute names do not have spaces.' },
+      { text: 'DOB', why: 'Avoid short forms. Write the full words so everyone reads it the same way.' },
+      { text: 'DateOfBirth', why: 'Correct. No spaces, and each word starts with a capital letter.' },
+      { text: 'DATE_OF_BIRTH', why: 'Capitals with _ are used for entities and relationships, not attributes.' },
     ],
   },
 ];
@@ -176,44 +105,61 @@ function FlipCard({ n, title, fix }: { n: number; title: string; fix: string }) 
       aria-pressed={on}
       onClick={() => setOn(o => !o)}
     >
-      <span className="bt-flip__kicker">{on ? 'The fix' : `Mistake ${n}`}</span>
+      <span className="bt-flip__kicker">{on ? 'How to fix it' : `Mistake ${n}`}</span>
       <span className="bt-flip__body">{on ? fix : title}</span>
-      {!on && <span className="erf-flip__hint">Tap to see the fix</span>}
+      {!on && <span className="erf-flip__hint">Select to see the fix</span>}
     </button>
+  );
+}
+
+/** The two PDF downloads: in the hero, and again at the top of the lesson. */
+export function PdfDownloads({ small = false, tertiary = false }: { small?: boolean; tertiary?: boolean }) {
+  const size = small ? ' bt-btn--sm' : '';
+  const icon = small ? 12 : 14;
+  return (
+    <div className="erf-pdfs">
+      <a className={`bt-btn${tertiary ? ' bt-btn--tertiary' : ''}${size}`} href={TUTORIAL_PDF_URL} download={PDF_TUTORIAL}>
+        Download tutorial (PDF)
+        <span className="bt-btn__badge" aria-hidden="true"><Download size={icon} /></span>
+      </a>
+      <a className={`bt-btn bt-btn--tertiary${size}`} href={ANSWERS_PDF_URL} download={PDF_ANSWERS}>
+        Download answers (PDF)
+        <span className="bt-btn__badge" aria-hidden="true"><Download size={icon} /></span>
+      </a>
+    </div>
   );
 }
 
 export default function FirstERDiagramsLesson() {
   return (
     <div>
-      {/* ══ Before you start ═════════════════════════════════════════════ */}
+      {/* ══ Introduction ══════════════════════════════════════════════════ */}
       <section id="start" className="bt-sec">
         <Reveal>
           <section className="bt-lessonhead" aria-labelledby="lessonhead-title">
             <div>
-              <p className="bt-eyebrow">Practice · ER diagram foundations</p>
-              <h2 id="lessonhead-title">Your first ER diagrams</h2>
+              <p className="bt-eyebrow">Tutorial · ER diagrams</p>
+              <h2 id="lessonhead-title">ER diagram tutorial</h2>
               <p className="bt-lessonhead__lead">
-                An ER diagram is a drawing of the data a business needs to keep. You don’t need any software. A
-                pencil is fine. This page gives you five short stories to practise on. Two easy ones first, then
-                three a bit bigger.
+                An ER diagram shows the data an organisation needs to store and how it is connected. This tutorial
+                has five tasks: two simple ones and three moderate ones. For each task, read the scenario, answer
+                the questions and draw the diagram on paper. Then check your work against the answer.
               </p>
               <p className="bt-lessonmeta">
                 <span>Time <b>about 90 minutes</b></span>
-                <span>Assumes <b>the ER diagrams lesson</b></span>
+                <span>Before this <b>the ER diagrams lesson</b></span>
                 <span>You need <b>paper and a pencil</b></span>
               </p>
             </div>
             <div>
-              <p className="bt-eyebrow bt-eyebrow--quiet">By the end of this page you can</p>
+              <p className="bt-eyebrow bt-eyebrow--quiet">After this tutorial you should be able to</p>
               <ul className="bt-objectives">
                 {[
-                  'Pick out the entities in a short story',
-                  'List each entity’s attributes and choose its key',
-                  'Find the relationships and give each one a cardinality',
-                  'Draw a full ER diagram in Chen’s notation',
-                  'Name everything the same way, every time',
-                  'Check your own drawing against a worked answer',
+                  'Identify the entities in a scenario',
+                  'List the attributes of each entity and choose the key',
+                  'Identify the relationships and their cardinality',
+                  'Draw an ER diagram using Chen’s notation',
+                  'Use the correct naming conventions',
                 ].map(o => (
                   <li key={o}>
                     <span className="bt-objectives__ring" aria-hidden="true" />
@@ -226,13 +172,24 @@ export default function FirstERDiagramsLesson() {
         </Reveal>
 
         <Reveal delay={0.05}>
+          <div className="erf-printable">
+            <div>
+              <p className="bt-eyebrow">Printable version</p>
+              <p>
+                The same five tasks as a PDF you can print and write on. The answers are in a separate PDF, so you
+                can try the tasks first.
+              </p>
+            </div>
+            <PdfDownloads small />
+          </div>
+        </Reveal>
+
+        <Reveal delay={0.05}>
           <div className="erf-calm">
-            <p className="bt-eyebrow">First, a word from me</p>
+            <p className="bt-eyebrow">Before you start</p>
             <p>
-              Almost nobody gets their first ER diagram right. That’s fine. It isn’t a test. You’ll rub things
-              out, move boxes around and change your mind. That is what drawing one looks like, even for people
-              who have done it for years. Go slowly, check one part at a time, and you’ll be surprised how
-              quickly it clicks.
+              Most people find their first ER diagram difficult, so don’t worry if yours takes a few attempts. You
+              will probably move things around and redraw parts of it. Work slowly and check one part at a time.
             </p>
           </div>
         </Reveal>
@@ -242,9 +199,9 @@ export default function FirstERDiagramsLesson() {
       <section id="shapes" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="Before you start · The shapes"
-            title="Four shapes. That’s all."
-            aside="Chen’s notation gives each shape one job. Learn these four and you can read every diagram on this page."
+            eyebrow="Part 1"
+            title="Chen’s notation"
+            aside="These four shapes are all you need for this tutorial. Each shape has one purpose."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -252,28 +209,28 @@ export default function FirstERDiagramsLesson() {
             {SHAPES.map(s => (
               <div key={s.name} className="erf-shape">
                 <ShapeSample kind={s.kind} label={s.label} />
-                <h3>{s.name}</h3>
+                <h3>{s.name} · {s.shape.toLowerCase()}</h3>
                 <p>{s.what}</p>
-                <p className="erf-shape__clue"><span>Clue in the story</span>{s.clue}</p>
+                <p className="erf-shape__clue"><span>In the scenario</span>{s.clue}</p>
               </div>
             ))}
           </div>
           <p className="bt-note">
-            Lines join everything. An attribute is joined to the entity it describes. A relationship is joined to the
-            two entities it links. Nothing floats on its own.
+            Lines connect the shapes. Each attribute is connected to its entity, and each relationship is connected to
+            the two entities it links.
           </p>
         </Reveal>
 
         <Reveal delay={0.05}>
-          <h3 className="bt-subhead">Name things the same way every time</h3>
+          <h3 className="bt-subhead">Naming conventions</h3>
           <p className="bt-prose">
-            Later in the course, each entity becomes a table and each attribute becomes a column. Clean names now
-            mean clean tables later. These are the rules we use on every diagram in MBI802.
+            Later in the course, each entity becomes a table and each attribute becomes a column. Using the same
+            naming rules now makes that step easier. We use these rules for every diagram in MBI802.
           </p>
           <div className="bt-scroll">
             <table className="bt-plaintable erf-naming">
               <thead>
-                <tr><th>Shape</th><th>The rule</th><th>Like this</th><th>Not like this</th></tr>
+                <tr><th>Shape</th><th>Rule</th><th>Correct</th><th>Incorrect</th></tr>
               </thead>
               <tbody>
                 {NAMING.map(([shape, rule, good, bad]) => (
@@ -290,13 +247,13 @@ export default function FirstERDiagramsLesson() {
         </Reveal>
       </section>
 
-      {/* ══ The routine ══════════════════════════════════════════════════ */}
+      {/* ══ Steps ════════════════════════════════════════════════════════ */}
       <section id="method" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="Before you start · The routine"
-            title="Five steps, every time"
-            aside="You don’t need to be clever to draw an ER diagram. You need a routine. Use this one on every task below."
+            eyebrow="Part 2"
+            title="How to draw an ER diagram"
+            aside="Follow these steps for each task."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -314,29 +271,26 @@ export default function FirstERDiagramsLesson() {
             </ol>
 
             <div className="erf-twoqbox">
-              <p className="bt-eyebrow">The two questions</p>
-              <h3>How many on each side?</h3>
-              <p>For every diamond, ask one question from each side.</p>
+              <p className="bt-eyebrow">Step 5 in detail</p>
+              <h3>Finding the cardinality</h3>
+              <p>{CARDINALITY.intro}</p>
               <dl className="erf-twoq">
-                <div>
-                  <dt>One CUSTOMER can own how many ACCOUNTs?</dt>
-                  <dd>Many.</dd>
-                </div>
-                <div>
-                  <dt>One ACCOUNT is owned by how many CUSTOMERs?</dt>
-                  <dd>One.</dd>
-                </div>
+                {CARDINALITY.example.map(([q, a]) => (
+                  <div key={q}>
+                    <dt>{q}</dt>
+                    <dd>{a}</dd>
+                  </div>
+                ))}
               </dl>
               <table className="erf-ratios">
                 <tbody>
-                  <tr><td>Both answers are “one”</td><td className="bt-tnum">1:1</td></tr>
-                  <tr><td>One “one” and one “many”</td><td className="bt-tnum">1:N</td></tr>
-                  <tr><td>Both answers are “many”</td><td className="bt-tnum">M:N</td></tr>
+                  {CARDINALITY.rules.map(([when, ratio]) => (
+                    <tr key={ratio}><td>{when}</td><td className="bt-tnum">{ratio}</td></tr>
+                  ))}
                 </tbody>
               </table>
               <p className="erf-twoqbox__where">
-                <b>Where do the numbers go?</b> Next to the entity they count. A customer has many accounts, so the N
-                goes beside ACCOUNT. An account has one customer, so the 1 goes beside CUSTOMER.
+                <b>Where the numbers go.</b> {CARDINALITY.where}
               </p>
             </div>
           </div>
@@ -363,9 +317,9 @@ export default function FirstERDiagramsLesson() {
       <section id="mistakes" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="Worth knowing"
-            title="Six mistakes everyone makes once"
-            aside="I see these every trimester. Making one doesn’t mean you’re bad at this. It means you’re learning it. Tap each card to see the fix."
+            eyebrow="Part 3"
+            title="Common mistakes"
+            aside="These come up often in first ER diagrams. Select a card to see how to fix it."
           />
         </Reveal>
         <Reveal delay={0.05}>
@@ -379,28 +333,27 @@ export default function FirstERDiagramsLesson() {
       <section id="check" className="bt-sec">
         <Reveal>
           <SectionHead
-            eyebrow="Quick check"
-            title="Seven quick questions"
-            stop="."
-            aside="Nothing is saved or marked. If you pick a wrong answer, read why. That’s where the learning is."
+            eyebrow="Part 4"
+            title="Check your understanding"
+            aside="Seven questions. Nothing is saved or marked. Read the explanation after each answer."
           />
         </Reveal>
         <Reveal delay={0.05}>
-          <Quiz questions={QUIZ} closing="All done. Go back to any task that still feels shaky and try it again." />
+          <Quiz questions={QUIZ} closing="Finished. If a question was unclear, go back to that part of the tutorial." />
         </Reveal>
       </section>
 
-      {/* ══ Recap ═════════════════════════════════════════════════════════ */}
+      {/* ══ Summary ═══════════════════════════════════════════════════════ */}
       <div style={{ marginTop: 84 }}>
         <Recap
-          title="If you can say it, you can draw it."
+          title="Key points"
           points={[
-            ['Nouns become rectangles.', 'Singular and in capitals. The business itself never gets a box.'],
-            ['Facts become ellipses.', 'One fact each, joined to what it describes. The key is underlined.'],
-            ['Verbs become diamonds.', 'In capitals, joined to the two entities they link.'],
-            ['Ask two questions for every diamond.', 'One from each side. The number goes next to the entity it counts.'],
-            ['A fact about the link sits on the diamond.', 'If it needs both sides to make sense, it belongs to neither on its own.'],
-            ['Go by the story, not your guess.', 'The same two entities can be 1:N in one story and M:N in the next.'],
+            ['Entities are rectangles.', 'Use a singular noun in capitals. Do not draw the organisation itself.'],
+            ['Attributes are ellipses.', 'Each one is a single fact connected to its entity. The key is underlined.'],
+            ['Relationships are diamonds.', 'Use a verb in capitals and connect it to the two entities.'],
+            ['Ask two questions for each relationship.', 'One from each side. Write each number next to the entity it counts.'],
+            ['Some attributes belong to a relationship.', 'If a fact needs both entities to make sense, connect it to the diamond.'],
+            ['Use the rules in the scenario.', 'The same two entities can be 1:N in one scenario and M:N in another.'],
           ]}
         />
       </div>
@@ -409,20 +362,19 @@ export default function FirstERDiagramsLesson() {
       <section id="next" className="bt-sec">
         <Reveal>
           <div className="bt-signoff">
-            <p className="bt-eyebrow">Your lecturer</p>
-            <h2>You’ve drawn five<span className="bt-stop">.</span></h2>
+            <p className="bt-eyebrow">Next steps</p>
+            <h2>More practice<span className="bt-stop">.</span></h2>
             <p className="bt-signoff__body">
-              If your diagrams look a little different from mine, that’s normal. Ask one question: does mine say the
-              same thing? Same boxes, same keys, same diamonds, same numbers. Then you got it. Bring anything you’re
-              unsure about to class. That’s what class is for.
+              Your diagrams may be laid out differently from the answers. That is fine if they have the same entities,
+              keys, relationships and cardinalities. Bring any questions to class.
             </p>
             <div className="bt-hero__cta" style={{ marginTop: 22 }}>
               <Link to="/er-activities" className="bt-btn">
-                Next: five more, on your own
+                ER diagrams in practice
                 <span className="bt-btn__badge" aria-hidden="true">→</span>
               </Link>
               <Link to="/er-diagrams" className="bt-btn bt-btn--tertiary">
-                Go over the shapes again
+                Review the ER diagrams lesson
                 <span className="bt-btn__badge" aria-hidden="true">→</span>
               </Link>
             </div>

@@ -3815,6 +3815,21 @@ a.bt-btn { text-decoration: none; }
 
 /* ── Before you start ──────────────────────────────────────────────────── */
 .erf-hero { margin-top: 12px; }
+.erf-pdfs { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+.erf-printable {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 28px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--paper-50);
+  padding: 18px 22px;
+}
+.erf-printable > div:first-child { flex: 1 1 320px; }
+.erf-printable > div:first-child p:last-child { margin-top: 6px; font-size: 14px; line-height: 1.55; color: var(--ink-500); max-width: 60ch; }
 .erf-calm { margin-top: 30px; max-width: 70ch; }
 .erf-calm p:last-child { margin-top: 8px; font-size: 17px; line-height: 1.65; color: var(--ink-600); }
 
@@ -4077,7 +4092,6 @@ a.bt-btn { text-decoration: none; }
 .erf-check__k { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-400); }
 .erf-check ul { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .erf-check li { display: grid; grid-template-columns: 15px minmax(0, 1fr); gap: 10px; align-items: start; font-size: 14px; line-height: 1.5; color: var(--ink-600); }
-.erf-part .erf-cheer { margin-top: 18px; font-family: var(--font-display); font-weight: 800; font-size: 18px; letter-spacing: -0.02em; line-height: 1.35; color: var(--ink-900); max-width: 60ch; }
 
 .erf-answer__nav { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
 

@@ -276,9 +276,9 @@ const MBI802: Course = {
     },
     {
       id: 'er-first-steps',
-      title: 'Your first ER diagrams',
+      title: 'ER diagram tutorial',
       blurb:
-        "Never drawn one before? Start here. Five short stories from a bank, a university and a hospital, two simple and three a bit bigger. Find the entities, attributes and relationships, draw it in Chen's notation, then check your answer one part at a time.",
+        "Five practice tasks for students new to ER diagrams: two simple and three moderate, based on a bank, a university and a hospital. Identify the entities, attributes and relationships, draw the diagram in Chen's notation, then check the answers. Includes a printable tutorial and a separate answers PDF.",
       to: '/er-first-steps',
       access: 'open',
       kind: 'Practice',

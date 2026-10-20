@@ -141,7 +141,7 @@ const MBI800: Course = {
       id: 'local-beats-global',
       title: 'When the local beats the global',
       blurb:
-        'Walmart in Germany, Uber in Southeast Asia, eBay and Amazon in China, Starbucks in Australia. Why big brands lose to local ones, the six things that don’t travel, and how culture ends up inside the system.',
+        'A trip through nine markets, from Berlin to Auckland. At each stop a global giant met a local business: Walmart and Aldi, Uber and Grab, eBay and Taobao, McDonald’s and Jollibee, eBay and Trade Me. Why the local won, and how culture ends up inside the system.',
       to: '/local-beats-global',
       access: 'open',
       kind: 'Lesson',

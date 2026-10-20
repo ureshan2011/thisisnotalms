@@ -138,6 +138,15 @@ const MBI800: Course = {
       kind: 'Lesson',
     },
     {
+      id: 'local-beats-global',
+      title: 'When the local beats the global',
+      blurb:
+        'A trip through nine markets, from Berlin to Auckland. At each stop a global giant met a local business: Walmart and Aldi, Uber and Grab, eBay and Taobao, McDonald’s and Jollibee, eBay and Trade Me. Why the local won, and how culture ends up inside the system.',
+      to: '/local-beats-global',
+      access: 'open',
+      kind: 'Lesson',
+    },
+    {
       id: 'five-stories',
       title: 'Five stories that changed everything',
       blurb:

@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
-"""Build the MBI806B Assessment 1 peer review feedback form.
+"""Build the MBI806B Assessment 1 peer review form.
 
-Writes a one-page, fillable (AcroForm) A4 PDF to
+One form per student, covering the whole class: a two-page (one double-sided
+A4 sheet) fillable grid with a row per presenter and a 1-5 rating in each of
+four criteria columns. Writes to
 public/mbi806b/peer-review/MBI806B-Assessment-1-Peer-Review-Form.pdf, where the
 /mbi806b course page links to it for download.
 
-    pip install reportlab fonttools brotli   # once
+    pip install reportlab fonttools brotli pypdf   # once
     python3 scripts/peer-review-form/build.py
+    python3 scripts/peer-review-form/build.py --names roster.txt
+
+--names takes a text file with one presenter per line, in presenting order, and
+pre-fills the Name column. Without it the names are left blank, so students
+write or type them in (the class list is not kept in this repository).
 
 The form uses DM Sans, the body face of the course pages. The repo only carries
 it as a variable woff2 (scripts/er-tutorial-pdf/fonts), so the two static
@@ -14,16 +21,17 @@ weights the PDF needs are cut from that at build time rather than committing
 more font files.
 """
 
+import argparse
 import tempfile
 from pathlib import Path
 
 from fontTools.ttLib import TTFont
 from fontTools.varLib import instancer
+from pypdf import PdfReader, PdfWriter
+from pypdf.generic import DictionaryObject, NameObject, NumberObject, TextStringObject
 from reportlab.lib.colors import Color, HexColor, white
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.rl_accel import fp_str
 from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.acroform import AcroForm
 from reportlab.pdfbase.ttfonts import TTFont as RLFont
 from reportlab.pdfgen import canvas
 
@@ -33,78 +41,35 @@ OUT = ROOT / "public/mbi806b/peer-review/MBI806B-Assessment-1-Peer-Review-Form.p
 
 # MBI806B's teal and the warm ink neutrals from src/styles/blend.css.
 ACCENT = HexColor("#0f766e")
-ACCENT_DARK = HexColor("#084640")
 ACCENT_TINT = HexColor("#eaf7f4")
 INK = HexColor("#1a1615")
 MUTED = HexColor("#6b615d")
 RULE = HexColor("#c8c0bc")
+STRIPE = HexColor("#fdf4ee")
 FIELD_BG = Color(1, 1, 1)
 
 W, H = A4
 MARGIN = 40
 COL_W = W - 2 * MARGIN
 
-SCALE = [
-    (1, "Needs work"),
-    (2, "Developing"),
-    (3, "Good"),
-    (4, "Very good"),
-    (5, "Excellent"),
-]
+ROWS = 30
+ROWS_PER_PAGE = 15
+ROW_H = 30
 
-# Four criteria: delivery, time management, and the work itself (two angles).
+SCALE = "1 Needs work   ·   2 Developing   ·   3 Good   ·   4 Very good   ·   5 Excellent"
+
+# (field key, column heading lines, what to look for)
 CRITERIA = [
-    (
-        "delivery",
-        "Delivery",
-        "Voice, pace and clarity. Eye contact and body language. Spoke to the "
-        "audience rather than reading the slides.",
-    ),
-    (
-        "time",
-        "Time management",
-        "Kept to the allotted time. Gave each section the time it deserved, "
-        "and did not rush the conclusion.",
-    ),
-    (
-        "content",
-        "The work presented",
-        "Relevant to the brief, accurate and backed by evidence. Showed real "
-        "understanding of the data, tools and methods used.",
-    ),
-    (
-        "impact",
-        "Structure and impact",
-        "Logical flow from problem to findings to recommendation. Clear "
-        "slides and visuals. Left you with a clear takeaway.",
-    ),
+    ("delivery", ("Delivery",), "Voice, pace and eye contact. Spoke to the audience rather than reading the slides."),
+    ("time", ("Time", "management"), "Kept to the allotted time, balanced the sections and did not rush the end."),
+    ("content", ("The work", "presented"), "Relevant, accurate and backed by evidence. Real understanding of the data and methods."),
+    ("impact", ("Structure", "and impact"), "Clear flow from problem to recommendation, clear visuals, a clear takeaway."),
 ]
 
-
-def _circle_arc_stream(size, r, arcs=(0, 1, 2, 3), rotated=False):
-    """reportlab's own circleArcStream scales the radius by size/20 without a
-    matching transform, so any radio that is not 20pt draws as an off-centre
-    curl. The stream is already in the button's own size x size box, so no
-    scaling is needed."""
-    k = fp_str(0.55231 * r)
-    r, hs = fp_str(r), fp_str(size * 0.5)
-    mx = "0.7071 0.7071 -0.7071 0.7071" if rotated else "1 0 0 1"
-    segs = [
-        (0, f"{r} 0 m", f"{r} {k} {k} {r} 0 {r} c"),
-        (1, f"0 {r} m", f"-{k} {r} -{r} {k} -{r} 0 c"),
-        (2, f"-{r} 0 m", f"-{r} -{k} -{k} -{r} 0 -{r} c"),
-        (3, f"0 -{r} m", f"{k} -{r} {r} -{k} {r} 0 c"),
-    ]
-    out = [f"{mx} {hs} {hs} cm"]
-    for i, move, curve in segs:
-        if i in arcs:
-            if len(out) == 1:
-                out.append(move)
-            out.append(curve)
-    return "\n".join(out)
-
-
-AcroForm.circleArcStream = staticmethod(_circle_arc_stream)
+# Table geometry: row number, name, then one narrow rating column per criterion.
+NUM_W = 26
+RATE_W = 62
+NAME_W = COL_W - NUM_W - RATE_W * len(CRITERIA)
 
 
 def register_fonts(tmp: Path) -> None:
@@ -137,16 +102,13 @@ def wrap(c: canvas.Canvas, text: str, font: str, size: float, width: float) -> l
     return lines
 
 
-def label(c: canvas.Canvas, x: float, y: float, text: str) -> None:
-    c.setFillColor(MUTED)
-    c.setFont("DMSans-Bold", 7.5)
-    c.drawString(x, y, text.upper())
-
-
-def text_field(c, name, tooltip, x, y, w, h, multiline=False, size=9.5):
+def text_field(c, name, tooltip, x, y, w, h, value="", size=10, maxlen=100):
+    # Helvetica only: reportlab writes a second /Font key into the form's
+    # resources as soon as a second field font is used, and one of them is lost.
     c.acroForm.textfield(
         name=name,
         tooltip=tooltip,
+        value=value,
         x=x,
         y=y,
         width=w,
@@ -159,187 +121,234 @@ def text_field(c, name, tooltip, x, y, w, h, multiline=False, size=9.5):
         borderWidth=0.75,
         borderStyle="solid",
         forceBorder=True,
-        fieldFlags="multiline" if multiline else "",
+        maxlen=maxlen,
     )
 
 
-def header(c: canvas.Canvas) -> float:
-    top = H - MARGIN
+def top_bar(c: canvas.Canvas) -> None:
     c.setFillColor(ACCENT)
     c.rect(0, H - 10, W, 10, stroke=0, fill=1)
 
+
+def title_block(c: canvas.Canvas, page: int) -> float:
+    top = H - MARGIN
     c.setFillColor(ACCENT)
     c.setFont("DMSans-Bold", 8)
     c.drawString(MARGIN, top - 14, "MBI806B  ·  BUSINESS DATA ANALYTICS WITH AI AND ML")
 
+    size = 24 if page == 1 else 16
     c.setFillColor(INK)
-    c.setFont("DMSans-Bold", 24)
-    c.drawString(MARGIN, top - 42, "Peer review feedback")
-    stop_x = MARGIN + c.stringWidth("Peer review feedback", "DMSans-Bold", 24)
+    c.setFont("DMSans-Bold", size)
+    c.drawString(MARGIN, top - 14 - size - 4, "Peer review feedback")
+    stop_x = MARGIN + c.stringWidth("Peer review feedback", "DMSans-Bold", size)
     c.setFillColor(ACCENT)
-    c.drawString(stop_x, top - 42, ".")
+    c.drawString(stop_x, top - 14 - size - 4, ".")
 
+    sub = "Assessment 1 presentations  ·  one form for the whole class" if page == 1 else "Assessment 1 presentations  ·  page 2 of 2"
     c.setFillColor(MUTED)
     c.setFont("DMSans", 10)
-    c.drawString(MARGIN, top - 58, "Assessment 1 presentation")
+    c.drawString(MARGIN, top - 14 - size - 20, sub)
+    return top - 14 - size - 20
 
+
+def page_one_intro(c: canvas.Canvas, y: float) -> float:
     intro = (
-        "Watch the whole presentation, then rate each criterion from 1 (needs work) "
-        "to 5 (excellent) and add one specific comment. Say what you saw and heard, "
-        "not what you think of the person. Be kind, be specific, be useful."
+        "As each presentation finishes, find that presenter's row and write a rating from 1 to 5 "
+        "in each of the four columns. Rate what you saw and heard, not the person. "
+        "Leave your own row blank."
     )
     c.setFillColor(INK)
     c.setFont("DMSans", 9)
-    y = top - 76
+    y -= 18
     for line in wrap(c, intro, "DMSans", 9, COL_W):
         c.drawString(MARGIN, y, line)
         y -= 12
-    return y
 
-
-def details(c: canvas.Canvas, y: float) -> float:
+    # Reviewer + date.
+    y -= 8
     gap = 14
     half = (COL_W - gap) / 2
-    h = 20
-    rows = [
-        (("presenter", "Presenter name(s)"), ("topic", "Presentation title or topic")),
-        (("reviewer", "Your name (reviewer)"), ("date", "Date")),
-    ]
-    for left, right in rows:
-        for i, (key, text) in enumerate((left, right)):
-            x = MARGIN + i * (half + gap)
-            label(c, x, y, text)
-            text_field(c, key, text, x, y - 6 - h, half, h)
-        y -= 6 + h + 14
-    return y
-
-
-def criterion(c: canvas.Canvas, y: float, n: int, key: str, title: str, hint: str) -> float:
-    # Heading row: number chip, title, descriptor.
-    chip = 17
-    c.setFillColor(ACCENT)
-    c.roundRect(MARGIN, y - chip + 4, chip, chip, 5, stroke=0, fill=1)
-    c.setFillColor(white)
-    c.setFont("DMSans-Bold", 10)
-    c.drawCentredString(MARGIN + chip / 2, y - chip + 4 + 5, str(n))
-
-    tx = MARGIN + chip + 9
-    c.setFillColor(INK)
-    c.setFont("DMSans-Bold", 11.5)
-    c.drawString(tx, y - 8, title)
-
-    c.setFillColor(MUTED)
-    c.setFont("DMSans", 8.5)
-    yy = y - 20
-    for line in wrap(c, hint, "DMSans", 8.5, COL_W - (tx - MARGIN)):
-        c.drawString(tx, yy, line)
-        yy -= 10.5
-
-    # Rating row: five circles with their number beside them.
-    ry = yy - 12
-    rx = tx
-    c.setFillColor(MUTED)
-    c.setFont("DMSans-Bold", 7.5)
-    c.drawString(rx, ry + 2, "RATING")
-    rx += 46
-    size = 12
-    for value, name in SCALE:
-        c.acroForm.radio(
-            name=f"{key}_rating",
-            tooltip=f"{title}: {value} - {name}",
-            value=str(value),
-            selected=False,
-            x=rx,
-            y=ry - 1,
-            size=size,
-            buttonStyle="circle",
-            borderColor=ACCENT,
-            fillColor=FIELD_BG,
-            textColor=ACCENT_DARK,
-            borderWidth=1,
-            forceBorder=True,
-            # reportlab's default adds "required", which Acrobat outlines in red.
-            fieldFlags="noToggleToOff radio",
-        )
-        c.setFillColor(INK)
-        c.setFont("DMSans-Bold", 9.5)
-        c.drawString(rx + size + 4, ry + 1.5, str(value))
-        c.setFillColor(MUTED)
-        c.setFont("DMSans", 7.5)
-        c.drawString(rx + size + 14, ry + 1.8, name)
-        rx += size + 14 + c.stringWidth(name, "DMSans", 7.5) + 24
-
-    # Time used belongs to the time-management criterion only, so it sits on
-    # that criterion's heading row, clear of the rating labels.
-    if key == "time":
+    for i, (key, text) in enumerate((("reviewer", "Your name (reviewer)"), ("date", "Date"))):
+        x = MARGIN + i * (half + gap)
         c.setFillColor(MUTED)
         c.setFont("DMSans-Bold", 7.5)
-        c.drawRightString(W - MARGIN - 58, y - 7, "TIME USED (MM:SS)")
-        text_field(c, "time_used", "Time used (mm:ss)", W - MARGIN - 52, y - 13, 52, 17, size=9)
+        c.drawString(x, y, text.upper())
+        text_field(c, key, text, x, y - 6 - 20, half, 20)
+    y -= 6 + 20 + 16
 
-    # Comment box.
-    box_h = 38
-    by = ry - 10 - box_h
-    text_field(c, f"{key}_comment", f"{title}: your comment", tx, by, W - MARGIN - tx, box_h, multiline=True, size=9)
+    # Key: what each column asks.
+    gap = 8
+    box_w = (COL_W - gap * (len(CRITERIA) - 1)) / len(CRITERIA)
+    box_h = 62
+    for i, (_, heading, hint) in enumerate(CRITERIA):
+        x = MARGIN + i * (box_w + gap)
+        c.setFillColor(ACCENT_TINT)
+        c.roundRect(x, y - box_h, box_w, box_h, 6, stroke=0, fill=1)
+        c.setFillColor(ACCENT)
+        c.setFont("DMSans-Bold", 8.5)
+        c.drawString(x + 8, y - 14, " ".join(heading))
+        c.setFillColor(INK)
+        c.setFont("DMSans", 7.3)
+        ty = y - 26
+        for line in wrap(c, hint, "DMSans", 7.3, box_w - 16):
+            c.drawString(x + 8, ty, line)
+            ty -= 8.8
+    return y - box_h - 12
+
+
+def scale_line(c: canvas.Canvas, y: float) -> float:
+    c.setFillColor(INK)
+    c.setFont("DMSans-Bold", 8.5)
+    c.drawString(MARGIN, y, "RATING SCALE")
+    off = c.stringWidth("RATING SCALE", "DMSans-Bold", 8.5) + 12
+    c.setFont("DMSans", 8.5)
+    c.drawString(MARGIN + off, y, SCALE)
+    return y - 14
+
+
+def table_header(c: canvas.Canvas, y: float) -> float:
+    h = 28
+    c.setFillColor(ACCENT)
+    c.rect(MARGIN, y - h, COL_W, h, stroke=0, fill=1)
+    c.setFillColor(white)
+    c.setFont("DMSans-Bold", 8)
+    c.drawCentredString(MARGIN + NUM_W / 2, y - 17, "#")
+    c.drawString(MARGIN + NUM_W + 8, y - 17, "PRESENTER NAME")
+    x = MARGIN + NUM_W + NAME_W
+    for _, heading, _ in CRITERIA:
+        cx = x + RATE_W / 2
+        if len(heading) == 1:
+            c.drawCentredString(cx, y - 17, heading[0])
+        else:
+            c.drawCentredString(cx, y - 12, heading[0])
+            c.drawCentredString(cx, y - 22, heading[1])
+        x += RATE_W
+    return y - h
+
+
+def table_rows(c: canvas.Canvas, y: float, first: int, last: int, names: list[str]) -> float:
+    for n in range(first, last + 1):
+        top = y
+        bottom = y - ROW_H
+        if n % 2 == 0:
+            c.setFillColor(STRIPE)
+            c.rect(MARGIN, bottom, COL_W, ROW_H, stroke=0, fill=1)
+        c.setStrokeColor(RULE)
+        c.setLineWidth(0.5)
+        c.line(MARGIN, bottom, MARGIN + COL_W, bottom)
+
+        c.setFillColor(MUTED)
+        c.setFont("DMSans-Bold", 9)
+        c.drawCentredString(MARGIN + NUM_W / 2, bottom + ROW_H / 2 - 3, str(n))
+
+        name = names[n - 1] if n <= len(names) else ""
+        text_field(
+            c, f"n{n}_name", f"Presenter {n}: name",
+            MARGIN + NUM_W + 4, bottom + 5, NAME_W - 8, ROW_H - 10, value=name, size=10,
+        )
+        x = MARGIN + NUM_W + NAME_W
+        for key, heading, _ in CRITERIA:
+            box = 22
+            text_field(
+                c, f"n{n}_{key}", f"Presenter {n}: {' '.join(heading)} (1 to 5)",
+                x + (RATE_W - box) / 2, bottom + (ROW_H - box) / 2, box, box,
+                size=14, maxlen=1,
+            )
+            x += RATE_W
+        y = bottom
+    return y
+
+
+def footer(c: canvas.Canvas, page: int) -> None:
     c.setFillColor(MUTED)
     c.setFont("DMSans", 7.5)
-    c.drawString(tx, by - 9, "Comment: what worked, and what would make it better?")
-
-    # Hairline under the block.
-    sep = by - 17
-    c.setStrokeColor(RULE)
-    c.setLineWidth(0.5)
-    c.line(MARGIN, sep, W - MARGIN, sep)
-    return sep - 12
-
-
-def overall(c: canvas.Canvas, y: float) -> float:
-    gap = 14
-    half = (COL_W - gap) / 2
-    h = 52
-    items = [
-        ("best", "The best thing about this presentation"),
-        ("improve", "One thing to improve next time"),
-    ]
-    for i, (key, text) in enumerate(items):
-        x = MARGIN + i * (half + gap)
-        label(c, x, y, text)
-        text_field(c, key, text, x, y - 6 - h, half, h, multiline=True, size=9)
-    return y - 6 - h
-
-
-def footer(c: canvas.Canvas) -> None:
-    c.setFillColor(MUTED)
-    c.setFont("DMSans", 7.5)
-    c.drawString(
-        MARGIN,
-        24,
-        "Fill this in on screen, or print it and write by hand. Hand your completed form to your "
-        "lecturer or the presenter as instructed.",
+    note = (
+        "Fill in on screen or print double-sided and write by hand. Ratings only: 1 to 5, one number per box."
+        if page == 1
+        else "Leave your own row blank."
     )
+    c.drawString(MARGIN, 24, note)
+    c.drawRightString(W - MARGIN, 24, f"{page} / 2")
+
+
+def build_pdf(path: Path, names: list[str]) -> None:
+    c = canvas.Canvas(str(path), pagesize=A4, pageCompression=1)
+    c.setTitle("MBI806B Assessment 1 - Peer review form")
+    c.setAuthor("Yasas Sri Wickramasinghe")
+    c.setSubject("Class-wide peer review form for the MBI806B Assessment 1 presentations")
+
+    # Page 1: instructions, reviewer, key, presenters 1-15.
+    top_bar(c)
+    y = title_block(c, 1)
+    y = page_one_intro(c, y)
+    y = scale_line(c, y)
+    y = table_header(c, y - 4)
+    table_rows(c, y, 1, ROWS_PER_PAGE, names)
+    footer(c, 1)
+    c.showPage()
+
+    # Page 2: presenters 16-30, with the scale repeated so it never needs a flip back.
+    top_bar(c)
+    y = title_block(c, 2)
+    y = scale_line(c, y - 18)
+    y = table_header(c, y - 4)
+    table_rows(c, y, ROWS_PER_PAGE + 1, ROWS, names)
+    footer(c, 2)
+    c.showPage()
+    c.save()
+
+
+# Only ever a single digit from 1 to 5. Runs per keystroke, and again on commit
+# so a pasted value is checked too.
+RATING_JS = (
+    'if (event.willCommit) {'
+    ' if (event.value !== "" && !/^[1-5]$/.test(event.value)) {'
+    ' app.alert("Please enter a whole number from 1 to 5."); event.rc = false; }'
+    '} else if (event.change !== "" && !/^[1-5]$/.test(event.change)) { event.rc = false; }'
+)
+
+
+def finish_fields(src: Path, dst: Path) -> None:
+    """reportlab cannot centre a text field or attach a script to one, so the
+    rating boxes get both here: centred digit, and 1-5 only."""
+    writer = PdfWriter(clone_from=PdfReader(str(src)))
+    rating_keys = {key for key, _, _ in CRITERIA}
+    for page in writer.pages:
+        for ref in page.get("/Annots", []):
+            annot = ref.get_object()
+            name = str(annot.get("/T", ""))
+            if name.split("_", 1)[-1] in rating_keys:
+                annot[NameObject("/Q")] = NumberObject(1)
+                annot[NameObject("/AA")] = DictionaryObject(
+                    {
+                        NameObject("/K"): DictionaryObject(
+                            {
+                                NameObject("/S"): NameObject("/JavaScript"),
+                                NameObject("/JS"): TextStringObject(RATING_JS),
+                            }
+                        )
+                    }
+                )
+    writer.write(str(dst))
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    parser.add_argument("--names", type=Path, help="text file, one presenter per line, pre-fills the Name column")
+    args = parser.parse_args()
+
+    names = []
+    if args.names:
+        names = [ln.strip() for ln in args.names.read_text().splitlines() if ln.strip()]
+        if len(names) > ROWS:
+            raise SystemExit(f"{len(names)} names, but the form has {ROWS} rows")
+
     OUT.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         register_fonts(Path(tmp))
-        c = canvas.Canvas(str(OUT), pagesize=A4, pageCompression=1)
-        c.setTitle("MBI806B Assessment 1 - Peer review feedback form")
-        c.setAuthor("Yasas Sri Wickramasinghe")
-        c.setSubject("Peer review feedback form for the MBI806B Assessment 1 presentation")
-
-        y = header(c)
-        y = details(c, y - 8)
-        c.setStrokeColor(ACCENT)
-        c.setLineWidth(1.2)
-        c.line(MARGIN, y + 4, W - MARGIN, y + 4)
-        y -= 14
-        for n, (key, title, hint) in enumerate(CRITERIA, start=1):
-            y = criterion(c, y, n, key, title, hint)
-        overall(c, y)
-        footer(c)
-        c.showPage()
-        c.save()
+        raw = Path(tmp) / "raw.pdf"
+        build_pdf(raw, names)
+        finish_fields(raw, OUT)
     print(f"wrote {OUT.relative_to(ROOT)}")
 
 

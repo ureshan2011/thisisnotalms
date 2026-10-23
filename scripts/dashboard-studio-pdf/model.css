@@ -1,0 +1,118 @@
+/* ─── Model answer dashboards ────────────────────────────────────────────
+   Drawn to look like slides built in Google Slides: a white slide, Arial,
+   flat rectangles with a thin grey outline, and charts in Google's default
+   colours with plain gridlines. That is the point of a model answer: it is
+   what a team could build in the free tool the activity recommends.
+
+   Each dashboard is one PDF page at the size of the device in its brief:
+   a 4:3 tablet, 16:9 for the desktop, wall TV and projector, and a phone.
+   Pages are drawn at 1px = 1 CSS pixel of that screen. */
+
+:root {
+  --text: #202124;
+  --sub: #5f6368;
+  --line: #dadce0;
+  --fill: #f1f3f4;
+  --blue: #4285f4;
+  --red: #db4437;
+  --yellow: #f4b400;
+  --green: #0f9d58;
+}
+
+@page t1 { size: 1024px 768px; margin: 0; }
+@page t2 { size: 1280px 720px; margin: 0; }
+@page t3 { size: 1280px 720px; margin: 0; }
+@page t4 { size: 1280px 720px; margin: 0; }
+@page t5 { size: 390px 1800px; margin: 0; }
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { margin: 0; font-family: Arial, 'Liberation Sans', Helvetica, sans-serif; color: var(--text); background: #fff; }
+h1, h2, h3, p, ul, ol { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+svg { display: block; overflow: visible; }
+svg text { font-family: Arial, 'Liberation Sans', Helvetica, sans-serif; }
+
+.pg { position: relative; overflow: hidden; background: #fff; break-after: page; display: flex; flex-direction: column; }
+.pg:last-child { break-after: auto; }
+.pg--t1 { page: t1; width: 1024px; height: 768px; padding: 22px 24px 28px; gap: 10px; }
+.pg--t2 { page: t2; width: 1280px; height: 720px; padding: 20px 24px 26px; gap: 10px; }
+.pg--t3 { page: t3; width: 1280px; height: 720px; padding: 18px 24px 26px; gap: 10px; }
+.pg--t4 { page: t4; width: 1280px; height: 720px; padding: 20px 24px 26px; gap: 10px; }
+.pg--t5 { page: t5; width: 390px; padding: 16px 16px 22px; gap: 12px; }
+.pg--t5 > * { flex: none; }
+
+.title { font-size: 24px; line-height: 1.2; font-weight: 700; }
+.subtitle { font-size: 12px; color: var(--sub); margin-top: 3px; }
+.foot { position: absolute; left: 24px; bottom: 8px; font-size: 10px; color: #80868b; }
+.pg--t5 .foot { position: static; margin-top: 4px; }
+
+/* A rectangle with a thin outline, like a shape or a chart in Slides. */
+.box { border: 1px solid var(--line); padding: 8px 12px 6px; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.box h3 { font-size: 13px; line-height: 1.25; font-weight: 700; }
+.box .sub { font-size: 11px; color: var(--sub); margin-top: 1px; }
+.box__body { flex: 1; min-height: 0; display: flex; align-items: center; margin-top: 4px; }
+.box__body > svg { width: 100%; height: auto; }
+
+.row { display: grid; gap: 10px; min-height: 0; }
+
+/* Key number: grey rectangle, number, then what it is. */
+.kpi { background: var(--fill); padding: 10px 14px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.kpi__lbl { font-size: 12px; color: var(--sub); }
+.kpi__num { font-size: 34px; line-height: 1.1; font-weight: 700; margin: 2px 0; }
+.kpi__txt { font-size: 12px; line-height: 1.35; }
+.kpi--red { background: var(--red); color: #fff; }
+.kpi--red .kpi__lbl { color: #fff; }
+
+/* Plain tables, like a Slides table with a few filled cells. */
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; padding: 4px 8px; border: 1px solid var(--line); font-size: 12px; }
+th { font-weight: 700; background: var(--fill); }
+
+/* Team 2 heat table */
+.heat td, .heat th { text-align: center; }
+.heat td:first-child, .heat th:first-child { text-align: left; font-weight: 700; background: var(--fill); width: 92px; }
+.heat td { height: 32px; font-size: 14px; font-weight: 700; padding: 2px 6px; }
+.heat td small { display: block; font-size: 10px; font-weight: 400; margin-top: -1px; }
+.note { font-size: 11px; color: var(--sub); margin-top: 4px; }
+
+/* Team 3 wall screen */
+.pg--t3 .title { font-size: 28px; }
+.pg--t3 .box h3 { font-size: 17px; }
+.pg--t3 .box .sub { font-size: 13px; }
+.pg--t3 .kpi { padding: 8px 16px; }
+.pg--t3 .kpi__lbl { font-size: 15px; }
+.pg--t3 .kpi__num { font-size: 46px; }
+.pg--t3 .kpi__txt { font-size: 15px; }
+.wall th, .wall td { font-size: 20px; padding: 6px 12px; height: 58px; }
+.wall th { font-size: 15px; height: 34px; }
+.wall .st { font-weight: 700; text-align: center; color: #fff; width: 140px; font-size: 17px; }
+.wall .st--act { background: var(--red); }
+.wall .st--watch { background: var(--yellow); color: var(--text); }
+.wall .st--ok { background: var(--green); }
+.wall .pc { font-weight: 700; font-size: 26px; text-align: right; width: 120px; }
+
+/* Team 4 */
+.headline { background: var(--fill); padding: 16px 18px; display: flex; flex-direction: column; justify-content: center; }
+.headline__lbl { font-size: 13px; color: var(--sub); }
+.headline__num { font-size: 80px; line-height: 1.05; font-weight: 700; margin: 6px 0; }
+.headline__txt { font-size: 15px; line-height: 1.4; }
+.pg--t4 .box h3 { font-size: 15px; }
+.pg--t4 .box .sub { font-size: 12px; }
+
+/* Team 5 phone */
+.pg--t5 .title { font-size: 22px; }
+.pg--t5 .box { border: 0; border-top: 1px solid var(--line); padding: 12px 0 4px; }
+.pg--t5 .box h3 { font-size: 17px; }
+.pg--t5 .box .sub { font-size: 14px; }
+.pg--t5 .box__body { margin-top: 8px; }
+.phone-big { font-size: 56px; line-height: 1.05; font-weight: 700; }
+.phone-line { font-size: 17px; line-height: 1.35; }
+.select { border: 1px solid #80868b; padding: 9px 12px; font-size: 16px; display: flex; justify-content: space-between; }
+.suburbs li { display: flex; align-items: center; gap: 8px; padding: 6px 6px; font-size: 15px; border: 1px solid transparent; }
+.suburbs li.you { background: #e8f0fe; border: 1px solid var(--blue); }
+.suburbs .nm { flex: none; width: 96px; line-height: 1.15; }
+.suburbs .nm em { display: block; font-style: normal; font-size: 12px; color: #1a73e8; font-weight: 700; }
+.suburbs .pc { flex: none; width: 46px; text-align: right; font-weight: 700; font-size: 17px; }
+.suburbs .ar { flex: none; width: 14px; font-size: 13px; }
+.todo { background: var(--fill); padding: 10px 12px; font-size: 15px; line-height: 1.4; margin-top: 8px; }

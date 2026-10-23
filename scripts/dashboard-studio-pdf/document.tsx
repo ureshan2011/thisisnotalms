@@ -262,7 +262,8 @@ function Pack() {
         <p>
           Each team’s section is four pages: the brief, the data, a sketch page and a rationale table. Print the shared
           pages once, then print only each team’s four pages and hand one set to each team. The figures in the briefs
-          add up across tables, so two teams checking the same number will agree.
+          add up across tables, so two teams checking the same number will agree. The model answers are a separate PDF: hold
+          it back until the teams have presented.
         </p>
       </section>
 

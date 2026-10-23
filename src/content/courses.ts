@@ -603,7 +603,7 @@ const MBI806B: Course = {
       id: 'dashboard-design-studio',
       title: 'Dashboard design studio: five teams, five clients',
       blurb:
-        'A 90-minute group activity. Each team gets a different client, reader and screen, plus the real numbers, then designs a one-page dashboard: the questions, the right chart for each, and the layout. Mock it up in a free tool (Google Slides), test it on another team in five seconds, and download the printable pack with all five briefs.',
+        'A 90-minute group activity. Each team gets a different client, reader and screen, plus the real numbers, then designs a one-page dashboard: the questions, the right chart for each, and the layout. Mock it up in a free tool (Google Slides), test it on another team in five seconds, and download the printable pack with all five briefs, plus a separate PDF of model answer dashboards.',
       to: '/dashboard-design-studio',
       access: 'open',
       kind: 'Practice',

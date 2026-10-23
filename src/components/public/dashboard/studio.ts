@@ -14,6 +14,7 @@
 
 export const PDF_DIR = 'mbi806b/dashboard-studio';
 export const PDF_FILE = 'MBI806B-Dashboard-Design-Studio.pdf';
+export const PDF_MODEL = 'MBI806B-Dashboard-Model-Answers.pdf';
 
 // ── Number helpers ────────────────────────────────────────────────────────
 
@@ -62,7 +63,7 @@ export interface Scenario {
 
 // ═══ Scenario 1 · Kōtuku Café Group ═══════════════════════════════════════
 
-const cafes: [string, number, number, number][] = [
+export const cafes: [string, number, number, number][] = [
   // name, quarter revenue, quarter target, customers
   ['Ponsonby', 412000, 400000, 61200],
   ['Newmarket', 368500, 390000, 58900],
@@ -71,13 +72,13 @@ const cafes: [string, number, number, number][] = [
   ['Botany', 223400, 250000, 36700],
   ['Henderson', 168900, 210000, 29800],
 ];
-const cafeTotal = sum(cafes.map(c => c[1]));
+export const cafeTotal = sum(cafes.map(c => c[1]));
 
-const cafeWeeks = [128000, 130500, 127900, 133200, 135600, 132800, 136900, 139400, 137100, 141300, 129500, 124600];
+export const cafeWeeks = [128000, 130500, 127900, 133200, 135600, 132800, 136900, 139400, 137100, 141300, 129500, 124600];
 // Week 13 is whatever makes the weeks add up to the quarter's revenue.
 cafeWeeks.push(cafeTotal - sum(cafeWeeks));
 
-const cafeDays: [string, number][] = [
+export const cafeDays: [string, number][] = [
   ['Monday', 13600], ['Tuesday', 14400], ['Wednesday', 15100], ['Thursday', 16500],
   ['Friday', 20300], ['Saturday', 28200], ['Sunday', 24900],
 ];
@@ -151,27 +152,27 @@ const S1: Scenario = {
 // ═══ Scenario 2 · Harbourview Medical Centre ══════════════════════════════
 
 // Booked and did-not-attend counts per day and time of day, six months.
-const slots = ['Early (8–10)', 'Midday (10–2)', 'Afternoon (2–5)'] as const;
-const clinicDays: [string, [number, number][]][] = [
+export const slots = ['Early (8–10)', 'Midday (10–2)', 'Afternoon (2–5)'] as const;
+export const clinicDays: [string, [number, number][]][] = [
   ['Monday', [[310, 22], [520, 38], [410, 41]]],
   ['Tuesday', [[290, 20], [540, 35], [430, 37]]],
   ['Wednesday', [[280, 17], [500, 31], [390, 39]]],
   ['Thursday', [[300, 21], [530, 37], [420, 40]]],
   ['Friday', [[260, 19], [450, 33], [150, 26]]],
 ];
-const clinicMonths: [string, number, number][] = [
+export const clinicMonths: [string, number, number][] = [
   ['April', 940, 70], ['May', 960, 74], ['June', 1010, 85],
   ['July', 1020, 90], ['August', 950, 75], ['September', 900, 62],
 ];
-const clinicTypes: [string, number, number][] = [
+export const clinicTypes: [string, number, number][] = [
   ['Routine check', 2310, 139], ['Prescription review', 1090, 49], ['Child immunisation', 760, 29],
   ['Mental health and wellbeing', 640, 80], ['Allied health referral', 980, 159],
 ];
-const clinicReminder: [string, number, number][] = [
+export const clinicReminder: [string, number, number][] = [
   ['Text reminder sent', 3900, 218], ['No reminder (no mobile on file)', 1880, 238],
 ];
-const clinicBooked = sum(clinicMonths.map(m => m[1]));
-const clinicDna = sum(clinicMonths.map(m => m[2]));
+export const clinicBooked = sum(clinicMonths.map(m => m[1]));
+export const clinicDna = sum(clinicMonths.map(m => m[2]));
 
 const S2: Scenario = {
   n: 2,
@@ -236,7 +237,7 @@ const S2: Scenario = {
 
 // ═══ Scenario 3 · Tāmaki Courier Co. ══════════════════════════════════════
 
-const depots: [string, number, number, number, number, number, number][] = [
+export const depots: [string, number, number, number, number, number, number][] = [
   // depot, parcels today, delivered, delivered on time, failed attempts, vans out, vans > 30 min behind
   ['East Tāmaki', 2400, 1680, 1596, 38, 22, 2],
   ['Auckland Central', 1850, 1420, 1292, 41, 18, 4],
@@ -244,18 +245,18 @@ const depots: [string, number, number, number, number, number, number][] = [
   ['Manukau', 1150, 700, 560, 36, 11, 5],
   ['Henderson', 900, 640, 621, 9, 8, 1],
 ];
-const dParcels = sum(depots.map(d => d[1]));
-const dDelivered = sum(depots.map(d => d[2]));
-const dOnTime = sum(depots.map(d => d[3]));
-const dFailed = sum(depots.map(d => d[4]));
-const hourly: [string, number][] = [
+export const dParcels = sum(depots.map(d => d[1]));
+export const dDelivered = sum(depots.map(d => d[2]));
+export const dOnTime = sum(depots.map(d => d[3]));
+export const dFailed = sum(depots.map(d => d[4]));
+export const hourly: [string, number][] = [
   ['8–9am', 430], ['9–10am', 850], ['10–11am', 1010], ['11am–12pm', 1090], ['12–1pm', 1060], ['1–2pm', 910],
 ];
 // Twelve earlier days, then today, which is whatever Table A works out to.
-const onTimeTrend = [94.1, 95.3, 95.8, 96.0, 94.7, 93.2, 95.5, 96.1, 95.4, 94.9, 95.7, 96.2];
+export const onTimeTrend = [94.1, 95.3, 95.8, 96.0, 94.7, 93.2, 95.5, 96.1, 95.4, 94.9, 95.7, 96.2];
 onTimeTrend.push(Number(((dOnTime / dDelivered) * 100).toFixed(1)));
 const trendDay = (k: number): string => (k === onTimeTrend.length - 1 ? 'Today' : `Day ${k + 1}`);
-const failReasons: [string, number][] = [
+export const failReasons: [string, number][] = [
   ['Nobody home', 61], ['Address problem', 34], ['Access or gate problem', 22], ['Customer refused', 12], ['Damaged or other', 9],
 ];
 
@@ -325,7 +326,7 @@ const S3: Scenario = {
 
 // ═══ Scenario 4 · Rimu Outdoor Gear ═══════════════════════════════════════
 
-const channels: [string, number, number, number, number][] = [
+export const channels: [string, number, number, number, number][] = [
   // channel, sessions, orders, revenue, ad spend
   ['Organic search', 61500, 2310, 288750, 4000],
   ['Paid search', 38200, 1420, 163300, 31000],
@@ -333,17 +334,17 @@ const channels: [string, number, number, number, number][] = [
   ['Email', 21400, 1640, 213200, 1800],
   ['Direct', 33200, 1010, 119180, 0],
 ];
-const chSessions = sum(channels.map(c => c[1]));
-const chOrders = sum(channels.map(c => c[2]));
-const chRevenue = sum(channels.map(c => c[3]));
-const funnel: [string, number][] = [
+export const chSessions = sum(channels.map(c => c[1]));
+export const chOrders = sum(channels.map(c => c[2]));
+export const chRevenue = sum(channels.map(c => c[3]));
+export const funnel: [string, number][] = [
   ['Visited the site (sessions)', chSessions],
   ['Viewed a product', 121400],
   ['Added to cart', 24800],
   ['Started checkout', 12100],
   ['Completed a purchase', chOrders],
 ];
-const rimuMonths: [string, number][] = [
+export const rimuMonths: [string, number][] = [
   ['Oct 2025', 612400], ['Nov', 735900], ['Dec', 904200], ['Jan 2026', 587300], ['Feb', 523800], ['Mar', 548100],
   ['Apr', 631700], ['May', 702500], ['Jun', 811400], ['Jul', 868900], ['Aug', 797600], ['Sep', chRevenue],
 ];
@@ -414,20 +415,20 @@ const S4: Scenario = {
 
 // ═══ Scenario 5 · Tūī Valley Council ══════════════════════════════════════
 
-const waste: [string, number][] = [
+export const waste: [string, number][] = [
   ['Rubbish to landfill', 14200], ['Kerbside recycling', 5100], ['Food scraps', 2400], ['Green waste', 3300],
 ];
-const wasteTotal = sum(waste.map(w => w[1]));
-const wasteDiverted = wasteTotal - waste[0][1];
-const diversionYears: [string, number][] = [
+export const wasteTotal = sum(waste.map(w => w[1]));
+export const wasteDiverted = wasteTotal - waste[0][1];
+export const diversionYears: [string, number][] = [
   ['2019', 32.0], ['2020', 33.5], ['2021', 35.1], ['2022', 37.9], ['2023', 39.6], ['2024', 41.0],
   ['2025', Number(((wasteDiverted / wasteTotal) * 100).toFixed(1))],
 ];
-const suburbs: [string, number, number, number][] = [
+export const suburbs: [string, number, number, number][] = [
   ['Riverbend', 3200, 52, 8], ['Hillcrest', 2900, 49, 11], ['Old Town', 1800, 47, 14], ['Parkside', 3600, 45, 12],
   ['Lakeview', 2700, 42, 17], ['Stonefields', 4100, 38, 19], ['The Flats', 2300, 34, 23], ['Industrial Row', 1400, 29, 27],
 ];
-const contaminants: [string, number][] = [
+export const contaminants: [string, number][] = [
   ['Soft plastics and plastic bags', 28], ['Food-soiled items such as pizza boxes', 21], ['Glass in the wrong bin', 17],
   ['Nappies and textiles', 11], ['Polystyrene', 9], ['Everything else', 14],
 ];

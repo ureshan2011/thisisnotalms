@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Download } from 'lucide-react';
 import { Quiz, Recap, Reveal, SectionHead, type QuizQuestion } from '../blend';
 import {
-  AGENDA, CHARTS, DELIVERABLES, FEEDBACK, PDF_DIR, PDF_FILE, PRINCIPLES, SCENARIOS, SLIDES_STEPS, STEPS, TOOLS, WIRES,
+  AGENDA, CHARTS, DELIVERABLES, FEEDBACK, PDF_DIR, PDF_FILE, PDF_MODEL, PRINCIPLES, SCENARIOS, SLIDES_STEPS, STEPS, TOOLS, WIRES,
   type Cell,
 } from './dashboard/studio';
 
@@ -24,6 +24,7 @@ import {
 
 const BASE = import.meta.env.BASE_URL;
 export const STUDIO_PDF_URL = `${BASE}${PDF_DIR}/${PDF_FILE}`;
+export const MODEL_PDF_URL = `${BASE}${PDF_DIR}/${PDF_MODEL}`;
 
 /** The one PDF: in the hero, and again at the top of the lesson. */
 export function StudioPdf({ small = false, tertiary = false }: { small?: boolean; tertiary?: boolean }) {
@@ -35,6 +36,21 @@ export function StudioPdf({ small = false, tertiary = false }: { small?: boolean
       style={{ textDecoration: 'none' }}
     >
       Download the activity pack (PDF)
+      <span className="bt-btn__badge" aria-hidden="true"><Download size={small ? 12 : 14} /></span>
+    </a>
+  );
+}
+
+/** The model answers, kept as their own PDF so teams can try the task first. */
+export function ModelAnswersPdf({ small = false }: { small?: boolean }) {
+  return (
+    <a
+      className={`bt-btn bt-btn--tertiary${small ? ' bt-btn--sm' : ''}`}
+      href={MODEL_PDF_URL}
+      download={PDF_MODEL}
+      style={{ textDecoration: 'none' }}
+    >
+      Download model answers (PDF)
       <span className="bt-btn__badge" aria-hidden="true"><Download size={small ? 12 : 14} /></span>
     </a>
   );
@@ -158,13 +174,17 @@ export default function DashboardStudioLesson() {
         <Reveal delay={0.05}>
           <div className="erf-printable">
             <div>
-              <p className="bt-eyebrow">Printable version</p>
+              <p className="bt-eyebrow">Printable versions</p>
               <p>
                 The whole activity as one PDF: the method, the tool guide, and a four-page pack for each of the five
-                teams (the brief, the data, a sketch page and a rationale table). Print the team packs and hand one to each team.
+                teams (the brief, the data, a sketch page and a rationale table). The model answers are a separate
+                PDF with one finished dashboard per team, so teams can try the task before they see one.
               </p>
             </div>
-            <StudioPdf small />
+            <div className="erf-pdfs">
+              <StudioPdf small />
+              <ModelAnswersPdf small />
+            </div>
           </div>
         </Reveal>
 

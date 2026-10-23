@@ -42,6 +42,11 @@ export default function CourseHomePage({ code }: { code: CourseHomeCode }) {
   const progress = useCourseProgress(code);
   const [flashId, setFlashId] = useState<string | null>(null);
 
+  // The Downloads link only exists for a course that has a Downloads section.
+  const nav = course.downloads?.length
+    ? [NAV[0], NAV[1], { id: 'downloads', label: 'Downloads' }, ...NAV.slice(2)]
+    : NAV;
+
   const first = course.lessons.find(l => l.access === 'open') ?? course.lessons[0];
   const onFlashed = useCallback(() => setFlashId(null), []);
 
@@ -50,7 +55,7 @@ export default function CourseHomePage({ code }: { code: CourseHomeCode }) {
       accent={course.accent}
       courseCode={course.code}
       courseName={course.name}
-      nav={NAV}
+      nav={nav}
       footerNote="Every lesson listed here runs in your own browser. Nothing on this page is tracked, and what you tick off never leaves the device you ticked it on."
       hero={
         <div className="bt-herogrid bt-hero--title">

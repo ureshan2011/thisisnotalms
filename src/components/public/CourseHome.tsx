@@ -266,6 +266,54 @@ export default function CourseHome({
         </Reveal>
       </section>
 
+      {/* ══ Downloads ════════════════════════════════════════════════════ */}
+      {course.downloads && course.downloads.length > 0 && (
+        <section id="downloads" className="bt-sec">
+          <Reveal>
+            <SectionHead
+              eyebrow="Take-away files"
+              title="Forms and handouts"
+              stop="."
+              aside="Not lessons, so there is nothing to tick off. Download the file, or open it in your browser and fill it in there."
+            />
+          </Reveal>
+          <Reveal delay={0.05}>
+            <ul className="bt-track bt-track--compact">
+              {course.downloads.map(file => (
+                <li key={file.id} id={`download-${file.id}`} className="bt-trackrow bt-trackrow--idx">
+                  {/* No number: a download is not a step in the course's sequence. */}
+                  <div aria-hidden="true" />
+                  <div className="bt-trackrow__body">
+                    <h3>{file.title}</h3>
+                    <p>{file.blurb}</p>
+                    <div className="bt-idx__tags">
+                      {file.tags.map(tag => (
+                        <span key={tag} className="bt-kind">{tag}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bt-idx__acts">
+                    <a className="bt-btn bt-btn--sm" href={BASE + file.href} download>
+                      Download
+                      <span className="bt-btn__badge" aria-hidden="true">↓</span>
+                    </a>
+                    <a
+                      className="bt-btn bt-btn--sm bt-btn--tertiary"
+                      href={BASE + file.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Open in browser
+                      <span className="bt-btn__badge" aria-hidden="true">↗</span>
+                    </a>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+        </section>
+      )}
+
       {/* ══ The descriptor ═══════════════════════════════════════════════ */}
       <section id="covers" className="bt-sec">
         <Reveal>

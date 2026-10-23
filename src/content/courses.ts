@@ -44,6 +44,21 @@ export interface CourseLesson {
   kind: LessonKind;
 }
 
+/** A file a student takes away, rather than a lesson they work through. It has
+ *  no tick-box and no square on the progress board, because there is nothing
+ *  to complete — which is why it is not a `CourseLesson`. */
+export interface CourseDownload {
+  /** Stable id. Never reuse one. */
+  id: string;
+  title: string;
+  /** One sentence on what the file is and how it gets used. */
+  blurb: string;
+  /** Short facts shown as tags, e.g. 'PDF', 'Fillable form'. */
+  tags: string[];
+  /** A static file under public/, resolved against BASE_URL. */
+  href: string;
+}
+
 export interface LearningOutcome {
   n: string;
   /** My plain-English handle for it — not from the descriptor. */
@@ -71,6 +86,8 @@ export interface Course {
   /** Indicative content from the descriptor. */
   content: string[];
   lessons: CourseLesson[];
+  /** Files to take away. Omit for a course with none: no section is drawn. */
+  downloads?: CourseDownload[];
 }
 
 /** Every course code with a home page, in teaching order. */
@@ -598,6 +615,17 @@ const MBI806B: Course = {
       to: '/power-bi-setup',
       access: 'open',
       kind: 'Lab',
+    },
+  ],
+  downloads: [
+    {
+      id: 'assessment-1-peer-review',
+      title: 'Assessment 1 peer review feedback form',
+      blurb:
+        'One form per presentation you watch. Rate the presenter from 1 to 5 on delivery, time management, the work presented, and structure and impact, then add a comment on each. Type into it on screen, or print it and write by hand.',
+      tags: ['PDF', 'Fillable form', '1 page'],
+      // Built by scripts/peer-review-form/build.py.
+      href: 'mbi806b/peer-review/MBI806B-Assessment-1-Peer-Review-Form.pdf',
     },
   ],
 };

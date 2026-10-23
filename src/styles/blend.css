@@ -4784,3 +4784,155 @@ a.bt-btn { text-decoration: none; }
   .bt-vidrow__thumb { grid-column: 2; }
   .bt-vidrow .bt-trackrow__body { grid-column: 2; }
 }
+
+/* ── MBI806B · Dashboard design studio ───────────────────────────────────
+   Tool cards, the three layout skeletons, and the scenario brief. The
+   skeletons are plain grids: a pale cell for each visual, and one outlined
+   in the accent where the eye should land first.                          */
+.dds-hero__title {
+  margin-top: 14px;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  color: var(--ink-900);
+}
+
+.dds-tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; }
+.dds-tool {
+  display: flex;
+  flex-direction: column;
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 20px 22px 22px;
+  box-shadow: var(--shadow-sm);
+}
+.dds-tool--pick { border-color: var(--accent-500); box-shadow: var(--shadow-brand); }
+.dds-tool__tag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+}
+.dds-tool--pick .dds-tool__tag { color: var(--accent-600); }
+.dds-tool h3 { margin-top: 8px; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.dds-tool p { margin-top: 10px; font-size: 14px; line-height: 1.55; color: var(--ink-500); }
+.dds-tool p.dds-tool__tag { margin-top: 0; font-size: 10.5px; line-height: 1.4; color: var(--ink-400); }
+.dds-tool--pick p.dds-tool__tag { color: var(--accent-600); }
+.dds-tool__watch b { color: var(--ink-900); }
+.dds-tool__link {
+  margin-top: auto;
+  padding-top: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-900);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-subtle);
+  align-self: flex-start;
+}
+.dds-tool__link:hover { border-bottom-color: var(--ink-900); }
+
+.dds-wires { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.dds-wirecard {
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 18px 20px 22px;
+  box-shadow: var(--shadow-sm);
+}
+.dds-wirecard h3 { margin-top: 16px; font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+.dds-wirecard p { margin-top: 8px; font-size: 13.5px; line-height: 1.55; color: var(--ink-500); }
+.dds-wirecard__for span {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+  margin-right: 6px;
+}
+.dds-wire {
+  display: grid;
+  grid-auto-rows: 38px;
+  gap: 6px;
+  background: var(--paper-100);
+  border-radius: var(--radius-md);
+  padding: 8px;
+}
+.dds-w {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2px 6px;
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  line-height: 1.25;
+  color: var(--ink-400);
+}
+.dds-w--first { border: 2px solid var(--accent-500); color: var(--accent-600); font-weight: 600; }
+
+.dds-compare td:first-child { font-family: var(--font-mono); width: 56px; }
+
+.dds-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 34px; }
+.dds-brief {
+  margin-top: 16px;
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-panel);
+  padding: clamp(20px, 3.5vw, 36px);
+  box-shadow: var(--shadow-md);
+}
+.dds-brief__head h3 {
+  margin-top: 8px;
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.dds-reader {
+  margin: 22px 0 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+}
+.dds-reader > div { background: var(--paper-100); border-radius: var(--radius-md); padding: 14px 16px; }
+.dds-reader dt {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-400);
+}
+.dds-reader dd { margin: 6px 0 0; font-size: 14px; line-height: 1.45; color: var(--ink-900); }
+.dds-decision {
+  margin-top: 22px;
+  border-left: 3px solid var(--accent-500);
+  padding: 2px 0 2px 18px;
+}
+.dds-decision p:last-child {
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  color: var(--ink-900);
+  max-width: 48ch;
+}
+.dds-h { margin-top: 30px; font-size: 15.5px; font-weight: 800; letter-spacing: -0.015em; }
+.dds-qs { margin: 12px 0 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 1.5; color: var(--ink-600); }
+.dds-data { margin-top: 18px; }
+.dds-data__t { font-family: var(--font-display); font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.dds-data .bt-scroll { margin-top: 8px; }
+.dds-list { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; line-height: 1.5; color: var(--ink-500); }
+.dds-blank { height: 44px; }
+@media (max-width: 560px) {
+  .dds-brief { border-radius: var(--radius-card); }
+}

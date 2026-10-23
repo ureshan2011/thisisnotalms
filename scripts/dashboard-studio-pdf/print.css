@@ -1,0 +1,204 @@
+/* ─── Dashboard design studio: print styles ──────────────────────────────
+   A4 portrait for text, A4 landscape (the `wide` page) for the sketch page.
+   Black ink with one muted teal accent, so pages photocopy cleanly. Fonts
+   are inlined by build.mjs (they live in scripts/er-tutorial-pdf/fonts). */
+
+@font-face { font-family: 'DM Sans'; font-style: normal; font-weight: 100 1000; src: url('fonts/DMSans-Variable.woff2') format('woff2'); }
+@font-face { font-family: 'DM Sans'; font-style: italic; font-weight: 100 1000; src: url('fonts/DMSans-Italic-Variable.woff2') format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 100 800; src: url('fonts/JetBrainsMono-Variable.woff2') format('woff2'); }
+
+:root {
+  --ink: #1c1917;
+  --ink-soft: #44403c;
+  --muted: #78716c;
+  --rule: #d6d3d1;
+  --rule-faint: #e7e5e4;
+  --tint: #f7f5f3;
+  --accent: #0f766e;
+  --accent-tint: #e6f2f0;
+}
+
+@page {
+  size: A4;
+  margin: 15mm 17mm 17mm 17mm;
+  @bottom-left { font: 7.5pt 'DM Sans', Arial, sans-serif; color: #78716c; }
+  @bottom-center { content: "© Yasas Sri Wickramasinghe"; font: 7.5pt 'DM Sans', Arial, sans-serif; color: #78716c; }
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 7.5pt 'DM Sans', Arial, sans-serif; color: #78716c; }
+}
+@page wide {
+  size: A4 landscape;
+  margin: 13mm 16mm 15mm 16mm;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  margin: 0;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 10pt;
+  line-height: 1.45;
+  color: var(--ink);
+}
+p { margin: 0 0 2.2mm; }
+b { font-weight: 700; }
+a { color: inherit; }
+.muted { color: var(--muted); }
+.mono { font-family: 'JetBrains Mono', monospace; font-size: 8.5pt; }
+
+.newpage { break-before: page; }
+.keep { break-inside: avoid; }
+h1, h2, h3, h4 { break-after: avoid; }
+tr, li, figure { break-inside: avoid; }
+
+/* ── Title block ── */
+.titleblock { border-bottom: 1.2pt solid var(--ink); padding-bottom: 5mm; margin-bottom: 6mm; }
+.kicker { font-size: 8.5pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 2mm; }
+.titleblock h1 { font-size: 26pt; line-height: 1.1; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 1.5mm; }
+.subtitle { font-size: 12.5pt; color: var(--ink-soft); margin-bottom: 4mm; }
+.meta { display: flex; flex-wrap: wrap; gap: 1.5mm 9mm; margin: 0; }
+.meta div { display: flex; gap: 2mm; }
+.meta dt { color: var(--muted); }
+.meta dd { margin: 0; font-weight: 700; }
+
+/* ── Headings ── */
+.partlabel { font-size: 8.5pt; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 1mm; }
+.h1 { font-size: 18pt; line-height: 1.2; font-weight: 700; letter-spacing: -0.015em; margin: 0 0 2.5mm; }
+.h2 { font-size: 12pt; font-weight: 700; margin: 5.5mm 0 2mm; }
+.h3 { font-size: 10.5pt; font-weight: 700; margin: 4mm 0 1.6mm; }
+.lead { font-size: 11pt; color: var(--ink-soft); margin-bottom: 3mm; }
+
+/* ── Boxes and lists ── */
+.box { border: 0.8pt solid var(--rule); background: var(--tint); border-radius: 2mm; padding: 3.5mm 5mm 1.5mm; margin: 3.5mm 0; }
+.box--accent { background: var(--accent-tint); border-color: #b7d8d3; }
+.boxtitle { font-size: 10.5pt; font-weight: 700; margin: 0 0 1.6mm; }
+.eyebrow { font-size: 7.5pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 1mm; }
+.plainlist { margin: 0 0 2.4mm; padding-left: 5.5mm; }
+.plainlist li { margin-bottom: 1.3mm; padding-left: 1mm; }
+.bullets { margin: 0 0 2.4mm; padding-left: 5mm; }
+.bullets li { margin-bottom: 1mm; }
+.steps { margin: 0 0 3mm; padding-left: 5.5mm; }
+.steps li { margin-bottom: 1.8mm; padding-left: 1mm; }
+.checklist { list-style: none; margin: 0 0 3mm; padding: 0; }
+.checklist li { position: relative; padding-left: 7mm; margin-bottom: 1.8mm; }
+.checklist li::before { content: ''; position: absolute; left: 0; top: 0.8mm; width: 3.4mm; height: 3.4mm; border: 0.9pt solid var(--ink); border-radius: 0.6mm; }
+.twocol { columns: 2; column-gap: 9mm; }
+.twocol > * { break-inside: avoid; }
+
+.contents { border-collapse: collapse; width: 100%; }
+.contents td { padding: 1.3mm 0; border-bottom: 0.5pt solid var(--rule-faint); vertical-align: top; }
+.contents td:first-child { width: 26mm; font-weight: 700; }
+
+/* ── Tables ── */
+.grid { width: 100%; border-collapse: collapse; margin: 1mm 0 2.5mm; font-size: 9pt; line-height: 1.35; }
+.grid th { text-align: left; font-weight: 700; border-bottom: 1pt solid var(--ink); padding: 1.4mm 3mm 1.4mm 0; vertical-align: bottom; }
+.grid td { border-bottom: 0.5pt solid var(--rule); padding: 1.3mm 3mm 1.3mm 0; vertical-align: top; }
+.grid tr:last-child td { border-bottom: 1pt solid var(--ink); }
+.grid--num td:not(:first-child), .grid--num th:not(:first-child) { font-variant-numeric: tabular-nums; }
+.tooltable td:first-child { width: 33mm; font-weight: 700; }
+.charts td:first-child { width: 42mm; font-weight: 700; }
+.note { font-size: 8.5pt; line-height: 1.4; color: var(--ink-soft); margin: 0 0 1.5mm; }
+
+/* ── Tools ── */
+.tool { border: 0.8pt solid var(--rule); border-radius: 2mm; padding: 3mm 4.5mm 1.5mm; margin: 0 0 3mm; }
+.tool--pick { border: 1.4pt solid var(--accent); background: var(--accent-tint); }
+.tool__tag { font-size: 7.5pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0 0 0.6mm; }
+.tool--pick .tool__tag { color: var(--accent); }
+.tool h3 { font-size: 11.5pt; margin: 0 0 1.4mm; }
+.tool p { margin-bottom: 1.6mm; font-size: 9.5pt; }
+.tool__url { font-family: 'JetBrains Mono', monospace; font-size: 8pt; color: var(--accent); }
+
+/* ── Habits ── */
+.habit { break-inside: avoid; margin: 0 0 2.6mm; }
+.habit b { display: block; margin-bottom: 0.4mm; }
+.habit span { font-size: 9.5pt; color: var(--ink-soft); }
+
+/* ── Layout skeletons ── */
+.wires { display: flex; gap: 5mm; }
+.wirecard { flex: 1 1 0; min-width: 0; break-inside: avoid; }
+.wirecard h3 { margin: 2.5mm 0 1mm; font-size: 10.5pt; }
+.wirecard p { font-size: 8.5pt; line-height: 1.35; margin-bottom: 1mm; color: var(--ink-soft); }
+.wire { display: grid; grid-auto-rows: 8.5mm; gap: 1.5mm; background: var(--tint); border: 0.6pt solid var(--rule); border-radius: 1.6mm; padding: 2mm; }
+.w {
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: 0 1mm; background: #fff; border: 0.6pt solid var(--rule); border-radius: 1.2mm;
+  font-family: 'JetBrains Mono', monospace; font-size: 5.8pt; line-height: 1.2; color: var(--muted);
+}
+.w--first { border: 1.3pt solid var(--accent); color: var(--accent); font-weight: 700; }
+
+/* ── Team pages ── */
+.teamlabel { margin-bottom: 1.5mm; font-size: 8.5pt; color: var(--muted); }
+.teamlabel__n {
+  display: inline-block; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #fff; background: var(--accent); border-radius: 1.2mm; padding: 0.4mm 2.4mm; margin-right: 2.5mm;
+}
+.brieftitle { font-size: 19pt; line-height: 1.12; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 3mm; }
+.reader { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; margin: 0 0 3.5mm; }
+.reader div { background: var(--tint); border: 0.6pt solid var(--rule); border-radius: 1.6mm; padding: 2mm 3mm; }
+.reader dt { font-size: 7pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.reader dd { margin: 0.8mm 0 0; font-size: 9pt; line-height: 1.35; }
+.decision { border-left: 1.6mm solid var(--accent); padding: 0.5mm 0 0.5mm 4mm; margin: 3.5mm 0; }
+.decision p { margin: 0; }
+.decision .big { font-size: 12.5pt; line-height: 1.3; font-weight: 700; letter-spacing: -0.01em; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; margin-top: 2.5mm; }
+.pair .h3 { margin-top: 0; }
+.pair ul { margin: 0; padding-left: 4.5mm; font-size: 9pt; line-height: 1.38; }
+.pair li { margin-bottom: 1.1mm; }
+.stretch { border: 0.8pt dashed var(--muted); border-radius: 2mm; padding: 2.5mm 4mm 0.5mm; margin-top: 3mm; font-size: 9.5pt; }
+
+.datatitle { font-size: 9.5pt; font-weight: 700; margin: 3.6mm 0 0.6mm; break-after: avoid; }
+
+/* Landscape sketch page */
+.sketchpage { page: wide; }
+.sketchhead { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1pt solid var(--ink); padding-bottom: 2mm; margin-bottom: 4mm; }
+.sketchhead h2 { margin: 0; font-size: 14pt; }
+.sketchbody { display: flex; gap: 8mm; align-items: flex-start; }
+.frame {
+  flex: 0 0 auto;
+  border: 1pt solid var(--ink); border-radius: 2mm;
+  background-image: radial-gradient(circle, #c7c3bf 0.5pt, transparent 0.7pt);
+  background-size: 6mm 6mm; background-position: 3mm 3mm;
+  position: relative;
+}
+.frame__lbl {
+  position: absolute; left: 2mm; top: 1.4mm; background: #fff; padding: 0 1.5mm;
+  font-size: 7pt; color: var(--muted); border-radius: 0.8mm;
+}
+.sketchside { flex: 1 1 0; min-width: 0; font-size: 9pt; }
+.sketchside .h3 { margin-top: 0; }
+.lines { height: 22mm; background-image: linear-gradient(to bottom, transparent 7.6mm, var(--rule) 7.6mm); background-size: 100% 8mm; background-position: 0 1mm; margin-bottom: 3mm; }
+.lines--tall { height: 40mm; }
+
+/* Rationale page */
+.rationale td { height: 17mm; vertical-align: top; }
+.rationale td:first-child { width: 8mm; font-weight: 700; color: var(--muted); }
+.rationale th { font-size: 8.5pt; }
+.rationale tr:last-child td { border-bottom: 1pt solid var(--ink); }
+.rationale .example td { height: auto; color: var(--ink-soft); font-size: 8.5pt; background: var(--tint); }
+.sentence { border: 0.8pt solid var(--ink); border-radius: 1.6mm; padding: 2mm 3mm; margin: 1.5mm 0 3mm; min-height: 15mm; font-size: 9pt; color: var(--muted); }
+
+.endnote { margin-top: 5mm; font-weight: 700; }
+
+/* The data page can hold four tables, one of them eight rows deep. */
+.datapage .grid { font-size: 8.8pt; margin-bottom: 1.5mm; }
+.datapage .grid th { padding-block: 1mm; }
+.datapage .grid td { padding-block: 0.85mm; }
+.datapage .datatitle { margin-top: 2.6mm; }
+
+.toolrow { display: flex; gap: 3mm; align-items: stretch; }
+.toolrow .tool { flex: 1 1 0; min-width: 0; margin: 0 0 2mm; padding: 2.5mm 3.2mm 1mm; }
+.toolrow .tool p { font-size: 8.3pt; line-height: 1.35; margin-bottom: 1.2mm; }
+.toolrow .tool h3 { font-size: 10pt; }
+.agenda td:first-child, .agenda th:first-child { width: 17mm; white-space: nowrap; }
+.threecol { columns: 3; column-gap: 6mm; }
+.threecol > * { break-inside: avoid; }
+.threecol .habit span { font-size: 8.8pt; line-height: 1.35; }
+.charts { font-size: 8.5pt; }
+
+/* Keep Part 1 and Part 2 to a page each. */
+.steps { font-size: 9.5pt; line-height: 1.4; }
+.steps li { margin-bottom: 1.2mm; }
+.tool--pick p { font-size: 9pt; margin-bottom: 1.2mm; }
+.tool { margin-bottom: 2.4mm; }
+.charts td { padding-block: 0.9mm; }
+.charts th { padding-block: 1mm; }
+.threecol .habit { margin-bottom: 2mm; }

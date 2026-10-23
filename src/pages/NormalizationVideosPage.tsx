@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import PublicLessonShell from '../components/public/PublicLessonShell';
-import VideoGallery, { type VideoClip } from '../components/slides/VideoGallery';
+import { Link } from 'react-router-dom';
+import { CoursePage, SectionHead, Reveal } from '../components/blend';
+import type { VideoClip } from '../components/slides/VideoGallery';
 import { db } from '../lib/firebase';
 
 const BASE = import.meta.env.BASE_URL;
+
+// /normalisation-videos — MBI802, public and ungated. Built on Blend
+// (src/components/blend/README.md). The clips are a real sequence, so they are
+// a numbered list, not a grid of identical cards. Every clip opens its
+// SharePoint link in a new tab.
 
 // Built-in normalization video lessons (SharePoint links — open in a new tab).
 const NORMALIZATION_VIDEOS: VideoClip[] = [
@@ -45,6 +51,11 @@ const NORMALIZATION_VIDEOS: VideoClip[] = [
     thumbnailUrl: `${BASE}Norm2ND.png`,
   },
 ];
+
+const NAV = [{ id: 'clips', label: 'Clips' }];
+
+/** "Normalization – 1NF Further Example" reads as "1NF further example" under the page's own title. */
+const clipTitle = (t: string) => t.replace(/^Normali[sz]ation\s*[–-]\s*/, '');
 
 export default function NormalizationVideosPage() {
   // Lecturer-added videos (2NF, 1NF example, etc.) live in Firestore under the
@@ -87,25 +98,75 @@ export default function NormalizationVideosPage() {
   }, []);
 
   const videos = [...NORMALIZATION_VIDEOS, ...extraVideos];
+  const first = videos[0];
 
   return (
-    <PublicLessonShell
-      eyebrow="MBI802 · Database Design"
-      titleLead="Let's make sense of"
-      titleAccent="Normalization — on video."
-      gradient="linear-gradient(90deg, #6366f1, #818cf8, #06b6d4)"
-      accent="#6366f1"
-      orb2="#818cf8"
-      orb3="#06b6d4"
-      subtitle="Prefer to watch and learn? The full walkthrough series on database normalization — from why we do it and functional dependencies, climbing the normal forms one clip at a time."
-      pills={[
-        { emoji: '🤔', name: 'Why normalise?', color: '#7c3aed' },
-        { emoji: '🔗', name: 'Functional deps', color: '#0891b2' },
-        { emoji: '1️⃣', name: '1NF', color: '#0d9488' },
-        { emoji: '🪜', name: '2NF & beyond', color: '#6366f1' },
-      ]}
+    <CoursePage
+      courseCode="MBI802"
+      courseName="Database Management Systems"
+      nav={NAV}
+      footerNote="Nothing on this page is tracked or saved. No login, no personal data collected."
+      hero={
+        <div className="bt-herogrid">
+          <div>
+            <span className="bt-flag">
+              <span className="bt-dot" style={{ background: 'var(--accent-500)' }} />
+              {videos.length} short clips
+            </span>
+            <h1>Normalisation, on <span className="bt-stop">video.</span></h1>
+            <p className="bt-hero__lede">
+              Why we normalise, what a functional dependency is, then 1NF and 2NF, one clip at a time.
+            </p>
+            <div className="bt-hero__cta">
+              <a className="bt-btn" href={first.url} target="_blank" rel="noreferrer">
+                Watch the first clip
+                <span className="bt-btn__badge" aria-hidden="true">↗</span>
+              </a>
+              <Link className="bt-btn bt-btn--tertiary" to="/normalisation-activities">
+                Then practise
+                <span className="bt-btn__badge" aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </div>
+
+          <a className="bt-heroart bt-vidhero" href={first.url} target="_blank" rel="noreferrer">
+            <span className="bt-heroart__lbl">Clip 1 · opens in a new tab</span>
+            {first.thumbnailUrl && <img src={first.thumbnailUrl} alt="" />}
+            <b>{clipTitle(first.title)}</b>
+          </a>
+        </div>
+      }
     >
-      <VideoGallery videos={videos} accentColor="#6366f1" />
-    </PublicLessonShell>
+      <section id="clips" className="bt-sec">
+        <Reveal>
+          <SectionHead
+            eyebrow="The series"
+            title="Watch in this order"
+            stop="."
+            aside="Each clip builds on the one before it. Every clip opens in a new tab."
+          />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <ol className="bt-track">
+            {videos.map((clip, i) => (
+              <li key={`${clip.url}-${i}`} className="bt-trackrow bt-vidrow">
+                <span className="bt-trackrow__n bt-tnum" aria-hidden="true">{i + 1}</span>
+                <a className="bt-vidrow__thumb" href={clip.url} target="_blank" rel="noreferrer" tabIndex={-1} aria-hidden="true">
+                  {clip.thumbnailUrl && <img src={clip.thumbnailUrl} alt="" loading="lazy" />}
+                </a>
+                <div className="bt-trackrow__body">
+                  <h3>{clipTitle(clip.title)}</h3>
+                  {clip.description && <p>{clip.description}</p>}
+                  <a className="bt-btn bt-btn--sm bt-btn--tertiary" href={clip.url} target="_blank" rel="noreferrer">
+                    Watch
+                    <span className="bt-btn__badge" aria-hidden="true">↗</span>
+                  </a>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </Reveal>
+      </section>
+    </CoursePage>
   );
 }

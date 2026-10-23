@@ -622,8 +622,8 @@ const MBI806B: Course = {
       id: 'assessment-1-peer-review',
       title: 'Assessment 1 peer review feedback form',
       blurb:
-        'One form per presentation you watch. Rate the presenter from 1 to 5 on delivery, time management, the work presented, and structure and impact, then add a comment on each. Type into it on screen, or print it and write by hand.',
-      tags: ['PDF', 'Fillable form', '1 page'],
+        'One form per student for the whole class. Give every presenter a rating from 1 to 5 on delivery, time management, the work presented, and structure and impact. Type into it on screen, or print it double-sided and write by hand.',
+      tags: ['PDF', 'Fillable form', '1 sheet, double-sided'],
       // Built by scripts/peer-review-form/build.py.
       href: 'mbi806b/peer-review/MBI806B-Assessment-1-Peer-Review-Form.pdf',
     },

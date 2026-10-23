@@ -83,7 +83,7 @@ function Tutorial() {
         <h2 className="boxtitle">Instructions</h2>
         <ol className="plainlist">
           <li>Read Part 1 and Part 2 before you start the tasks.</li>
-          <li>Complete the tasks in order. Tasks 1 and 2 are simple. Tasks 3, 4 and 5 are moderate.</li>
+          <li>Complete the tasks in order. Tasks 1, 2 and 6 are simple. Tasks 3, 4 and 5 are moderate. Task 6 is a short extra on participation.</li>
           <li>For each task, read the scenario, answer the questions in the working space, then draw your ER diagram on the next page.</li>
           <li>Check your work with the separate answers document, one part at a time: entities, then attributes, then relationships.</li>
         </ol>
@@ -275,7 +275,7 @@ function Answers() {
     <>
       <TitleBlock
         title="ER Diagram Tutorial: Answers"
-        subtitle="Model answers for Tasks 1 to 5"
+        subtitle="Model answers for Tasks 1 to 6"
         meta={[
           ['Lecturer', AUTHOR],
           ['Use with', 'ER Diagram Tutorial'],
@@ -355,6 +355,22 @@ function Answers() {
               ))}
             </tbody>
           </table>
+          {task.rels.filter(r => r.participation).map(r => (
+            <table key={r.name} className="grid rels">
+              <thead><tr><th>Participation</th><th>The two questions</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td className="mono"><b>{r.name}</b></td>
+                  <td>
+                    {r.participation!.q.map(([q, a]) => (
+                      <p key={q} className="rels__q"><span>{q}</span><b>{a}</b></p>
+                    ))}
+                    <span className="rels__numbers">{r.participation!.drawing}</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          ))}
           {task.rels.filter(r => r.note).map(r => (
             <p key={r.name} className="note"><b>{r.name}:</b> {r.note}</p>
           ))}

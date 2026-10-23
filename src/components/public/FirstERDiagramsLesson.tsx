@@ -14,7 +14,8 @@ import { CARDINALITY, MISTAKES, NAMING, PDF_ANSWERS, PDF_DIR, PDF_TUTORIAL, SHAP
 //
 // It only uses what that lesson teaches: Chen's notation, the four shapes
 // (entity, attribute, key attribute, relationship) and 1:1, 1:N and M:N,
-// plus attributes on a relationship, introduced in Task 2.
+// plus attributes on a relationship, introduced in Task 2, and total and
+// partial participation, introduced in Task 6.
 //
 // The same content is available as two printable PDFs, the tutorial and the
 // answers, built from the same data by scripts/er-tutorial-pdf.
@@ -142,7 +143,7 @@ export default function FirstERDiagramsLesson() {
               <h2 id="lessonhead-title">ER diagram tutorial</h2>
               <p className="bt-lessonhead__lead">
                 An ER diagram shows the data an organisation needs to store and how it is connected. This tutorial
-                has five tasks: two simple ones and three moderate ones. For each task, read the scenario, answer
+                has six tasks: three simple ones and three moderate ones. For each task, read the scenario, answer
                 the questions and draw the diagram on paper. Then check your work against the answer.
               </p>
               <p className="bt-lessonmeta">
@@ -176,7 +177,7 @@ export default function FirstERDiagramsLesson() {
             <div>
               <p className="bt-eyebrow">Printable version</p>
               <p>
-                The same five tasks as a PDF you can print and write on. The answers are in a separate PDF, so you
+                The same six tasks as a PDF you can print and write on. The answers are in a separate PDF, so you
                 can try the tasks first.
               </p>
             </div>
@@ -297,7 +298,7 @@ export default function FirstERDiagramsLesson() {
         </Reveal>
       </section>
 
-      {/* ══ The five tasks ═══════════════════════════════════════════════ */}
+      {/* ══ The six tasks ═══════════════════════════════════════════════ */}
       {TASKS.map(task => (
         <section key={task.id} id={task.id} className="bt-sec">
           <Reveal>

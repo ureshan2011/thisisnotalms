@@ -1,8 +1,9 @@
 import type { DiagramSpec } from './ChenDiagram';
 
-// ─── The five tasks in the ER diagram tutorial ─────────────────────────────
+// ─── The six tasks in the ER diagram tutorial ──────────────────────────────
 // Two simple tasks, then three moderate ones, for students drawing an ER
-// diagram for the first time. Used by the web page (/er-first-steps) and the
+// diagram for the first time. Task 6 is a short extra on participation (total
+// and partial). It sits last so the ids and anchors of Tasks 1 to 5 stay the same. Used by the web page (/er-first-steps) and the
 // two printable PDFs (scripts/er-tutorial-pdf).
 //
 // Task 4 reuses the bank from Task 1 with one rule changed, so CUSTOMER OWNS
@@ -31,6 +32,13 @@ export interface RelAnswer {
   numbers: string;
   attrs?: string[];
   note?: string;
+  /** Total or partial participation of each side (Task 6). */
+  participation?: {
+    /** One question per side, with its answer. */
+    q: [string, string][];
+    /** Where the double line goes. */
+    drawing: string;
+  };
 }
 
 export interface ERTaskSpec {
@@ -597,6 +605,86 @@ export const TASKS: ERTaskSpec[] = [
         { label: 'FirstName', x: 1225, y: 330, of: 'STUDENT' },
         { label: 'LastName', x: 1225, y: 415, of: 'STUDENT' },
         { label: 'Email', x: 1165, y: 480, of: 'STUDENT' },
+      ],
+    },
+  },
+
+  // ── Task 6 · Simple · Online shop ─────────────────────────────────────
+  {
+    id: 'task6',
+    n: 6,
+    level: 'Simple',
+    place: 'Online shop',
+    time: '5 minutes',
+    title: 'Customers and purchases',
+    aside: 'A very small scenario about one new idea: must every instance take part in the relationship?',
+    scenario: [
+      'Hemi sells handmade candles online. Each {e|customer} has a {a|customer ID} and a {a|name}. Each {e|purchase} has a {a|purchase number} and a {a|purchase date}.',
+      'A customer {r|makes} purchases, and can make many. A customer can register on the website before buying anything. Every purchase must be made by exactly one customer.',
+    ],
+    questions: [
+      'List the entities and the attributes of each, and identify the key attributes.',
+      'Identify the relationship and its cardinality.',
+      'Must every CUSTOMER take part in the relationship? Must every PURCHASE? Decide whether each side is total or partial.',
+      'Draw the ER diagram using Chen’s notation. Show total participation with a double line.',
+    ],
+    hint: 'For each entity, ask: can one exist without being in the relationship? If it can, the participation is partial. If it cannot, it is total.',
+    newIdea: {
+      title: 'Participation: total and partial',
+      body: 'Cardinality counts how many. Participation asks whether an entity must take part at all. Total participation means every instance must be in the relationship, so it is drawn with a double line. Partial participation means some instances may not be in it, so it is drawn with a single line. Ask the question for each entity separately.',
+    },
+    entities: [
+      { name: 'CUSTOMER', why: 'Hemi stores details about many customers.' },
+      { name: 'PURCHASE', why: 'Hemi stores details about many purchases.' },
+    ],
+    notEntities: 'The online shop and Hemi are not entities. Candles are not an entity here because the scenario stores nothing about them.',
+    attributes: [
+      { entity: 'CUSTOMER', key: 'CustomerID', others: ['Name'] },
+      { entity: 'PURCHASE', key: 'PurchaseNumber', others: ['PurchaseDate'] },
+    ],
+    attributesNote: 'Two customers can have the same name, but not the same CustomerID.',
+    rels: [
+      {
+        name: 'CUSTOMER MAKES PURCHASE',
+        left: 'CUSTOMER',
+        right: 'PURCHASE',
+        q: [
+          ['One CUSTOMER can make how many PURCHASEs?', 'Many'],
+          ['One PURCHASE is made by how many CUSTOMERs?', 'One'],
+        ],
+        ratio: '1:N',
+        numbers: 'Write 1 next to CUSTOMER and N next to PURCHASE.',
+        participation: {
+          q: [
+            ['Must every CUSTOMER have made a purchase?', 'No, so CUSTOMER is partial (single line)'],
+            ['Must every PURCHASE be made by a customer?', 'Yes, so PURCHASE is total (double line)'],
+          ],
+          drawing: 'Draw a single line from CUSTOMER to MAKES and a double line from PURCHASE to MAKES.',
+        },
+        note: 'Cardinality and participation are different questions. Cardinality says a customer can make many purchases. Participation says a customer is allowed to have none.',
+      },
+    ],
+    readAloud: [
+      'One CUSTOMER MAKES many PURCHASEs.',
+      'Each PURCHASE is made by one CUSTOMER.',
+      'A CUSTOMER may have no purchases (partial).',
+      'Every PURCHASE must have a CUSTOMER (total).',
+    ],
+    diagramLabel: 'Chen ER diagram: CUSTOMER, with key CustomerID and attribute Name, MAKES PURCHASE, with key PurchaseNumber and attribute PurchaseDate. 1 beside CUSTOMER, N beside PURCHASE. A single line joins CUSTOMER to MAKES (partial participation) and a double line joins PURCHASE to MAKES (total participation).',
+    diagram: {
+      w: 860,
+      h: 300,
+      minWidth: 620,
+      entities: [
+        { id: 'CUSTOMER', x: 190, y: 150 },
+        { id: 'PURCHASE', x: 670, y: 150 },
+      ],
+      rels: [{ id: 'MAKES', x: 430, y: 150, links: [['CUSTOMER', '1'], ['PURCHASE', 'N']], total: ['PURCHASE'] }],
+      attrs: [
+        { label: 'CustomerID', x: 110, y: 52, of: 'CUSTOMER', key: true },
+        { label: 'Name', x: 265, y: 252, of: 'CUSTOMER' },
+        { label: 'PurchaseNumber', x: 590, y: 52, of: 'PURCHASE', key: true },
+        { label: 'PurchaseDate', x: 760, y: 252, of: 'PURCHASE' },
       ],
     },
   },

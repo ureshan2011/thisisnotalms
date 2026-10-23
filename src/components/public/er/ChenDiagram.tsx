@@ -7,9 +7,10 @@
 //
 // Only the four shapes the ER foundations lesson teaches are used — the
 // rectangle, the ellipse, the underlined key ellipse and the diamond — plus
-// 1, N and M on the relationship lines. Weak entities, multivalued and
-// derived attributes and participation come later in the course, so they
-// are deliberately not drawable here.
+// 1, N and M on the relationship lines, and the double line that marks total
+// participation (Task 6). Weak entities and multivalued and derived
+// attributes come later in the course, so they are deliberately not
+// drawable here.
 //
 // `stage` lets an answer grow with the student's checking: 1 draws the
 // entities, 2 adds their attributes, 3 adds the relationships, their
@@ -27,8 +28,10 @@ export interface DiagramSpec {
   entities: { id: string; x: number; y: number }[];
   /** Each link is [entity, its number, flip]. `flip` moves the number to
    *  the other side of the line, for when two lines leave one entity close
-   *  together and both numbers would otherwise land between them. */
-  rels: { id: string; x: number; y: number; links: [string, Card, boolean?][] }[];
+   *  together and both numbers would otherwise land between them. `total`
+   *  lists the entities with total participation: their line is drawn
+   *  double. Any other entity has partial participation (a single line). */
+  rels: { id: string; x: number; y: number; links: [string, Card, boolean?][]; total?: string[] }[];
   /** `of` is the entity or relationship the attribute belongs to. */
   attrs: { label: string; x: number; y: number; of: string; key?: boolean }[];
 }
@@ -36,6 +39,7 @@ export interface DiagramSpec {
 const ENT_H = 50;
 const REL_HH = 36;
 const ATTR_RY = 21;
+const DOUBLE_GAP = 4;
 
 export const entityW = (label: string) => Math.max(110, label.length * 10.5 + 40);
 export const relHW = (label: string) => Math.max(60, label.length * 5.6 + 26);
@@ -150,12 +154,19 @@ export default function ChenDiagram({ spec, stage = 3, label, freshFrom }: {
       {rels.flatMap(r =>
         r.links.map(([ent], i) => {
           const e = pos.get(ent)!;
+          const cls = `erd-line erd-line--rel${fresh(3) ? ' erd-fresh' : ''}`;
+          if (!r.total?.includes(ent)) {
+            return <line key={`rl-${r.id}-${ent}-${i}`} className={cls} x1={e.x} y1={e.y} x2={r.x} y2={r.y} />;
+          }
+          // Total participation: two parallel lines, 4px either side of the centre.
+          const len = Math.hypot(r.x - e.x, r.y - e.y) || 1;
+          const ox = ((r.y - e.y) / len) * DOUBLE_GAP;
+          const oy = (-(r.x - e.x) / len) * DOUBLE_GAP;
           return (
-            <line
-              key={`rl-${r.id}-${ent}-${i}`}
-              className={`erd-line erd-line--rel${fresh(3) ? ' erd-fresh' : ''}`}
-              x1={e.x} y1={e.y} x2={r.x} y2={r.y}
-            />
+            <g key={`rl-${r.id}-${ent}-${i}`} className={cls}>
+              <line className="erd-line erd-line--rel" x1={e.x + ox} y1={e.y + oy} x2={r.x + ox} y2={r.y + oy} />
+              <line className="erd-line erd-line--rel" x1={e.x - ox} y1={e.y - oy} x2={r.x - ox} y2={r.y - oy} />
+            </g>
           );
         }),
       )}

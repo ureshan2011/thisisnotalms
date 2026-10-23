@@ -222,6 +222,20 @@ export default function ERTask({ task }: { task: ERTaskSpec }) {
                           ))}
                         </dl>
                         <p className="erf-rel__numbers">{r.numbers}</p>
+                        {r.participation && (
+                          <>
+                            <p className="erf-rel__attrs"><b>Participation</b></p>
+                            <dl className="erf-twoq">
+                              {r.participation.q.map(([q, a]) => (
+                                <div key={q}>
+                                  <dt>{q}</dt>
+                                  <dd>{a}</dd>
+                                </div>
+                              ))}
+                            </dl>
+                            <p className="erf-rel__numbers">{r.participation.drawing}</p>
+                          </>
+                        )}
                         {r.attrs && (
                           <p className="erf-rel__attrs">
                             Relationship attributes: {r.attrs.map((a, i) => (

@@ -1,7 +1,7 @@
 // ─── Shared text for the ER diagram tutorial ──────────────────────────────
 // Used by the web page (/er-first-steps) and by the two printable PDFs
 // (scripts/er-tutorial-pdf), so the page and the handouts always say the
-// same thing. The five tasks themselves live in firstTasks.ts.
+// same thing. The six tasks themselves live in firstTasks.ts.
 
 export const PDF_DIR = 'mbi802/er-tutorial';
 export const PDF_TUTORIAL = 'MBI802-ER-Diagram-Tutorial.pdf';

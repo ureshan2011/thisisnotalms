@@ -21,6 +21,7 @@ const NAV = [
   { id: 'task3', label: 'Task 3' },
   { id: 'task4', label: 'Task 4' },
   { id: 'task5', label: 'Task 5' },
+  { id: 'task6', label: 'Task 6' },
   { id: 'mistakes', label: 'Mistakes' },
   { id: 'check', label: 'Check' },
 ];
@@ -49,8 +50,8 @@ export default function FirstERDiagramsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: EASE, delay: 0.14 }}
             >
-              Five practice tasks for students who are new to ER diagrams, based on a bank, a university and a
-              hospital. For each one, identify the entities, attributes and relationships, then draw the diagram in
+              Six practice tasks for students who are new to ER diagrams, based on a bank, a university, a hospital
+              and an online shop. For each one, identify the entities, attributes and relationships, then draw the diagram in
               Chen’s notation. Answers are included.
             </motion.p>
 
@@ -60,7 +61,7 @@ export default function FirstERDiagramsPage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, ease: EASE, delay: 0.24 }}
             >
-              Yasas Sri Wickramasinghe, MBI802 lecturer · Two simple tasks, three moderate tasks
+              Yasas Sri Wickramasinghe, MBI802 lecturer · Three simple tasks, three moderate tasks
             </motion.p>
 
             <motion.div

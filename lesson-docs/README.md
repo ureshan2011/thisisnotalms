@@ -77,13 +77,14 @@ transcribed in full in section 2, not truncated or "e.g."'d.
 
 ## Full inventory
 
-### MBI800 — Strategic Information Systems (6 lessons)
+### MBI800 — Strategic Information Systems (7 lessons)
 1. Five Stories That Changed Everything — non-gated `/five-stories` + gated copy
 2. Platform Strategy — non-gated `/platform-strategy` + gated copy
 3. Systems Security — non-gated `/systems-security`
 4. Immersive Realities (XR Explorer) — non-gated `/xr-explorer`
 5. Capstone Bonus Lecture (ship a site with AI tools) — non-gated `/bonus-lecture`
 6. SISP Prompt Engineering Lab — gated only
+7. APA 7 Citations: The Crash Course — non-gated, no password, `/apa-referencing`
 
 ### MBI802 — Database Management Systems (24 lessons)
 Public core (14): SQL Programming (`/sql-programming`), Database Concepts
@@ -120,8 +121,7 @@ team activity with a downloadable PDF: the brief plus a cut-down fillable plan t
 Gated only (3): Agile Scrum Process in IT slide deck, Agile Scrum Knowledge Check quiz
 (30Q), Free Agile & Scrum Certifications resource list.
 
-### General / cross-subject (5)
-APA 7 Citations Crash Course (`/apa-referencing`, non-gated + always-visible gated copy),
+### General / cross-subject (4)
 Study Packs download hub (`/study-packs`), Pre-Class Idea Swarm icebreaker (`/pre-class`),
 Live Vote / peer-rating tool (`/vote`, `/vote/admin`), Skill Passport badge dashboard
 (`/student/skill-passport`).

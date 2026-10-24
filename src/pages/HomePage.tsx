@@ -296,9 +296,9 @@ const LESSONS: {
   },
   {
     to: '/apa-referencing',
-    eyebrow: 'General resources · Academic writing',
+    eyebrow: 'MBI800 · Academic writing',
     title: 'APA 7 Citations: The Crash Course',
-    body: 'Everything you need to cite correctly — from the first in-text citation to the last reference entry. 14 interactive slides with a practice quiz. (Password protected.)',
+    body: 'Everything you need to cite correctly — from the first in-text citation to the last reference entry. Worked examples you can tap through, and an eight-question check at the end. No password.',
     emoji: '📖',
     from: '#4338ca',
     to2: '#f59e0b',

@@ -376,7 +376,7 @@ export default function CourseHome({
           <SectionHead
             eyebrow="Beyond this course"
             title="The rest of the site"
-            aside="Two things belong to no single course, and the other three courses have a page of their own laid out exactly like this one."
+            aside="One thing belongs to no single course, and the other three courses have a page of their own laid out exactly like this one."
           />
         </Reveal>
 

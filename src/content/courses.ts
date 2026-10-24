@@ -209,6 +209,15 @@ const MBI800: Course = {
       kind: 'Lab',
     },
     {
+      id: 'apa-referencing',
+      title: 'APA 7 citations: the crash course',
+      blurb:
+        'Everything needed to cite correctly, from the first in-text citation to the last reference entry. When to cite, short and block quotes, the four parts of every reference, five mistakes that cost marks, and an eight-question check. Open to anybody, no password.',
+      to: '/apa-referencing',
+      access: 'open',
+      kind: 'Reference',
+    },
+    {
       id: 'study-packs',
       title: 'The written study pack',
       blurb:
@@ -653,15 +662,6 @@ const MBI806B: Course = {
 // bottom of all four pages rather than padding out a course's own count.
 
 export const GENERAL_RESOURCES: CourseLesson[] = [
-  {
-    id: 'apa-referencing',
-    title: 'APA 7 citations: the crash course',
-    blurb:
-      'Everything needed to cite correctly, from the first in-text citation to the last reference entry. Fourteen interactive slides and a practice quiz.',
-    to: '/apa-referencing',
-    access: 'open',
-    kind: 'Reference',
-  },
   {
     id: 'pre-class',
     title: 'The pre-class idea swarm',

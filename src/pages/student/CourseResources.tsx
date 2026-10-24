@@ -39,7 +39,6 @@ import SQLPracticeLesson from '../../components/lab/SQLPracticeLesson';
 import AgileScrumDeck from '../../components/slides/AgileScrumDeck';
 import AgileScrumMcq from '../../components/quiz/AgileScrumMcq';
 import AgileScrumMcqDashboard from '../../components/quiz/AgileScrumMcqDashboard';
-import APAReferencingDeck from '../../components/slides/APAReferencingDeck';
 import FiveStoriesLesson from '../../components/slides/FiveStoriesLesson';
 import PlatformStrategyDeck from '../../components/slides/PlatformStrategyDeck';
 import { useAuth } from '../../contexts/AuthContext';
@@ -261,23 +260,6 @@ const COURSES: Course[] = [
         subtitle: 'Four no-cost options where both the course and the completion certificate are free · Recommended to complement your Agile Scrum coursework',
         icon: <Award size={18} />,
         accentColor: '#059669',
-      },
-    ],
-  },
-  {
-    id: 'GENERAL',
-    name: 'GENERAL',
-    tagline: 'General Resources for All Students',
-    accentColor: '#4338ca',
-    bgGradient: 'linear-gradient(135deg, rgba(67,56,202,0.08), rgba(99,102,241,0.04))',
-    alwaysVisible: true,
-    lessons: [
-      {
-        id: 'apa-referencing',
-        title: 'APA 7 Citations: The Crash Course',
-        subtitle: '14-slide interactive deck · In-text citations, reference types, common mistakes · Includes a practice quiz',
-        icon: <BookOpen size={18} />,
-        accentColor: '#4338ca',
       },
     ],
   },
@@ -1794,7 +1776,7 @@ export default function CourseResources() {
                     {lesson.id === 'sisp-lab' && <SISPPromptLab />}
                     {lesson.id === 'platform-strategy' && <PlatformStrategyDeck />}
                     {lesson.id === 'sql-practice' && <SQLPracticeLesson />}
-                    {lesson.id === 'apa-referencing' && <APAReferencingDeck />}
+                    {/* apa-referencing moved to the public, passwordless page /apa-referencing (MBI800) */}
 
                     {/* Lecturer-added videos — skipped for lessons that already merged them above */}
                     {(() => {

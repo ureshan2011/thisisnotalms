@@ -490,6 +490,15 @@ const MBI804: Course = {
       kind: 'Practice',
     },
     {
+      id: 'scope-plan',
+      title: 'Write a scope management plan, as a team',
+      blurb:
+        'Thirty minutes, one small IT project, a team of four to six. Split the sections of a cut-down scope management plan, write your own, swap and run four checks on a teammate\u2019s. Comes with a PDF: the brief on page 1 and a fillable template on pages 2 to 5.',
+      to: '/scope-plan',
+      access: 'open',
+      kind: 'Practice',
+    },
+    {
       id: 'cost-management',
       title: 'Project cost management',
       blurb:

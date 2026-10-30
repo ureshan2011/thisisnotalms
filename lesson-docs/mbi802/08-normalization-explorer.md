@@ -6,33 +6,36 @@
   `/normalisation` via `<Navigate replace>`. Both are registered twice in `src/App.tsx` — once
   in the normal route tree and once in what appears to be a duplicate/legacy route block
   (lines ~96-98 and ~181-183) — the two registrations are identical, just present twice.
-- **Source files:** `src/pages/NormalizationExplorerPage.tsx` (~2092 lines, single self-contained
-  page component, default export `NormalizationExplorerPage`)
+- **Source files:**
+  - `src/pages/NormalizationExplorerPage.tsx` — the route page: a Blend `CoursePage` on MBI802's
+    default orange, the section nav, the hero copy, and every section in order (section heads,
+    anomaly cards, the X → Y display, the plain-words cards, decomposition, quick reference,
+    sign-off). Default export `NormalizationExplorerPage`.
+  - `src/components/public/NormalisationExplorerSims.tsx` — the ten interactive pieces
+    (`AnomalyPlayground`, `FDExplorer`, `NormalizationStudio`, `AtomicSplitter`, `OneNFSimulator`,
+    `TwoNFSimulator`, `ThreeNFSimulator`, `NFChecklist`, `NFDetective`, `TrueFalseQuiz`), their
+    data, and the shared `DataTable`, `Pill`, `Steps` (segmented stepper) and `NF_SUMMARY`.
+  - `src/components/public/NormalisationHeroScene.tsx` — the animated hero drawing.
+  - `src/styles/normalisation-explorer.css` — page styles, scoped `nx-` inside `.bt`.
 - **Depends on:**
-  - `src/components/ui/BrandLogo.tsx` — used in the hero (top-left, `iconSize={28}`,
-    `variant="on-light"`, wrapped in a `<Link to="/home">`) and again in the footer (same props,
-    no link).
-  - `react-router-dom` — only for the `Link` to `/home`; the page itself is not otherwise
-    route-aware.
-  - `framer-motion` — `motion`, `AnimatePresence`, `useScroll`, `useTransform`, `type Variants`
-    for all animation (scroll-reveal, hero parallax, table layout transitions, staggered grids).
-  - No Firestore reads/writes, no external links, no images/SVGs/videos. Nothing is collected or
-    stored — confirmed both in the header comment and the closing footer copy ("Everything here
-    runs in your own browser. No personal data is collected or stored.").
+  - Blend (`src/components/blend/`: `CoursePage`, `Reveal`; stylesheet `src/styles/blend.css`).
+    `CoursePage` supplies the brand header, the floating pill nav and the dark footer, which
+    replace the old `BrandLogo` header and footer.
+  - `framer-motion` for all animation, `lucide-react` for icons.
+  - No Firestore reads/writes, no external links, no images or videos. Nothing is collected or
+    stored; the footer note says "Everything here runs in your own browser. No personal data is
+    collected or stored."
   - **Not a dependency of this file, but related:** there is a separate, differently-implemented
     **gated** slide-deck component, `NormalizationDeck.tsx`, covering the same normalisation
-    topic. Per the lesson-docs project inventory (`lesson-docs/README.md`), that gated deck is
-    documented in its own file elsewhere under the gated-lessons docs, and it is locked behind an
-    ER Knowledge Check quiz score threshold. This document does **not** describe
-    `NormalizationDeck.tsx` (its source was not read while writing this file) — it documents only
-    the public interactive explorer covered here. Do not conflate the two.
+    topic. It is documented in its own file (`18-normalization-deck.md`) and is not described
+    here. Do not conflate the two.
 
 ## 1. Purpose & learning objectives
 
 A single, self-contained, scroll-driven public lesson page that teaches database normalisation
 end to end: why un-normalised tables cause problems, what functional dependencies are, and how to
 climb the ladder 1NF → 2NF → 3NF → BCNF, ending with the two safety properties of a good
-decomposition (lossless join, dependency preservation). The header comment in the source states
+decomposition (lossless join, dependency preservation). The original header comment (before the move to Blend) stated
 the intent directly:
 
 > "A single, self-contained page that walks through database normalisation — the anomalies that
@@ -447,55 +450,50 @@ transcribed in full.
 
 ## 3. UI & interaction design
 
-- **Visual language:** "Apple-styled" design system shared with the XR Explorer lesson (per the
-  header comment) — off-white/`#fafafa`/`#f5f5f7` alternating section backgrounds, `#1d1d1f`
-  near-black text, `#0071e3` Apple-blue as the primary accent, a blue→indigo→purple
-  (`#0071e3` → `#5e5ce6` → `#bf5af2`) gradient used once on the hero headline. Font stack is the
-  `APPLE_FONT` constant: `-apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
-  "Inter", "Helvetica Neue", system-ui, sans-serif`, applied via inline `style` on the page's root
-  div.
-- **Layout model:** single continuous scroll, no tabs/routing between sections. `<section>`
-  blocks alternate white and `#f5f5f7` backgrounds for visual rhythm, each `px-6 py-24 sm:py-28`.
-  Content is centered with `mx-auto max-w-{3xl|4xl|5xl}` depending on section.
-  Two `id` anchors (`anomalies`, `studio`) are used only for the hero's in-page scroll CTAs via a
-  custom `scrollToSection` helper that calls `element.scrollIntoView({ behavior: 'smooth', block:
-  'start' })` directly (bypassing the router's hash, since the app runs under `HashRouter` — noted
-  explicitly in a source comment).
-- **Hero parallax:** built with `useScroll({ target: heroRef, offset: ['start start', 'end
-  start'] })` and three `useTransform` mappings: scale 1→0.86, opacity 1→0, and translateY 0→120px
-  as the user scrolls through the hero's own height. Two soft blurred gradient blobs sit behind
-  the hero content (`#0071e3` and `#5e5ce6` at low opacity, `blur-3xl`).
-- **Scroll-reveal:** the `Reveal` wrapper (`initial opacity:0,y:48` → `whileInView opacity:1,y:0`,
-  `viewport once:true margin:-80px`, 0.8s custom ease `EASE = [0.16, 1, 0.3, 1]`) wraps almost
-  every section head and simulation, optionally staggered via a `delay` prop. Card grids (anomaly
-  types, NF summary cards) use `stagger`/`item` Framer Motion variants with `staggerChildren:
-  0.09`.
-  and a shared `EASE` curve `[0.16, 1, 0.3, 1]` for consistency (bounce-free, iOS-like).
-- **DataTable component:** a shared Apple-styled table (rounded-2xl, bordered, white background,
-  monospace tabular numbers) with a colour-coded header background per table (`headColor` prop)
-  and per-cell semantic colouring via `CellKind`: `pk` (blue, primary key), `fk` (indigo, foreign
-  key), `ok` (green, "this is now correct/deduplicated"), `bad` (red, "this is the
-  problem/redundant/anomalous cell"), `mut` (yellow, "this cell was just edited"). This colour
-  vocabulary is reused consistently across every simulation.
-- **Stepper controls:** the Normalisation Studio, OneNFSimulator, TwoNFSimulator, and
-  ThreeNFSimulator all use the same visual pattern — a single-row segmented control of equal-width
-  buttons (one per stage/phase), active step filled solid in its accent colour, completed steps
-  shown as a tinted "done ✓" state, upcoming steps white/grey, with a border between segments.
-  Underlying content cross-fades via `AnimatePresence mode="wait"` with a 0.35-0.4s slide+fade
-  transition.
-- **Quizzes (FDExplorer flip-cards, NFDetective, Quiz):** consistent pattern of un-answered
-  (neutral grey) → answered (green ring+tint if correct, red ring+tint if the chosen wrong answer,
-  dimmed grey for other wrong options) button states, a progress bar/counter, and a final
-  score screen with an emoji tier and a "Try again" reset button that zeroes all local state.
-- **Motion library:** all animation is via `framer-motion` (`motion.div`, `AnimatePresence`,
-  `layout` transitions on the Anomaly Playground and Atomic Splitter tables so row/column changes
-  animate smoothly rather than jump-cutting).
-- **Responsiveness:** tables scroll horizontally on overflow (`overflow-x-auto` on `DataTable`'s
-  wrapper). Grids collapse from 2-3 columns to 1 column below `sm`/`md` breakpoints (Tailwind
-  `sm:`/`md:` prefixes throughout). Font sizes step down via responsive Tailwind classes (e.g.
-  hero H1 `text-[44px] sm:text-[72px] lg:text-[88px]`).
-- **No dark mode:** the page is hardcoded to a light theme (`bg-white text-[#1d1d1f]`); no
-  `prefers-color-scheme` handling.
+The page was rebuilt on Blend so it matches the other course pages; the teaching text in section 2
+is unchanged word for word. What changed is the frame, the styling, the motion and the hero.
+
+- **Frame:** `CoursePage` on MBI802's orange: brand header with the link back to `/mbi802`, a
+  floating dark pill nav that tracks the section in view (The problem, Dependencies, Studio, 1NF,
+  2NF & 3NF, Checklist, Walkthroughs, Decomposition, Detective, At a glance, Quiz), and the dark
+  footer. Paper background, Manrope headings, DM Sans body, JetBrains Mono for schemas and FDs.
+- **Hero:** copy on the left (flag "An interactive lesson · Dr. Yasas Sri Wickramasinghe", headline
+  "Let’s make sense of / Database Normalisation." with the second line in the accent, the lede,
+  "Open the Normalisation Studio" and "Start with the problem" pill buttons, and "Scroll to
+  explore"). On the right, `NormalisationHeroScene`: an SVG drawing of a person in an orange hoodie
+  and apron, with a teal headband and a bucket of suds, cleaning a `students.db` board with a long
+  squeegee. The loop: a messy table (grime, crooked rows, a red-tagged duplicate S2 row, a "Dr.
+  Smyth" typo, lists in the Courses cells, status chip "Messy data"); the blade sweeps each row in
+  turn and the grime clears behind it through an SVG mask, rows straighten, the duplicate fades out
+  and the rows below close up, the typo turns into a green "Dr. Smith", a tick and sparkles land
+  on each clean row ("Cleaning…"); then the board is polished into Students, Departments and
+  Enrolment tables with dashed links, the 1NF/2NF/3NF chips turn green one by one, the redundancy
+  gauge drains to green, and the person smiles ("Normalised"). It holds and repeats, about 16
+  seconds a cycle, with a caption and four progress dashes under the drawing. The squeegee is two
+  motion values; the pole, both arms (a two-bone IK solve), the wipe mask and the foam are derived
+  from them. With prefers-reduced-motion the finished board is drawn still.
+- **Section heads:** eyebrow, a large headline (a few close with the orange full stop or question
+  mark) and the original subtitle as a standfirst on the right; stacked on phones.
+- **Tables:** one `DataTable` for the whole page, white with a coloured header per table (blue,
+  teal, violet, magenta, red, amber, green, all from the Blend palette) and the same cell kinds as
+  before: `pk` orange tint, `fk` violet, `ok` green, `bad` red, `mut` amber. Rows animate in and
+  out (`AnimatePresence`, layout transitions), and a changed cell value pops in.
+- **Steppers:** the Studio and the three walkthroughs use one segmented control with a dark pill
+  that slides between steps (shared `layoutId`), and a check on completed steps. Content
+  cross-fades between steps; split tables drop in one after another.
+- **Studio side panel:** blurb card, redundancy meter whose width and colour animate (High red,
+  Medium amber, Low green), and an anomaly status row whose icon swaps with a small rotate.
+- **Cards:** anomaly types, decomposition promises and the quick-reference cards rise in with a
+  stagger and lift on hover; the plain-words cards carry a coloured edge; the checklist tabs share
+  a sliding coloured indicator and the ticks spring in.
+- **Quizzes:** the detective and the true/false quiz follow Blend's quiz look (green right, red
+  wrong, muted others), with an animated progress bar and a results screen that uses an icon tier
+  (search, target, book, trophy) in place of the old emoji.
+- **Icons in place of emoji:** the old emoji (✏️ ➕ 🗑️ ⚠️ ✅ 🕵️ 🎯 📚 🏆), the "›" button suffixes and
+  the "✓"/"✕" marks are now lucide icons and Blend's arrow badges; the words are the same.
+- **Responsiveness:** single column below 760px, tables scroll inside their own frame, steppers
+  scroll sideways if needed, the 3NF chain turns vertical. No horizontal page scroll at 390px.
+  blend.css drops `.bt-wrap`'s side gutter on `.bt-hero`; this page restores it for itself.
 
 ## 4. Component & state architecture
 
@@ -540,9 +538,12 @@ using local `useState` only:
   vars.
 - **`Quiz`** — same shape as `NFDetective` but over boolean true/false answers and the
   module-level `QUIZ` array (5 items, `{ q, a: boolean, e }`).
-- **`NormalizationExplorerPage`** (root) — `heroRef` (`useRef`) plus three `useTransform`-derived
-  motion values from `useScroll` for the hero parallax. No other state; simply lays out all
-  sections in order and renders the child components described above.
+- **`NormalizationExplorerPage`** (root) — no state; lays out all sections in order inside
+  `CoursePage` and renders the child components described above. The closing quiz component is
+  now named `TrueFalseQuiz` (it was `Quiz`, which clashed with Blend's `Quiz`).
+- **`NormalisationHeroScene`** — motion values `tx`, `ty` (blade position) and state `phase`
+  (`mess` → `clean` → `polish` → `done`), `active` (row being wiped), `cleaned` (rows done) and
+  `cycle`, driven by one async loop in an effect that stops on unmount.
 
 No Firestore reads/writes, no `localStorage`/`sessionStorage` usage detected, no gating/unlock
 logic, no scoring persisted beyond the current session's component state, no badge-award triggers.
@@ -577,10 +578,8 @@ is persisted.
   Firestore collection backing any of this content. A rebuild must recreate these arrays verbatim
   (content transcribed in full in Section 2 above) rather than fetch them from anywhere.
   is no CMS, JSON file, or Firestore collection backing any of this content.
-- **No assets.** No images, SVGs, video, or external links appear anywhere in the file — every
-  visual (chain diagram, gradient blobs, table highlighting) is built from Tailwind
-  classes/inline styles and emoji characters (✏️, ➕, 🗑️, ⚠️, ✅, 🕵️, 🎯, 📚, 🏆) rather than
-  icon assets.
+- **No asset files.** No images, video, or external links. The hero is inline SVG drawn in
+  `NormalisationHeroScene.tsx`; icons come from `lucide-react`.
 - **`0NF` naming quirk:** the `STAGES` array's first entry is labeled `'0NF'` ("Un-normalised"),
   which is a pedagogical convenience label, not a formally recognized normal form — worth
   preserving as-is since it's how the existing UI labels the starting point, but a rebuilder

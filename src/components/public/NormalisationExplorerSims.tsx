@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   AlertTriangle,
@@ -119,9 +119,17 @@ function Named({ name, pk, color, children }: { name: string; pk: string; color:
 }
 
 /** Segmented stepper with a sliding indicator. */
-function Steps({ id, labels, at, onPick }: { id: string; labels: string[]; at: number; onPick: (i: number) => void }) {
+export function Steps({ id, labels, at, onPick }: { id: string; labels: string[]; at: number; onPick: (i: number) => void }) {
+  const bar = useRef<HTMLDivElement>(null);
+  // On a phone the bar scrolls sideways: keep the current step in view.
+  useEffect(() => {
+    const el = bar.current;
+    const btn = el?.children[at] as HTMLElement | undefined;
+    if (!el || !btn || el.scrollWidth <= el.clientWidth) return;
+    el.scrollTo({ left: btn.offsetLeft - (el.clientWidth - btn.offsetWidth) / 2, behavior: 'smooth' });
+  }, [at]);
   return (
-    <div className="nx-seg" role="tablist">
+    <div className="nx-seg" role="tablist" ref={bar}>
       {labels.map((l, i) => (
         <button
           key={l}
@@ -587,7 +595,9 @@ const STAGES: Stage[] = [
 const level = (r: number) => (r > 60 ? 'High' : r > 25 ? 'Medium' : 'Low');
 const levelColor = (r: number) => (r > 60 ? C.red : r > 25 ? C.amber : C.green);
 
-export function NormalizationStudio() {
+/** `below` renders under the studio for a given stage: the page uses it to
+ *  add the three-table walkthrough under 1NF. */
+export function NormalizationStudio({ below }: { below?: (nf: string) => ReactNode }) {
   const [stage, setStage] = useState(0);
   const s = STAGES[stage];
 
@@ -680,6 +690,7 @@ export function NormalizationStudio() {
           </div>
         </div>
       </div>
+      <AnimatePresence mode="wait">{below && <motion.div key={s.nf}>{below(s.nf)}</motion.div>}</AnimatePresence>
     </div>
   );
 }

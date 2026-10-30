@@ -6,8 +6,9 @@ import { C, EASE, Pill, Steps } from './NormalisationExplorerSims';
 // ─── 1NF, the better approach: three tables ───────────────────────────────
 // Shown in the Normalisation Studio under the 1NF stage. The one-table 1NF
 // above it is correct, but it jumps straight to a two-column key. This walks
-// the same students-and-courses example to 1NF the way the course sketch
-// does it: take the student facts out (key StudentID), take the courses out
+// the lecturer's sketch example (students and the courses they take, no
+// departments, no grades) to 1NF the way the sketch does it: take the
+// students out (key StudentID), take the courses out
 // and give each an ID (key CourseID), then record who takes what in an
 // Enrolment table whose key is the two IDs together, with arrows showing
 // where each one comes from. It ends with the ER view: Student N–enrols–M
@@ -174,37 +175,48 @@ function Arrows({ links, deps }: { links: { from: string; to: string; color: str
   );
 }
 
-// ── The example: the Studio's own 0NF table ──────────────────────────────
+// ── The example: the lecturer's sketch ───────────────────────────────────
+// Students and the courses they take, with a list in the Course cell. Course
+// IDs follow the sketch (C1 Maths, C2 Science, C3 English, C5 Commerce, C6
+// Arts); Database and Music, which the sketch leaves out, fill C4 and C7.
 const STUDENTS = [
-  ['S1', 'Alice', 'CS', 'Dr. Smith'],
-  ['S2', 'Bob', 'CS', 'Dr. Smith'],
-  ['S3', 'Carol', 'Math', 'Dr. Jones'],
+  ['100', 'Nimal'],
+  ['101', 'Kasun'],
+  ['102', 'Peter'],
+  ['103', 'Shilpa'],
+  ['104', 'Bob'],
 ];
 const ZERO = [
-  [...STUDENTS[0], 'C1:A, C2:B'],
-  [...STUDENTS[1], 'C1:A'],
-  [...STUDENTS[2], 'C3:A, C4:C'],
+  ['100', 'Nimal', 'Maths, Science'],
+  ['101', 'Kasun', 'English'],
+  ['102', 'Peter', 'Database'],
+  ['103', 'Shilpa', 'Commerce, Arts'],
+  ['104', 'Bob', 'Music'],
 ];
 const COURSES = [
-  ['C1', 'Databases'],
-  ['C2', 'Op. Systems'],
-  ['C3', 'Calculus'],
-  ['C4', 'Statistics'],
+  ['C1', 'Maths'],
+  ['C2', 'Science'],
+  ['C3', 'English'],
+  ['C4', 'Database'],
+  ['C5', 'Commerce'],
+  ['C6', 'Arts'],
+  ['C7', 'Music'],
 ];
 const ENROL = [
-  ['S1', 'C1', 'A'],
-  ['S1', 'C2', 'B'],
-  ['S2', 'C1', 'A'],
-  ['S3', 'C3', 'A'],
-  ['S3', 'C4', 'C'],
+  ['100', 'C1'],
+  ['100', 'C2'],
+  ['101', 'C3'],
+  ['102', 'C4'],
+  ['103', 'C5'],
+  ['103', 'C6'],
+  ['104', 'C7'],
 ];
 
-const STUDENT_COLS: Col[] = [{ label: 'StudentID', key: 'sid', anchor: 's-sid' }, { label: 'Name' }, { label: 'Dept' }, { label: 'DeptHead' }];
-const COURSE_COLS: Col[] = [{ label: 'CourseID', key: 'cid', anchor: 'c-cid' }, { label: 'CourseName' }];
+const STUDENT_COLS: Col[] = [{ label: 'StudentID', key: 'sid', anchor: 's-sid' }, { label: 'Name' }];
+const COURSE_COLS: Col[] = [{ label: 'CourseID', key: 'cid', anchor: 'c-cid' }, { label: 'Course' }];
 const ENROL_COLS: Col[] = [
   { label: 'StudentID', key: 'sid', anchor: 'e-sid' },
   { label: 'CourseID', key: 'cid', anchor: 'e-cid' },
-  { label: 'Grade' },
 ];
 
 const LINKS = [
@@ -212,24 +224,24 @@ const LINKS = [
   { from: 'c-cid', to: 'e-cid', color: CID },
 ];
 
-const STEP_LABELS = ['1. Spot the list', '2. Students table', '3. Courses table', '4. Enrolment table', '5. Check it'];
+const STEP_LABELS = ['1. Spot the list', '2. Student table', '3. Course table', '4. Enrolment table', '5. Check it'];
 
 const STEP_TEXT: { title: string; body: ReactNode }[] = [
   {
-    title: 'The Courses cell holds a list',
+    title: 'The Course cell holds a list',
     body: (
       <>
-        Alice’s cell says <b>C1:A, C2:B</b> and Carol’s says <b>C3:A, C4:C</b>: two courses, each with a grade, in
-        one cell. That breaks 1NF. The table is also mixing two different things: facts about <b>students</b> and
-        facts about <b>courses</b>. So instead of copying Alice onto a second row, give each thing its own table.
+        Nimal’s cell says <b>Maths, Science</b> and Shilpa’s says <b>Commerce, Arts</b>: two courses in one cell. That
+        breaks 1NF. The table is also mixing two different things: facts about <b>students</b> and facts about{' '}
+        <b>courses</b>. So instead of copying Nimal onto a second row, give each thing its own table.
       </>
     ),
   },
   {
-    title: 'Take the student facts out',
+    title: 'Take the students out',
     body: (
       <>
-        Everything that describes a student moves to a <b>Students</b> table, one row per student. StudentID picks out
+        Each student goes into a <b>Student</b> table, one row per student: StudentID and Name. StudentID picks out
         exactly one student, so it is the key of this table.
       </>
     ),
@@ -238,8 +250,8 @@ const STEP_TEXT: { title: string; body: ReactNode }[] = [
     title: 'Take the courses out, and give each an ID',
     body: (
       <>
-        Every course gets its own row in a <b>Courses</b> table. CourseID is the key. Databases is written once here,
-        even though two students take it.
+        Each course gets its own row in a <b>Course</b> table, with a CourseID: C1 Maths, C2 Science and so on.
+        CourseID is the key. Every course name is now written once.
       </>
     ),
   },
@@ -247,10 +259,10 @@ const STEP_TEXT: { title: string; body: ReactNode }[] = [
     title: 'Record who takes what in an Enrolment table',
     body: (
       <>
-        One row for each student in each course. Bring in the key from each table: <b>StudentID</b> from Students and{' '}
-        <b>CourseID</b> from Courses. A student takes many courses and a course has many students, so neither ID on its
-        own picks out a row. Together they do, so the key of Enrolment is <b>{'{StudentID, CourseID}'}</b>. The grade
-        goes here too: it belongs to one student in one course.
+        One row for each student in each course. Bring in the key from each table: <b>StudentID</b> from Student and{' '}
+        <b>CourseID</b> from Course. Nimal takes two courses, so 100 appears twice; a course can have many students, so a
+        CourseID can appear many times too. Neither ID on its own picks out a row. Together they do, so the key of
+        Enrolment is <b>{'{StudentID, CourseID}'}</b>.
       </>
     ),
   },
@@ -258,9 +270,8 @@ const STEP_TEXT: { title: string; body: ReactNode }[] = [
     title: 'Check: every cell holds one value',
     body: (
       <>
-        No lists, and no student or course written twice. The three tables are in 1NF, and they link back together
-        through StudentID and CourseID. These are the same tables the 2NF step reaches. Dept and DeptHead still repeat
-        inside Students; that is what 3NF fixes.
+        No lists, and no student or course name written twice. The three tables are in 1NF, and they link back together
+        through StudentID and CourseID: Nimal (100) takes C1 and C2, which are Maths and Science.
       </>
     ),
   },
@@ -308,9 +319,9 @@ export default function ThreeTableFix() {
         Fix the list with three tables, step by step<span className="bt-stop">.</span>
       </h3>
       <p className="tf-lead">
-        The table above is in 1NF, but it had to jump straight to a two-column key, and it still repeats Alice, CS and
-        Dr. Smith on every row. Here is the same example done another way: give students, courses and enrolments a table
-        each.
+        The table above is in 1NF, but it had to jump straight to a two-column key, and it still repeats the same
+        details on every row. Here is the idea step by step on a smaller example, students and the courses they take:
+        give students, courses and enrolments a table each.
       </p>
 
       <Steps id="threetable" labels={STEP_LABELS} at={step} onPick={setStep} />
@@ -335,26 +346,25 @@ export default function ThreeTableFix() {
       {step === 0 ? (
         <div className="tf-board tf-board--one">
           <KTable
-            name="StudentCourses (0NF)"
+            name="Student courses (not in 1NF)"
             color={C.red}
-            cols={[{ label: 'StudentID' }, { label: 'Name' }, { label: 'Dept' }, { label: 'DeptHead' }, { label: 'Courses (id : grade)' }]}
+            cols={[{ label: 'StudentID' }, { label: 'Name' }, { label: 'Course' }]}
             rows={ZERO}
-            badCells={(_, c) => c === 4}
+            badCells={(r, c) => c === 2 && (r === 0 || r === 3)}
           />
           <div className="tf-split">
-            <span className="tf-split__chip" style={cvar(SID)}>StudentID, Name, Dept, DeptHead → about the student</span>
-            <span className="tf-split__chip" style={cvar(CID)}>C1, C2, C3, C4 → courses</span>
-            <span className="tf-split__chip" style={cvar(C.amber)}>A, B, C → a grade for one student in one course</span>
+            <span className="tf-split__chip" style={cvar(SID)}>StudentID, Name → about the student</span>
+            <span className="tf-split__chip" style={cvar(CID)}>Maths, Science, English… → courses</span>
           </div>
         </div>
       ) : (
         <div className={`tf-board${showEnrol ? ' tf-board--arrows' : ''}`}>
           <div className="tf-grid">
             {showStudents && (
-              <KTable key="s" name="Students" color={C.blue} cols={STUDENT_COLS} rows={STUDENTS} ring />
+              <KTable key="s" name="Student" color={C.blue} cols={STUDENT_COLS} rows={STUDENTS} ring />
             )}
             {showCourses && (
-              <KTable key="c" name="Courses" color={C.teal} cols={COURSE_COLS} rows={COURSES} ring delay={step === 2 ? 0 : 0.05} />
+              <KTable key="c" name="Course" color={C.teal} cols={COURSE_COLS} rows={COURSES} ring delay={step === 2 ? 0 : 0.05} />
             )}
             {showEnrol && (
               <KTable key="e" name="Enrolment" color={C.violet} cols={ENROL_COLS} rows={ENROL} ring delay={step === 3 ? 0.15 : 0.1} />
@@ -366,7 +376,7 @@ export default function ThreeTableFix() {
 
       {showEnrol && (
         <motion.p className="tf-assume" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
-          Assumption: a student can enrol in many courses, and a course can have many students enrolled.
+          Assumption based on general knowledge: a particular course may have many enrolments from many students.
         </motion.p>
       )}
 

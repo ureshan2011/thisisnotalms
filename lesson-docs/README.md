@@ -86,11 +86,12 @@ transcribed in full in section 2, not truncated or "e.g."'d.
 6. SISP Prompt Engineering Lab — gated only
 7. APA 7 Citations: The Crash Course — non-gated, no password, `/apa-referencing`
 
-### MBI802 — Database Management Systems (24 lessons)
-Public core (14): SQL Programming (`/sql-programming`), Database Concepts
+### MBI802 — Database Management Systems (25 lessons)
+Public core (15): SQL Programming (`/sql-programming`), Database Concepts
 (`/database-concepts`), ER Diagrams (`/er-diagrams`), ER Activities (`/er-activities`),
 ER Advanced Concepts (`/er-advanced`), ER Attributes & Participation Constraints
-(`/er-attributes`), ER→Relational Mapping Explorer (`/er-mapping`), Normalization Explorer
+(`/er-attributes`), ER→Relational Mapping Explorer (`/er-mapping`), Normalisation, the simple way
+(`/normalisation-basics`), Normalization Explorer
 (`/normalisation`), Normalization Activities (`/normalisation-activities`), Normalization
 Videos (`/normalisation-videos`), SQL Reels (`/sql-reels`), SQL Certifications
 (`/sql-certifications`), Web Architecture (`/web-architecture`), Security Lab

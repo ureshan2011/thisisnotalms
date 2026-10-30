@@ -237,7 +237,7 @@ const MBI802: Course = {
   headline: ['Database management', 'systems'],
   accent: 'default',
   lede:
-    'From a spreadsheet that contradicts itself to a normalised database you can query. Eighteen lessons, in the order the course teaches them — the first one opens for anybody, with nothing to install.',
+    'From a spreadsheet that contradicts itself to a normalised database you can query. Nineteen lessons, in the order the course teaches them — the first one opens for anybody, with nothing to install.',
   meta: 'Yasas Sri Wickramasinghe · 15 credits, Level 8, no prerequisites',
   keyline:
     'Each lesson assumes the one before it. SQL before diagrams, diagrams before mapping, mapping before normalisation — that order is the course, not a filing system.',
@@ -351,6 +351,15 @@ const MBI802: Course = {
       blurb:
         'Turn entity-relationship diagrams into real relational tables — entities, relationships, keys, and every tricky case in between.',
       to: '/er-mapping',
+      access: 'open',
+      kind: 'Lesson',
+    },
+    {
+      id: 'normalisation-basics',
+      title: 'Normalisation, the simple way',
+      blurb:
+        'Why a messy table causes trouble, then 1NF, 2NF and 3NF one step at a time, using a pizza shop’s order sheet. Every step is coloured and animated, and the page saves as a PDF.',
+      to: '/normalisation-basics',
       access: 'open',
       kind: 'Lesson',
     },

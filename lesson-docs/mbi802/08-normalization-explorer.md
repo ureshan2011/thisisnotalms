@@ -455,28 +455,28 @@ transcribed in full.
 
 When the Studio is on 1NF, a block appears under it (eyebrow "A better approach", title "Fix the
 list with three tables, step by step."). Lead: the one-table 1NF above is correct, but it jumps
-straight to a two-column key and still repeats Alice, CS and Dr. Smith on every row; here is the
-same example done another way, a table each for students, courses and enrolments. It follows the
-lecturer's own whiteboard sketch (student table with StudentID ringed in red, course table with
-CourseID ringed in green, an enrolment table whose two keys are arrowed in from each, and the
-Student N–enrols–M Course ER diagram). Five steps on a segmented stepper, each with a numbered
-explanation card:
+straight to a two-column key and still repeats the same details on every row; here is the idea step
+by step on a smaller example, students and the courses they take. The example and the method are
+the lecturer's own whiteboard sketch: no departments and no grades.
 
-1. **Spot the list** — the Studio's 0NF table with the Courses cells in red ("C1:A, C2:B",
-   "C3:A, C4:C"), and three chips sorting the columns: StudentID, Name, Dept, DeptHead → about the
-   student; C1–C4 → courses; A, B, C → a grade for one student in one course.
-2. **Students table** — Students(StudentID, Name, Dept, DeptHead), three rows, StudentID ringed in
-   red as the key.
-3. **Courses table** — Courses(CourseID, CourseName): C1 Databases, C2 Op. Systems, C3 Calculus,
-   C4 Statistics; CourseID ringed in green. Databases is written once though two students take it.
-4. **Enrolment table** — Enrolment(StudentID, CourseID, Grade): S1 C1 A, S1 C2 B, S2 C1 A, S3 C3 A,
-   S3 C4 C. Curved red and green arrows draw from each source key to its column in Enrolment.
-   Neither ID alone picks out a row; together they are the key. Grade belongs to one student in one
-   course. Assumption line: a student can enrol in many courses, and a course can have many
-   students enrolled.
-5. **Check it** — every cell holds one value; no student or course written twice; these are the
-   same tables the 2NF step reaches; Dept and DeptHead still repeat inside Students, which 3NF
-   fixes. Then the ER diagram (Student —N— enrols —M— Course) with the note that the Enrolment
+The starting table (red, "Student courses (not in 1NF)"): 100 Nimal "Maths, Science"; 101 Kasun
+English; 102 Peter Database; 103 Shilpa "Commerce, Arts"; 104 Bob Music. Course IDs follow the
+sketch (C1 Maths, C2 Science, C3 English, C5 Commerce, C6 Arts); C4 Database and C7 Music fill the
+gaps the sketch leaves. Five steps on a segmented stepper, each with a numbered explanation card:
+
+1. **Spot the list** — the table above with the two list cells in red, and two chips: StudentID,
+   Name → about the student; Maths, Science, English… → courses.
+2. **Student table** — Student(StudentID, Name), five rows, StudentID ringed in red as the key.
+3. **Course table** — Course(CourseID, Course), C1–C7, CourseID ringed in green as the key.
+4. **Enrolment table** — Enrolment(StudentID, CourseID): 100 C1, 100 C2, 101 C3, 102 C4, 103 C5,
+   103 C6, 104 C7. Curved red and green arrows draw from each source key to its column in
+   Enrolment. Nimal takes two courses so 100 appears twice, a course can have many students, so
+   neither ID alone picks out a row; together they are the key. Assumption line, from the sketch:
+   "Assumption based on general knowledge: a particular course may have many enrolments from many
+   students."
+5. **Check it** — every cell holds one value, no student or course name written twice, and the
+   tables link back through StudentID and CourseID (Nimal, 100, takes C1 and C2: Maths and
+   Science). Then the ER diagram (Student —N— enrols —M— Course) with the note that the Enrolment
    table is the "enrols" relationship turned into a table.
 
 Table names sit under each table, as in the sketch. On phones the tables stack and the arrows are

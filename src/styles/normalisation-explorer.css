@@ -459,7 +459,7 @@
 .tf-say__body b { color: var(--ink-900); }
 .tf-board { position: relative; }
 .tf-board--arrows { padding-top: 74px; }
-.tf-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.tf-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: start; }
 .tf-table { position: relative; z-index: 1; }
 .tf-cap { margin-top: 10px !important; text-align: center; }
 .tf-key { position: relative; display: inline-flex; align-items: center; gap: 5px; }

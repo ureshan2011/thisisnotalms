@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowDown, ChevronRight, Pencil, PlusCircle, Trash2 } from 'lucide-react';
 import { CoursePage, Reveal } from '../components/blend';
 import NormalisationHeroScene from '../components/public/NormalisationHeroScene';
+import ThreeTableFix from '../components/public/NormalisationThreeTableFix';
 import {
   AnomalyPlayground,
   AtomicSplitter,
@@ -247,7 +248,7 @@ export default function NormalizationExplorerPage() {
           sub="Here is one messy table. Step it up the ladder and watch tables split apart, redundancy drain away and the anomalies disappear — the whole journey from un-normalised to BCNF in one place."
         />
         <Reveal delay={0.1}>
-          <NormalizationStudio />
+          <NormalizationStudio below={nf => (nf === '1NF' ? <ThreeTableFix /> : null)} />
         </Reveal>
       </section>
 

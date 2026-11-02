@@ -1,0 +1,909 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<title>MBI800 SISP Group Project Tutorial</title>
+<!-- build.mjs swaps the marker below for print.css and the footer text. -->
+<style>/*CSS*/</style>
+</head>
+<body>
+
+<header class="titleblock">
+  <p class="kicker">MBI800 Strategic Information Systems Planning</p>
+  <h1>Group Project Tutorial</h1>
+  <p class="subtitle">Writing a strategic information systems plan for a real New Zealand or Australian organisation</p>
+  <dl class="meta">
+    <div><dt>Lecturer</dt><dd>Dr Yasas Sri Wickramasinghe</dd></div>
+    <div><dt>Group size</dt><dd>4 to 6 students</dd></div>
+    <div><dt>Time</dt><dd>5 working days, then a class presentation</dd></div>
+  </dl>
+</header>
+
+<section class="box">
+  <h2 class="boxtitle">The project in one paragraph</h2>
+  <p>
+    Your group will pick a real organisation based in New Zealand or Australia, study it closely using information that
+    is publicly available, and write a strategic information systems (SIS) plan for its next three years. The plan has
+    to show how information systems will help the organisation reach its own vision, mission and objectives. Three areas
+    carry extra weight: how the organisation should manage risk, how the plan deals with ethical and cultural
+    obligations, and how a novel technology (immersive technology, AI or data science) could be put to real use.
+    Each member owns one part of the plan. At the end of the five days you present the plan to the class, and your
+    classmates rate it on a peer rating sheet.
+  </p>
+</section>
+
+<h2 class="h2">What you will be able to do by the end</h2>
+<ul class="bullets">
+  <li>Read an organisation's strategic direction and translate it into information systems requirements.</li>
+  <li>Assess an organisation's current information systems and the way it plans them, using the Iceberg Model and the six process dimensions.</li>
+  <li>Choose a risk management framework that suits the organisation and apply it to the plan.</li>
+  <li>Identify the privacy, ethical and cultural obligations that apply, including Indigenous data sovereignty.</li>
+  <li>Propose an immersive, AI or data science initiative and test it against the four feasibility tests.</li>
+  <li>Work as a team on a shared document, and present a coherent plan in which every member speaks to their own part.</li>
+</ul>
+
+<h2 class="h2">What is in this tutorial</h2>
+<table class="contents" style="columns:auto">
+  <tbody>
+    <tr><td>Part 1</td><td>The brief and what you hand in</td></tr>
+    <tr><td>Part 2</td><td>Choosing your organisation</td></tr>
+    <tr><td>Part 3</td><td>Team roles: who owns what</td></tr>
+    <tr><td>Part 4</td><td>The five-day plan</td></tr>
+    <tr><td>Part 5</td><td>Writing the plan, section by section</td></tr>
+    <tr><td>Part 6</td><td>The presentation and peer rating</td></tr>
+    <tr><td>Part 7</td><td>Working as a team</td></tr>
+    <tr><td>Part 8</td><td>Final checklist</td></tr>
+    <tr><td>Appendices</td><td>A Team charter · B Contribution log · C Risk register · D Sources worth knowing</td></tr>
+  </tbody>
+</table>
+
+
+
+<!-- ═══════════════════════════════ PART 1 ═══════════════════════════════ -->
+<section class="newpage">
+  <p class="partlabel">Part 1</p>
+  <h2 class="h1">The brief and what you hand in</h2>
+
+  <p class="note">
+  Lecture numbers in this tutorial follow the chapters of the MBI800 study pack. This is a group tutorial project. It
+  does not replace your individual assessments, and text written by the group cannot be handed in as your own
+  individual work. What it will do is give you a full rehearsal of the thinking your individual SISP report asks for.
+</p>
+
+  <p>
+    Imagine your group has been engaged as a small consulting team by the organisation's senior leadership. They have
+    asked a simple question: <em>which information systems should we invest in over the next three years, and why?</em>
+    They do not want a shopping list of technology. They want a plan that starts from what the organisation is trying
+    to achieve and works down to the systems, the risks, the obligations and the order in which things should happen.
+  </p>
+  <p>
+    That is the difference between SISP and project planning that we covered in Lecture 1. A project plan asks how to
+    build something on time and on budget. A strategic plan asks whether it should be built at all, and what it is for.
+    Keep that question in front of you all week.
+  </p>
+
+  <h3 class="h3">Deliverables</h3>
+  <table class="grid">
+    <thead><tr><th class="w44">Item</th><th>What it is</th><th class="w28">Due</th></tr></thead>
+    <tbody>
+      <tr><td>1. Organisation choice</td><td>The organisation's name, two backups, and three or more public sources showing its vision, mission and objectives can be found. One per group, approved by the lecturer.</td><td>End of Day 1</td></tr>
+      <tr><td>2. Team charter</td><td>Appendix A, completed and signed by every member. Shows who owns which role.</td><td>End of Day 1</td></tr>
+      <tr><td>3. The SIS plan</td><td>A written report following the structure in Part 5. About 1,000 words per member (so 4,000 words for a group of four, 6,000 for a group of six), not counting tables, figures, references and appendices. APA 7 referencing.</td><td>End of Day 5</td></tr>
+      <tr><td>4. Slide deck</td><td>Between 12 and 18 slides for a 15-minute presentation.</td><td>End of Day 5</td></tr>
+      <tr><td>5. Contribution log</td><td>Appendix B, filled in daily. Each member's name goes on the section they wrote.</td><td>End of Day 5</td></tr>
+      <tr><td>6. Presentation</td><td>15 minutes, then 5 minutes of questions. Every member presents their own part.</td><td>Presentation session</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="h3">The three areas that carry extra weight</h3>
+  <p>
+    Every part of the plan matters, but the lecturer and your classmates will look hardest at these three, so make
+    sure they are not squeezed into a paragraph at the end.
+  </p>
+  <ol class="plainlist">
+    <li><b>Risk management.</b> A named framework from Lecture 6, chosen for a reason and actually applied, with a risk register and treatment plans.</li>
+    <li><b>Ethical and cultural aspects.</b> Privacy law, Indigenous data sovereignty, consent, accessibility and the fair use of automated decisions, written for this organisation and its communities, not as a general essay.</li>
+    <li><b>Novel technology.</b> At least one proposal using immersive technology (AR, VR or MR) and/or AI and data science, tied to a real objective of the organisation and tested for feasibility.</li>
+  </ol>
+
+
+</section>
+
+<!-- ═══════════════════════════════ PART 2 ═══════════════════════════════ -->
+<section class="newpage">
+  <p class="partlabel">Part 2</p>
+  <h2 class="h1">Choosing your organisation</h2>
+
+  <p>
+    The choice you make on Day 1 shapes the whole week, so spend an hour on it rather than five minutes. A good
+    organisation for this project meets all of the following.
+  </p>
+  <ul class="checklist">
+    <li>It is based in New Zealand or Australia, or has a substantial operation there that publishes its own reporting.</li>
+    <li>Its vision, mission (or purpose) and strategic objectives are published and easy to cite.</li>
+    <li>It publishes an annual report, a strategic plan, a statement of intent or an investor presentation from the last two years.</li>
+    <li>Information systems clearly matter to how it operates: customers, data, digital channels, operations or compliance.</li>
+    <li>There is enough news coverage to understand its recent challenges (outages, breaches, growth, restructuring, regulation).</li>
+    <li>It has an obvious link to at least one community, so the cultural part of the plan has something real to work with.</li>
+  </ul>
+
+  <h3 class="h3">Organisations that tend to work well</h3>
+  <p>These are starting points, not a required list. Any organisation that passes the checklist above is fine.</p>
+  <table class="grid grid--plainfirst">
+    <thead><tr><th class="w36">Sector</th><th>New Zealand</th><th>Australia</th></tr></thead>
+    <tbody>
+      <tr><td>Transport and travel</td><td>Air New Zealand, Auckland Transport, NZ Transport Agency Waka Kotahi</td><td>Qantas Group, Transport for NSW, Sydney Airport</td></tr>
+      <tr><td>Banking and finance</td><td>Kiwibank, ASB, Westpac NZ</td><td>Commonwealth Bank, Bendigo and Adelaide Bank, Latitude Financial</td></tr>
+      <tr><td>Telecommunications</td><td>Spark, One NZ, Chorus</td><td>Telstra, Optus, TPG Telecom</td></tr>
+      <tr><td>Health</td><td>Health New Zealand | Te Whatu Ora, Fisher &amp; Paykel Healthcare, Southern Cross Health Society</td><td>Medibank, Australian Red Cross Lifeblood, Ramsay Health Care</td></tr>
+      <tr><td>Retail and food</td><td>The Warehouse Group, Foodstuffs, Fonterra</td><td>Woolworths Group, Wesfarmers (Bunnings), JB Hi-Fi</td></tr>
+      <tr><td>Public sector and education</td><td>Auckland Council, Department of Conservation | Te Papa Atawhai, University of Auckland, AUT</td><td>Services Australia, Australia Post, Monash University</td></tr>
+      <tr><td>Energy and utilities</td><td>Meridian Energy, Mercury, Watercare</td><td>AGL Energy, Origin Energy, Sydney Water</td></tr>
+      <tr><td>Iwi and community</td><td>Te Rūnanga o Ngāi Tahu, Waikato-Tainui</td><td>Aboriginal community-controlled health organisations that publish strategic plans</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="h3">Rules for choosing</h3>
+  <ul class="bullets">
+    <li>No two groups may study the same organisation. Approval is first come, first served, so bring two backups.</li>
+    <li>Avoid the organisations already used as lecture cases (Inland Revenue, Xero, Canva, Airbnb, Netflix, Alibaba, STC) unless the lecturer agrees you will go well beyond the lecture material.</li>
+    <li>If a member works for, or has worked for, the organisation, tell the lecturer on Day 1. That member may help with context but must not bring in anything confidential.</li>
+    <li>If you choose an iwi, hapū or community organisation, treat its published material with care, quote it accurately and do not speculate about internal matters.</li>
+  </ul>
+
+  <h3 class="h3">Where to look</h3>
+  <table class="grid grid--plainfirst">
+    <thead><tr><th class="w44">Source</th><th>What it gives you</th></tr></thead>
+    <tbody>
+      <tr><td>Annual and integrated reports</td><td>Purpose, strategy, objectives, risks the board is worried about, technology investment, workforce figures.</td></tr>
+      <tr><td>Strategic plans, statements of intent, corporate plans</td><td>Public sector bodies in both countries publish these. They usually state goals and performance measures in plain terms.</td></tr>
+      <tr><td>Investor presentations and NZX / ASX announcements</td><td>Digital transformation programmes, major system replacements, cost targets.</td></tr>
+      <tr><td>Sustainability, privacy and Māori or Reconciliation Action Plan reports</td><td>Material for the ethical and cultural section. Many Australian organisations publish a Reconciliation Action Plan.</td></tr>
+      <tr><td>Regulator publications</td><td>NZ Office of the Privacy Commissioner, Office of the Australian Information Commissioner (OAIC), CERT NZ / NCSC, Australian Cyber Security Centre.</td></tr>
+      <tr><td>Reputable news</td><td>RNZ, NZ Herald, Stuff, The Post, ABC News, Australian Financial Review, iTnews. Use these for outages, breaches and project trouble.</td></tr>
+      <tr><td>Library databases</td><td>Case studies and peer-reviewed articles on the sector. Aim for at least four academic sources across the group.</td></tr>
+    </tbody>
+  </table>
+  <div class="box box--plain">
+    <p class="boxtitle">A word on public information</p>
+    <p>
+      You will not have access to the organisation's internal documents, and you should not try to get them. Work from
+      what is published. Where you have to make an assumption (about the systems a company runs, for example), say so
+      plainly: "We assume, based on the 2025 annual report's reference to a core banking replacement, that…". A clearly
+      labelled, sensible assumption is fine. An unlabelled guess presented as fact is not.
+    </p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ PART 3 ═══════════════════════════════ -->
+<section class="newpage">
+  <p class="partlabel">Part 3</p>
+  <h2 class="h1">Team roles: who owns what</h2>
+
+  <p>
+    The plan has six main sections and the team has six roles. Each role owns one section of the report and one part of
+    the presentation. Owning a section means you research it, draft it, defend it in questions, and make sure it
+    connects to the sections either side of it. It does not mean you work alone; you will need input from others,
+    and they will need yours.
+  </p>
+  <p>
+    Two extra jobs sit on top of the roles. The <b>coordinator</b> runs the daily stand-up, keeps the contribution log
+    and watches the schedule. The <b>editor</b> owns the final document: one voice, consistent headings, references in
+    APA 7. Give these jobs to two different people, and not to whoever has the heaviest section.
+  </p>
+
+  <div class="role">
+    <div class="role__head"><p class="role__name">Role 1 · Organisation analyst</p><span class="role__tag">Plan section 2</span></div>
+    <p>Builds the picture of the organisation that everyone else depends on: who it is, what it wants and the pressures it faces.</p>
+    <ul class="bullets bullets--tight">
+      <li>Vision, mission or purpose, values and strategic objectives, quoted exactly and cited.</li>
+      <li>The strategic planning cascade from vision down to objectives, with the IS implications at each level.</li>
+      <li>Business Model Canvas of the organisation as it is today.</li>
+      <li>PESTLE and SWOT, kept short and specific to this organisation.</li>
+    </ul>
+    <p class="lecture">Draws on Lecture 4 (planning cascade, SWOT, critical success factors) and Lecture 5 (Business Model Canvas).</p>
+  </div>
+
+  <div class="role">
+    <div class="role__head"><p class="role__name">Role 2 · Current-state analyst</p><span class="role__tag">Plan section 3</span></div>
+    <p>Works out what the organisation's information systems look like now and where they are letting it down.</p>
+    <ul class="bullets bullets--tight">
+      <li>An overview of the main systems and channels that can be identified from public sources, with assumptions labelled.</li>
+      <li>An Iceberg Model analysis of one recurring problem, from event down to mental model.</li>
+      <li>A rating of how the organisation appears to plan IS, across the six process dimensions.</li>
+      <li>A gap analysis: where the organisation wants to be (from Role 1) against where its systems are.</li>
+    </ul>
+    <p class="lecture">Draws on Lecture 2 (systems thinking, the Iceberg Model) and Lecture 3 (six process dimensions, rational adaptation).</p>
+  </div>
+
+  <div class="role">
+    <div class="role__head"><p class="role__name">Role 3 · Strategy and roadmap lead</p><span class="role__tag">Plan sections 4 and 8</span></div>
+    <p>Turns the gaps into a prioritised set of IS initiatives and a three-year roadmap the board could sign off.</p>
+    <ul class="bullets bullets--tight">
+      <li>Three to five strategic IS themes, each traced to an organisational objective.</li>
+      <li>A portfolio of five to eight initiatives, each passed through the four feasibility tests and the priority-setting questions.</li>
+      <li>The roadmap (0 to 12, 12 to 24, 24 to 36 months), governance arrangements and measures of success.</li>
+      <li>Where relevant, a view on platform strategy: should the organisation build, join or orchestrate a platform?</li>
+    </ul>
+    <p class="lecture">Draws on Lecture 3 (core SISP agenda), Lecture 4 (feasibility, priorities, SDLC), Lecture 7 (case studies) and Lecture 11 (platform strategy).</p>
+  </div>
+
+  <div class="role">
+    <div class="role__head"><p class="role__name">Role 4 · Risk and security lead</p><span class="role__tag">Plan section 5</span></div>
+    <p>Decides how the organisation should manage the risks in this plan, and shows the method working.</p>
+    <ul class="bullets bullets--tight">
+      <li>A chosen framework (NIST RMF, ISO/IEC 27005, COBIT, OCTAVE or FAIR) with a clear reason it suits this organisation.</li>
+      <li>A risk register of at least ten risks across the whole plan, rated, owned and with controls.</li>
+      <li>Treatment plans for the top three risks, including security controls, backup and continuity.</li>
+      <li>How risk will be monitored and reviewed once the plan is under way.</li>
+    </ul>
+    <p class="lecture">Draws on Lecture 6 (risk management standards) and Lecture 10 (systems security, threats, fault tolerance, backup).</p>
+  </div>
+
+  <div class="role">
+    <div class="role__head"><p class="role__name">Role 5 · Ethics and culture lead</p><span class="role__tag">Plan section 6</span></div>
+    <p>Makes sure the plan respects the people whose data and lives it touches, and meets the law while doing it.</p>
+    <ul class="bullets bullets--tight">
+      <li>The privacy law that applies (NZ Privacy Act 2020 or Australian Privacy Act 1988) and any sector codes.</li>
+      <li>Indigenous data sovereignty: Te Tiriti o Waitangi and Māori data sovereignty in New Zealand, Aboriginal and Torres Strait Islander data sovereignty in Australia.</li>
+      <li>Consultation and consent, accessibility, fair use of AI and automated decisions, and effects on staff.</li>
+      <li>A stakeholder impact table and an ethics and culture checklist applied to every initiative in the plan.</li>
+    </ul>
+    <p class="lecture">Draws on Lecture 1 (ethical and culturally responsive planning) and the class sessions on culture in information systems.</p>
+  </div>
+
+  <div class="role">
+    <div class="role__head"><p class="role__name">Role 6 · Emerging technology lead</p><span class="role__tag">Plan section 7</span></div>
+    <p>Designs the novel technology proposal and proves it is more than a nice idea.</p>
+    <ul class="bullets bullets--tight">
+      <li>One or two proposals using immersive technology and/or AI and data science, each linked to an objective.</li>
+      <li>For immersive work: where it sits on the reality-virtuality continuum, devices and development stack.</li>
+      <li>For AI or data science: the decision it supports, the data it needs, how it will be tested and monitored.</li>
+      <li>The four feasibility tests, an Idea Canvas for the proposal, and a pilot design with success measures.</li>
+    </ul>
+    <p class="lecture">Draws on Lecture 9 (immersive realities), Lecture 8 (data flywheels and platforms), Lecture 5 (Idea Canvas) and Lecture 4 (feasibility).</p>
+  </div>
+
+  <h3 class="h3">Groups of four or five</h3>
+  <table class="grid">
+    <thead><tr><th class="w28">Group size</th><th>How to combine roles</th></tr></thead>
+    <tbody>
+      <tr><td>6 members</td><td>One role each, as above.</td></tr>
+      <tr><td>5 members</td><td>One person takes Roles 1 and 2 together (organisation and current state). The scope of each is trimmed: a shorter PESTLE, and the Iceberg analysis can be the main current-state tool.</td></tr>
+      <tr><td>4 members</td><td>Roles 1 and 2 combine as above, and Roles 4 and 5 combine into a governance lead covering risk, ethics and culture. The risk register can drop to eight risks.</td></tr>
+    </tbody>
+  </table>
+  <p class="note">
+    Whatever the size, the executive summary, the roadmap discussion and the conclusion are written together, and
+    every member presents.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════ PART 4 ═══════════════════════════════ -->
+<section class="newpage">
+  <p class="partlabel">Part 4</p>
+  <h2 class="h1">The five-day plan</h2>
+
+  <p>
+    Plan on about three to four hours per person each day, part of it in class and part of it on your own. Each day
+    ends with a checkpoint: something concrete the group should have by the end of the day. If you miss a checkpoint,
+    sort it out the next morning rather than letting it slide to Day 5.
+  </p>
+  <p>
+    Start every day with a ten-minute stand-up. Each person answers three questions: what did I finish, what am I doing
+    today, and is anything blocking me? The coordinator writes the answers in the contribution log.
+  </p>
+
+  <div class="day">
+    <div class="day__head"><span class="day__n">Day 1</span><p class="day__title">Form the team and choose the organisation</p></div>
+    <table class="grid">
+      <tbody>
+        <tr><td>Whole team</td><td>Meet, swap contact details and set up one shared folder and one shared document. Agree how you will communicate and how quickly people should reply.</td></tr>
+        <tr><td>Whole team</td><td>Shortlist three organisations against the checklist in Part 2. Check that the vision, mission and objectives can actually be found and cited. Send your first choice and two backups to the lecturer.</td></tr>
+        <tr><td>Whole team</td><td>Agree roles, coordinator and editor. Complete and sign the team charter (Appendix A).</td></tr>
+        <tr><td>Each member</td><td>Find at least two sources for your own section and add them to a shared reference list.</td></tr>
+      </tbody>
+    </table>
+    <p class="out"><b>Checkpoint:</b> approved organisation, signed charter, shared folder, reference list with at least ten sources.</p>
+  </div>
+
+  <div class="day">
+    <div class="day__head"><span class="day__n">Day 2</span><p class="day__title">Understand the organisation</p></div>
+    <table class="grid">
+      <tbody>
+        <tr><td>Roles 1 and 2</td><td>Draft the organisation profile and the current-state analysis. Share a rough version by early afternoon; everyone else is waiting on it.</td></tr>
+        <tr><td>Role 3</td><td>Read the organisation's strategy documents closely. List every objective that has an IS angle.</td></tr>
+        <tr><td>Role 4</td><td>Compare the five frameworks from Lecture 6 against this organisation and make a provisional choice. Collect any breaches, outages or audit findings in the news.</td></tr>
+        <tr><td>Role 5</td><td>Identify the law, codes and cultural frameworks that apply. Find what the organisation already publishes on privacy, Māori or Indigenous engagement, and accessibility.</td></tr>
+        <tr><td>Role 6</td><td>Look for two or three real examples of immersive or AI technology used by similar organisations, here or overseas. Shortlist ideas.</td></tr>
+        <tr><td>Whole team</td><td>A 20-minute read-through at the end of the day. Everyone must agree on the organisation's top objectives before Day 3.</td></tr>
+      </tbody>
+    </table>
+    <p class="out"><b>Checkpoint:</b> drafts of sections 2 and 3, an agreed list of objectives, and notes for every other section.</p>
+  </div>
+
+  <div class="day">
+    <div class="day__head"><span class="day__n">Day 3</span><p class="day__title">Build the plan</p></div>
+    <table class="grid">
+      <tbody>
+        <tr><td>Role 3</td><td>Draft the strategic themes and the initiative portfolio. Share the initiative list by midday, because Roles 4, 5 and 6 depend on it.</td></tr>
+        <tr><td>Role 6</td><td>Choose the novel technology proposal and draft it. Hand the key risks to Role 4 and the data and people questions to Role 5.</td></tr>
+        <tr><td>Role 4</td><td>Build the risk register and apply the chosen framework's steps.</td></tr>
+        <tr><td>Role 5</td><td>Draft the ethics and culture section and run the checklist over every initiative.</td></tr>
+        <tr><td>Roles 1 and 2</td><td>Finish and tighten sections 2 and 3, then help others with sources, figures and diagrams.</td></tr>
+        <tr><td>Whole team</td><td>A ten-minute check-in with the lecturer. Bring the initiative list and one question you are stuck on.</td></tr>
+      </tbody>
+    </table>
+    <p class="out"><b>Checkpoint:</b> a complete rough draft of every section, even if parts are still in note form.</p>
+  </div>
+
+  <div class="day">
+    <div class="day__head"><span class="day__n">Day 4</span><p class="day__title">Join it up</p></div>
+    <table class="grid">
+      <tbody>
+        <tr><td>Role 3 with all</td><td>Write the roadmap and governance section. Make sure every initiative appears in it, with its risks and ethical conditions.</td></tr>
+        <tr><td>Whole team</td><td>Write the executive summary together. If you cannot state the plan in 300 words, it is not yet clear enough.</td></tr>
+        <tr><td>Editor</td><td>First full edit for consistency: one voice, consistent terms, figures numbered, references checked against APA 7.</td></tr>
+        <tr><td>Each member</td><td>Build two or three slides for your own part, using a shared template.</td></tr>
+      </tbody>
+    </table>
+    <p class="out"><b>Checkpoint:</b> a complete draft plan and a first version of the slide deck.</p>
+  </div>
+
+  <div class="day">
+    <div class="day__head"><span class="day__n">Day 5</span><p class="day__title">Finish, rehearse and submit</p></div>
+    <table class="grid">
+      <tbody>
+        <tr><td>Whole team</td><td>Two timed run-throughs of the presentation. Cut anything that pushes you past 15 minutes.</td></tr>
+        <tr><td>Whole team</td><td>Write down the five hardest questions you could be asked and agree who answers each.</td></tr>
+        <tr><td>Editor</td><td>Final edit and proofread. Check the word count and that every figure and table is referred to in the text.</td></tr>
+        <tr><td>Coordinator</td><td>Complete the contribution log and the final checklist in Part 8, then submit.</td></tr>
+      </tbody>
+    </table>
+    <p class="out"><b>Checkpoint:</b> plan, slides, charter and contribution log submitted.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ PART 5 ═══════════════════════════════ -->
+<section class="newpage">
+  <p class="partlabel">Part 5</p>
+  <h2 class="h1">Writing the plan, section by section</h2>
+
+  <p>
+    Use the structure below for your report. The word guides assume a group of six; scale them to your group size.
+    The questions under each heading are there to help you think, not a list to answer one by one. A strong section
+    reads as an argument about this organisation, not a set of answers to prompts.
+  </p>
+
+  <table class="grid">
+    <thead><tr><th class="w20">Section</th><th>Heading</th><th class="w36">Owner</th><th class="w20">Words</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Executive summary</td><td>Whole team</td><td>300</td></tr>
+      <tr><td>2</td><td>The organisation and its strategic direction</td><td>Role 1</td><td>900</td></tr>
+      <tr><td>3</td><td>Current information systems and planning practice</td><td>Role 2</td><td>900</td></tr>
+      <tr><td>4</td><td>IS strategy and initiative portfolio</td><td>Role 3</td><td>800</td></tr>
+      <tr><td>5</td><td>Risk management</td><td>Role 4</td><td>1,000</td></tr>
+      <tr><td>6</td><td>Ethical and cultural considerations</td><td>Role 5</td><td>1,000</td></tr>
+      <tr><td>7</td><td>Novel technology proposal</td><td>Role 6</td><td>1,000</td></tr>
+      <tr><td>8</td><td>Implementation roadmap and governance</td><td>Role 3, with all</td><td>400</td></tr>
+      <tr><td>9</td><td>Conclusion, references and appendices</td><td>Editor, with all</td><td>200</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sec">
+    <h3 class="h3">1. Executive summary</h3>
+    <p class="sec__meta">Whole team · written last, placed first</p>
+    <p>
+      Written for a busy board member who will read nothing else. Name the organisation and its main strategic goal,
+      the biggest IS gap you found, the three or four initiatives you recommend, the headline risk and how it will be
+      handled, the key ethical or cultural commitment, and what happens in the first twelve months. No new material
+      should appear here that is not in the body of the plan.
+    </p>
+  </div>
+
+  <div class="sec">
+    <h3 class="h3">2. The organisation and its strategic direction</h3>
+    <p class="sec__meta">Role 1 · Lectures 4 and 5</p>
+    <p>Give the reader enough context to judge everything that follows. Cover:</p>
+    <ul class="bullets">
+      <li>A short profile: sector, size, ownership (listed, Crown entity, council-controlled, iwi-owned, mutual), customers and main competitors.</li>
+      <li>Vision, mission or purpose, and values, quoted exactly with a citation. Then the stated strategic objectives or pillars.</li>
+      <li>The strategic planning cascade from Lecture 4: purpose and vision → mission → goals → objectives → operations. Add a column showing what each level asks of information systems.</li>
+      <li>A Business Model Canvas of the organisation today. Mark the blocks that depend most on information systems.</li>
+      <li>A PESTLE and a SWOT. Keep each to the points that matter for IS; three strong points beat ten generic ones.</li>
+      <li>Critical success factors: the handful of things that must go right for the strategy to work.</li>
+    </ul>
+    <p class="note"><b>Common weakness:</b> a long company history that no later section uses. If a fact does not affect the plan, leave it out.</p>
+  </div>
+
+  <div class="sec">
+    <h3 class="h3">3. Current information systems and planning practice</h3>
+    <p class="sec__meta">Role 2 · Lectures 2 and 3</p>
+    <p>Describe where the organisation is now, in two parts.</p>
+    <p><b>The systems.</b> What can be identified from public sources: customer apps and websites, core platforms
+    (ERP, CRM, core banking, patient management), data and analytics capability, cloud partners, and recent major
+    projects. Note any public outages, breaches or project overruns. Label assumptions.</p>
+    <p><b>The way it plans.</b> Pick one recurring problem the organisation has faced, and take it down the Iceberg
+    Model: the event, the pattern behind it, the structures producing the pattern, and the mental model that keeps the
+    structures in place. Then rate how the organisation appears to plan IS on each of the six process dimensions
+    (comprehensiveness, formalisation, focus, flow, participation, consistency) with the evidence for each rating.
+    Which rational and adaptive tendencies are present, and which are missing?</p>
+    <p>Finish with a <b>gap analysis</b> table: objective (from section 2), what the current systems allow, the gap, and
+    why it matters. This table is the bridge to section 4, so agree it with Role 3.</p>
+  </div>
+
+  <div class="sec">
+    <h3 class="h3">4. IS strategy and initiative portfolio</h3>
+    <p class="sec__meta">Role 3 · Lectures 3, 4, 7 and 11</p>
+    <ul class="bullets">
+      <li><b>Strategic IS themes.</b> Three to five themes (for example "one view of the customer" or "safe digital self-service"), each traced to an objective and a gap.</li>
+      <li><b>The initiative portfolio.</b> Five to eight initiatives. For each one give a two-line description, the theme it serves, the four feasibility tests (operational, technical, economic, schedule) and a priority.</li>
+      <li><b>Prioritisation.</b> Use the priority-setting questions from Lecture 4: does it reduce cost, increase revenue, give better information, serve customers better, fit a reasonable time frame, and are resources available? Favour tangible benefits and say how they would be measured.</li>
+      <li><b>Planning process.</b> Recommend how the organisation should run SISP from now on, using the rational adaptation proposition. Who participates, how often the plan is revisited, how each IS decision is traced to a strategic theme.</li>
+      <li><b>Platform view</b> (where it fits). Should the organisation build a platform, join one or simply use one? Mention network effects or multi-homing only if they genuinely apply.</li>
+    </ul>
+    <p class="note"><b>Common weakness:</b> an initiative list that reads like a vendor catalogue. Each initiative should be traceable back to a line in section 3's gap analysis.</p>
+  </div>
+
+  <div class="sec keep">
+    <h3 class="h3">5. Risk management</h3>
+    <p class="sec__meta">Role 4 · Lectures 6 and 10</p>
+    <p><b>Choose and justify a framework.</b> Match the framework to the organisation's context, as Lecture 6 does. A
+    government agency that must authorise systems before go-live points towards NIST RMF. A company holding or seeking
+    ISO 27001 certification points towards ISO/IEC 27005. A board that wants risk in dollars points towards FAIR. A
+    question of "what matters most if we lost it?" points towards OCTAVE. A question of whether IT is governed in line
+    with business goals points towards COBIT. You may combine frameworks, but say what each one is doing.</p>
+    <p><b>Apply it.</b> Walk through the framework's steps for this plan. For NIST RMF that means categorise, select,
+    implement, assess, authorise and monitor. For OCTAVE it means identifying critical assets and threats, evaluating
+    vulnerabilities and developing a protection strategy. If you use FAIR, put a dollar figure (with your assumptions)
+    on at least one major risk.</p>
+  </div>
+  <div class="sec">
+    <p><b>The risk register.</b> At least ten risks, using the template in Appendix C. Cover the whole plan, not only
+    cyber security:</p>
+    <div class="two">
+      <ul class="bullets bullets--tight">
+        <li>strategic (the plan drifts from the business)</li>
+        <li>security and privacy (breach, insider, ransomware)</li>
+        <li>operational (outage, failed changeover)</li>
+        <li>vendor and cloud dependency</li>
+        <li>project (cost, schedule, scope)</li>
+      </ul>
+      <ul class="bullets bullets--tight">
+        <li>people and change (staff do not adopt it)</li>
+        <li>data quality and AI model failure</li>
+        <li>legal and regulatory</li>
+        <li>ethical and cultural (loss of trust, harm to a community)</li>
+        <li>reputational</li>
+      </ul>
+    </div>
+    <p>Write each risk as cause, event and consequence: "Because test data is copied from production (cause), a
+    developer laptop could expose customer records (event), leading to a notifiable breach and loss of trust
+    (consequence)." That form makes the control much easier to see.</p>
+    <p><b>Treatment plans for the top three risks.</b> For each, set out the controls (preventive, detective and
+    corrective), the fault tolerance and backup approach where relevant (full, incremental or differential, and why),
+    who owns the risk, and the residual rating once controls are in place.</p>
+    <p><b>Monitoring and review.</b> Who reviews the register, how often, and what triggers an early review (a new
+    initiative, an incident, a law change). Risk management is ongoing, not a one-off exercise.</p>
+  </div>
+
+  <div class="sec">
+    <h3 class="h3">6. Ethical and cultural considerations</h3>
+    <p class="sec__meta">Role 5 · Lecture 1 and the class sessions on culture in information systems</p>
+    <p>This section should feel as practical as the risk section. Work through the following and apply each point to
+    the organisation and its initiatives.</p>
+    <ul class="bullets">
+      <li><b>Privacy law.</b> In New Zealand, the Privacy Act 2020 and its information privacy principles, plus any code that applies (the Health Information Privacy Code 2020 for health providers, for example). In Australia, the Privacy Act 1988 and the Australian Privacy Principles. Note the notifiable breach obligations in both countries.</li>
+      <li><b>Te Tiriti o Waitangi and Māori data sovereignty</b> (New Zealand). Māori data is a taonga. Use the Te Mana Raraunga principles of Māori data sovereignty to ask who has authority over the data, how iwi and Māori communities are involved in decisions, and how benefit flows back to them.</li>
+      <li><b>Aboriginal and Torres Strait Islander data sovereignty</b> (Australia). The Maiam nayri Wingara principles, and the CARE principles for Indigenous data governance (collective benefit, authority to control, responsibility, ethics), apply in both countries.</li>
+      <li><b>Pacific and other communities.</b> Where the organisation serves Pacific peoples, migrant communities or rural users, consider language, family and community decision-making, and access to devices and connectivity.</li>
+      <li><b>Consent and consultation.</b> Who is consulted, at what stage, and whether they can change the outcome. Informing people after the decision is not consultation.</li>
+      <li><b>Accessibility and inclusion.</b> WCAG 2.2 for digital services, assisted channels for people who cannot or will not go online.</li>
+      <li><b>AI and automated decisions.</b> Bias in training data, explaining decisions to the people affected, human oversight and a way to challenge an outcome. Public agencies in New Zealand should refer to the Algorithm Charter for Aotearoa New Zealand; Australia's AI Ethics Principles are a useful reference for any organisation.</li>
+      <li><b>Staff and wider effects.</b> Workplace monitoring, changes to jobs and skills, and the energy use of large data and AI workloads.</li>
+    </ul>
+    <p>Finish with two things: a <b>stakeholder impact table</b> (stakeholder, how the plan affects them, their main
+    concern, how the plan responds) and an <b>ethics and culture checklist</b> run over every initiative in section 4,
+    showing any condition attached before it can go ahead.</p>
+    <p class="note"><b>Common weakness:</b> writing about culture in general terms. "We will respect cultural values" says
+    nothing. "Iwi health providers will co-design the data-sharing agreement before any Māori patient data is used to
+    train the triage model" says something a board can check.</p>
+  </div>
+
+  <div class="sec">
+    <h3 class="h3">7. Novel technology proposal</h3>
+    <p class="sec__meta">Role 6 · Lectures 4, 5, 8 and 9</p>
+    <p>Propose one well-developed initiative, or two smaller ones. It must use immersive technology, AI or data
+    science, or a combination. The test is simple: would this organisation be better at reaching one of its own
+    objectives because of it?</p>
+    <div class="two">
+      <div>
+        <p><b>If it is immersive</b> (AR, VR or MR)</p>
+        <ul class="bullets bullets--tight">
+          <li>Where it sits on the reality-virtuality continuum, and why that point and not another.</li>
+          <li>Who uses it, where and how often: training, maintenance, customer experience, design or remote assistance.</li>
+          <li>Devices and development stack (for example Unity with AR Foundation, or OpenXR to reduce lock-in).</li>
+          <li>Whether simple AR on existing phones would do the job instead of headsets.</li>
+        </ul>
+      </div>
+      <div>
+        <p><b>If it is AI or data science</b></p>
+        <ul class="bullets bullets--tight">
+          <li>The decision or task it supports, and who is accountable for that decision.</li>
+          <li>The data it needs, where that data comes from and whether the organisation may use it for this purpose.</li>
+          <li>How it would be tested before use and monitored after (accuracy, drift, bias).</li>
+          <li>Whether it creates a data flywheel, where use improves the service and draws more use.</li>
+        </ul>
+      </div>
+    </div>
+    <p>For every proposal include an <b>Idea Canvas</b> or Business Model Canvas, the <b>four feasibility tests</b>, a rough
+    cost range with its basis, and a <b>pilot design</b>: scope, users, duration, and three to five success measures
+    you would check before scaling up. Agree with Role 4 which risks go in the register, and with Role 5 which
+    conditions apply.</p>
+    <p class="note"><b>Common weakness:</b> starting from the technology ("we should use the metaverse") instead of the
+    problem. Start from an objective and a gap, then show why this technology is the right answer to it.</p>
+  </div>
+
+  <div class="sec">
+    <h3 class="h3">8. Implementation roadmap and governance</h3>
+    <p class="sec__meta">Role 3, with input from all</p>
+    <p>A one-page roadmap across three horizons (0 to 12 months, 12 to 24 months, 24 to 36 months) showing every
+    initiative, the pilot from section 7, and the major risk and ethics actions. Explain the order: what has to come
+    first and why. Then set out governance (who sponsors the plan, who sits on the steering group, how often it meets,
+    how initiatives move through the SDLC phases) and a short table of measures of success linked to the
+    organisation's objectives.</p>
+  </div>
+
+  <div class="sec">
+    <h3 class="h3">9. Conclusion, references and appendices</h3>
+    <p class="sec__meta">Editor, with all</p>
+    <p>A short conclusion that returns to the organisation's vision and states what the plan will change. Then
+    references in APA 7 (the APA referencing lesson on the course site covers everything you need), and appendices for
+    the full risk register, canvases and any larger tables. Appendices are not counted in the word guide, but the main
+    text must still make sense without them.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ PART 6 ═══════════════════════════════ -->
+<section class="newpage">
+  <p class="partlabel">Part 6</p>
+  <h2 class="h1">The presentation and peer rating</h2>
+
+  <p>
+    You have 15 minutes to present and 5 minutes for questions. The lecturer will stop you at 15 minutes, so rehearse
+    with a timer. Every member must speak, and each person presents the part they wrote.
+  </p>
+
+  <h3 class="h3">Suggested running order</h3>
+  <table class="grid">
+    <thead><tr><th class="w28">Time</th><th>Content</th><th class="w36">Presenter</th></tr></thead>
+    <tbody>
+      <tr><td>0:00 to 2:30</td><td>Who the organisation is, what it is trying to achieve, and the question the plan answers</td><td>Role 1</td></tr>
+      <tr><td>2:30 to 5:00</td><td>Where its systems are now: one Iceberg analysis and the key gaps</td><td>Role 2</td></tr>
+      <tr><td>5:00 to 7:30</td><td>The IS strategy, the initiatives and the roadmap on one slide</td><td>Role 3</td></tr>
+      <tr><td>7:30 to 10:00</td><td>The risk framework, the top risks and how they are treated</td><td>Role 4</td></tr>
+      <tr><td>10:00 to 12:30</td><td>Ethical and cultural commitments, and what they change in the plan</td><td>Role 5</td></tr>
+      <tr><td>12:30 to 15:00</td><td>The novel technology proposal, its pilot, and a closing summary</td><td>Role 6</td></tr>
+      <tr><td>15:00 to 20:00</td><td>Questions from the class and the lecturer</td><td>Anyone</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Groups of four or five share the time out by section, so each person still has a fair slice.</p>
+
+  <h3 class="h3">What makes a presentation work</h3>
+  <ul class="bullets">
+    <li>Open with the organisation's goal, not with a slide titled "Agenda".</li>
+    <li>One idea per slide, readable from the back of the room. Put detail in the report, not on the slides.</li>
+    <li>Talk to the audience. Short notes on a card are fine; reading the slides aloud is not.</li>
+    <li>Make the hand-overs explicit: "That gap is what our first initiative closes. Aroha will take you through it."</li>
+    <li>Show at least one real artefact: the risk matrix, a canvas, the roadmap or a mock-up of the novel technology.</li>
+    <li>In questions, anyone can be asked about any part. Know the whole plan, not only your own section.</li>
+  </ul>
+
+  <h3 class="h3 newpage" style="margin-top:0">How the peer rating works</h3>
+  <p>
+    Each student gets one peer rating sheet for the whole session. While other groups present, you rate each of them on
+    the six criteria below, from 1 (weak) to 5 (excellent), and write one strength and one improvement on the back. You
+    do not rate your own group. The lecturer collects the sheets at the end, averages the scores, and gives each group
+    a summary of its ratings and comments. Presenters do not see who gave which score.
+  </p>
+  <table class="grid">
+    <thead><tr><th class="w44">Criterion</th><th>A strong group…</th></tr></thead>
+    <tbody>
+      <tr><td>1. The organisation</td><td>shows it understands the organisation's vision, mission, objectives and situation, and uses real, cited evidence.</td></tr>
+      <tr><td>2. Strategic alignment</td><td>traces every initiative back to an objective and a gap, with clear priorities and a believable roadmap.</td></tr>
+      <tr><td>3. Risk management</td><td>names a suitable framework, explains why it fits, and shows real risks with sensible controls.</td></tr>
+      <tr><td>4. Ethics and culture</td><td>deals with privacy, Indigenous data sovereignty and fairness in specific, practical terms.</td></tr>
+      <tr><td>5. Novel technology</td><td>proposes immersive, AI or data science work that solves a real problem and has been tested for feasibility.</td></tr>
+      <tr><td>6. Delivery and teamwork</td><td>presents as one team, keeps to time, every member contributes, and questions are answered well.</td></tr>
+    </tbody>
+  </table>
+  <p>
+    Rate fairly. A score is useful only if it is honest, and a comment is useful only if it is specific. "Good
+    presentation" helps nobody; "The risk matrix made the top three risks obvious, but I couldn't see who owns them"
+    gives the group something to act on.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════ PART 7 ═══════════════════════════════ -->
+<section class="newpage">
+  <p class="partlabel">Part 7</p>
+  <h2 class="h1">Working as a team</h2>
+
+  <p>
+    Most group projects that go wrong do so for the same few reasons: nobody agreed what "done" means, one person
+    disappeared for two days, or the sections were written separately and never joined up. The habits below deal with
+    all three.
+  </p>
+
+  <h3 class="h3">Agree the rules on Day 1</h3>
+  <p>
+    The team charter in Appendix A takes about twenty minutes. Fill it in properly. It records who owns what, how you
+    will talk to each other, what you expect of each other and what happens when someone falls behind. Everyone signs it.
+  </p>
+
+  <h3 class="h3">Keep work visible</h3>
+  <ul class="bullets">
+    <li>Use one shared document from the start, with the section headings from Part 5 already in place. Drafting in separate files and pasting them together on Day 4 always shows.</li>
+    <li>Keep a shared reference list from Day 1. Rebuilding references at the end costs hours.</li>
+    <li>The contribution log (Appendix B) is filled in at each stand-up. It takes two minutes and settles most arguments before they start.</li>
+  </ul>
+
+  <h3 class="h3">Hand-overs between roles</h3>
+  <p>Some sections cannot be finished without another person's work. Agree these hand-overs early:</p>
+  <table class="grid grid--plainfirst">
+    <thead><tr><th class="w44">From → to</th><th>What is handed over</th><th class="w20">By</th></tr></thead>
+    <tbody>
+      <tr><td>Role 1 → everyone</td><td>The organisation's objectives, agreed by the team</td><td>Day 2</td></tr>
+      <tr><td>Role 2 → Role 3</td><td>The gap analysis table</td><td>Day 2</td></tr>
+      <tr><td>Role 3 → Roles 4, 5, 6</td><td>The initiative list</td><td>Day 3 midday</td></tr>
+      <tr><td>Role 6 → Roles 4 and 5</td><td>The novel technology proposal, its data and its users</td><td>Day 3</td></tr>
+      <tr><td>Roles 4 and 5 → Role 3</td><td>Risks and ethical conditions to place on the roadmap</td><td>Day 4</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="h3">When something goes wrong</h3>
+  <ol class="plainlist">
+    <li>Raise it early and directly with the person, at the stand-up or in a message. Most problems are about time, not attitude.</li>
+    <li>If it is not resolved within a day, the coordinator records it in the contribution log and the team agrees a fix: reassigning part of the work, for example.</li>
+    <li>If that does not work, tell the lecturer before the presentation, not after. Bring the charter and the log.</li>
+  </ol>
+
+  <h3 class="h3">Using AI tools</h3>
+  <p>
+    Follow the course policy on generative AI. If you use a tool to help you find sources, check your grammar or test
+    an idea, say so in a short note at the end of the report. Do not paste generated text in as your own analysis,
+    and check every fact and reference yourself; AI tools regularly invent citations and get company details wrong.
+    You must be able to explain everything in your section without notes.
+  </p>
+</section>
+
+<!-- ═══════════════════════════════ PART 8 ═══════════════════════════════ -->
+<section class="newpage">
+  <p class="partlabel">Part 8</p>
+  <h2 class="h1">Final checklist</h2>
+  <p>Go through this together on Day 5, before you submit.</p>
+
+  <h3 class="h3">The plan</h3>
+  <ul class="checklist">
+    <li>The organisation's vision, mission and objectives are quoted exactly and cited.</li>
+    <li>Every initiative traces back to an objective and a gap in the current state.</li>
+    <li>Every initiative has been through the four feasibility tests.</li>
+    <li>A risk framework is named, justified and applied, not only described.</li>
+    <li>The risk register has at least ten risks (eight for a group of four), each with an owner and controls.</li>
+    <li>The ethics and culture section names the law that applies and deals with Indigenous data sovereignty specifically.</li>
+    <li>The novel technology proposal has a canvas, feasibility tests and a pilot with success measures.</li>
+    <li>The roadmap includes every initiative, the pilot and the main risk and ethics actions.</li>
+    <li>All assumptions are labelled as assumptions.</li>
+    <li>The executive summary can be read on its own and contains nothing new.</li>
+    <li>The word count is within 10 percent of the guide for your group size.</li>
+    <li>References follow APA 7, and every in-text citation appears in the reference list.</li>
+  </ul>
+
+  <h3 class="h3">The presentation</h3>
+  <ul class="checklist">
+    <li>The deck has 12 to 18 slides and runs to 15 minutes or less in rehearsal.</li>
+    <li>Every member presents their own part.</li>
+    <li>Slides are readable from the back of the room and cite their sources.</li>
+    <li>You have prepared answers to the five hardest questions you could be asked.</li>
+  </ul>
+
+  <h3 class="h3">The team</h3>
+  <ul class="checklist">
+    <li>The team charter is signed by every member.</li>
+    <li>The contribution log is complete and shows who wrote each section.</li>
+    <li>Any use of AI tools is declared.</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════ APPENDIX A ═══════════════════════════════ -->
+<section class="newpage">
+  <p class="partlabel">Appendix A</p>
+  <h2 class="h1">Team charter</h2>
+  <p class="note">Complete on Day 1 and keep a copy in your shared folder. Every member signs.</p>
+
+  <table class="form">
+    <tbody>
+      <tr><td class="label">Group number</td><td></td></tr>
+      <tr><td class="label">Organisation</td><td></td></tr>
+      <tr><td class="label">Backup choices</td><td></td></tr>
+    </tbody>
+  </table>
+
+  <table class="form">
+    <thead><tr><th style="width:40mm">Member name</th><th style="width:38mm">Role(s)</th><th style="width:28mm">Extra job</th><th>Contact</th></tr></thead>
+    <tbody>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <div class="lines lines--s"><p class="lines__label">How we will communicate, and how quickly we will reply to each other</p></div>
+  <div class="lines lines--s"><p class="lines__label">When and where we will meet each day (stand-up time)</p></div>
+  <div class="lines lines--s"><p class="lines__label">What "done" means for a section (for example: drafted, referenced, read by one other member)</p></div>
+  <div class="lines lines--s"><p class="lines__label">What we will do if someone misses a checkpoint or cannot be reached</p></div>
+
+  <p class="small" style="margin-top:2mm">By signing, we agree to the roles and rules above and to keep the contribution log honestly.</p>
+  <div class="sign">
+    <div>Signature</div><div>Signature</div>
+    <div>Signature</div><div>Signature</div>
+    <div>Signature</div><div>Signature</div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ APPENDIX B ═══════════════════════════════ -->
+<section class="newpage">
+  <p class="partlabel">Appendix B</p>
+  <h2 class="h1">Contribution log</h2>
+  <p class="note">The coordinator fills this in at each stand-up. Add rows in your shared copy if you need them.</p>
+
+  <table class="form">
+    <thead><tr><th style="width:15mm">Day</th><th style="width:34mm">Member</th><th>Work completed</th><th style="width:40mm">Next task</th><th style="width:30mm">Issues</th></tr></thead>
+    <tbody>
+      <tr><td class="sample">Day 2</td><td class="sample">Example: Role 4</td><td class="sample">Compared NIST RMF, ISO 27005 and FAIR for a listed telco; chose ISO 27005 with FAIR for the top risk</td><td class="sample">Draft risk register once initiative list arrives</td><td class="sample">Waiting on Role 3</td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="h3">Who wrote what</h3>
+  <table class="form">
+    <thead><tr><th style="width:70mm">Plan section</th><th>Main author</th><th>Also contributed</th></tr></thead>
+    <tbody>
+      <tr><td>1 Executive summary</td><td></td><td></td></tr>
+      <tr><td>2 Organisation and strategic direction</td><td></td><td></td></tr>
+      <tr><td>3 Current systems and planning practice</td><td></td><td></td></tr>
+      <tr><td>4 IS strategy and initiative portfolio</td><td></td><td></td></tr>
+      <tr><td>5 Risk management</td><td></td><td></td></tr>
+      <tr><td>6 Ethical and cultural considerations</td><td></td><td></td></tr>
+      <tr><td>7 Novel technology proposal</td><td></td><td></td></tr>
+      <tr><td>8 Roadmap and governance</td><td></td><td></td></tr>
+      <tr><td>9 Conclusion, references, editing</td><td></td><td></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════ APPENDIX C ═══════════════════════════════ -->
+<section class="newpage">
+  <p class="partlabel">Appendix C</p>
+  <h2 class="h1">Risk register template</h2>
+  <p>
+    Rate likelihood and impact from 1 (very low) to 5 (very high). The risk rating is likelihood multiplied by impact:
+    15 to 25 is high, 8 to 14 is medium, 1 to 7 is low. The residual rating is the rating once the planned controls are
+    working. Copy this layout into your report; the example row shows the level of detail expected.
+  </p>
+
+  <table class="form">
+    <thead>
+      <tr>
+        <th style="width:8mm">ID</th>
+        <th>Risk (cause → event → consequence)</th>
+        <th style="width:18mm">Category</th>
+        <th style="width:8mm">L</th>
+        <th style="width:8mm">I</th>
+        <th style="width:11mm">Rating</th>
+        <th style="width:38mm">Controls</th>
+        <th style="width:15mm">Owner</th>
+        <th style="width:12mm">Resid.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="sample">R1</td>
+        <td class="sample">Staff reuse passwords across systems → an attacker uses stolen credentials to reach the customer database → customer records are exposed and the breach must be notified</td>
+        <td class="sample">Security, privacy</td>
+        <td class="sample">4</td>
+        <td class="sample">5</td>
+        <td class="sample">20 High</td>
+        <td class="sample">Multi-factor authentication for all staff; access reviews each quarter; alerts on unusual downloads</td>
+        <td class="sample">CISO</td>
+        <td class="sample">8 Med</td>
+      </tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="h3">Likelihood × impact matrix</h3>
+  <p class="note">Plot each risk's ID in the matching cell, before and after controls. It makes a good presentation slide.</p>
+  <table class="form" style="width:120mm">
+    <thead><tr><th style="width:24mm">Likelihood ↓ / Impact →</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
+    <tbody>
+      <tr><td class="label" style="width:24mm">5 Almost certain</td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td class="label" style="width:24mm">4 Likely</td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td class="label" style="width:24mm">3 Possible</td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td class="label" style="width:24mm">2 Unlikely</td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><td class="label" style="width:24mm">1 Rare</td><td></td><td></td><td></td><td></td><td></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════ APPENDIX D ═══════════════════════════════ -->
+<section class="newpage">
+  <p class="partlabel">Appendix D</p>
+  <h2 class="h1">Sources worth knowing</h2>
+  <p>
+    These are the names of the main frameworks, standards and guidance documents mentioned in this tutorial. Search for
+    the current version of each and cite the version you use. Your organisation's own reports will be your most
+    important sources; these sit behind your analysis.
+  </p>
+
+  <h3 class="h3">Planning and strategy</h3>
+  <ul class="bullets">
+    <li>Segars, Grover and Teng (1998) on the dimensions of SISP and the rational adaptation proposition (Lecture 3).</li>
+    <li>Senge's Iceberg Model and systems thinking (Lecture 2).</li>
+    <li>The Business Model Canvas and Idea Canvas (Lecture 5).</li>
+    <li>Cusumano, Gawer and Yoffie on platform types (Lecture 11).</li>
+  </ul>
+
+  <h3 class="h3">Risk and security</h3>
+  <ul class="bullets">
+    <li>NIST SP 800-37 Rev. 2, Risk Management Framework for Information Systems and Organizations.</li>
+    <li>ISO/IEC 27001 and ISO/IEC 27005 (information security risk management).</li>
+    <li>COBIT, published by ISACA.</li>
+    <li>OCTAVE, from the Software Engineering Institute at Carnegie Mellon University.</li>
+    <li>FAIR (Factor Analysis of Information Risk), published by The Open Group.</li>
+    <li>NIST AI Risk Management Framework and ISO/IEC 42001 (AI management systems), useful if your novel technology is AI.</li>
+    <li>Guidance from the National Cyber Security Centre (NZ) and the Australian Cyber Security Centre, including the Essential Eight.</li>
+  </ul>
+
+  <h3 class="h3">Privacy, ethics and culture</h3>
+  <ul class="bullets">
+    <li>Privacy Act 2020 (NZ) and guidance from the Office of the Privacy Commissioner.</li>
+    <li>Health Information Privacy Code 2020 (NZ), if your organisation handles health information.</li>
+    <li>Privacy Act 1988 (Australia), the Australian Privacy Principles and guidance from the OAIC.</li>
+    <li>Te Mana Raraunga, the Māori Data Sovereignty Network, and its principles of Māori data sovereignty.</li>
+    <li>Maiam nayri Wingara, the Aboriginal and Torres Strait Islander Data Sovereignty Collective.</li>
+    <li>The CARE Principles for Indigenous Data Governance (Global Indigenous Data Alliance).</li>
+    <li>Algorithm Charter for Aotearoa New Zealand.</li>
+    <li>Australia's AI Ethics Principles.</li>
+    <li>Web Content Accessibility Guidelines (WCAG) 2.2.</li>
+  </ul>
+
+  <div class="box" style="margin-top:6mm">
+    <p class="boxtitle">Before you start</p>
+    <p>
+      Read Parts 1 to 4 together as a group on Day 1, then each member reads their own section guide in Part 5 in
+      full. If anything in the brief is unclear, ask the lecturer on Day 1 rather than guessing on Day 4.
+    </p>
+  </div>
+</section>
+
+</body>
+</html>

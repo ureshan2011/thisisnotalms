@@ -227,6 +227,26 @@ const MBI800: Course = {
       kind: 'Pack',
     },
   ],
+  downloads: [
+    {
+      id: 'sisp-group-project-tutorial',
+      title: 'SISP group project tutorial',
+      blurb:
+        'Five days, four to six people, one real New Zealand or Australian organisation. Each member owns a part of a strategic IS plan, with extra weight on risk frameworks, ethics and culture, and immersive or AI technology, then the team presents it to the class.',
+      tags: ['PDF', '20 pages', 'Group project'],
+      // Built by scripts/sisp-group-project-pdf/build.mjs.
+      href: 'mbi800/group-project/MBI800-SISP-Group-Project-Tutorial.pdf',
+    },
+    {
+      id: 'sisp-group-project-peer-rating',
+      title: 'SISP group project peer rating sheet',
+      blurb:
+        'One sheet per student for the presentation session. Rate every other group from 1 to 5 on six criteria, then write one strength and one improvement for each on the back.',
+      tags: ['PDF', 'Print', '1 sheet, double-sided'],
+      // Built by scripts/sisp-group-project-pdf/build.mjs.
+      href: 'mbi800/group-project/MBI800-SISP-Group-Project-Peer-Rating-Sheet.pdf',
+    },
+  ],
 };
 
 // ─── MBI802 ───────────────────────────────────────────────────────────────

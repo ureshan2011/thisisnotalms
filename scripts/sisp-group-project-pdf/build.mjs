@@ -5,9 +5,9 @@
 //   npm --prefix study-pack ci        # once, for Playwright
 //   node scripts/sisp-group-project-pdf/build.mjs
 //
-// Both documents are plain HTML in this folder. print.css is added with the
-// DM Sans fonts inlined (borrowed from scripts/er-tutorial-pdf/fonts) and
-// Chromium prints each one to an A4 PDF. Set SISP_PDF_CHROMIUM to use a
+// Both documents are plain HTML in this folder, styled by print.css in Carlito
+// (install it on the build machine for the intended look), and Chromium
+// prints each one to an A4 PDF. Set SISP_PDF_CHROMIUM to use a
 // particular Chromium binary, and SISP_PDF_KEEP_HTML=1 to keep the HTML next
 // to each PDF for checking the layout in a browser.
 
@@ -18,19 +18,18 @@ import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(here, '../..');
-const fontDir = path.join(root, 'scripts/er-tutorial-pdf');
 const outDir = path.join(root, 'public/mbi800/group-project');
 
 const DOCUMENTS = [
   {
     source: 'tutorial.html',
     file: 'MBI800-SISP-Group-Project-Tutorial.pdf',
-    footer: 'MBI800 · SISP Group Project Tutorial',
+    footer: 'MBI800 SISP Group Project Tutorial',
   },
   {
     source: 'rating-sheet.html',
     file: 'MBI800-SISP-Group-Project-Peer-Rating-Sheet.pdf',
-    footer: 'MBI800 · SISP Group Project Peer Rating Sheet',
+    footer: 'MBI800 SISP Group Project Peer Rating Sheet',
   },
 ];
 
@@ -55,12 +54,8 @@ function launchOptions(chromium) {
   }
 }
 
-/** print.css with each font file inlined, so the page needs no other files. */
 function css() {
-  return fs.readFileSync(path.join(here, 'print.css'), 'utf8').replace(/url\('(fonts\/[^']+)'\)/g, (_, file) => {
-    const data = fs.readFileSync(path.join(fontDir, file)).toString('base64');
-    return `url(data:font/woff2;base64,${data})`;
-  });
+  return fs.readFileSync(path.join(here, 'print.css'), 'utf8');
 }
 
 async function main() {

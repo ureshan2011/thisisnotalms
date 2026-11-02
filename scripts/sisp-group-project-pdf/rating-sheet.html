@@ -6,16 +6,10 @@
 <!-- build.mjs swaps the marker below for print.css and the footer text. -->
 <style>/*CSS*/</style>
 </head>
-<body>
+<body class="sheet">
 
-<!-- ── Front: scores ── -->
-<header class="sheethead">
-  <div>
-    <p class="kicker">MBI800 · SISP group project</p>
-    <h1>Peer rating sheet</h1>
-  </div>
-  <p class="small muted" style="margin:0;text-align:right">One sheet per student<br>Hand in at the end of the session</p>
-</header>
+<p class="small" style="color:#595959;margin:0">MBI800 Strategic Information Systems Planning · SISP Group Project</p>
+<h1>Peer Rating Sheet</h1>
 
 <div class="who">
   <div>Your name</div>
@@ -23,80 +17,50 @@
   <div>Date</div>
 </div>
 
-<p class="small">
-  Rate every group except your own. Give each criterion a whole number from 1 to 5 and add up the total out of 30.
-  Score what you see and hear in the presentation, including the work behind it, not how much you like the
-  presenters. Then turn over and write one strength and one improvement for each group.
-</p>
-
-<div class="scale">
-  <span><b>1</b> Weak</span>
-  <span><b>2</b> Developing</span>
-  <span><b>3</b> Sound</span>
-  <span><b>4</b> Strong</span>
-  <span><b>5</b> Excellent</span>
-</div>
+<p class="small">Rate every group except your own. Give each criterion a score from 1 to 5 and add the total out of 30.<br>
+1 = Weak &nbsp; 2 = Developing &nbsp; 3 = Sound &nbsp; 4 = Strong &nbsp; 5 = Excellent</p>
 
 <table class="crit">
   <tbody>
-    <tr><td>C1</td><td>The organisation</td><td>Clear grasp of its vision, mission, objectives and current situation, backed by real, cited evidence.</td></tr>
-    <tr><td>C2</td><td>Strategic alignment</td><td>Initiatives trace back to objectives and gaps. Priorities make sense and the roadmap is believable.</td></tr>
-    <tr><td>C3</td><td>Risk management</td><td>A suitable framework, explained and applied. Real risks with sensible controls and owners.</td></tr>
-    <tr><td>C4</td><td>Ethics and culture</td><td>Privacy law, Indigenous data sovereignty, consent and fairness handled in specific, practical terms.</td></tr>
-    <tr><td>C5</td><td>Novel technology</td><td>Immersive, AI or data science proposal that solves a real problem and has been tested for feasibility.</td></tr>
-    <tr><td>C6</td><td>Delivery and teamwork</td><td>One team, on time, every member contributes, slides are clear and questions are answered well.</td></tr>
+    <tr><td>C1</td><td>The organisation</td><td>Understanding of the organisation's vision, mission, objectives and situation</td></tr>
+    <tr><td>C2</td><td>Strategic alignment</td><td>Initiatives linked to objectives, with clear priorities and roadmap</td></tr>
+    <tr><td>C3</td><td>Risk management</td><td>Suitable framework, realistic risks and controls</td></tr>
+    <tr><td>C4</td><td>Ethics and culture</td><td>Privacy, Indigenous data sovereignty and fairness addressed clearly</td></tr>
+    <tr><td>C5</td><td>Novel technology</td><td>Realistic immersive, AI or data science proposal that solves a real problem</td></tr>
+    <tr><td>C6</td><td>Delivery and teamwork</td><td>Within time, every member presents, clear slides, good answers</td></tr>
   </tbody>
 </table>
 
 <table class="rate">
   <thead>
-    <tr>
-      <th>Group</th>
-      <th class="l">Organisation</th>
-      <th>C1<br>Organisation</th>
-      <th>C2<br>Alignment</th>
-      <th>C3<br>Risk</th>
-      <th>C4<br>Ethics and culture</th>
-      <th>C5<br>Novel tech</th>
-      <th>C6<br>Delivery</th>
-      <th>Total</th>
-    </tr>
+    <tr><th>Group</th><th>Organisation</th><th>C1</th><th>C2</th><th>C3</th><th>C4</th><th>C5</th><th>C6</th><th>Total</th></tr>
   </thead>
   <tbody>
-    <tr><td class="g">1</td><td class="org"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="total">/30</td></tr>
-    <tr><td class="g">2</td><td class="org"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="total">/30</td></tr>
-    <tr><td class="g">3</td><td class="org"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="total">/30</td></tr>
-    <tr><td class="g">4</td><td class="org"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="total">/30</td></tr>
-    <tr><td class="g">5</td><td class="org"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="total">/30</td></tr>
-    <tr><td class="g">6</td><td class="org"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="total">/30</td></tr>
-    <tr><td class="g">7</td><td class="org"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="total">/30</td></tr>
-    <tr><td class="g">8</td><td class="org"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="score"></td><td class="total">/30</td></tr>
+    <tr><td>1</td><td class="org"></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="total">/30</td></tr>
+    <tr><td>2</td><td class="org"></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="total">/30</td></tr>
+    <tr><td>3</td><td class="org"></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="total">/30</td></tr>
+    <tr><td>4</td><td class="org"></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="total">/30</td></tr>
+    <tr><td>5</td><td class="org"></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="total">/30</td></tr>
+    <tr><td>6</td><td class="org"></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="total">/30</td></tr>
+    <tr><td>7</td><td class="org"></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="total">/30</td></tr>
+    <tr><td>8</td><td class="org"></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="total">/30</td></tr>
   </tbody>
 </table>
 
-<p class="foot-note">Leave your own group's row blank. If there are fewer than eight groups, leave the spare rows empty.</p>
-
-<!-- ── Back: comments ── -->
-<section class="newpage">
-  <header class="sheethead" style="margin-bottom:3mm">
-    <div>
-      <p class="kicker">MBI800 · SISP group project</p>
-      <h1 style="font-size:14pt">Comments for each group</h1>
-    </div>
-    <p class="small muted" style="margin:0;text-align:right">Be specific. Name the slide, idea or moment<br>you are talking about.</p>
-  </header>
-
-  <div class="comments">
-    <div class="cbox"><div class="cbox__head">Group 1 <span>Organisation: ____________________</span></div><p class="cbox__label">What worked well</p><div class="cbox__lines"></div><p class="cbox__label">One thing to improve</p><div class="cbox__lines"></div></div>
-    <div class="cbox"><div class="cbox__head">Group 2 <span>Organisation: ____________________</span></div><p class="cbox__label">What worked well</p><div class="cbox__lines"></div><p class="cbox__label">One thing to improve</p><div class="cbox__lines"></div></div>
-    <div class="cbox"><div class="cbox__head">Group 3 <span>Organisation: ____________________</span></div><p class="cbox__label">What worked well</p><div class="cbox__lines"></div><p class="cbox__label">One thing to improve</p><div class="cbox__lines"></div></div>
-    <div class="cbox"><div class="cbox__head">Group 4 <span>Organisation: ____________________</span></div><p class="cbox__label">What worked well</p><div class="cbox__lines"></div><p class="cbox__label">One thing to improve</p><div class="cbox__lines"></div></div>
-    <div class="cbox"><div class="cbox__head">Group 5 <span>Organisation: ____________________</span></div><p class="cbox__label">What worked well</p><div class="cbox__lines"></div><p class="cbox__label">One thing to improve</p><div class="cbox__lines"></div></div>
-    <div class="cbox"><div class="cbox__head">Group 6 <span>Organisation: ____________________</span></div><p class="cbox__label">What worked well</p><div class="cbox__lines"></div><p class="cbox__label">One thing to improve</p><div class="cbox__lines"></div></div>
-    <div class="cbox"><div class="cbox__head">Group 7 <span>Organisation: ____________________</span></div><p class="cbox__label">What worked well</p><div class="cbox__lines"></div><p class="cbox__label">One thing to improve</p><div class="cbox__lines"></div></div>
-    <div class="cbox"><div class="cbox__head">Group 8 <span>Organisation: ____________________</span></div><p class="cbox__label">What worked well</p><div class="cbox__lines"></div><p class="cbox__label">One thing to improve</p><div class="cbox__lines"></div></div>
-  </div>
-</section>
+<h1 class="newpage" style="margin-top:0">Comments</h1>
+<table class="comments">
+  <thead><tr><th>Group</th><th>One strength</th><th>One improvement</th></tr></thead>
+  <tbody>
+    <tr><td class="g">1</td><td></td><td></td></tr>
+    <tr><td class="g">2</td><td></td><td></td></tr>
+    <tr><td class="g">3</td><td></td><td></td></tr>
+    <tr><td class="g">4</td><td></td><td></td></tr>
+    <tr><td class="g">5</td><td></td><td></td></tr>
+    <tr><td class="g">6</td><td></td><td></td></tr>
+    <tr><td class="g">7</td><td></td><td></td></tr>
+    <tr><td class="g">8</td><td></td><td></td></tr>
+  </tbody>
+</table>
 
 </body>
 </html>

@@ -237,7 +237,7 @@ const MBI802: Course = {
   headline: ['Database management', 'systems'],
   accent: 'default',
   lede:
-    'From a spreadsheet that contradicts itself to a normalised database you can query. Nineteen lessons, in the order the course teaches them — the first one opens for anybody, with nothing to install.',
+    'From a spreadsheet that contradicts itself to a normalised database you can query. Twenty lessons, in the order the course teaches them — the first one opens for anybody, with nothing to install.',
   meta: 'Yasas Sri Wickramasinghe · 15 credits, Level 8, no prerequisites',
   keyline:
     'Each lesson assumes the one before it. SQL before diagrams, diagrams before mapping, mapping before normalisation — that order is the course, not a filing system.',
@@ -281,6 +281,15 @@ const MBI802: Course = {
       to: '/sql-programming',
       access: 'open',
       kind: 'Lesson',
+    },
+    {
+      id: 'sql-sandbox',
+      title: 'SQL Sandbox',
+      blurb:
+        'Real SQL in your browser, on a phone or a laptop, with nothing to install. Eight short levels take you from zero to building a database on your own; eight challenges test anyone who thinks they already know it. Type your student ID once and your progress is saved.',
+      to: '/sql-sandbox',
+      access: 'open',
+      kind: 'Practice',
     },
     {
       id: 'database-concepts',

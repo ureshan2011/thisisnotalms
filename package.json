@@ -26,12 +26,14 @@
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.22.0",
     "recharts": "^2.10.3",
+    "sql.js": "^1.12.0",
     "three": "^0.168.0"
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.21",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
+    "@types/sql.js": "^1.4.11",
     "@types/three": "^0.168.0",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.17",

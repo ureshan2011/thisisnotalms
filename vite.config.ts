@@ -30,6 +30,9 @@ export default defineConfig({
           // Three.js + React Three Fiber/Drei (only needed on 3D classroom page)
           if (id.includes('three') || id.includes('@react-three')) return 'vendor-three';
 
+          // sql.js (SQLite in WebAssembly) — only the SQL Sandbox needs it.
+          if (id.includes('sql.js')) return 'vendor-sql';
+
           // Leaflet map libraries (only needed on pages that render a map)
           if (id.includes('leaflet') || id.includes('react-leaflet')) return 'vendor-map';
 

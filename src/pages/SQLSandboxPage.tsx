@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { BookOpen, Flame, FileDown, GraduationCap, Swords, TerminalSquare, UserRound, Zap } from 'lucide-react';
 import { CourseBrand } from '../components/blend';
-import IdGate from '../components/sqlsandbox/IdGate';
+import IdGate, { NameGate } from '../components/sqlsandbox/IdGate';
 import LevelMap from '../components/sqlsandbox/LevelMap';
 import LevelPlayer from '../components/sqlsandbox/LevelPlayer';
 import { ChallengeList, ChallengePlayer } from '../components/sqlsandbox/Challenges';
@@ -13,6 +13,7 @@ import { LEVELS } from '../lib/sqlSandbox/levels';
 import { forgetLocal, lastSynced, sheetEnabled, streak, totalXp } from '../lib/sqlSandbox/progress';
 import { themeFor } from '../lib/sqlSandbox/themes';
 import { loadSql } from '../lib/sqlSandbox/loadSql';
+import { report } from '../lib/sqlSandbox/activity';
 import '../styles/blend.css';
 import '../styles/sql-sandbox.css';
 
@@ -73,11 +74,28 @@ export default function SQLSandboxPage() {
 
   const go = (next: Record<string, string>) => setParams(next);
 
+  // Tell the TA screen where the student is when they're not inside a level
+  // or a challenge (those report their own step).
+  useEffect(() => {
+    if (levelId || chId) return;
+    const where = { learn: 'Levels map', challenges: 'Challenge list', play: 'Playground', notes: 'Notes' }[tab] ?? 'Levels map';
+    report({ key: `tab:${tab}`, where });
+  }, [tab, levelId, chId]);
+
   if (!profile) {
     return (
       <div className="bt sb">
         <Header />
         <IdGate onReady={api.start} />
+      </div>
+    );
+  }
+
+  if (!profile.name) {
+    return (
+      <div className="bt sb">
+        <Header />
+        <NameGate id={profile.id} onName={api.setName} />
       </div>
     );
   }
@@ -114,7 +132,7 @@ export default function SQLSandboxPage() {
             {menu && (
               <div className="sb-menu" role="dialog" aria-label="Your progress">
                 <p>
-                  Working as <strong>{profile.id}</strong>
+                  Working as <strong>{profile.name}</strong> <span className="sb-muted">({profile.id})</span>
                 </p>
                 <p className="sb-muted">Your business: {theme.business}</p>
                 <p className="sb-muted">

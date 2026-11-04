@@ -46,6 +46,7 @@ const EXPLICIT: Record<string, string | [string, string]> = {
     'Both courses rewritten as properly typeset books, with worked examples, practice questions and answer keys. Download and keep.',
   ],
 
+  '/sql-sandbox/ta': 'SQL Sandbox · TA view',
   '/vote': 'Class vote',
   '/vote/admin': 'Class vote · Results',
   '/login': `Sign in · ${SITE_NAME}`,

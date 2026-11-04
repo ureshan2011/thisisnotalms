@@ -9,6 +9,7 @@
 // XP and streaks are worked out from those facts when needed.
 
 import { SQL_SANDBOX_SHEET_URL } from '../../config/sqlSandbox';
+import type { ActivityPayload } from './activity';
 
 export interface StepDone { xp: number; at: string }
 export interface LevelDone { stars: number; xp: number; at: string }
@@ -25,6 +26,8 @@ export interface ChallengeState {
 export interface Profile {
   v: 1;
   id: string;
+  /** First name, so the TA can call the student by name. */
+  name?: string;
   createdAt: string;
   steps: Record<string, StepDone>;
   levels: Record<string, LevelDone>;
@@ -59,13 +62,23 @@ export function validId(id: string) {
   return /^[A-Z0-9-]{3,20}$/.test(id);
 }
 
+/** "  ana " -> "Ana". Letters, spaces, hyphens and apostrophes; at most 30 characters. */
+export function normaliseName(raw: string) {
+  const n = raw.replace(/[^\p{L}\p{M}' -]/gu, '').replace(/\s+/g, ' ').trim().slice(0, 30);
+  return n ? n[0].toUpperCase() + n.slice(1) : '';
+}
+
+export function validName(name: string) {
+  return /\p{L}/u.test(name);
+}
+
 export function today() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-export function newProfile(id: string): Profile {
-  return { v: 1, id, createdAt: new Date().toISOString(), steps: {}, levels: {}, shown: {}, challenges: {}, days: [] };
+export function newProfile(id: string, name?: string): Profile {
+  return { v: 1, id, name, createdAt: new Date().toISOString(), steps: {}, levels: {}, shown: {}, challenges: {}, days: [] };
 }
 
 function read<T>(key: string): T | null {
@@ -172,6 +185,7 @@ export function merge(a: Profile, b: Profile): Profile {
   return {
     v: 1,
     id: a.id,
+    name: a.name || b.name,
     createdAt: a.createdAt < b.createdAt ? a.createdAt : b.createdAt,
     steps,
     levels,
@@ -184,6 +198,7 @@ export function merge(a: Profile, b: Profile): Profile {
 // ── The Google Sheet ────────────────────────────────────────────────────────
 
 export interface SheetSummary {
+  name: string;
   xp: number;
   levelsDone: number;
   currentLevel: string;
@@ -207,6 +222,7 @@ export function summarise(p: Profile, levelIds: string[], levelTitles: Record<st
   const solved = Object.entries(p.challenges).filter(([, c]) => c.solved).map(([k]) => k);
   const next = levelIds.find(id => !p.levels[id]);
   return {
+    name: p.name ?? '',
     xp: totalXp(p),
     levelsDone: Object.keys(p.levels).length,
     currentLevel: next ? levelTitles[next] ?? next : 'All done',
@@ -251,7 +267,7 @@ let pushing: Promise<void> | null = null;
  * Send the profile and any queued events. Sent as text/plain so the browser
  * makes a simple request with no CORS preflight, which Apps Script can't answer.
  */
-export async function pushProfile(p: Profile, summary: SheetSummary): Promise<boolean> {
+export async function pushProfile(p: Profile, summary: SheetSummary, activity?: ActivityPayload): Promise<boolean> {
   if (!sheetEnabled()) return false;
   if (pushing) await pushing.catch(() => undefined);
   const events = read<LogEvent[]>(QUEUE) ?? [];
@@ -260,7 +276,7 @@ export async function pushProfile(p: Profile, summary: SheetSummary): Promise<bo
     const res = await fetch(SQL_SANDBOX_SHEET_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'save', id: p.id, summary, profile: JSON.stringify(p), events }),
+      body: JSON.stringify({ action: 'save', id: p.id, summary, activity, profile: JSON.stringify(p), events }),
       redirect: 'follow',
     });
     const body = (await res.json()) as { ok: boolean };
@@ -312,4 +328,39 @@ export function saveWorkspace(scope: string, encoded: string | null) {
   } catch {
     /* storage full: keep going without it */
   }
+}
+
+// ── The TA's live view ──────────────────────────────────────────────────────
+
+export interface LiveRow {
+  id: string;
+  name: string;
+  xp: number;
+  levelsDone: number;
+  upTo: string;
+  challengesSolved: number;
+  pastes: number;
+  doing: string;
+  step: string;
+  /** Seconds on the current step, worked out by the sheet. */
+  stepSecs: number;
+  fails: number;
+  /** Seconds since the student's device last checked in. */
+  idleSecs: number;
+  device: string;
+}
+
+export interface LiveFlag {
+  id: string;
+  name: string;
+  challenge: string;
+  secs: number;
+  pastes: number;
+  agoSecs: number;
+}
+
+export async function fetchLive(pin: string): Promise<{ ok: boolean; error?: string; rows: LiveRow[]; flags: LiveFlag[] }> {
+  const res = await fetch(`${SQL_SANDBOX_SHEET_URL}?action=live&pin=${encodeURIComponent(pin)}`, { redirect: 'follow' });
+  const body = (await res.json()) as { ok: boolean; error?: string; rows?: LiveRow[]; flags?: LiveFlag[] };
+  return { ok: body.ok, error: body.error, rows: body.rows ?? [], flags: body.flags ?? [] };
 }

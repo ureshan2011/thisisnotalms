@@ -23,6 +23,16 @@ export interface ChallengeState {
   at: string;
 }
 
+export type CertLevel = 'basic' | 'advanced';
+
+export interface CertRecord {
+  id: string;
+  /** The name printed on it. Fixed once issued. */
+  name: string;
+  /** ISO date the certificate was issued. */
+  at: string;
+}
+
 export interface Profile {
   v: 1;
   id: string;
@@ -36,6 +46,8 @@ export interface Profile {
   challenges: Record<string, ChallengeState>;
   /** Local dates (YYYY-MM-DD) with any activity. For the streak. */
   days: string[];
+  /** Certificates this student has claimed. */
+  certs?: Partial<Record<CertLevel, CertRecord>>;
 }
 
 export interface LogEvent {
@@ -192,6 +204,7 @@ export function merge(a: Profile, b: Profile): Profile {
     shown,
     challenges,
     days: [...new Set([...a.days, ...b.days])].sort().slice(-120),
+    certs: { ...b.certs, ...a.certs },
   };
 }
 
@@ -363,4 +376,65 @@ export async function fetchLive(pin: string): Promise<{ ok: boolean; error?: str
   const res = await fetch(`${SQL_SANDBOX_SHEET_URL}?action=live&pin=${encodeURIComponent(pin)}`, { redirect: 'follow' });
   const body = (await res.json()) as { ok: boolean; error?: string; rows?: LiveRow[]; flags?: LiveFlag[] };
   return { ok: body.ok, error: body.error, rows: body.rows ?? [], flags: body.flags ?? [] };
+}
+
+// ── Certificates ────────────────────────────────────────────────────────────
+
+export const CERT_TITLES: Record<CertLevel, string> = {
+  basic: 'Basic Proficiency in SQL',
+  advanced: 'Advanced Proficiency in SQL',
+};
+
+export interface VerifiedCert {
+  id: string;
+  /** ISO date. */
+  issued: string;
+  name: string;
+  level: string;
+}
+
+export const certLevelOf = (title: string): CertLevel => (/advanced/i.test(title) ? 'advanced' : 'basic');
+
+/** Where a certificate lives: the page that verifies it and shows the poster. */
+export function certUrl(id: string) {
+  const { origin, pathname } = window.location;
+  return `${origin}${pathname}#/sql-certificate/${encodeURIComponent(id)}`;
+}
+
+export async function verifyCertificate(id: string): Promise<{ ok: true; cert: VerifiedCert } | { ok: false; error: string }> {
+  if (!sheetEnabled()) return { ok: false, error: 'Verification is not set up on this site yet.' };
+  const res = await fetch(`${SQL_SANDBOX_SHEET_URL}?action=verify&cert=${encodeURIComponent(id)}`, { redirect: 'follow' });
+  const body = (await res.json()) as { ok: boolean; error?: string; cert?: VerifiedCert };
+  return body.ok && body.cert ? { ok: true, cert: body.cert } : { ok: false, error: body.error ?? 'Could not verify this certificate.' };
+}
+
+export async function issueCertificate(
+  id: string,
+  level: CertLevel,
+  name: string,
+): Promise<{ ok: true; cert: VerifiedCert } | { ok: false; error: string }> {
+  if (!sheetEnabled()) return { ok: false, error: 'Certificates need the class sheet, which is not connected yet.' };
+  const res = await fetch(SQL_SANDBOX_SHEET_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'issue', id, level, name }),
+    redirect: 'follow',
+  });
+  const body = (await res.json()) as { ok: boolean; error?: string; cert?: VerifiedCert };
+  return body.ok && body.cert ? { ok: true, cert: body.cert } : { ok: false, error: body.error ?? 'The certificate could not be issued.' };
+}
+
+/** LinkedIn's "Add to profile" form, filled in. Opens in a new tab. */
+export function linkedInUrl(cert: VerifiedCert) {
+  const d = new Date(cert.issued);
+  const q = new URLSearchParams({
+    startTask: 'CERTIFICATION_NAME',
+    name: cert.level,
+    organizationName: 'Yasas Sri Wickramasinghe',
+    issueYear: String(d.getFullYear()),
+    issueMonth: String(d.getMonth() + 1),
+    certUrl: certUrl(cert.id),
+    certId: cert.id,
+  });
+  return `https://www.linkedin.com/profile/add?${q.toString()}`;
 }

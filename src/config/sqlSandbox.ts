@@ -8,5 +8,7 @@
 const SHEET_URL =
   'https://script.google.com/macros/s/AKfycbzK1FjrrlxbSLEx-585qvgs-FCuNVACT3Ah8b46pbzpyXX56XM_Gn_Z9coJeOMNmWSwsg/exec';
 
+// A build can point somewhere else (VITE_SQL_SANDBOX_SHEET_URL), which is how
+// tests run against a stand-in sheet instead of the real one.
 export const SQL_SANDBOX_SHEET_URL: string =
-  SHEET_URL || ((import.meta.env.VITE_SQL_SANDBOX_SHEET_URL as string | undefined) ?? '');
+  ((import.meta.env.VITE_SQL_SANDBOX_SHEET_URL as string | undefined) ?? '') || SHEET_URL;

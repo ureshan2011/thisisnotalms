@@ -5,11 +5,15 @@
  * (Extensions → Apps Script), set TA_PIN below, then deploy it as a web app.
  * Full steps: scripts/sql-sandbox-sheet/README.md in the repo.
  *
- * It keeps two tabs, created on first use:
+ * It keeps three tabs, created on first use:
  *   Progress  one row per student, updated in place: name, progress, and
  *             what they are doing right now (level, step, time on it).
  *   Log       one row per event: opened on a device, finished a level,
  *             tried a challenge. Pastes and seconds-to-solve are here too.
+ *   Certificates  one row per certificate issued. Anyone with a certificate
+ *             ID can check it through ?action=verify&cert=ID. A certificate is
+ *             only issued if the student's saved progress really shows the
+ *             work done (all 8 levels, or all 8 challenges solved).
  *
  * The TA screen (/sql-sandbox/ta) reads the Progress tab through
  * ?action=live, which needs TA_PIN.
@@ -20,6 +24,12 @@ var TA_PIN = 'change-me';
 
 var PROGRESS = 'Progress';
 var LOG = 'Log';
+var CERTS = 'Certificates';
+var CERT_HEADERS = ['Certificate ID', 'Issued', 'Student ID', 'Name on certificate', 'Level', 'Levels done', 'Challenges solved'];
+var CERT_LEVELS = { basic: 'Basic Proficiency in SQL', advanced: 'Advanced Proficiency in SQL' };
+var CERT_PREFIX = { basic: 'SQLB', advanced: 'SQLA' };
+var LEVELS_TOTAL = 8;
+var CHALLENGES_TOTAL = 8;
 
 var PROGRESS_HEADERS = [
   'Student ID', 'Name', 'Last seen', 'XP', 'Levels done', 'Up to', 'Stars',
@@ -36,6 +46,18 @@ function col_(name) {
 function sheet_(name, headers) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sh = ss.getSheetByName(name);
+  // A tab left over from an older version of this script has different
+  // columns. Rather than misread it, set it aside and start a fresh one.
+  if (sh && sh.getLastRow() >= 1 && (name === PROGRESS || name === LOG)) {
+    var have = sh.getRange(1, 1, 1, headers.length).getValues()[0];
+    var same = true;
+    for (var i = 0; i < headers.length; i++) if (String(have[i]) !== headers[i]) same = false;
+    if (!same) {
+      var stamp = Utilities.formatDate(new Date(), 'UTC', 'yyyy-MM-dd HHmm');
+      sh.setName(name + ' (old ' + stamp + ')');
+      sh = null;
+    }
+  }
   if (!sh) {
     sh = ss.insertSheet(name);
     sh.appendRow(headers);
@@ -71,6 +93,42 @@ function findRow_(sh, id) {
   return -1;
 }
 
+function certId_(level, sh) {
+  var alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  for (var tries = 0; tries < 20; tries++) {
+    var s = '';
+    for (var i = 0; i < 8; i++) s += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+    var id = CERT_PREFIX[level] + '-' + s.slice(0, 4) + '-' + s.slice(4);
+    var last = sh.getLastRow();
+    var taken = false;
+    if (last >= 2) {
+      var ids = sh.getRange(2, 1, last - 1, 1).getValues();
+      for (var j = 0; j < ids.length; j++) if (String(ids[j][0]) === id) { taken = true; break; }
+    }
+    if (!taken) return id;
+  }
+  throw new Error('could not make an id');
+}
+
+function cleanName_(n) {
+  return String(n || '').replace(/[^\p{L}\p{M}'. -]/gu, '').replace(/\s+/g, ' ').trim().slice(0, 60);
+}
+
+function certRow_(sh, wanted, col) {
+  var last = sh.getLastRow();
+  if (last < 2) return null;
+  var rows = sh.getRange(2, 1, last - 1, CERT_HEADERS.length).getValues();
+  for (var i = 0; i < rows.length; i++) {
+    if (String(rows[i][col]).toUpperCase() === String(wanted).toUpperCase()) return rows[i];
+  }
+  return null;
+}
+
+function certJson_(r) {
+  var d = r[1] instanceof Date ? r[1] : new Date(r[1]);
+  return { id: String(r[0]), issued: d.toISOString(), name: String(r[3]), level: String(r[4]) };
+}
+
 function allRows_() {
   var sh = sheet_(PROGRESS, PROGRESS_HEADERS);
   var last = sh.getLastRow();
@@ -95,6 +153,14 @@ function doGet(e) {
     if (row < 0) return json_({ ok: true, profile: null });
     var profile = sh.getRange(row, PROGRESS_HEADERS.length).getValue();
     return json_({ ok: true, profile: profile || null });
+  }
+
+  if (action === 'verify') {
+    var cid = String(p.cert || '').trim().toUpperCase();
+    if (!/^SQL[AB]-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(cid)) return json_({ ok: false, error: 'That is not a certificate ID.' });
+    var found = certRow_(sheet_(CERTS, CERT_HEADERS), cid, 0);
+    if (!found) return json_({ ok: false, error: 'No certificate with this ID was found.' });
+    return json_({ ok: true, cert: certJson_(found) });
   }
 
   if (action === 'board') {
@@ -170,6 +236,7 @@ function doPost(e) {
   } catch (err) {
     return json_({ ok: false, error: 'bad json' });
   }
+  if (body.action === 'issue') return issue_(body);
   if (body.action !== 'save') return json_({ ok: false, error: 'unknown action' });
   var id = cleanId_(body.id);
   if (!id) return json_({ ok: false, error: 'bad id' });
@@ -210,4 +277,60 @@ function doPost(e) {
     lock.releaseLock();
   }
   return json_({ ok: true });
+}
+
+/**
+ * Issue a certificate. Checks the student's saved progress first, so a
+ * certificate can't be asked for before the work is done. One certificate per
+ * student per level: asking again returns the same one, with the same name.
+ */
+function issue_(body) {
+  var id = cleanId_(body.id);
+  var level = String(body.level || '');
+  var name = cleanName_(body.name);
+  if (!id) return json_({ ok: false, error: 'bad id' });
+  if (!CERT_LEVELS[level]) return json_({ ok: false, error: 'unknown level' });
+  if (name.length < 3 || name.indexOf(' ') < 0) return json_({ ok: false, error: 'Please type your full name, first and last.' });
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    var certs = sheet_(CERTS, CERT_HEADERS);
+    var existing = null;
+    var last = certs.getLastRow();
+    if (last >= 2) {
+      var rows = certs.getRange(2, 1, last - 1, CERT_HEADERS.length).getValues();
+      for (var i = 0; i < rows.length; i++) {
+        if (String(rows[i][2]).toUpperCase() === id && rows[i][4] === CERT_LEVELS[level]) { existing = rows[i]; break; }
+      }
+    }
+    if (existing) return json_({ ok: true, cert: certJson_(existing), again: true });
+
+    var prog = sheet_(PROGRESS, PROGRESS_HEADERS);
+    var row = findRow_(prog, id);
+    if (row < 0) return json_({ ok: false, error: 'No saved progress was found for this ID yet. Open a level, then try again.' });
+    var profile;
+    try {
+      profile = JSON.parse(String(prog.getRange(row, PROGRESS_HEADERS.length).getValue()));
+    } catch (err) {
+      return json_({ ok: false, error: 'Your saved progress could not be read.' });
+    }
+    var levelsDone = Object.keys(profile.levels || {}).length;
+    var solved = 0;
+    var ch = profile.challenges || {};
+    for (var k in ch) if (ch[k] && ch[k].solved) solved++;
+    if (level === 'basic' && levelsDone < LEVELS_TOTAL) {
+      return json_({ ok: false, error: 'Finish all ' + LEVELS_TOTAL + ' levels first. The sheet has ' + levelsDone + ' saved.' });
+    }
+    if (level === 'advanced' && solved < CHALLENGES_TOTAL) {
+      return json_({ ok: false, error: 'Solve all ' + CHALLENGES_TOTAL + ' challenges first. The sheet has ' + solved + ' saved.' });
+    }
+    var cid = certId_(level, certs);
+    var now = new Date();
+    var out = [cid, now, id, name, CERT_LEVELS[level], levelsDone, solved];
+    certs.appendRow(out);
+    return json_({ ok: true, cert: certJson_(out) });
+  } finally {
+    lock.releaseLock();
+  }
 }

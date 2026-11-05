@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { activityPayload, onActivity } from '../../lib/sqlSandbox/activity';
 import { LEVEL_IDS, LEVEL_TITLES } from '../../lib/sqlSandbox/levels';
 import {
-  loadLocal, merge, pullProfile, pushProfile, queueEvent, saveLocal, sheetEnabled, summarise, touchToday,
-  type ChallengeState, type Profile,
+  issueCertificate, loadLocal, merge, pullProfile, pushProfile, queueEvent, saveLocal, sheetEnabled, summarise, touchToday,
+  type CertLevel, type ChallengeState, type Profile,
 } from '../../lib/sqlSandbox/progress';
 
 // The student's progress, plus the few ways it can change. Every change is
@@ -98,6 +98,26 @@ export function useProfile() {
 
   const setName = useCallback((name: string) => update(p => ({ ...p, name }), true), [update]);
 
+  /** Saves progress to the sheet first, so the sheet can check the work, then asks for the certificate. */
+  const claimCert = useCallback(
+    async (level: CertLevel, fullName: string) => {
+      const p = latest.current;
+      if (!p) return { ok: false as const, error: 'Not signed in.' };
+      try {
+        const saved = await pushProfile(p, summarise(p, LEVEL_IDS, LEVEL_TITLES), activityPayload());
+        if (!saved) return { ok: false as const, error: 'Could not save your progress to the class sheet. Check your connection and try again.' };
+        const res = await issueCertificate(p.id, level, fullName);
+        if (res.ok) {
+          update(cur => ({ ...cur, certs: { ...cur.certs, [level]: { id: res.cert.id, name: res.cert.name, at: res.cert.issued } } }), true);
+        }
+        return res;
+      } catch {
+        return { ok: false as const, error: 'Could not reach the class sheet. Check your connection and try again.' };
+      }
+    },
+    [update],
+  );
+
   const start = useCallback(
     (p: Profile) => {
       const next = touchToday(p);
@@ -156,7 +176,7 @@ export function useProfile() {
     [update],
   );
 
-  return { profile, sync, start, setName, completeStep, markShown, completeLevel, recordChallenge, setProfile };
+  return { profile, sync, start, setName, claimCert, completeStep, markShown, completeLevel, recordChallenge, setProfile };
 }
 
 export type ProfileApi = ReturnType<typeof useProfile>;

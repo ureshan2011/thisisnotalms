@@ -166,6 +166,7 @@
   color: var(--ink-900);
   outline: none;
 }
+.sb-gate__input--name { font-family: var(--font-body); letter-spacing: 0; }
 .sb-gate__input:focus { border-color: var(--accent-400); background: #fff; }
 .sb-gate__card .bt-btn { justify-self: start; }
 .sb-gate__msg { color: var(--red-500); font-size: 14px; }
@@ -712,3 +713,75 @@
 @media (prefers-reduced-motion: reduce) {
   .sb *, .sb *::before, .sb *::after { animation: none !important; transition: none !important; }
 }
+
+/* ── TA screen (/sql-sandbox/ta) ────────────────────────────────────────── */
+.ta-sync { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.ta-spin { animation: ta-spin 0.8s linear infinite; }
+@keyframes ta-spin { to { transform: rotate(360deg); } }
+.ta { display: grid; gap: 14px; }
+.ta-top { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.ta-filters { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+.ta-filter {
+  flex: none;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-0);
+  font: 600 14px var(--font-body);
+  color: var(--ink-700);
+  cursor: pointer;
+}
+.ta-filter b { margin-left: 4px; font-variant-numeric: tabular-nums; }
+.ta-filter--stuck b { color: var(--red-500); }
+.ta-filter.is-on { background: var(--ink-900); border-color: var(--ink-900); color: #fff; }
+.ta-filter.is-on b { color: #fff; }
+.ta-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-subtle);
+  background: var(--paper-0);
+  color: var(--ink-400);
+  flex: 1 1 220px;
+  max-width: 320px;
+}
+.ta-search input { border: none; outline: none; background: none; font: 16px var(--font-body); width: 100%; color: var(--ink-900); }
+.ta-grid { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); }
+.ta-card {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  padding: 14px 16px;
+  background: var(--paper-0);
+  border: 1px solid var(--border-subtle);
+  border-left: 5px solid var(--green-500);
+  border-radius: var(--radius-card);
+}
+.ta-card.is-stuck { border-left-color: var(--red-500); background: #fffaf9; }
+.ta-card.is-idle { border-left-color: var(--amber-500); }
+.ta-card.is-offline { border-left-color: var(--ink-200); opacity: 0.7; }
+.ta-card__head { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; }
+.ta-pill { padding: 2px 9px; border-radius: var(--radius-pill); font-weight: 800; font-size: 12px; }
+.ta-pill--stuck { background: var(--red-50); color: #a12a1e; }
+.ta-pill--working { background: var(--green-50); color: #1d6b45; }
+.ta-pill--idle { background: var(--amber-50); color: #7a5200; }
+.ta-pill--offline { background: var(--paper-200); color: var(--ink-500); }
+.ta-name { font: 800 21px var(--font-display); letter-spacing: -0.02em; margin-top: 4px; }
+.ta-name span { font: 600 12.5px var(--font-mono); color: var(--ink-400); letter-spacing: 0; margin-left: 4px; }
+.ta-doing { font-weight: 700; color: var(--ink-800); font-size: 15px; }
+.ta-step { font-size: 14px; color: var(--ink-600); }
+.ta-meta { display: flex; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--ink-500); margin-top: 4px; }
+.ta-meta span { display: inline-flex; align-items: center; gap: 4px; }
+.ta-meta .is-hot { color: var(--red-500); font-weight: 700; }
+.ta-foot { font-size: 12.5px; color: var(--ink-400); margin-top: 6px; }
+.ta-flags { border-color: #f1c98a; background: #fffcf4; }
+.ta-flags ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.ta-flags li { display: flex; flex-wrap: wrap; gap: 4px 8px; font-size: 14px; align-items: baseline; }
+.ta-flags li > span:last-child { flex: 1 1 100%; color: var(--ink-600); }
+@media (min-width: 720px) { .ta-flags li > span:last-child { flex: 1; } }
+.ta-legend { font-size: 12.5px; }
+.ta-note { display: grid; gap: 8px; max-width: 560px; }

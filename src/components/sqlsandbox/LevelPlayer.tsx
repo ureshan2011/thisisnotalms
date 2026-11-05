@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Check, Circle, Lightbulb, Star, Zap } from 'lucide-react';
 import type { Cell, RunOutput, StmtResult } from '../../lib/sqlSandbox/engine';
+import { report, reportFail } from '../../lib/sqlSandbox/activity';
 import { LEVEL_BONUS, LEVELS, STEP_XP, starsFor, type CheckCtx, type Level, type Step } from '../../lib/sqlSandbox/levels';
 import { rng, type Theme } from '../../lib/sqlSandbox/themes';
 import type { ProfileApi } from './useProfile';
@@ -129,6 +130,18 @@ export default function LevelPlayer({
     if (replay) saveHist(level.id, []);
   }, [replay, level.id]);
 
+  // Where the TA screen should say this student is.
+  useEffect(() => {
+    if (!step) return;
+    const what = 'question' in step ? step.question : step.task;
+    report({
+      key: `${level.id}.${step.id}.${restart}`,
+      where: `Level ${level.n} · ${level.title}`,
+      detail: `Step ${idx + 1} of ${steps.length}: ${what}`,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx, restart, level.id]);
+
   const ctx = useCallback(
     (last: RunOutput | null): CheckCtx => ({
       engine: raw.engine!, theme, history: history.current, levelHistory: levelHistory.current, last, start: startRows.current,
@@ -179,7 +192,10 @@ export default function LevelPlayer({
     history.current.push(...out.results);
     levelHistory.current.push(...out.results);
     saveHist(level.id, levelHistory.current);
-    if (!evaluate(out)) setFails(f => f + 1);
+    if (!evaluate(out)) {
+      setFails(f => f + 1);
+      reportFail();
+    }
   };
 
   // Undo and restart also count as actions a step can be waiting for.
@@ -248,7 +264,10 @@ export default function LevelPlayer({
       return;
     }
     if (i === step.answer) finish(wrong ? 5 : STEP_XP);
-    else setWrong(w => w + 1);
+    else {
+      setWrong(w => w + 1);
+      reportFail();
+    }
   };
 
   const tapPiece = (i: number) => {
@@ -257,7 +276,10 @@ export default function LevelPlayer({
     setLine(nextLine);
     if (nextLine.length === step.pieces.length) {
       if (nextLine.every((v, k) => v === k)) finish(STEP_XP);
-      else setNudge('Not quite. Tap a piece in your answer to take it back.');
+      else {
+        setNudge('Not quite. Tap a piece in your answer to take it back.');
+        reportFail();
+      }
     }
   };
 

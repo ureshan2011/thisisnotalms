@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Check, CheckCircle2, EyeOff, XCircle, Zap } from 'lucide-react';
 import { CHALLENGES, cascadeAnswer, challengeXp, grade, type Challenge, type TestResult } from '../../lib/sqlSandbox/challenges';
 import { statementKinds } from '../../lib/sqlSandbox/engine';
+import { report, reportFail } from '../../lib/sqlSandbox/activity';
 import { loadSql } from '../../lib/sqlSandbox/loadSql';
 import type { Profile } from '../../lib/sqlSandbox/progress';
 import { ResultGrid } from './RunOutput';
@@ -111,8 +112,15 @@ export function ChallengePlayer({ ch, api, onExit }: { ch: Challenge; api: Profi
   const [verdict, setVerdict] = useState<{ ok: boolean; answer: Record<string, number> } | null>(null);
   const [revealed, setRevealed] = useState(false);
 
+  useEffect(() => {
+    report({ key: `ch:${ch.id}:${variant}`, where: `Challenge ${ch.n} · ${ch.title}`, detail: state?.solved ? 'Already solved, having another go' : ch.skill });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ch.id, variant]);
+
   const secs = () => Math.round((Date.now() - opened.current) / 1000);
   const record = (solved: boolean, note: string) => {
+    if (solved) report({ key: `ch:${ch.id}:${variant}`, where: `Challenge ${ch.n} · ${ch.title}`, detail: 'Solved' });
+    else reportFail();
     api.recordChallenge(ch.id, { solved, xp: challengeXp(ch), pastes: pastes.current, secs: secs(), note: note.slice(0, 120) });
     pastes.current = 0;
     if (solved && !state?.solved) setWin(challengeXp(ch));

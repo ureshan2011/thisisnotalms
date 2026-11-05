@@ -1,10 +1,12 @@
 # SQL Sandbox — MBI802
 
 - **Subject:** MBI802 — Database Management Systems
-- **Gating:** Non-gated (public). No login. The student types their student ID once per device.
-- **Route(s):** `/sql-sandbox` (tabs and open items live in the query string: `?tab=learn|challenges|play|notes`, `&level=L3`, `&ch=c5`)
+- **Gating:** Non-gated (public). No login. The student types their first name and student ID once per device. The TA screen needs a PIN set in `Code.gs`.
+- **Route(s):** `/sql-sandbox`, and `/sql-sandbox/ta` for the TA's live screen (tabs and open items live in the query string: `?tab=learn|challenges|play|notes`, `&level=L3`, `&ch=c5`)
 - **Source files:**
   - `src/pages/SQLSandboxPage.tsx` — page shell, header stats, tabs, ID menu
+  - `src/pages/SQLSandboxTAPage.tsx` — the TA's live screen
+  - `src/lib/sqlSandbox/activity.ts` — what the student is doing right now (level, step, time on it, failed tries)
   - `src/components/sqlsandbox/` — `IdGate`, `LevelMap`, `LevelPlayer`, `Challenges` (list + player), `Extras` (playground, notes, class board), `Workspace`, `SqlEditor`, `RunOutput`, `TablesPanel`, `useSandbox`, `useProfile`
   - `src/lib/sqlSandbox/` — `engine.ts` (MySQL layer over SQLite), `createTable.ts`, `errors.ts`, `sqlText.ts`, `loadSql.ts`, `themes.ts`, `levels.ts`, `challenges.ts`, `progress.ts`, `notes.ts`
   - `src/styles/sql-sandbox.css` — `sb-` classes on Blend tokens
@@ -61,5 +63,8 @@ Each MySQL database is its own SQLite database. CREATE TABLE is parsed and rewri
 - `localStorage` `sqlsb:profile:v1`: the profile (facts only: steps, levels, challenges, active days; XP and streak are derived, so devices merge by union). `sqlsb:ws:<scope>` and `sqlsb:undo:<scope>`: each workspace's databases and last five undo steps. `sqlsb:draft:*`, `sqlsb:cv:*`, `sqlsb:hist:*`: drafts, cascade variant, level history.
 - Google Sheet (optional): `Progress` (one row per ID, upserted) and `Log` (levels, challenge attempts with pastes and seconds). POSTs are `text/plain` to avoid a CORS preflight. `GET ?action=load|board`.
 
-## 5. Checks done before release
+## 5. TA live screen
+Each sandbox page reports its current place (`report()` on every new step or challenge, `reportFail()` on every failed run, wrong answer or failed submission) and sends it with the profile push: a few seconds after any change, and every 2 minutes while the page is visible. The sheet stores "Doing now", "Step", "On this step since" (worked out with the sheet's own clock) and "Failed tries on this step". `GET ?action=live&pin=…` returns every student plus quick solves after a paste from the Log. The TA page polls every 15 seconds and sorts Stuck (seen within 4 min, and 6+ min or 3+ failed tries on the step), Working, Idle (4+ min) and Left (20+ min).
+
+## 6. Checks done before release
 Engine smoke tests against MySQL behaviour; every level step solved for all eight themes; every challenge passed with a correct answer and failed with the typical wrong one; Playwright runs at phone and desktop width (gate, levels, Undo, boss, challenges, PDF, reload, two-device restore against a mock sheet); Apps Script exercised against a mocked runtime.

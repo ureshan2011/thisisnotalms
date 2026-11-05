@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { activityPayload, onActivity } from '../../lib/sqlSandbox/activity';
 import { LEVEL_IDS, LEVEL_TITLES } from '../../lib/sqlSandbox/levels';
 import {
   loadLocal, merge, pullProfile, pushProfile, queueEvent, saveLocal, sheetEnabled, summarise, touchToday,
@@ -22,7 +23,7 @@ export function useProfile() {
     if (!p || !sheetEnabled()) return;
     setSync('saving');
     try {
-      const ok = await pushProfile(p, summarise(p, LEVEL_IDS, LEVEL_TITLES));
+      const ok = await pushProfile(p, summarise(p, LEVEL_IDS, LEVEL_TITLES), activityPayload());
       setSync(ok ? 'saved' : 'offline');
     } catch {
       setSync('offline');
@@ -76,6 +77,26 @@ export function useProfile() {
     };
     // Only when the student changes.
   }, [profile?.id, schedule]);
+
+  // The TA's live screen: a moved step or a failed run is sent within a few
+  // seconds, and an open page checks in every two minutes so "stuck, but
+  // still here" never looks like "gone home".
+  useEffect(() => {
+    if (!profile?.id || !sheetEnabled()) return;
+    const off = onActivity(() => schedule());
+    const beat = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void push();
+    }, 120_000);
+    const back = () => document.visibilityState === 'visible' && schedule(true);
+    document.addEventListener('visibilitychange', back);
+    return () => {
+      off();
+      window.clearInterval(beat);
+      document.removeEventListener('visibilitychange', back);
+    };
+  }, [profile?.id, schedule, push]);
+
+  const setName = useCallback((name: string) => update(p => ({ ...p, name }), true), [update]);
 
   const start = useCallback(
     (p: Profile) => {
@@ -135,7 +156,7 @@ export function useProfile() {
     [update],
   );
 
-  return { profile, sync, start, completeStep, markShown, completeLevel, recordChallenge, setProfile };
+  return { profile, sync, start, setName, completeStep, markShown, completeLevel, recordChallenge, setProfile };
 }
 
 export type ProfileApi = ReturnType<typeof useProfile>;

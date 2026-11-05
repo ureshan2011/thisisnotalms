@@ -56,6 +56,7 @@ const SecurityLabPage = lazy(() => import('./pages/SecurityLabPage'));
 const APAReferencingPage = lazy(() => import('./pages/APAReferencingPage'));
 const NormalisationSimplePage = lazy(() => import('./pages/NormalisationSimplePage'));
 const SQLSandboxPage = lazy(() => import('./pages/SQLSandboxPage'));
+const SQLSandboxTAPage = lazy(() => import('./pages/SQLSandboxTAPage'));
 const VotePage = lazy(() => import('./pages/VotePage'));
 const VoteAdminPage = lazy(() => import('./pages/VoteAdminPage'));
 
@@ -148,6 +149,7 @@ function AppRoutes() {
         <Route path="/normalization-activities" element={<Navigate to="/normalisation-activities" replace />} />
         <Route path="/normalisation-basics" element={<Suspense fallback={null}><NormalisationSimplePage /></Suspense>} />
         <Route path="/sql-sandbox" element={<Suspense fallback={null}><SQLSandboxPage /></Suspense>} />
+        <Route path="/sql-sandbox/ta" element={<Suspense fallback={null}><SQLSandboxTAPage /></Suspense>} />
         <Route path="/er-mapping" element={<Suspense fallback={null}><ERMappingExplorerPage /></Suspense>} />
         <Route path="/er-to-relational" element={<Navigate to="/er-mapping" replace />} />
         <Route path="/cost-management" element={<Suspense fallback={null}><CostManagementPage /></Suspense>} />
@@ -260,6 +262,7 @@ function ShutdownRoutes() {
       <Route path="/normalization-activities" element={<Navigate to="/normalisation-activities" replace />} />
       <Route path="/normalisation-basics" element={<Suspense fallback={null}><NormalisationSimplePage /></Suspense>} />
       <Route path="/sql-sandbox" element={<Suspense fallback={null}><SQLSandboxPage /></Suspense>} />
+      <Route path="/sql-sandbox/ta" element={<Suspense fallback={null}><SQLSandboxTAPage /></Suspense>} />
       <Route path="/er-mapping" element={<Suspense fallback={null}><ERMappingExplorerPage /></Suspense>} />
       <Route path="/er-to-relational" element={<Navigate to="/er-mapping" replace />} />
       <Route path="/sql-reels" element={<Suspense fallback={null}><SQLReelsPage /></Suspense>} />

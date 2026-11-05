@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { BookOpen, Flame, FileDown, GraduationCap, Swords, TerminalSquare, UserRound, Zap } from 'lucide-react';
+import { Award, BookOpen, Flame, FileDown, GraduationCap, Swords, TerminalSquare, UserRound, Zap } from 'lucide-react';
 import { CourseBrand } from '../components/blend';
 import IdGate, { NameGate } from '../components/sqlsandbox/IdGate';
 import LevelMap from '../components/sqlsandbox/LevelMap';
 import LevelPlayer from '../components/sqlsandbox/LevelPlayer';
 import { ChallengeList, ChallengePlayer } from '../components/sqlsandbox/Challenges';
 import { Board, NotesTab, Playground } from '../components/sqlsandbox/Extras';
+import CertificatesTab from '../components/sqlsandbox/CertificatesTab';
 import { useProfile, type SyncState } from '../components/sqlsandbox/useProfile';
 import { CHALLENGES } from '../lib/sqlSandbox/challenges';
 import { LEVELS } from '../lib/sqlSandbox/levels';
@@ -27,12 +28,13 @@ import '../styles/sql-sandbox.css';
 // sheet). Which tab, level or challenge is open lives in the URL, so the
 // phone's back button does what people expect.
 
-type Tab = 'learn' | 'challenges' | 'play' | 'notes';
+type Tab = 'learn' | 'challenges' | 'play' | 'notes' | 'cert';
 
 const TABS: { id: Tab; label: string; icon: typeof BookOpen }[] = [
   { id: 'learn', label: 'Learn', icon: GraduationCap },
   { id: 'challenges', label: 'Challenges', icon: Swords },
   { id: 'play', label: 'Playground', icon: TerminalSquare },
+  { id: 'cert', label: 'Certificate', icon: Award },
   { id: 'notes', label: 'Notes', icon: FileDown },
 ];
 
@@ -78,7 +80,7 @@ export default function SQLSandboxPage() {
   // or a challenge (those report their own step).
   useEffect(() => {
     if (levelId || chId) return;
-    const where = { learn: 'Levels map', challenges: 'Challenge list', play: 'Playground', notes: 'Notes' }[tab] ?? 'Levels map';
+    const where = { learn: 'Levels map', challenges: 'Challenge list', play: 'Playground', notes: 'Notes', cert: 'Certificates' }[tab] ?? 'Levels map';
     report({ key: `tab:${tab}`, where });
   }, [tab, levelId, chId]);
 
@@ -198,11 +200,22 @@ export default function SQLSandboxPage() {
           <ChallengeList profile={profile} onOpen={id => go({ tab: 'challenges', ch: id })} />
         ) : tab === 'play' ? (
           <Playground theme={theme} />
+        ) : tab === 'cert' ? (
+          <CertificatesTab api={api} />
         ) : tab === 'notes' ? (
           <NotesTab theme={theme} />
         ) : (
           <>
             <LevelMap profile={profile} theme={theme} onOpen={id => go({ tab: 'learn', level: id })} />
+            {LEVELS.every(l => profile.levels[l.id]) && !profile.certs?.basic && (
+              <button type="button" className="sb-claim" onClick={() => go({ tab: 'cert' })}>
+                <Award size={20} />
+                <span>
+                  <strong>You finished all 8 levels.</strong> Your certificate is ready.
+                </span>
+                <span aria-hidden="true">→</span>
+              </button>
+            )}
             <Board me={profile.id} />
           </>
         )}

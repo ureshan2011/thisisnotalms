@@ -57,6 +57,24 @@ every 15 seconds and shows every student by first name:
 An open sandbox page checks in every 2 minutes, and straight away when a
 student moves to a new step or a run fails.
 
+## Certificates
+
+When a student finishes all 8 levels, the Certificate tab lets them claim a
+**Basic Proficiency in SQL** certificate. Solving all 8 challenges unlocks
+**Advanced Proficiency in SQL**. Each one is a poster they can download (image
+or PDF) and add to LinkedIn, with an ID and a QR code that open a public page
+showing the certificate and a green "Verified" line.
+
+- Every certificate is a row in a **Certificates** tab (ID, date, student ID,
+  the name printed, level). That tab is what makes it verifiable: delete a row
+  and that certificate stops verifying.
+- The script checks the student's saved progress before issuing, so a
+  certificate can't be claimed early. Asking twice returns the same one.
+- The name is typed by the student, in full, and can't be changed after.
+  Check the Certificates tab if a name looks wrong.
+- Updating `Code.gs` needs a new deployment version (see below). Certificates
+  will not work until you do.
+
 ## What you'll see in the sheet
 
 Two tabs appear after the first student opens the sandbox:

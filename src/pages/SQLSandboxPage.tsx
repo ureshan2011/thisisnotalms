@@ -14,6 +14,7 @@ import { LEVELS } from '../lib/sqlSandbox/levels';
 import { forgetLocal, lastSynced, sheetEnabled, streak, totalXp } from '../lib/sqlSandbox/progress';
 import { themeFor } from '../lib/sqlSandbox/themes';
 import { loadSql } from '../lib/sqlSandbox/loadSql';
+import { CERTIFICATES_ENABLED } from '../config/sqlSandbox';
 import { report } from '../lib/sqlSandbox/activity';
 import '../styles/blend.css';
 import '../styles/sql-sandbox.css';
@@ -30,13 +31,15 @@ import '../styles/sql-sandbox.css';
 
 type Tab = 'learn' | 'challenges' | 'play' | 'notes' | 'cert';
 
-const TABS: { id: Tab; label: string; icon: typeof BookOpen }[] = [
+const ALL_TABS: { id: Tab; label: string; icon: typeof BookOpen }[] = [
   { id: 'learn', label: 'Learn', icon: GraduationCap },
   { id: 'challenges', label: 'Challenges', icon: Swords },
   { id: 'play', label: 'Playground', icon: TerminalSquare },
   { id: 'cert', label: 'Certificate', icon: Award },
   { id: 'notes', label: 'Notes', icon: FileDown },
 ];
+
+const TABS = ALL_TABS.filter(t => CERTIFICATES_ENABLED || t.id !== 'cert');
 
 const SYNC_TEXT: Record<SyncState, string> = {
   local: 'Saved on this device',
@@ -168,7 +171,7 @@ export default function SQLSandboxPage() {
       </Header>
 
       {!level && !ch && (
-        <nav className="sb-nav" aria-label="Sections">
+        <nav className="sb-nav" aria-label="Sections" style={{ ['--tabs' as string]: TABS.length }}>
           {TABS.map(t => (
             <button
               key={t.id}
@@ -200,14 +203,14 @@ export default function SQLSandboxPage() {
           <ChallengeList profile={profile} onOpen={id => go({ tab: 'challenges', ch: id })} />
         ) : tab === 'play' ? (
           <Playground theme={theme} />
-        ) : tab === 'cert' ? (
+        ) : tab === 'cert' && CERTIFICATES_ENABLED ? (
           <CertificatesTab api={api} />
         ) : tab === 'notes' ? (
           <NotesTab theme={theme} />
         ) : (
           <>
             <LevelMap profile={profile} theme={theme} onOpen={id => go({ tab: 'learn', level: id })} />
-            {LEVELS.every(l => profile.levels[l.id]) && !profile.certs?.basic && (
+            {CERTIFICATES_ENABLED && LEVELS.every(l => profile.levels[l.id]) && !profile.certs?.basic && (
               <button type="button" className="sb-claim" onClick={() => go({ tab: 'cert' })}>
                 <Award size={20} />
                 <span>

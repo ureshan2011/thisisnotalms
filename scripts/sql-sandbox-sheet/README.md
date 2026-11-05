@@ -57,7 +57,11 @@ every 15 seconds and shows every student by first name:
 An open sandbox page checks in every 2 minutes, and straight away when a
 student moves to a new step or a run fails.
 
-## Certificates
+## Certificates (switched off)
+
+Certificates are built but hidden from students. To bring them back, set
+`CERTIFICATES_ENABLED = true` in `src/config/sqlSandbox.ts` and redeploy the
+site. The notes below describe how they work.
 
 When a student finishes all 8 levels, the Certificate tab lets them claim a
 **Basic Proficiency in SQL** certificate. Solving all 8 challenges unlocks

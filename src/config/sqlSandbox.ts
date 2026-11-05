@@ -12,3 +12,8 @@ const SHEET_URL =
 // tests run against a stand-in sheet instead of the real one.
 export const SQL_SANDBOX_SHEET_URL: string =
   ((import.meta.env.VITE_SQL_SANDBOX_SHEET_URL as string | undefined) ?? '') || SHEET_URL;
+
+/** Certificates are built but switched off. While this is false, students see no
+ *  certificate tab, banner or page, and the certificate link redirects away.
+ *  Set to true (and redeploy the sheet script) to bring them back. */
+export const CERTIFICATES_ENABLED = false;

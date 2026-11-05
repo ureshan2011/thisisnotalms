@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { QRCodeCanvas } from 'qrcode.react';
 import { BadgeCheck, Copy, Download, FileText, Linkedin, ShieldAlert } from 'lucide-react';
+import { CERTIFICATES_ENABLED } from '../config/sqlSandbox';
 import { CERT_H, CERT_W, drawCertificate, loadCertFonts } from '../lib/sqlSandbox/certificate';
 import { certLevelOf, certUrl, linkedInUrl, verifyCertificate, type VerifiedCert } from '../lib/sqlSandbox/progress';
 import '../styles/blend.css';
@@ -18,6 +19,11 @@ type State = { s: 'loading' } | { s: 'bad'; error: string } | { s: 'ok'; cert: V
 const fileBase = (c: VerifiedCert) => `${c.level.replace(/\s+/g, '-')}-${c.name.replace(/\s+/g, '-')}`;
 
 export default function SQLCertificatePage() {
+  if (!CERTIFICATES_ENABLED) return <Navigate to="/mbi802" replace />;
+  return <CertificateView />;
+}
+
+function CertificateView() {
   const { id = '' } = useParams();
   const [state, setState] = useState<State>({ s: 'loading' });
   const [copied, setCopied] = useState(false);

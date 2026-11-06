@@ -86,8 +86,8 @@ transcribed in full in section 2, not truncated or "e.g."'d.
 6. SISP Prompt Engineering Lab — gated only
 7. APA 7 Citations: The Crash Course — non-gated, no password, `/apa-referencing`
 
-### MBI802 — Database Management Systems (25 lessons)
-Public core (15): SQL Programming (`/sql-programming`), Database Concepts
+### MBI802 — Database Management Systems (26 lessons)
+Public core (16): SQL Programming (`/sql-programming`), Database Concepts
 (`/database-concepts`), ER Diagrams (`/er-diagrams`), ER Activities (`/er-activities`),
 ER Advanced Concepts (`/er-advanced`), ER Attributes & Participation Constraints
 (`/er-attributes`), ER→Relational Mapping Explorer (`/er-mapping`), Normalisation, the simple way
@@ -95,7 +95,8 @@ ER Advanced Concepts (`/er-advanced`), ER Attributes & Participation Constraints
 (`/normalisation`), Normalization Activities (`/normalisation-activities`), Normalization
 Videos (`/normalisation-videos`), SQL Reels (`/sql-reels`), SQL Certifications
 (`/sql-certifications`), Web Architecture (`/web-architecture`), Security Lab
-(`/security-lab` → static SwiftShop lab).
+(`/security-lab` → static SwiftShop lab), Happy Diwali: light three diyas (`/diwali` — a Diwali
+wish with music and fireworks, and a three-step 1NF → 3NF activity on a sweet shop's orders).
 
 Gated only (6): MySQL Setup Guide, ER Knowledge Check quiz, ER→Relational Mapping slide
 deck (distinct from the public explorer), Normalization slide deck (distinct from the

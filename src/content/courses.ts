@@ -237,7 +237,7 @@ const MBI802: Course = {
   headline: ['Database management', 'systems'],
   accent: 'default',
   lede:
-    'From a spreadsheet that contradicts itself to a normalised database you can query. Twenty lessons, in the order the course teaches them — the first one opens for anybody, with nothing to install.',
+    'From a spreadsheet that contradicts itself to a normalised database you can query. Twenty-one lessons, in the order the course teaches them — the first one opens for anybody, with nothing to install.',
   meta: 'Yasas Sri Wickramasinghe · 15 credits, Level 8, no prerequisites',
   keyline:
     'Each lesson assumes the one before it. SQL before diagrams, diagrams before mapping, mapping before normalisation — that order is the course, not a filing system.',
@@ -387,6 +387,15 @@ const MBI802: Course = {
       blurb:
         'Seven short tables to practise on, mixed up and with no hints. Work out what normal form each is in and normalise it. The answers sit behind a password so you try it first.',
       to: '/normalisation-activities',
+      access: 'open',
+      kind: 'Practice',
+    },
+    {
+      id: 'diwali',
+      title: 'Happy Diwali: light three diyas',
+      blurb:
+        'A Diwali wish from me to you, with music, fireworks and greetings in fourteen languages. Tidy a sweet shop’s messy order sheet in three small steps (1NF, 2NF, 3NF); each one lights a diya. Ends with a Diwali card you can save and share.',
+      to: '/diwali',
       access: 'open',
       kind: 'Practice',
     },

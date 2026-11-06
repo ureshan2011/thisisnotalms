@@ -376,7 +376,7 @@ const MBI802: Course = {
       id: 'normalisation',
       title: 'Database normalisation',
       blurb:
-        'From messy tables to clean ones. Spot the anomalies, then split a table step by step from 1NF all the way to 3NF.',
+        'What 1NF, 2NF and 3NF require, shown on one table with dependency arrows: partial and transitive dependencies, and how to split them out.',
       to: '/normalisation',
       access: 'open',
       kind: 'Lesson',

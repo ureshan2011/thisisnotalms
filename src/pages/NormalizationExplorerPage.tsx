@@ -1,104 +1,232 @@
-import { type CSSProperties, type ReactNode } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowDown, ChevronRight, Pencil, PlusCircle, Trash2 } from 'lucide-react';
-import { CoursePage, Reveal } from '../components/blend';
-import NormalisationHeroScene from '../components/public/NormalisationHeroScene';
-import ThreeTableFix from '../components/public/NormalisationThreeTableFix';
-import {
-  AnomalyPlayground,
-  AtomicSplitter,
-  C,
-  EASE,
-  FDExplorer,
-  NFChecklist,
-  NFDetective,
-  NF_SUMMARY,
-  NormalizationStudio,
-  OneNFSimulator,
-  Pill,
-  ThreeNFSimulator,
-  TrueFalseQuiz,
-  TwoNFSimulator,
-} from '../components/public/NormalisationExplorerSims';
+import { Fragment } from 'react';
+import { CoursePage } from '../components/blend';
 import '../styles/normalisation-explorer.css';
 
-// ─── /normalisation — the Normalisation Explorer, MBI802 ──────────────────
-// The whole normalisation lesson on one page: the anomalies that motivate
-// it, functional dependencies, 1NF → 2NF → 3NF → BCNF, and decomposition,
-// with ten simulations to play with. Built on Blend
-// (src/components/blend/README.md) on MBI802's orange, like the other course
-// pages; the simulations live in NormalisationExplorerSims.tsx and the hero
-// drawing in NormalisationHeroScene.tsx. The teaching text is unchanged from
-// the earlier Apple-styled version of this page. Nothing is collected or
-// stored: every simulation runs entirely in the browser.
+// ─── /normalisation — Database normalisation, MBI802 ──────────────────────
+// A short, static page: the rule for each normal form, then one running
+// example (students, courses, departments) taken from a messy sheet to 3NF.
+// 2NF and 3NF are shown as dependency diagrams: columns in a row, arrows
+// underneath from what you need to know to what it tells you.
+//   green  = depends on the whole key (fine)
+//   red    = partial dependency (breaks 2NF)
+//   purple = transitive dependency (breaks 3NF)
+// No animation, nothing collected or stored.
 
 const NAV = [
-  { id: 'anomalies', label: 'The problem' },
-  { id: 'dependencies', label: 'Dependencies' },
-  { id: 'studio', label: 'Studio' },
+  { id: 'rules', label: 'The rules' },
+  { id: 'unf', label: 'Start' },
   { id: 'first', label: '1NF' },
-  { id: 'plain', label: '2NF & 3NF' },
-  { id: 'checklist', label: 'Checklist' },
-  { id: 'walkthroughs', label: 'Walkthroughs' },
-  { id: 'decomposition', label: 'Decomposition' },
-  { id: 'detective', label: 'Detective' },
-  { id: 'reference', label: 'At a glance' },
-  { id: 'quiz', label: 'Quiz' },
+  { id: 'second', label: '2NF' },
+  { id: 'third', label: '3NF' },
+  { id: 'result', label: 'Result' },
 ];
 
-// Smooth-scroll without touching the URL hash (the app runs under HashRouter).
-function scrollToSection(id: string) {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
+const GREEN = '#1f8a57';
+const RED = '#d93a2b';
+const PURPLE = '#6d4bd8';
 
-const cvar = (c: string) => ({ '--c': c }) as CSSProperties;
+type Kind = 'full' | 'partial' | 'trans';
+const KIND_COLOUR: Record<Kind, string> = { full: GREEN, partial: RED, trans: PURPLE };
 
-function Head({ eyebrow, title, stop, sub }: { eyebrow: string; title: string; stop?: string; sub?: ReactNode }) {
+// ─── Small table ──────────────────────────────────────────────────────────
+
+type Mark = 'bad' | 'list';
+
+function Table({
+  name,
+  cols,
+  keyCols = [],
+  rows,
+  marks = {},
+}: {
+  name?: string;
+  cols: string[];
+  keyCols?: number[];
+  rows: string[][];
+  /** "r,c" → how to shade that cell */
+  marks?: Record<string, Mark>;
+}) {
   return (
-    <Reveal>
-      <div className="nx-head">
-        <div>
-          <p className="bt-eyebrow">{eyebrow}</p>
-          <h2>
-            {title}
-            {stop && <span className="bt-stop">{stop}</span>}
-          </h2>
-        </div>
-        {sub && <p className="nx-head__sub">{sub}</p>}
+    <div className="nf-tablebox">
+      {name && <p className="nf-tablename">{name}</p>}
+      <div className="nf-scroll">
+        <table className="nf-table">
+          <thead>
+            <tr>
+              {cols.map((c, i) => (
+                <th key={c} className={keyCols.includes(i) ? 'nf-key' : undefined}>
+                  {c}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, ri) => (
+              <tr key={ri}>
+                {r.map((v, ci) => {
+                  const m = marks[`${ri},${ci}`];
+                  return (
+                    <td key={ci} className={m ? `nf-cell--${m}` : undefined}>
+                      {v}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </Reveal>
+    </div>
   );
 }
 
-/** Children rise in one after another as the group scrolls into view. */
-function Stagger({ children, className, style }: { children: ReactNode[]; className: string; style?: CSSProperties }) {
+// ─── Dependency diagram ───────────────────────────────────────────────────
+// Column boxes in a row. Each arrow drops from its source column(s) to its
+// own level underneath, runs across, and rises into its target column(s).
+
+type Dep = { from: number[]; to: number[]; kind: Kind; label: string };
+
+const BW = 118; // box width
+const BH = 42; // box height
+const TOP = 8;
+const GAP = 40; // space between levels
+
+function DepDiagram({ cols, keyCols, deps, shade = {} }: { cols: string[]; keyCols: number[]; deps: Dep[]; shade?: Record<number, Kind> }) {
+  const W = cols.length * BW + 2;
+  const base = TOP + BH;
+  const H = base + 30 + deps.length * GAP;
+  const cx = (i: number) => 1 + i * BW + BW / 2;
   return (
-    <motion.div
-      className={className}
-      style={style}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, margin: '-60px' }}
-      variants={{ hidden: {}, show: { transition: { staggerChildren: 0.09 } } }}
-    >
-      {children.map((c, i) => (
-        <motion.div
-          key={i}
-          variants={{ hidden: { opacity: 0, y: 28 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } } }}
-          style={{ height: '100%' }}
-        >
-          {c}
-        </motion.div>
-      ))}
-    </motion.div>
+    <div className="nf-scroll">
+      <svg
+        className="nf-diagram"
+        viewBox={`0 0 ${W} ${H}`}
+        width={W + 20}
+        style={{ minWidth: Math.min(W + 20, 640) }}
+        role="img"
+        aria-label={deps.map(d => `${d.from.map(f => cols[f]).join(' + ')} → ${d.to.map(t => cols[t]).join(', ')}: ${d.label}`).join('. ')}
+      >
+        <defs>
+          {(Object.keys(KIND_COLOUR) as Kind[]).map(k => (
+            <marker key={k} id={`nf-head-${k}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill={KIND_COLOUR[k]} />
+            </marker>
+          ))}
+        </defs>
+
+        {cols.map((c, i) => {
+          const k = shade[i];
+          return (
+            <g key={c}>
+              <rect
+                x={1 + i * BW}
+                y={TOP}
+                width={BW}
+                height={BH}
+                fill={k ? `${KIND_COLOUR[k]}14` : '#fff'}
+                stroke="#cdb8aa"
+              />
+              <text
+                x={cx(i)}
+                y={TOP + BH / 2 + 5}
+                textAnchor="middle"
+                className={keyCols.includes(i) ? 'nf-svg-key' : 'nf-svg-col'}
+              >
+                {c}
+              </text>
+              {keyCols.includes(i) && (
+                <line x1={cx(i) - c.length * 4} x2={cx(i) + c.length * 4} y1={TOP + BH / 2 + 9} y2={TOP + BH / 2 + 9} stroke="#0e0c0b" strokeWidth={1.4} />
+              )}
+            </g>
+          );
+        })}
+
+        {deps.map((d, n) => {
+          const col = KIND_COLOUR[d.kind];
+          const y = base + 26 + n * GAP;
+          const dx = (n - (deps.length - 1) / 2) * 8;
+          const xs = [...d.from, ...d.to].map(i => cx(i) + dx);
+          const x1 = Math.min(...xs);
+          const x2 = Math.max(...xs);
+          const mid = (x1 + x2) / 2;
+          return (
+            <g key={n} stroke={col} strokeWidth={2.2} fill="none">
+              {d.from.map(f => (
+                <Fragment key={`f${f}`}>
+                  <line x1={cx(f) + dx} y1={base} x2={cx(f) + dx} y2={y} />
+                  <circle cx={cx(f) + dx} cy={base + 3} r={3} fill={col} />
+                </Fragment>
+              ))}
+              <line x1={x1} y1={y} x2={x2} y2={y} />
+              {d.to.map(t => (
+                <line key={`t${t}`} x1={cx(t) + dx} y1={y} x2={cx(t) + dx} y2={base + 2} markerEnd={`url(#nf-head-${d.kind})`} />
+              ))}
+              <text x={mid} y={y + 15} textAnchor="middle" className="nf-svg-label" fill={col}>
+                {d.label}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
   );
 }
 
-const ANOMALIES: [typeof Pencil, string, string, string][] = [
-  [Pencil, 'Update anomaly', C.red, 'A repeated fact is changed in some rows but not others, so the database ends up contradicting itself.'],
-  [PlusCircle, 'Insertion anomaly', C.amber, 'You can’t record one fact without inventing another — a department needs a student before it can exist.'],
-  [Trash2, 'Deletion anomaly', C.blue, 'Removing one row quietly destroys unrelated information that happened to live in the same place.'],
+function Legend() {
+  return (
+    <div className="nf-legend">
+      <span>
+        <i style={{ background: GREEN }} /> needs the whole key — fine
+      </span>
+      <span>
+        <i style={{ background: RED }} /> partial dependency — breaks 2NF
+      </span>
+      <span>
+        <i style={{ background: PURPLE }} /> transitive dependency — breaks 3NF
+      </span>
+      <span>
+        <u>Underlined</u> = key
+      </span>
+    </div>
+  );
+}
+
+function Rule({ nf, children }: { nf: string; children: React.ReactNode }) {
+  return (
+    <div className="nf-rule">
+      <span className="nf-rule__nf">{nf}</span>
+      <p>{children}</p>
+    </div>
+  );
+}
+
+function Down({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="nf-down">
+      <span aria-hidden="true">↓</span> {children}
+    </div>
+  );
+}
+
+function Head({ eyebrow, title }: { eyebrow: string; title: string }) {
+  return (
+    <div className="nf-head">
+      <p className="bt-eyebrow">{eyebrow}</p>
+      <h2>{title}</h2>
+    </div>
+  );
+}
+
+// ─── Data ─────────────────────────────────────────────────────────────────
+
+const ONE_NF_COLS = ['StudentID', 'CourseID', 'Grade', 'StudentName', 'DeptID', 'DeptName', 'CourseTitle'];
+const ONE_NF_ROWS = [
+  ['S1', 'C1', 'A', 'Amaya', 'D1', 'Computing', 'Databases'],
+  ['S1', 'C2', 'B', 'Amaya', 'D1', 'Computing', 'Networks'],
+  ['S2', 'C1', 'A', 'Ben', 'D2', 'Business', 'Databases'],
 ];
+
+const STUDENT_COLS = ['StudentID', 'StudentName', 'DeptID', 'DeptName'];
 
 export default function NormalizationExplorerPage() {
   return (
@@ -108,376 +236,222 @@ export default function NormalizationExplorerPage() {
       nav={NAV}
       footerNote="Everything here runs in your own browser. No personal data is collected or stored."
       hero={
-        <div className="nx-herogrid nx-hero">
-          <div>
-            <motion.span
-              className="bt-flag"
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: EASE }}
-            >
-              <span className="bt-dot" style={{ background: 'var(--accent-500)' }} />
-              An interactive lesson · Dr. Yasas Sri Wickramasinghe
-            </motion.span>
-            <motion.h1
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: EASE, delay: 0.05 }}
-            >
-              Let’s make sense of
-              <span className="nx-hero__l2">Database Normalisation.</span>
-            </motion.h1>
-            <motion.p
-              className="bt-hero__lede"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: EASE, delay: 0.15 }}
-            >
-              We’ll start with the messes that bad table design creates, then climb the ladder — 1NF, 2NF, 3NF and BCNF —
-              one rung at a time. Along the way you can play with live simulations: trigger the anomalies, split tables
-              apart, and test yourself. No headset, no sign-in, nothing collected.
-            </motion.p>
-            <motion.div
-              className="bt-hero__cta"
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: EASE, delay: 0.25 }}
-            >
-              <button type="button" className="bt-btn" onClick={() => scrollToSection('studio')}>
-                Open the Normalisation Studio
-                <span className="bt-btn__badge" aria-hidden="true">→</span>
-              </button>
-              <button type="button" className="bt-btn bt-btn--tertiary" onClick={() => scrollToSection('anomalies')}>
-                Start with the problem
-                <span className="bt-btn__badge" aria-hidden="true">→</span>
-              </button>
-            </motion.div>
-            <motion.p
-              className="nx-hero__scroll"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 1 }}
-            >
-              <motion.span
-                style={{ display: 'inline-flex' }}
-                animate={{ y: [0, 4, 0] }}
-                transition={{ duration: 1.6, repeat: 3, ease: 'easeInOut', delay: 1.4 }}
-              >
-                <ArrowDown size={14} />
-              </motion.span>
-              Scroll to explore
-            </motion.p>
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 1, ease: EASE, delay: 0.2 }}
-          >
-            <NormalisationHeroScene />
-          </motion.div>
+        <div className="nf-hero">
+          <span className="bt-flag">
+            <span className="bt-dot" style={{ background: 'var(--accent-500)' }} />
+            Dr. Yasas Sri Wickramasinghe
+          </span>
+          <h1>Database normalisation</h1>
+          <p className="bt-hero__lede">One table, three steps: 1NF → 2NF → 3NF.</p>
         </div>
       }
     >
-      {/* ── WHY / ANOMALIES ─────────────────────────────────────────────── */}
-      <section id="anomalies" className="bt-sec">
-        <Head
-          eyebrow="Start here"
-          title="What goes wrong without normalisation"
-          stop="?"
-          sub="When one table tries to store everything at once, the same fact gets written in many places. That redundancy quietly breeds three classic anomalies. Poke the table below to feel each one."
-        />
-        <Reveal delay={0.1}>
-          <AnomalyPlayground />
-        </Reveal>
-        <Stagger className="nx-grid3" style={{ marginTop: 28 }}>
-          {ANOMALIES.map(([Icon, t, c, d]) => (
-            <div key={t} className="nx-card nx-lift" style={{ ...cvar(c), height: '100%' }}>
-              <div className="nx-icon">
-                <Icon size={24} strokeWidth={2.2} />
-              </div>
-              <h3>{t}</h3>
-              <p>{d}</p>
-            </div>
-          ))}
-        </Stagger>
+      {/* ── THE RULES ──────────────────────────────────────────────────── */}
+      <section id="rules" className="bt-sec">
+        <Head eyebrow="What each form needs" title="The rules" />
+        <div className="nf-scroll">
+          <table className="nf-rules">
+            <thead>
+              <tr>
+                <th>Form</th>
+                <th>Requirement</th>
+                <th>Not allowed</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <b>1NF</b>
+                </td>
+                <td>One value per cell. Every row has a key.</td>
+                <td>Lists in a cell, repeating groups</td>
+              </tr>
+              <tr>
+                <td>
+                  <b>2NF</b>
+                </td>
+                <td>1NF + every non-key column needs the <b>whole</b> key.</td>
+                <td style={{ color: RED }}>Partial dependency</td>
+              </tr>
+              <tr>
+                <td>
+                  <b>3NF</b>
+                </td>
+                <td>2NF + non-key columns depend <b>only on the key</b>.</td>
+                <td style={{ color: PURPLE }}>Transitive dependency</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="nf-motto">“The key, the whole key, and nothing but the key.”</p>
+        <p className="nf-note">
+          <b>A → B</b> means: if you know A, you know B.
+        </p>
       </section>
 
-      {/* ── FUNCTIONAL DEPENDENCIES ─────────────────────────────────────── */}
-      <section id="dependencies" className="bt-sec">
-        <Head
-          eyebrow="The core idea"
-          title="Functional dependencies"
-          stop="."
-          sub="Normalisation is really about one question: which columns determine which? We write X → Y to mean “if you know X, you know exactly one Y.” Getting these right is the whole game."
+      {/* ── UNF ────────────────────────────────────────────────────────── */}
+      <section id="unf" className="bt-sec">
+        <Head eyebrow="Start" title="The messy table" />
+        <Table
+          name="StudentCourses"
+          cols={['StudentID', 'StudentName', 'DeptID', 'DeptName', 'CourseID', 'CourseTitle', 'Grade']}
+          rows={[
+            ['S1', 'Amaya', 'D1', 'Computing', 'C1, C2', 'Databases, Networks', 'A, B'],
+            ['S2', 'Ben', 'D2', 'Business', 'C1', 'Databases', 'A'],
+          ]}
+          marks={{ '0,4': 'list', '0,5': 'list', '0,6': 'list' }}
         />
-        <Reveal delay={0.05}>
-          <div style={{ textAlign: 'center', marginBottom: 30 }}>
-            <motion.span
-              className="nx-fdbig"
-              initial={{ scale: 0.9, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-            >
-              X
-              <motion.b
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.35, duration: 0.5, ease: EASE }}
-              >
-                →
-              </motion.b>
-              Y
-            </motion.span>
-            <p className="nx-hint">
-              X is the <strong style={{ color: 'var(--ink-900)' }}>determinant</strong> · Y is the{' '}
-              <strong style={{ color: 'var(--ink-900)' }}>dependent</strong>
-            </p>
-          </div>
-        </Reveal>
-        <FDExplorer />
+        <p className="nf-note">Lists inside cells → not even 1NF.</p>
       </section>
 
-      {/* ── THE STUDIO ──────────────────────────────────────────────────── */}
-      <section id="studio" className="bt-sec">
-        <Head
-          eyebrow="Interactive · the main event"
-          title="The Normalisation Studio"
-          sub="Here is one messy table. Step it up the ladder and watch tables split apart, redundancy drain away and the anomalies disappear — the whole journey from un-normalised to BCNF in one place."
-        />
-        <Reveal delay={0.1}>
-          <NormalizationStudio below={nf => (nf === '1NF' ? <ThreeTableFix /> : null)} />
-        </Reveal>
-      </section>
-
-      {/* ── 1NF DEEP DIVE ───────────────────────────────────────────────── */}
+      {/* ── 1NF ────────────────────────────────────────────────────────── */}
       <section id="first" className="bt-sec">
-        <Head
-          eyebrow="First Normal Form · 1NF"
-          title="Break apart the lists"
-          stop="."
-          sub="1NF asks for one thing: every cell holds a single, atomic value — no comma-separated lists, no repeating groups. Flip the table below and watch a multi-valued column become tidy rows."
+        <Head eyebrow="First normal form" title="1NF" />
+        <Rule nf="1NF">One value per cell.</Rule>
+        <Down>Give each course its own row. Key = StudentID + CourseID.</Down>
+        <Table
+          name="Enrolment"
+          cols={ONE_NF_COLS}
+          keyCols={[0, 1]}
+          rows={ONE_NF_ROWS}
+          marks={{ '0,3': 'bad', '0,4': 'bad', '0,5': 'bad', '1,3': 'bad', '1,4': 'bad', '1,5': 'bad', '0,6': 'bad', '2,6': 'bad' }}
         />
-        <Reveal delay={0.1}>
-          <AtomicSplitter />
-        </Reveal>
+        <p className="nf-note">
+          ✓ In 1NF. But shaded values repeat — Amaya, Computing, Databases are stored more than once.
+        </p>
       </section>
 
-      {/* ── 1NF REAL-WORLD SIMULATOR ────────────────────────────────────── */}
-      <section className="bt-sec">
-        <Head
-          eyebrow="1NF · Real-world walkthrough"
-          title="Fixing a music streaming playlist table"
-          sub="This is the kind of table a junior dev might design for a Spotify-style app. Walk through three steps to see exactly what 1NF demands — and what gets unlocked when every cell is atomic."
+      {/* ── 2NF ────────────────────────────────────────────────────────── */}
+      <section id="second" className="bt-sec">
+        <Head eyebrow="Second normal form" title="2NF — no partial dependencies" />
+        <Rule nf="2NF">Every non-key column must need the WHOLE key (StudentID + CourseID), not just one part.</Rule>
+        <Legend />
+        <DepDiagram
+          cols={ONE_NF_COLS}
+          keyCols={[0, 1]}
+          shade={{ 2: 'full', 3: 'partial', 4: 'partial', 5: 'partial', 6: 'partial' }}
+          deps={[
+            { from: [0, 1], to: [2], kind: 'full', label: 'needs both ✓' },
+            { from: [0], to: [3, 4, 5], kind: 'partial', label: 'needs only StudentID ✗' },
+            { from: [1], to: [6], kind: 'partial', label: 'needs only CourseID ✗' },
+          ]}
         />
-        <Reveal delay={0.1}>
-          <OneNFSimulator />
-        </Reveal>
+        <div className="nf-deps">
+          <code className="nf-dep nf-dep--full">StudentID + CourseID → Grade</code>
+          <code className="nf-dep nf-dep--partial">StudentID → StudentName, DeptID, DeptName</code>
+          <code className="nf-dep nf-dep--partial">CourseID → CourseTitle</code>
+        </div>
+        <Down>Move each partial dependency into its own table.</Down>
+        <div className="nf-grid">
+          <Table
+            name="Student"
+            cols={STUDENT_COLS}
+            keyCols={[0]}
+            rows={[
+              ['S1', 'Amaya', 'D1', 'Computing'],
+              ['S2', 'Ben', 'D2', 'Business'],
+            ]}
+          />
+          <Table
+            name="Course"
+            cols={['CourseID', 'CourseTitle']}
+            keyCols={[0]}
+            rows={[
+              ['C1', 'Databases'],
+              ['C2', 'Networks'],
+            ]}
+          />
+          <Table
+            name="Enrolment"
+            cols={['StudentID', 'CourseID', 'Grade']}
+            keyCols={[0, 1]}
+            rows={[
+              ['S1', 'C1', 'A'],
+              ['S1', 'C2', 'B'],
+              ['S2', 'C1', 'A'],
+            ]}
+          />
+        </div>
+        <p className="nf-note">✓ In 2NF. Check the Student table next…</p>
       </section>
 
-      {/* ── 2NF & 3NF in plain words ────────────────────────────────────── */}
-      <section id="plain" className="bt-sec">
-        <Head
-          eyebrow="Climbing higher"
-          title="2NF and 3NF, in really plain words"
-          sub="1NF was about tidying up the cells. 2NF and 3NF are about one thing only: making sure each column is sitting in the right table. Let’s take them one at a time — slowly."
+      {/* ── 3NF ────────────────────────────────────────────────────────── */}
+      <section id="third" className="bt-sec">
+        <Head eyebrow="Third normal form" title="3NF — no transitive dependencies" />
+        <Rule nf="3NF">Non-key columns depend only on the key — not on another non-key column.</Rule>
+        <Legend />
+        <DepDiagram
+          cols={STUDENT_COLS}
+          keyCols={[0]}
+          shade={{ 1: 'full', 2: 'full', 3: 'trans' }}
+          deps={[
+            { from: [0], to: [1, 2], kind: 'full', label: 'depends on the key ✓' },
+            { from: [2], to: [3], kind: 'trans', label: 'depends on DeptID ✗' },
+          ]}
         />
-        <div className="nx-mid nx-stack" style={{ gap: 18 }}>
-          <Reveal delay={0.05}>
-            <div className="nx-plain" style={cvar(C.amber)}>
-              <Pill color={C.amber} solid>2NF · use the whole key</Pill>
-              <p className="nx-plain__q">
-                Does each column need the <em>whole</em> key, or just half of it?
-              </p>
-              <p className="nx-plain__p">
-                2NF only matters when your table’s key is made of two columns stuck together (a “composite” key). Picture
-                an order table where the key is <span className="nx-plain__mono">{'{OrderID, ProductID}'}</span>. Now look
-                at <strong>ProductName</strong>. Does it care which order it was on? Nope — it only depends on{' '}
-                <strong>ProductID</strong>. So you’d be repeating “iPhone 15” on every single order that includes it.
-              </p>
-              <p className="nx-plain__p">
-                The fix: move ProductName into its own little Products table, where ProductID alone is the key.
-              </p>
-              <p className="nx-plain__line">
-                In one line: if a column only needs <em>part</em> of the key, it’s sitting in the wrong table.
-              </p>
-            </div>
-          </Reveal>
+        <div className="nf-chain">
+          <span>StudentID</span>
+          <b>→</b>
+          <span>DeptID</span>
+          <b style={{ color: PURPLE }}>→</b>
+          <span style={{ borderColor: PURPLE, color: PURPLE }}>DeptName</span>
+        </div>
+        <p className="nf-note">DeptName reaches the key only through DeptID (a non-key column). That is a transitive dependency.</p>
+        <Down>Move DeptID → DeptName into its own table.</Down>
+        <div className="nf-grid">
+          <Table
+            name="Student"
+            cols={['StudentID', 'StudentName', 'DeptID']}
+            keyCols={[0]}
+            rows={[
+              ['S1', 'Amaya', 'D1'],
+              ['S2', 'Ben', 'D2'],
+            ]}
+          />
+          <Table
+            name="Department"
+            cols={['DeptID', 'DeptName']}
+            keyCols={[0]}
+            rows={[
+              ['D1', 'Computing'],
+              ['D2', 'Business'],
+            ]}
+          />
+        </div>
+        <p className="nf-note">✓ In 3NF.</p>
+      </section>
 
-          <Reveal delay={0.1}>
-            <div className="nx-plain" style={cvar(C.blue)}>
-              <Pill color={C.blue} solid>3NF · no middlemen</Pill>
-              <p className="nx-plain__q">Does each column point straight at the key — or sneak in through another column?</p>
-              <p className="nx-plain__p">
-                Once 2NF is sorted, 3NF asks the next question. Take an employee table. Each <strong>Employee</strong> has a{' '}
-                <strong>DeptID</strong>, and that DeptID tells you the <strong>DeptName</strong> and{' '}
-                <strong>DeptPhone</strong>. So DeptName doesn’t really depend on the employee — it depends on the{' '}
-                <em>department</em>, which depends on the employee. That extra hop is a “middleman”:
-              </p>
-              <p className="nx-plain__p" style={{ textAlign: 'center' }}>
-                <span className="nx-dep">Employee → DeptID → DeptName</span>
-              </p>
-              <p className="nx-plain__p">
-                The fix: give departments their own table, and let the employee row just keep the DeptID.
-              </p>
-              <p className="nx-plain__line">
-                In one line: every column should point straight at the key — no hopping through another column.
-              </p>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.15}>
-            <div className="nx-plain" style={cvar(C.green)}>
-              <Pill color={C.green} solid>BCNF · optional extra</Pill>
-              <p className="nx-plain__q">Nice to have — but you usually don’t need it.</p>
-              <p className="nx-plain__p">
-                Here’s the honest truth: most real databases stop at 3NF and are completely fine. BCNF is just a stricter,
-                extra-tidy version of 3NF that handles a few rare edge cases. Think of it as a polish, not a box you{' '}
-                <em>have</em> to tick. If your table is solidly in 3NF, you’re already in great shape — so feel free to
-                treat this one as bonus reading.
-              </p>
-            </div>
-          </Reveal>
+      {/* ── RESULT ─────────────────────────────────────────────────────── */}
+      <section id="result" className="bt-sec">
+        <Head eyebrow="Final design" title="Four tables, each fact stored once" />
+        <div className="nf-final">
+          <p>
+            Student(<u>StudentID</u>, StudentName, DeptID)
+          </p>
+          <p>
+            Department(<u>DeptID</u>, DeptName)
+          </p>
+          <p>
+            Course(<u>CourseID</u>, CourseTitle)
+          </p>
+          <p>
+            Enrolment(<u>StudentID</u>, <u>CourseID</u>, Grade)
+          </p>
+        </div>
+        <div className="nf-steps">
+          <div>
+            <b>1NF</b> split lists into rows
+          </div>
+          <div>
+            <b>2NF</b> remove <span style={{ color: RED }}>partial</span> dependencies
+          </div>
+          <div>
+            <b>3NF</b> remove <span style={{ color: PURPLE }}>transitive</span> dependencies
+          </div>
         </div>
       </section>
 
-      {/* ── THE CHECKLIST ───────────────────────────────────────────────── */}
-      <section id="checklist" className="bt-sec">
-        <Head
-          eyebrow="Self-check"
-          title="Is my table in this form"
-          stop="?"
-          sub="A quick checklist for the three forms that matter. Tap a tab and run down the boxes — if they all hold true, your table has reached that form."
-        />
-        <Reveal delay={0.1}>
-          <NFChecklist />
-        </Reveal>
-      </section>
-
-      {/* ── 2NF REAL-WORLD SIMULATOR ────────────────────────────────────── */}
-      <section id="walkthroughs" className="bt-sec">
-        <Head
-          eyebrow="2NF · Real-world walkthrough"
-          title="Fixing an e-commerce order table"
-          sub="This is the table a new developer builds on day one. It looks sensible — until you trace the partial dependencies and see the update anomalies hiding inside."
-        />
-        <Reveal delay={0.1}>
-          <TwoNFSimulator />
-        </Reveal>
-      </section>
-
-      {/* ── 3NF REAL-WORLD SIMULATOR ────────────────────────────────────── */}
-      <section className="bt-sec">
-        <Head
-          eyebrow="3NF · Real-world walkthrough"
-          title="Fixing an HR employee records table"
-          sub="Employee info that carries along department details creates transitive chains. Watch the chain animate, then see exactly which table gets extracted and why."
-        />
-        <Reveal delay={0.1}>
-          <ThreeNFSimulator />
-        </Reveal>
-      </section>
-
-      {/* ── DECOMPOSITION ───────────────────────────────────────────────── */}
-      <section id="decomposition" className="bt-sec">
-        <Head
-          eyebrow="The fine print"
-          title="A good split keeps two promises"
-          stop="."
-          sub="Splitting a table isn’t free — a careless decomposition can invent fake rows or lose rules you cared about. Two properties tell you whether a split is safe."
-        />
-        <Stagger className="nx-grid2 nx-mid">
-          {[
-            <div key="l" className="nx-card nx-lift" style={{ ...cvar(C.blue), height: '100%' }}>
-              <Pill color={C.blue} solid>Lossless join</Pill>
-              <p style={{ marginTop: 14 }}>
-                Joining the pieces back together must reproduce the <em>exact</em> original table — no spurious, invented
-                rows and nothing lost.
-              </p>
-              <p className="nx-formula">R = R₁ ⋈ R₂</p>
-            </div>,
-            <div key="d" className="nx-card nx-lift" style={{ ...cvar(C.violet), height: '100%' }}>
-              <Pill color={C.violet} solid>Dependency preserving</Pill>
-              <p style={{ marginTop: 14 }}>
-                Every functional dependency from the original can still be checked on the new tables, without re-joining
-                them first.
-              </p>
-              <p className="nx-formula">F ≡ F₁ ∪ F₂</p>
-            </div>,
-          ]}
-        </Stagger>
-        <Reveal delay={0.15}>
-          <div className="nx-tradeoff nx-mid">
-            <strong>The trade-off:</strong> BCNF always gives you a lossless join but may sacrifice dependency preservation.
-            3NF guarantees <em>both</em> — which is why it’s often the practical target in real systems.
-          </div>
-        </Reveal>
-      </section>
-
-      {/* ── PRACTICE: DETECTIVE ─────────────────────────────────────────── */}
-      <section id="detective" className="bt-sec">
-        <Head
-          eyebrow="Interactive · put it together"
-          title="Normal Form Detective"
-          sub="Read each schema and its dependencies, then call the highest normal form it satisfies. This is exactly the reasoning you’ll use on real designs."
-        />
-        <Reveal delay={0.1}>
-          <NFDetective />
-        </Reveal>
-      </section>
-
-      {/* ── QUICK REFERENCE ─────────────────────────────────────────────── */}
-      <section id="reference" className="bt-sec">
-        <Head
-          eyebrow="At a glance"
-          title="The normal forms, side by side"
-          sub="One card per rung of the ladder — the rule it enforces and how you fix a violation."
-        />
-        <Stagger className="nx-grid2 nx-mid">
-          {NF_SUMMARY.map(n => (
-            <div key={n.nf} className="nx-card nx-ref nx-lift" style={{ ...cvar(n.color), height: '100%' }}>
-              <span className="nx-ref__nf">{n.nf}</span>
-              <p className="nx-ref__rule">{n.rule}</p>
-              <p className="nx-ref__fix" style={{ marginTop: 8 }}>
-                <b>Fix:</b> {n.fix}
-              </p>
-            </div>
-          ))}
-        </Stagger>
-        <Reveal delay={0.1}>
-          <div className="nx-ladder" aria-label="Unnormalised → 1NF → 2NF → 3NF → BCNF">
-            {['Unnormalised', '1NF', '2NF', '3NF', 'BCNF'].map((s, i) => (
-              <motion.span
-                key={s}
-                className="nx-ladder__item"
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, ease: EASE, delay: i * 0.12 }}
-              >
-                {i > 0 && <ChevronRight size={16} />}
-                <span className={`nx-ladder__step${i === 4 ? ' nx-ladder__step--end' : ''}`}>{s}</span>
-              </motion.span>
-            ))}
-          </div>
-        </Reveal>
-      </section>
-
-      {/* ── CLOSING QUIZ ────────────────────────────────────────────────── */}
-      <section id="quiz" className="bt-sec">
-        <Head eyebrow="Check yourself" title="Five quick questions" sub="See how much of the lesson stuck." />
-        <Reveal delay={0.1}>
-          <TrueFalseQuiz />
-        </Reveal>
-      </section>
-
-      <Reveal>
-        <p className="nx-signoff">
-          A Database Normalisation lesson, put together by <b>Dr. Yasas Sri Wickramasinghe</b>.
-        </p>
-      </Reveal>
+      <div style={{ height: 80 }} />
     </CoursePage>
   );
 }
